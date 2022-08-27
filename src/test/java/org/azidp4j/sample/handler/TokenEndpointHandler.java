@@ -1,7 +1,8 @@
-package org.azidp4j.sample;
+package org.azidp4j.sample.handler;
 
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.JOSEException;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.azidp4j.AzIdP;

@@ -1,18 +1,29 @@
 package org.azidp4j.oauth2;
 
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.ECDSASigner;
+import com.nimbusds.jose.crypto.ECDSAVerifier;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.AuthorizationRequest;
-import org.azidp4j.authorize.AuthorizationResponse;
+import org.azidp4j.jwt.jwks.JWKSupplier;
 import org.azidp4j.token.TokenRequest;
 import org.junit.jupiter.api.Test;
 
+import java.security.interfaces.ECPublicKey;
+import java.text.ParseException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SimpleTest {
 
     @Test
-    void test() {
-        var sut = new AzIdP();
+    void test() throws JOSEException, ParseException {
+        var jwkSupplier = new JWKSupplier();
+        var sut = new AzIdP(jwkSupplier);
 
         // authorization request
         var clientId = "sample";
@@ -29,11 +40,20 @@ public class SimpleTest {
         var tokenRequest = TokenRequest.builder().clientId(clientId).redirectUri(redirectUri).grantType("authorization_code").code(code).build();
         // exercise
         var tokenResponse = sut.issueToken(tokenRequest);
+
+        // verify
         var accessToken = tokenResponse.body.get("access_token");
         var tokenType = tokenResponse.body.get("token_type");
         var expiresIn = tokenResponse.body.get("expires_in");
         var refreshToken = tokenResponse.body.get("refresh_token");
         System.out.println(tokenResponse.body);
+
+        // verify signature
+        var parsedAccessToken = JWSObject.parse((String)accessToken);
+        var publicKey = jwkSupplier.publicJwks().getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
+        System.out.println(publicKey);
+        var jwsVerifier = new ECDSAVerifier((ECKey) publicKey);
+        assertTrue(parsedAccessToken.verify(jwsVerifier));
 
     }
 }
