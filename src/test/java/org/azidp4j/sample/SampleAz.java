@@ -21,6 +21,7 @@ public class SampleAz {
         var azIdP = new AzIdP();
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/authorize", new AuthorizationEndpointHandler(azIdP));
+        server.createContext("/token", new TokenEndpointHandler(azIdP));
         ExecutorService pool = Executors.newFixedThreadPool(1);
         server.setExecutor(pool);
         server.start();

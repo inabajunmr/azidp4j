@@ -1,19 +1,18 @@
 package org.azidp4j;
 
-import org.azidp4j.authorize.AuthorizationRequest;
-import org.azidp4j.authorize.AuthorizationResponse;
-import org.azidp4j.authorize.Authorize;
-import org.azidp4j.token.IssueToken;
-import org.azidp4j.token.TokenRequest;
-import org.azidp4j.token.TokenResponse;
+import org.azidp4j.authorize.*;
+import org.azidp4j.token.*;
 
 public class AzIdP {
-    Authorize authorize = new Authorize();
+
+    AuthorizationCodeStore authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+    Authorize authorize = new Authorize(authorizationCodeStore);
     public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {
         return authorize.authorize(authorizationRequest);
     }
 
-    IssueToken issueToken = new IssueToken();
+    AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
+    IssueToken issueToken = new IssueToken(authorizationCodeStore, accessTokenStore);
     public TokenResponse issueToken(TokenRequest tokenRequest) {
         return issueToken.issue(tokenRequest);
     }

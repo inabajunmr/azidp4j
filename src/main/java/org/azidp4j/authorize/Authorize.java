@@ -6,7 +6,11 @@ import java.util.UUID;
 
 public class Authorize {
 
-    AuthorizationCodeStore authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+    AuthorizationCodeStore authorizationCodeStore;;
+
+    public Authorize(AuthorizationCodeStore authorizationCodeStore) {
+        this.authorizationCodeStore = authorizationCodeStore;
+    }
 
     public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {
         var responseType = ResponseType.of(authorizationRequest.responseType);
@@ -17,7 +21,7 @@ public class Authorize {
             var code = UUID.randomUUID().toString();
             var state = authorizationRequest.state;
             authorizationCodeStore.save(
-                    new AuthorizationCode(code, authorizationRequest.scope, authorizationRequest.clientId));
+                    new AuthorizationCode(code, authorizationRequest.scope, authorizationRequest.clientId, authorizationRequest.state));
             return new AuthorizationResponse(Map.of("code", code, "state", state), Map.of());
         }
 
