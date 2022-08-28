@@ -3,9 +3,13 @@ package org.azidp4j.sample.handler;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
+import com.sun.net.httpserver.Authenticator;
+import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import jdk.jfr.Frequency;
 import org.azidp4j.AzIdP;
+import org.azidp4j.client.ClientStore;
 import org.azidp4j.token.TokenRequest;
 
 import javax.management.ObjectName;
@@ -17,13 +21,16 @@ import java.util.stream.Collectors;
 public class TokenEndpointHandler implements HttpHandler {
 
     private final AzIdP azIdp;
+    private final ClientStore clientStore;
 
-    public TokenEndpointHandler(AzIdP azIdp) {
+    public TokenEndpointHandler(AzIdP azIdp, ClientStore clientStore) {
         this.azIdp = azIdp;
+        this.clientStore = clientStore;
     }
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
+        var clientId = httpExchange.getPrincipal().getUsername();
         var body = new String(httpExchange.getRequestBody().readAllBytes());
         var bodyMap = Arrays.stream(body.split("&"))
                 .map(kv -> kv.split("="))
@@ -31,12 +38,14 @@ public class TokenEndpointHandler implements HttpHandler {
         var code = bodyMap.get("code");
         var grantType = bodyMap.get("grant_type");
         var redirectUri = bodyMap.get("redirect_uri");
-        var clientId = bodyMap.get("client_id");
+        // var clientId = bodyMap.get("client_id"); TODO for public client?
+        var scope = bodyMap.get("scope");
         var tokenRequest = TokenRequest.builder()
                 .code(code)
                 .grantType(grantType)
                 .redirectUri(redirectUri)
-                .clientId(clientId).build();
+                .clientId(clientId)
+                .scope(scope).build();
         var tokenResponse = azIdp.issueToken(tokenRequest);
         var mapper = new ObjectMapper();
         var responseJSON = mapper.writeValueAsString(tokenResponse.body);
@@ -45,7 +54,5 @@ public class TokenEndpointHandler implements HttpHandler {
         var output = httpExchange.getResponseBody();
         output.write(responseJSON.getBytes(StandardCharsets.UTF_8));
         httpExchange.close();
-        // TODO
-
     }
 }

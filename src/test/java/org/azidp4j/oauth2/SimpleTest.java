@@ -10,11 +10,16 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import org.azidp4j.AzIdP;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.AuthorizationRequest;
+import org.azidp4j.authorize.ResponseType;
+import org.azidp4j.client.ClientRegistrationRequest;
+import org.azidp4j.client.GrantType;
+import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.token.TokenRequest;
 import org.junit.jupiter.api.Test;
 
 import java.security.interfaces.ECPublicKey;
 import java.text.ParseException;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,10 +30,18 @@ public class SimpleTest {
     void test() throws JOSEException, ParseException {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var sut = new AzIdP(new AzIdPConfig("issuer", key.getKeyID()), jwks);
+        var sut = new AzIdP(new AzIdPConfig("issuer", key.getKeyID()), jwks, new InMemoryClientStore());
+
+        // client registration
+        var clientRegistrationRequest = ClientRegistrationRequest.builder()
+                .redirectUris(Set.of("http://example.com"))
+                        .grantTypes(Set.of(GrantType.authorization_code))
+                                .responseTypes(Set.of(ResponseType.code))
+                                        .scope("scope1 scope2").build();
+        var clientRegistrationResponse = sut.registerClient(clientRegistrationRequest);
+        var clientId = (String)clientRegistrationResponse.body.get("client_id");
 
         // authorization request
-        var clientId = "sample";
         var redirectUri = "http://example.com";
         var authorizationRequest = AuthorizationRequest.builder()
                 .sub("username").clientId(clientId)

@@ -3,7 +3,7 @@ package org.azidp4j.authorize;
 public enum ResponseType {
     code;
 
-    static ResponseType of(String responseType) {
+    public static ResponseType of(String responseType) {
         if(responseType == null) {
             return null;
         }
