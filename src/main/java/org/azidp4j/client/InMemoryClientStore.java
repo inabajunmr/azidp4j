@@ -9,9 +9,9 @@ public class InMemoryClientStore implements ClientStore {
     private final Map<String, Client> STORE = new HashMap();
 
     public InMemoryClientStore() {
-        STORE.put("default",
-                new Client("default", "default",
-                Set.of(), Set.of(), Set.of(),"default"));
+        STORE.put(
+                "default",
+                new Client("default", "default", Set.of(), Set.of(), Set.of(), "default"));
     }
 
     @Override

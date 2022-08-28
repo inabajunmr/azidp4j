@@ -3,7 +3,7 @@ package org.azidp4j.authorize;
 import java.util.HashMap;
 import java.util.Map;
 
-public class InMemoryAuthorizationCodeStore implements AuthorizationCodeStore{
+public class InMemoryAuthorizationCodeStore implements AuthorizationCodeStore {
 
     private static Map<String, AuthorizationCode> STORE = new HashMap<>();
 

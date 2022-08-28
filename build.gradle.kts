@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("com.diffplug.spotless") version "6.10.0"
 }
 
 group = "org.example"
@@ -19,4 +20,10 @@ dependencies {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
+}
+
+spotless {
+    java {
+        googleJavaFormat("1.8").aosp().reflowLongStrings()
+    }
 }

@@ -5,13 +5,16 @@ public enum GrantType {
     client_credentials;
 
     public static GrantType of(String value) {
-        if(value == null) {
+        if (value == null) {
             return null;
         }
         switch (value) {
-            case "authorization_code": return authorization_code;
-            case "client_credentials": return client_credentials;
-            default: return null;
+            case "authorization_code":
+                return authorization_code;
+            case "client_credentials":
+                return client_credentials;
+            default:
+                return null;
         }
     }
 }

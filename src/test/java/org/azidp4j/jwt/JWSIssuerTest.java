@@ -1,16 +1,15 @@
 package org.azidp4j.jwt;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
-import org.junit.jupiter.api.Test;
-
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class JWSIssuerTest {
 
@@ -28,5 +27,4 @@ class JWSIssuerTest {
         var verifier = new ECDSAVerifier((ECKey) jwk);
         assertTrue(jws.verify(verifier));
     }
-
 }

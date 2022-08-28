@@ -2,16 +2,14 @@ package org.azidp4j.authorize;
 
 public class AuthorizationCode {
 
-    /**
-     * user identifier
-     */
-    final public String sub;
+    /** user identifier */
+    public final String sub;
 
-    final public String code;
-    final public String scope;
-    final public String clientId;
+    public final String code;
+    public final String scope;
+    public final String clientId;
 
-    final public String state;
+    public final String state;
 
     public AuthorizationCode(String sub, String code, String scope, String clientId, String state) {
         this.sub = sub;

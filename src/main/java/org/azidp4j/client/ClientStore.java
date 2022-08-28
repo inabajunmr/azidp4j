@@ -5,5 +5,4 @@ public interface ClientStore {
     void save(Client client);
 
     Client find(String clientId);
-
 }

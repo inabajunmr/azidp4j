@@ -1,6 +1,5 @@
 package org.azidp4j.authorize;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class AuthorizationResponse {

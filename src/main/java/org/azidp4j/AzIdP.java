@@ -17,7 +17,8 @@ public class AzIdP {
     DynamicClientRegistration clientRegistration;
 
     public AzIdP(AzIdPConfig azIdPConfig, JWKSet jwkSet, ClientStore clientStore) {
-        this.issueToken = new IssueToken(azIdPConfig, jwkSet, authorizationCodeStore, accessTokenStore);
+        this.issueToken =
+                new IssueToken(azIdPConfig, jwkSet, authorizationCodeStore, accessTokenStore);
         this.clientRegistration = new DynamicClientRegistration(clientStore);
     }
 
@@ -29,7 +30,8 @@ public class AzIdP {
         return issueToken.issue(tokenRequest);
     }
 
-    public ClientRegistrationResponse registerClient(ClientRegistrationRequest clientRegistrationRequest) {
+    public ClientRegistrationResponse registerClient(
+            ClientRegistrationRequest clientRegistrationRequest) {
         return clientRegistration.register(clientRegistrationRequest);
     }
 }

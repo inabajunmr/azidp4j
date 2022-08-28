@@ -1,8 +1,7 @@
 package org.azidp4j.client;
 
-import org.azidp4j.authorize.ResponseType;
-
 import java.util.Set;
+import org.azidp4j.authorize.ResponseType;
 
 public class Client {
 
@@ -13,7 +12,13 @@ public class Client {
     public final Set<ResponseType> responseTypes;
     public final String scope;
 
-    public Client(String clientId, String clientSecret, Set<String> redirectUris, Set<GrantType> grantTypes, Set<ResponseType> responseTypes, String scope) {
+    public Client(
+            String clientId,
+            String clientSecret,
+            Set<String> redirectUris,
+            Set<GrantType> grantTypes,
+            Set<ResponseType> responseTypes,
+            String scope) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUris = redirectUris;

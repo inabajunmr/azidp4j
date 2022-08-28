@@ -9,7 +9,8 @@ public class TokenRequest {
 
     final String scope;
 
-    private TokenRequest(String code, String grantType, String redirectUri, String clientId, String scope) {
+    private TokenRequest(
+            String code, String grantType, String redirectUri, String clientId, String scope) {
         this.code = code;
         this.grantType = grantType;
         this.redirectUri = redirectUri;
@@ -32,23 +33,33 @@ public class TokenRequest {
         public Builder code(String code) {
             this.code = code;
             return this;
-        };
+        }
+        ;
+
         public Builder grantType(String grantType) {
             this.grantType = grantType;
             return this;
-        };
+        }
+        ;
+
         public Builder redirectUri(String redirectUri) {
             this.redirectUri = redirectUri;
             return this;
-        };
+        }
+        ;
+
         public Builder clientId(String clientId) {
             this.clientId = clientId;
             return this;
-        };
+        }
+        ;
+
         public Builder scope(String scope) {
             this.scope = scope;
             return this;
-        };
+        }
+        ;
+
         public TokenRequest build() {
             return new TokenRequest(code, grantType, redirectUri, clientId, scope);
         }
