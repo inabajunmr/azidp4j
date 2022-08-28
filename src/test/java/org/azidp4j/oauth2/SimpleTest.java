@@ -5,10 +5,11 @@ import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import org.azidp4j.AzIdP;
+import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.AuthorizationRequest;
-import org.azidp4j.jwt.jwks.JWKSupplier;
 import org.azidp4j.token.TokenRequest;
 import org.junit.jupiter.api.Test;
 
@@ -22,8 +23,9 @@ public class SimpleTest {
 
     @Test
     void test() throws JOSEException, ParseException {
-        var jwkSupplier = new JWKSupplier();
-        var sut = new AzIdP(jwkSupplier);
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var sut = new AzIdP(new AzIdPConfig(key.getKeyID()), jwks);
 
         // authorization request
         var clientId = "sample";
@@ -50,7 +52,7 @@ public class SimpleTest {
 
         // verify signature
         var parsedAccessToken = JWSObject.parse((String)accessToken);
-        var publicKey = jwkSupplier.publicJwks().getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
+        var publicKey = jwks.toPublicJWKSet().getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
         System.out.println(publicKey);
         var jwsVerifier = new ECDSAVerifier((ECKey) publicKey);
         assertTrue(parsedAccessToken.verify(jwsVerifier));

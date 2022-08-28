@@ -2,8 +2,8 @@ package org.azidp4j.token;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWKSet;
+import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.AuthorizationCodeStore;
-import org.azidp4j.jwt.jwks.JWKSupplier;
 
 import java.io.File;
 import java.util.Map;
@@ -15,10 +15,10 @@ public class IssueToken {
     AccessTokenStore accessTokenStore;
     AccessTokenIssuer accessTokenIssuer;
 
-    public IssueToken(AuthorizationCodeStore authorizationCodeStore, AccessTokenStore accessTokenStore, JWKSupplier jwkSupplier) {
+    public IssueToken(AzIdPConfig azIdPConfig, JWKSet jwkSet ,AuthorizationCodeStore authorizationCodeStore, AccessTokenStore accessTokenStore) {
         this.authorizationCodeStore = authorizationCodeStore;
         this.accessTokenStore = accessTokenStore;
-        this.accessTokenIssuer = new AccessTokenIssuer(jwkSupplier);
+        this.accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet);
     }
 
     public TokenResponse issue(TokenRequest request) {
