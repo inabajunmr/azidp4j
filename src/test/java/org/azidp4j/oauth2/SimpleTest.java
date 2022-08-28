@@ -25,13 +25,15 @@ public class SimpleTest {
     void test() throws JOSEException, ParseException {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var sut = new AzIdP(new AzIdPConfig(key.getKeyID()), jwks);
+        var sut = new AzIdP(new AzIdPConfig("issuer", key.getKeyID()), jwks);
 
         // authorization request
         var clientId = "sample";
         var redirectUri = "http://example.com";
         var authorizationRequest = AuthorizationRequest.builder()
-                .clientId(clientId).redirectUri(redirectUri).responseType("code").scope("scope1 scope2").state("xyz").build();
+                .sub("username").clientId(clientId)
+                .redirectUri(redirectUri).responseType("code")
+                .scope("scope1 scope2").state("xyz").build();
         // exercise
         var authorizationResponse = sut.authorize(authorizationRequest);
         // verify
@@ -39,7 +41,11 @@ public class SimpleTest {
 
         // token request
         var code = authorizationResponse.query.get("code");
-        var tokenRequest = TokenRequest.builder().clientId(clientId).redirectUri(redirectUri).grantType("authorization_code").code(code).build();
+        var tokenRequest = TokenRequest.builder()
+                .clientId(clientId)
+                .redirectUri(redirectUri)
+                .grantType("authorization_code")
+                .code(code).build();
         // exercise
         var tokenResponse = sut.issueToken(tokenRequest);
 
@@ -52,10 +58,13 @@ public class SimpleTest {
 
         // verify signature
         var parsedAccessToken = JWSObject.parse((String)accessToken);
-        var publicKey = jwks.toPublicJWKSet().getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
+        var publicKey = jwks.toPublicJWKSet()
+                .getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
         System.out.println(publicKey);
         var jwsVerifier = new ECDSAVerifier((ECKey) publicKey);
         assertTrue(parsedAccessToken.verify(jwsVerifier));
 
+        // verify access token
+        assertEquals(parsedAccessToken.getPayload().toJSONObject().get("sub"), "username");
     }
 }

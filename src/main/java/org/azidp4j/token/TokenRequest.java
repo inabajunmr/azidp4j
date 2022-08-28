@@ -19,6 +19,7 @@ public class TokenRequest {
     }
 
     public static class Builder {
+
         private String code;
         private String grantType;
         private String redirectUri;

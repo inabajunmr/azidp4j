@@ -24,7 +24,6 @@ public class TokenEndpointHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange httpExchange) throws IOException {
-        System.out.println("TOKEN");
         var body = new String(httpExchange.getRequestBody().readAllBytes());
         var bodyMap = Arrays.stream(body.split("&"))
                 .map(kv -> kv.split("="))

@@ -21,7 +21,7 @@ public class Authorize {
             var code = UUID.randomUUID().toString();
             var state = authorizationRequest.state;
             authorizationCodeStore.save(
-                    new AuthorizationCode(code, authorizationRequest.scope, authorizationRequest.clientId, authorizationRequest.state));
+                    new AuthorizationCode(authorizationRequest.sub, code, authorizationRequest.scope, authorizationRequest.clientId, authorizationRequest.state));
             return new AuthorizationResponse(Map.of("code", code, "state", state), Map.of());
         }
 

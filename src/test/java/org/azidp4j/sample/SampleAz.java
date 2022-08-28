@@ -23,7 +23,7 @@ public class SampleAz {
     public void start(int port) throws IOException, JOSEException {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var config = new AzIdPConfig(key.getKeyID());
+        var config = new AzIdPConfig("issuer", key.getKeyID());
         var azIdP = new AzIdP(config, jwks);
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/authorize", new AuthorizationEndpointHandler(azIdP));
@@ -37,6 +37,5 @@ public class SampleAz {
     public void stop() {
         server.stop(0);
     }
-
 }
 

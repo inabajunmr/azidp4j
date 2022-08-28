@@ -2,6 +2,8 @@ package org.azidp4j.authorize;
 
 public class AuthorizationRequest {
 
+    /** user identifier **/
+    final String sub;
     final String responseType;
     final String clientId;
     final String redirectUri;
@@ -12,7 +14,8 @@ public class AuthorizationRequest {
         return new Builder();
     }
 
-    private AuthorizationRequest(String responseType, String clientId, String redirectUri, String scope, String state) {
+    private AuthorizationRequest(String sub, String responseType, String clientId, String redirectUri, String scope, String state) {
+        this.sub = sub;
         this.responseType = responseType;
         this.clientId = clientId;
         this.redirectUri = redirectUri;
@@ -22,6 +25,7 @@ public class AuthorizationRequest {
 
     public static class Builder {
 
+        private String sub;
         private String responseType;
         private String clientId;
         private String redirectUri;
@@ -32,6 +36,10 @@ public class AuthorizationRequest {
             this.responseType = responseType;
         }
 
+        public Builder sub(String sub) {
+            this.sub = sub;
+            return this;
+        }
         public Builder responseType(String responseType) {
             this.responseType = responseType;
             return this;
@@ -54,7 +62,7 @@ public class AuthorizationRequest {
         }
 
         public AuthorizationRequest build() {
-            return new AuthorizationRequest(responseType, clientId, redirectUri, scope, state);
+            return new AuthorizationRequest(sub, responseType, clientId, redirectUri, scope, state);
         }
     }
 }

@@ -23,7 +23,7 @@ public class IssueToken {
 
     public TokenResponse issue(TokenRequest request) {
         var authorizationCode = authorizationCodeStore.find(request.code);
-        var jws = accessTokenIssuer.issue("sub", "aud", "clientId", authorizationCode.scope);
+        var jws = accessTokenIssuer.issue(authorizationCode.sub, "aud", "clientId", authorizationCode.scope);
         return new TokenResponse(Map.of("access_token", jws.serialize(),
                 "token_type", "bearer",
                 "expires_in",3600,

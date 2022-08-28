@@ -31,13 +31,14 @@ public class AuthorizationEndpointHandler implements HttpHandler {
         String state = queryMap.get("state");
 
         var authorizationRequest = AuthorizationRequest.builder()
+                .sub("username")
                 .responseType(responseType)
                 .clientId(clientId)
                 .redirectUri(redirectUri)
                 .scope(scope)
                 .state(state).build();
-        var authorizationResponse = azIdp.authorize(authorizationRequest);
 
+        var authorizationResponse = azIdp.authorize(authorizationRequest);
         var queryResponse = authorizationResponse.query.entrySet().stream()
                 .map(kv -> kv.getKey() + '=' + kv.getValue())
                 .collect(Collectors.joining("&"));
