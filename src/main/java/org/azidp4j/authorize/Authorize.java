@@ -18,6 +18,7 @@ public class Authorize {
     }
 
     public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {
+        // TODO Unit test
         var responseType = ResponseType.of(authorizationRequest.responseType);
         if (authorizationRequest.responseType == null) {
             return new AuthorizationResponse(400, Map.of(), Map.of());
@@ -34,6 +35,9 @@ public class Authorize {
             }
 
             // validate redirect urls
+            if (authorizationRequest.redirectUri == null) {
+                return new AuthorizationResponse(400, Map.of(), Map.of());
+            }
             if (!client.redirectUris.contains(authorizationRequest.redirectUri)) {
                 return new AuthorizationResponse(400, Map.of(), Map.of());
             }
