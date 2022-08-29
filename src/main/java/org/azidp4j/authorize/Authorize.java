@@ -27,7 +27,7 @@ public class Authorize {
                             authorizationRequest.scope,
                             authorizationRequest.clientId,
                             authorizationRequest.state));
-            return new AuthorizationResponse(Map.of("code", code, "state", state), Map.of());
+            return new AuthorizationResponse(302, Map.of("code", code, "state", state), Map.of());
         }
 
         throw new RuntimeException();

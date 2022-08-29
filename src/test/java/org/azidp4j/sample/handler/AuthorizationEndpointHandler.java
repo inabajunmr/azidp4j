@@ -41,24 +41,13 @@ public class AuthorizationEndpointHandler implements HttpHandler {
                         .build();
 
         var authorizationResponse = azIdp.authorize(authorizationRequest);
-        var queryResponse =
-                authorizationResponse.query.entrySet().stream()
-                        .map(kv -> kv.getKey() + '=' + kv.getValue())
-                        .collect(Collectors.joining("&"));
-        var fragmentResponse =
-                authorizationResponse.fragment.entrySet().stream()
-                        .map(kv -> kv.getKey() + '=' + kv.getValue())
-                        .collect(Collectors.joining("&"));
-
-        var uri = new StringBuilder("https://example.com");
-        if (!authorizationResponse.query.entrySet().isEmpty()) {
-            uri.append("?").append(queryResponse);
-        }
-        if (!authorizationResponse.fragment.entrySet().isEmpty()) {
-            uri.append("#").append(fragmentResponse);
-        }
-
-        httpExchange.getResponseHeaders().set("Location", uri.toString());
+        authorizationResponse
+                .headers("https://example.com")
+                .entrySet()
+                .forEach(
+                        h -> {
+                            httpExchange.getResponseHeaders().set(h.getKey(), h.getValue());
+                        });
         httpExchange.sendResponseHeaders(302, 0);
         httpExchange.close();
     }
