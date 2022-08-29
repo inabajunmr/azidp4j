@@ -18,7 +18,7 @@ class AuthorizeTest {
         var clientStore = new InMemoryClientStore();
         var client =
                 new Client(
-                        "clientId",
+                        "client1",
                         "clientSecret",
                         Set.of("http://example.com"),
                         Set.of(GrantType.authorization_code),
@@ -116,7 +116,69 @@ class AuthorizeTest {
             assertEquals("xyz", queryMap.get("state"));
             assertEquals("invalid_scope", queryMap.get("error"));
         }
-        // TODO grant type
-        // TODO response type
+        // client doesn't support grant type
+        var noGrantTypesClient =
+                new Client(
+                        "clientId",
+                        "clientSecret",
+                        Set.of("http://example.com"),
+                        Set.of(),
+                        Set.of(ResponseType.code),
+                        "scope1 scope2");
+        clientStore.save(noGrantTypesClient);
+        {
+            var authorizationRequest =
+                    AuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(noGrantTypesClient.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("scope1")
+                            .sub("username")
+                            .state("xyz")
+                            .build();
+            var response = sut.authorize(authorizationRequest);
+            assertEquals(response.status, 302);
+            var location = URI.create(response.headers("http://example.com").get("Location"));
+            assertEquals("example.com", location.getHost());
+            var queryMap =
+                    Arrays.stream(location.getQuery().split("&"))
+                            .collect(
+                                    Collectors.toMap(
+                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+            assertEquals("xyz", queryMap.get("state"));
+            assertEquals("unauthorized_client", queryMap.get("error"));
+        }
+        // client doesn't support response type
+        var noResponseTypesClient =
+                new Client(
+                        "clientId",
+                        "clientSecret",
+                        Set.of("http://example.com"),
+                        Set.of(GrantType.authorization_code),
+                        Set.of(),
+                        "scope1 scope2");
+        clientStore.save(noResponseTypesClient);
+        {
+            var authorizationRequest =
+                    AuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(noResponseTypesClient.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("scope1")
+                            .sub("username")
+                            .state("xyz")
+                            .build();
+            var response = sut.authorize(authorizationRequest);
+            assertEquals(response.status, 302);
+            var location = URI.create(response.headers("http://example.com").get("Location"));
+            assertEquals("example.com", location.getHost());
+            var queryMap =
+                    Arrays.stream(location.getQuery().split("&"))
+                            .collect(
+                                    Collectors.toMap(
+                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+            assertEquals("xyz", queryMap.get("state"));
+            assertEquals("unsupported_response_type", queryMap.get("error"));
+        }
     }
 }
