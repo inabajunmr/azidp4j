@@ -67,7 +67,7 @@ public class SampleTest {
         var clientBody =
                 Map.of(
                         "redirect_uris",
-                        Set.of("http://example.com"),
+                        Set.of("http://localhost:8080"),
                         "grant_types",
                         Set.of(GrantType.authorization_code.name()),
                         "response_types",
@@ -103,7 +103,9 @@ public class SampleTest {
         var authorizationRequest =
                 HttpRequest.newBuilder(
                                 URI.create(
-                                        "http://localhost:8080/authorize?response_type=code&client_id=sample&redirect_uri=http://example.com&scope=test&state=xyz"))
+                                        "http://localhost:8080/authorize?response_type=code&client_id="
+                                                + clientId
+                                                + "&redirect_uri=http://localhost:8080&scope=scope1&state=xyz"))
                         .GET()
                         .build();
         var authorizationResponse =

@@ -35,6 +35,7 @@ public class IssueToken {
                                     request.clientId,
                                     authorizationCode.scope);
                     return new TokenResponse(
+                            200,
                             Map.of(
                                     "access_token",
                                     jws.serialize(),
@@ -53,6 +54,7 @@ public class IssueToken {
                             accessTokenIssuer.issue(
                                     request.clientId, "aud", request.clientId, request.scope);
                     return new TokenResponse(
+                            200,
                             Map.of(
                                     "access_token",
                                     jws.serialize(),

@@ -11,12 +11,13 @@ import org.azidp4j.token.*;
 public class AzIdP {
 
     AuthorizationCodeStore authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-    Authorize authorize = new Authorize(authorizationCodeStore);
+    Authorize authorize;
     AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
     IssueToken issueToken;
     DynamicClientRegistration clientRegistration;
 
     public AzIdP(AzIdPConfig azIdPConfig, JWKSet jwkSet, ClientStore clientStore) {
+        this.authorize = new Authorize(clientStore, authorizationCodeStore);
         this.issueToken =
                 new IssueToken(azIdPConfig, jwkSet, authorizationCodeStore, accessTokenStore);
         this.clientRegistration = new DynamicClientRegistration(clientStore);

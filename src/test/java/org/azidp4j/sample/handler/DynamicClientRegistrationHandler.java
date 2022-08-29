@@ -31,7 +31,7 @@ public class DynamicClientRegistrationHandler implements HttpHandler {
                 .spliterator()
                 .forEachRemaining(v -> grantTypes.add(GrantType.of(v.asText())));
         var redirectUris = new HashSet<String>();
-        body.get("grant_types").spliterator().forEachRemaining(v -> redirectUris.add(v.asText()));
+        body.get("redirect_uris").spliterator().forEachRemaining(v -> redirectUris.add(v.asText()));
         var request =
                 ClientRegistrationRequest.builder()
                         .scope(body.get("scope").asText())
