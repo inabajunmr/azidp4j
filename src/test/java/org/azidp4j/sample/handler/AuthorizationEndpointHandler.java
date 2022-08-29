@@ -50,9 +50,15 @@ public class AuthorizationEndpointHandler implements HttpHandler {
                         .map(kv -> kv.getKey() + '=' + kv.getValue())
                         .collect(Collectors.joining("&"));
 
-        httpExchange
-                .getResponseHeaders()
-                .set("Location", "example.com?" + queryResponse + "#" + fragmentResponse);
+        var uri = new StringBuilder("https://example.com");
+        if (!authorizationResponse.query.entrySet().isEmpty()) {
+            uri.append("?").append(queryResponse);
+        }
+        if (!authorizationResponse.fragment.entrySet().isEmpty()) {
+            uri.append("#").append(fragmentResponse);
+        }
+
+        httpExchange.getResponseHeaders().set("Location", uri.toString());
         httpExchange.sendResponseHeaders(302, 0);
         httpExchange.close();
     }

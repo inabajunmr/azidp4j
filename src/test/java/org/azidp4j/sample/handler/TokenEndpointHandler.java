@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
-import org.azidp4j.client.ClientStore;
 import org.azidp4j.token.TokenRequest;
 
 public class TokenEndpointHandler implements HttpHandler {
