@@ -14,11 +14,9 @@ import org.azidp4j.token.TokenRequest;
 public class TokenEndpointHandler implements HttpHandler {
 
     private final AzIdP azIdp;
-    private final ClientStore clientStore;
 
-    public TokenEndpointHandler(AzIdP azIdp, ClientStore clientStore) {
+    public TokenEndpointHandler(AzIdP azIdp) {
         this.azIdp = azIdp;
-        this.clientStore = clientStore;
     }
 
     @Override
