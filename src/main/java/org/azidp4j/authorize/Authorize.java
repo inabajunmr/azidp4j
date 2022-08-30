@@ -86,6 +86,6 @@ public class Authorize {
                     302, Map.of("code", code, "state", authorizationRequest.state), Map.of());
         }
 
-        throw new RuntimeException();
+        throw new AssertionError();
     }
 }

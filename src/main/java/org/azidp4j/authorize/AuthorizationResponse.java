@@ -7,8 +7,8 @@ public class AuthorizationResponse {
 
     int status;
 
-    public Map<String, String> query;
-    public Map<String, String> fragment;
+    private final Map<String, String> query;
+    private final Map<String, String> fragment;
 
     public AuthorizationResponse(
             int status, Map<String, String> query, Map<String, String> fragment) {

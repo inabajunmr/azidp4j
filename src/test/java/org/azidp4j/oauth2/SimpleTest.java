@@ -9,8 +9,11 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import java.net.URI;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.AuthorizationRequest;
@@ -55,11 +58,16 @@ public class SimpleTest {
                         .build();
         // exercise
         var authorizationResponse = sut.authorize(authorizationRequest);
+
         // verify
-        assertEquals(authorizationResponse.query.get("state"), "xyz");
+        var location = authorizationResponse.headers("http://example.com").get("Location");
+        var queryMap =
+                Arrays.stream(URI.create(location).getQuery().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals(queryMap.get("state"), "xyz");
 
         // token request
-        var code = authorizationResponse.query.get("code");
+        var code = queryMap.get("code");
         var tokenRequest =
                 TokenRequest.builder()
                         .clientId(clientId)

@@ -181,4 +181,42 @@ class AuthorizeTest {
             assertEquals("unsupported_response_type", queryMap.get("error"));
         }
     }
+
+    @Test
+    void success() {
+        // setup
+        var clientStore = new InMemoryClientStore();
+        var client =
+                new Client(
+                        "client1",
+                        "clientSecret",
+                        Set.of("http://example.com"),
+                        Set.of(GrantType.authorization_code),
+                        Set.of(ResponseType.code),
+                        "scope1 scope2");
+        clientStore.save(client);
+        var sut = new Authorize(clientStore, new InMemoryAuthorizationCodeStore());
+        var authorizationRequest =
+                AuthorizationRequest.builder()
+                        .responseType("code")
+                        .clientId(client.clientId)
+                        .redirectUri("http://example.com")
+                        .scope("scope1")
+                        .sub("username")
+                        .state("xyz")
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.status, 302);
+        var location = response.headers("http://example.com").get("Location");
+        var queryMap =
+                Arrays.stream(URI.create(location).getQuery().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        System.out.println(queryMap.get("state"));
+        assertEquals(queryMap.get("state"), "xyz");
+        assertNotNull(queryMap.get("code"));
+    }
 }
