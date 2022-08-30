@@ -32,7 +32,9 @@ public class SimpleTest {
         var jwks = new JWKSet(key);
         var sut =
                 new AzIdP(
-                        new AzIdPConfig("issuer", key.getKeyID()), jwks, new InMemoryClientStore());
+                        new AzIdPConfig("issuer", key.getKeyID(), 3600),
+                        jwks,
+                        new InMemoryClientStore());
 
         // client registration
         var clientRegistrationRequest =

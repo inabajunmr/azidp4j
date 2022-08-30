@@ -9,6 +9,7 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -34,7 +35,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
         var accessTokenStore = new InMemoryAccessTokenStore();
         var issueToken =
                 new IssueToken(
-                        new AzIdPConfig("example.com", key.getKeyID()),
+                        new AzIdPConfig("as.example.com", key.getKeyID(), 3600),
                         jwks,
                         authorizationCodeStore,
                         accessTokenStore);
@@ -64,7 +65,12 @@ class IssueTokenTest_AuthorizationCodeGrant {
         assertEquals(payload.get("client_id"), "clientId");
         assertEquals(payload.get("scope"), "scope1");
         assertNotNull(payload.get("jti"));
-        // TODO iss/exp/iat
+        assertEquals(payload.get("iss"), "as.example.com");
+        assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
+        assertTrue((long) payload.get("exp") < Instant.now().getEpochSecond() + 3610);
+        assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
+        assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
+        // TODO verify other field
         response.body.get("token_type");
         response.body.get("expires_in");
         // response.body.get("refresh_token");

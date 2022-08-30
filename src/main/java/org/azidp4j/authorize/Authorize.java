@@ -18,7 +18,7 @@ public class Authorize {
     }
 
     public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {
-        // TODO Unit test
+        // TODO should be authorization request as hash?
         var responseType = ResponseType.of(authorizationRequest.responseType);
         if (authorizationRequest.responseType == null) {
             return new AuthorizationResponse(400, Map.of(), Map.of());

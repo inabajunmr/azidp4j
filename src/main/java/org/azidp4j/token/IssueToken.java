@@ -11,6 +11,7 @@ public class IssueToken {
     AuthorizationCodeStore authorizationCodeStore;
     AccessTokenStore accessTokenStore;
     AccessTokenIssuer accessTokenIssuer;
+    AzIdPConfig config;
 
     public IssueToken(
             AzIdPConfig azIdPConfig,
@@ -20,6 +21,7 @@ public class IssueToken {
         this.authorizationCodeStore = authorizationCodeStore;
         this.accessTokenStore = accessTokenStore;
         this.accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet);
+        this.config = azIdPConfig;
     }
 
     public TokenResponse issue(TokenRequest request) {
@@ -42,7 +44,7 @@ public class IssueToken {
                                     "token_type",
                                     "bearer",
                                     "expires_in",
-                                    3600,
+                                    config.accessTokenExpirationSec,
                                     "scope",
                                     authorizationCode.scope,
                                     "state",
@@ -64,7 +66,7 @@ public class IssueToken {
                                     "token_type",
                                     "bearer",
                                     "expires_in",
-                                    3600,
+                                    config.accessTokenExpirationSec,
                                     "scope",
                                     request.scope));
                 }

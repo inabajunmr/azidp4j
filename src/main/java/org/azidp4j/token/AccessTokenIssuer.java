@@ -2,6 +2,7 @@ package org.azidp4j.token;
 
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.jwk.JWKSet;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -24,15 +25,15 @@ public class AccessTokenIssuer {
         Map<String, Object> claims =
                 Map.of(
                         "iss",
-                        "",
+                        config.issuer,
                         "sub",
                         sub,
                         "aud",
                         aud,
                         "exp",
-                        0,
+                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
                         "iat",
-                        0,
+                        Instant.now().getEpochSecond(),
                         "jti",
                         jti,
                         "client_id",
