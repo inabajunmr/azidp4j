@@ -31,7 +31,7 @@ public class IssueToken {
                     var jws =
                             accessTokenIssuer.issue(
                                     authorizationCode.sub,
-                                    "aud",
+                                    request.audiences,
                                     request.clientId,
                                     authorizationCode.scope);
                     return new TokenResponse(
@@ -52,7 +52,10 @@ public class IssueToken {
                 {
                     var jws =
                             accessTokenIssuer.issue(
-                                    request.clientId, "aud", request.clientId, request.scope);
+                                    request.clientId,
+                                    request.audiences,
+                                    request.clientId,
+                                    request.scope);
                     return new TokenResponse(
                             200,
                             Map.of(

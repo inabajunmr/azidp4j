@@ -74,6 +74,7 @@ public class SimpleTest {
                         .redirectUri(redirectUri)
                         .grantType("authorization_code")
                         .code(code)
+                        .audiences(Set.of("http://rs.example.com"))
                         .build();
         // exercise
         var tokenResponse = sut.issueToken(tokenRequest);

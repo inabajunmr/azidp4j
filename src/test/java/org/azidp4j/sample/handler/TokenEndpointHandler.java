@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
 import org.azidp4j.token.TokenRequest;
@@ -38,6 +39,7 @@ public class TokenEndpointHandler implements HttpHandler {
                         .redirectUri(redirectUri)
                         .clientId(clientId)
                         .scope(scope)
+                        .audiences(Set.of("http://" + scope + ".rs.example.com"))
                         .build();
         var tokenResponse = azIdp.issueToken(tokenRequest);
         var mapper = new ObjectMapper();

@@ -3,6 +3,7 @@ package org.azidp4j.token;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.jwk.JWKSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.jwt.JWSIssuer;
@@ -18,7 +19,7 @@ public class AccessTokenIssuer {
         this.jwsIssuer = new JWSIssuer(jwkSet);
     }
 
-    JWSObject issue(String sub, String aud, String clientId, String scope) {
+    JWSObject issue(String sub, Set<String> aud, String clientId, String scope) {
         var jti = UUID.randomUUID().toString();
         Map<String, Object> claims =
                 Map.of(
