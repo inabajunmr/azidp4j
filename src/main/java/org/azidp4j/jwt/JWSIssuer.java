@@ -25,6 +25,7 @@ public class JWSIssuer {
                         new JWSObject(
                                 new JWSHeader.Builder(JWSAlgorithm.ES256)
                                         .keyID(ecJWK.getKeyID())
+                                        .type(new JOSEObjectType("at+JWT"))
                                         .build(),
                                 new Payload(payload));
                 jwsObject.sign(signer);

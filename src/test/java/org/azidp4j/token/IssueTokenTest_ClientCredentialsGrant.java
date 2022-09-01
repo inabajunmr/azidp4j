@@ -13,13 +13,11 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
-import org.azidp4j.authorize.AuthorizationCode;
 import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
 import org.junit.jupiter.api.Test;
 
-class IssueTokenTest_AuthorizationCodeGrant {
+class IssueTokenTest_ClientCredentialsGrant {
 
     @Test
     void success() throws JOSEException, ParseException {
@@ -28,11 +26,6 @@ class IssueTokenTest_AuthorizationCodeGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var subject = UUID.randomUUID().toString();
-        var authorizationCode =
-                new AuthorizationCode(
-                        subject, UUID.randomUUID().toString(), "scope1", "clientId", "xyz");
-        authorizationCodeStore.save(authorizationCode);
         var accessTokenStore = new InMemoryAccessTokenStore();
         var issueToken =
                 new IssueToken(
@@ -42,10 +35,9 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         accessTokenStore);
         var tokenRequest =
                 TokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
+                        .grantType("client_credentials")
                         .clientId("clientId")
+                        .scope("scope1")
                         .audiences(Set.of("http://rs.example.com"))
                         .build();
 
@@ -63,7 +55,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
         assertEquals(parsedAccessToken.getHeader().getType().getType(), "at+JWT");
         // verify claims
         var payload = parsedAccessToken.getPayload().toJSONObject();
-        assertEquals(payload.get("sub"), subject);
+        assertEquals(payload.get("sub"), "clientId");
         assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
         assertEquals(payload.get("client_id"), "clientId");
         assertEquals(payload.get("scope"), "scope1");
@@ -75,6 +67,6 @@ class IssueTokenTest_AuthorizationCodeGrant {
         assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
-        // TODO response.body.get("refresh_token");
+        assertFalse(response.body.containsKey("refresh_token"));
     }
 }
