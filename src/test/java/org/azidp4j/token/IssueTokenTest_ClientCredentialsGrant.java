@@ -27,12 +27,14 @@ class IssueTokenTest_ClientCredentialsGrant {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var accessTokenStore = new InMemoryAccessTokenStore();
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var accessTokenIssuer = new AccessTokenIssuer(config, jwks);
         var issueToken =
                 new IssueToken(
-                        new AzIdPConfig("as.example.com", key.getKeyID(), 3600),
-                        jwks,
+                        config,
                         authorizationCodeStore,
-                        accessTokenStore);
+                        accessTokenStore,
+                        accessTokenIssuer);
         var tokenRequest =
                 TokenRequest.builder()
                         .grantType("client_credentials")

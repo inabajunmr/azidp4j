@@ -15,12 +15,12 @@ public class IssueToken {
 
     public IssueToken(
             AzIdPConfig azIdPConfig,
-            JWKSet jwkSet,
             AuthorizationCodeStore authorizationCodeStore,
-            AccessTokenStore accessTokenStore) {
+            AccessTokenStore accessTokenStore,
+            AccessTokenIssuer accessTokenIssuer) {
         this.authorizationCodeStore = authorizationCodeStore;
         this.accessTokenStore = accessTokenStore;
-        this.accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet);
+        this.accessTokenIssuer = accessTokenIssuer;
         this.config = azIdPConfig;
     }
 

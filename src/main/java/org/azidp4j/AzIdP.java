@@ -17,9 +17,10 @@ public class AzIdP {
     DynamicClientRegistration clientRegistration;
 
     public AzIdP(AzIdPConfig azIdPConfig, JWKSet jwkSet, ClientStore clientStore) {
-        this.authorize = new Authorize(clientStore, authorizationCodeStore);
+        var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet);
+        this.authorize = new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
         this.issueToken =
-                new IssueToken(azIdPConfig, jwkSet, authorizationCodeStore, accessTokenStore);
+                new IssueToken(azIdPConfig, authorizationCodeStore, accessTokenStore, accessTokenIssuer);
         this.clientRegistration = new DynamicClientRegistration(clientStore);
     }
 

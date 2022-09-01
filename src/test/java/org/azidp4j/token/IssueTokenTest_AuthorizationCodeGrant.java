@@ -34,12 +34,13 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         subject, UUID.randomUUID().toString(), "scope1", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
         var accessTokenStore = new InMemoryAccessTokenStore();
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
         var issueToken =
                 new IssueToken(
-                        new AzIdPConfig("as.example.com", key.getKeyID(), 3600),
-                        jwks,
+                        config,
                         authorizationCodeStore,
-                        accessTokenStore);
+                        accessTokenStore,
+                        new AccessTokenIssuer(config, jwks ));
         var tokenRequest =
                 TokenRequest.builder()
                         .code(authorizationCode.code)

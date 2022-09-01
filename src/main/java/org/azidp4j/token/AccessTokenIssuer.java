@@ -20,7 +20,7 @@ public class AccessTokenIssuer {
         this.jwsIssuer = new JWSIssuer(jwkSet);
     }
 
-    JWSObject issue(String sub, Set<String> aud, String clientId, String scope) {
+    public JWSObject issue(String sub, Set<String> aud, String clientId, String scope) {
         var jti = UUID.randomUUID().toString();
         Map<String, Object> claims =
                 Map.of(
