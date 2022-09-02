@@ -11,6 +11,8 @@ public class TokenRequestParser {
         if (tokenRequest.authenticatedClientId == null) {
             clientId = tokenRequest.bodyParameters.get("clientId");
         }
+        var username = tokenRequest.bodyParameters.get("username");
+        var password = tokenRequest.bodyParameters.get("password");
         var internalTokenRequest =
                 InternalTokenRequest.builder()
                         .code(code)
@@ -18,6 +20,8 @@ public class TokenRequestParser {
                         .redirectUri(redirectUri)
                         .clientId(clientId)
                         .scope(scope)
+                        .username(username)
+                        .password(password)
                         .audiences(tokenRequest.audiences)
                         .build();
         return internalTokenRequest;

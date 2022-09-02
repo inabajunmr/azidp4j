@@ -27,9 +27,6 @@ public class TokenEndpointHandler implements HttpHandler {
                 Arrays.stream(body.split("&"))
                         .map(kv -> kv.split("="))
                         .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
-        var code = bodyMap.get("code");
-        var grantType = bodyMap.get("grant_type");
-        var redirectUri = bodyMap.get("redirect_uri");
         // var clientId = bodyMap.get("client_id"); TODO for public client?
         var scope = bodyMap.get("scope");
         var tokenRequest =

@@ -40,7 +40,8 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         config,
                         authorizationCodeStore,
                         accessTokenStore,
-                        new AccessTokenIssuer(config, jwks));
+                        new AccessTokenIssuer(config, jwks),
+                        null);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)

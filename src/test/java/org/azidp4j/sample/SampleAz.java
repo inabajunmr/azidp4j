@@ -19,6 +19,7 @@ import org.azidp4j.sample.handler.AuthorizationEndpointHandler;
 import org.azidp4j.sample.handler.DynamicClientRegistrationHandler;
 import org.azidp4j.sample.handler.JWKsEndpointHandler;
 import org.azidp4j.sample.handler.TokenEndpointHandler;
+import org.azidp4j.token.UserPasswordVerifier;
 
 public class SampleAz {
 
@@ -29,7 +30,23 @@ public class SampleAz {
         var jwks = new JWKSet(key);
         var config = new AzIdPConfig("issuer", key.getKeyID(), 3600);
         var clientStore = new InMemoryClientStore();
-        var azIdP = new AzIdP(config, jwks, clientStore);
+        var userPasswordVerifier =
+                new UserPasswordVerifier() {
+                    @Override
+                    public boolean verify(String username, String password) {
+                        switch (username) {
+                            case "user1":
+                                return password.equals("password1");
+                            case "user2":
+                                return password.equals("password2");
+                            case "user3":
+                                return password.equals("password3");
+                        }
+
+                        return false;
+                    }
+                };
+        var azIdP = new AzIdP(config, jwks, clientStore, userPasswordVerifier);
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/authorize", new AuthorizationEndpointHandler(azIdP))
                 .setAuthenticator(new UserBasicAuthenticator());

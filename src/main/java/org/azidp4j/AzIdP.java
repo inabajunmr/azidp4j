@@ -24,7 +24,29 @@ public class AzIdP {
                 new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
         this.issueToken =
                 new IssueToken(
-                        azIdPConfig, authorizationCodeStore, accessTokenStore, accessTokenIssuer);
+                        azIdPConfig,
+                        authorizationCodeStore,
+                        accessTokenStore,
+                        accessTokenIssuer,
+                        null);
+        this.clientRegistration = new DynamicClientRegistration(clientStore);
+    }
+
+    public AzIdP(
+            AzIdPConfig azIdPConfig,
+            JWKSet jwkSet,
+            ClientStore clientStore,
+            UserPasswordVerifier userPasswordVerifier) {
+        var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet);
+        this.authorize =
+                new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
+        this.issueToken =
+                new IssueToken(
+                        azIdPConfig,
+                        authorizationCodeStore,
+                        accessTokenStore,
+                        accessTokenIssuer,
+                        userPasswordVerifier);
         this.clientRegistration = new DynamicClientRegistration(clientStore);
     }
 

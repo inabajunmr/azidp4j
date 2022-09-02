@@ -110,6 +110,7 @@ public class SampleTest {
                                     }
                                 })
                         .build();
+
         // authorization code grant
         {
             var authorizationRequest =
@@ -184,6 +185,39 @@ public class SampleTest {
             var jwks = JWKSet.load(new URL("http://localhost:8080/jwks"));
             var accessToken = fragmentMap.get("access_token");
             var parsedAccessToken = JWSObject.parse(accessToken);
+            var jwk = jwks.getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
+            var verifier = new ECDSAVerifier((ECKey) jwk);
+            assertTrue(parsedAccessToken.verify(verifier));
+
+            // claims
+            var payload = parsedAccessToken.getPayload().toJSONObject();
+            assertEquals("user1", payload.get("sub"));
+        }
+
+        // resource owner password credentials grant
+        {
+            var resourceOwnerPasswordCredentialsTokenRequest =
+                    HttpRequest.newBuilder(URI.create("http://localhost:8080/token"))
+                            .POST(
+                                    HttpRequest.BodyPublishers.ofString(
+                                            "grant_type=password&scope=default&username=user1&password=password1"))
+                            .setHeader(
+                                    "Content-Type",
+                                    "application/x-www-form-urlencoded; charset=utf-8")
+                            .build();
+            var resourceOwnerPasswordCredentialResponse =
+                    defaultClient.send(
+                            resourceOwnerPasswordCredentialsTokenRequest,
+                            HttpResponse.BodyHandlers.ofString());
+            var userAccessToken =
+                    new ObjectMapper()
+                            .readTree(resourceOwnerPasswordCredentialResponse.body())
+                            .get("access_token")
+                            .textValue();
+            // verify token
+            // signature
+            var jwks = JWKSet.load(new URL("http://localhost:8080/jwks"));
+            var parsedAccessToken = JWSObject.parse(userAccessToken);
             var jwk = jwks.getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
             var verifier = new ECDSAVerifier((ECKey) jwk);
             assertTrue(parsedAccessToken.verify(verifier));

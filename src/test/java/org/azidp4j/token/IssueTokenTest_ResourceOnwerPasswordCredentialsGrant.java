@@ -17,7 +17,7 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
 import org.junit.jupiter.api.Test;
 
-class IssueTokenTest_ClientCredentialsGrant {
+class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
 
     @Test
     void success() throws JOSEException, ParseException {
@@ -29,12 +29,25 @@ class IssueTokenTest_ClientCredentialsGrant {
         var accessTokenStore = new InMemoryAccessTokenStore();
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
         var accessTokenIssuer = new AccessTokenIssuer(config, jwks);
+        var userPasswordVerifier =
+                new UserPasswordVerifier() {
+                    @Override
+                    public boolean verify(String username, String password) {
+                        return true;
+                    }
+                };
         var issueToken =
                 new IssueToken(
-                        config, authorizationCodeStore, accessTokenStore, accessTokenIssuer, null);
+                        config,
+                        authorizationCodeStore,
+                        accessTokenStore,
+                        accessTokenIssuer,
+                        userPasswordVerifier);
         var tokenRequest =
                 InternalTokenRequest.builder()
-                        .grantType("client_credentials")
+                        .grantType("password")
+                        .username("username")
+                        .password("password")
                         .clientId("clientId")
                         .scope("scope1")
                         .audiences(Set.of("http://rs.example.com"))
@@ -54,7 +67,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         assertEquals(parsedAccessToken.getHeader().getType().getType(), "at+JWT");
         // verify claims
         var payload = parsedAccessToken.getPayload().toJSONObject();
-        assertEquals(payload.get("sub"), "clientId");
+        assertEquals(payload.get("sub"), "username");
         assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
         assertEquals(payload.get("client_id"), "clientId");
         assertEquals(payload.get("scope"), "scope1");
@@ -67,5 +80,49 @@ class IssueTokenTest_ClientCredentialsGrant {
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertFalse(response.body.containsKey("refresh_token"));
+    }
+
+    @Test
+    void userAuthenticationFailed() throws JOSEException, ParseException {
+
+        // setup
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var accessTokenIssuer = new AccessTokenIssuer(config, jwks);
+        var userPasswordVerifier =
+                new UserPasswordVerifier() {
+                    @Override
+                    public boolean verify(String username, String password) {
+                        return false;
+                    }
+                };
+        var issueToken =
+                new IssueToken(
+                        config,
+                        authorizationCodeStore,
+                        accessTokenStore,
+                        accessTokenIssuer,
+                        userPasswordVerifier);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .grantType("password")
+                        .username("username")
+                        .password("password")
+                        .clientId("clientId")
+                        .scope("scope1")
+                        .audiences(Set.of("http://rs.example.com"))
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 400);
+        // access token
+        var error = response.body.get("error");
+        assertEquals(error, "invalid_grant");
     }
 }

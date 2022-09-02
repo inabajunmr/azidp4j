@@ -18,6 +18,11 @@ public class InternalTokenRequest {
     /** for client credentials */
     final String scope;
 
+    /** for resource owner password */
+    final String username;
+    /** for resource owner password */
+    final String password;
+
     final Set<String> audiences;
 
     private InternalTokenRequest(
@@ -26,12 +31,16 @@ public class InternalTokenRequest {
             String redirectUri,
             String clientId,
             String scope,
+            String username,
+            String password,
             Set<String> audiences) {
         this.code = code;
         this.grantType = grantType;
         this.redirectUri = redirectUri;
         this.clientId = clientId;
         this.scope = scope;
+        this.username = username;
+        this.password = password;
         this.audiences = audiences;
     }
 
@@ -46,6 +55,8 @@ public class InternalTokenRequest {
         private String redirectUri;
         private String clientId;
         private String scope;
+        private String username;
+        private String password;
         private Set<String> audiences;
 
         public Builder code(String code) {
@@ -75,6 +86,16 @@ public class InternalTokenRequest {
             return this;
         }
 
+        public Builder username(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public Builder password(String password) {
+            this.password = password;
+            return this;
+        }
+
         public Builder audiences(Set<String> audiences) {
             this.audiences = audiences;
             return this;
@@ -82,7 +103,7 @@ public class InternalTokenRequest {
 
         public InternalTokenRequest build() {
             return new InternalTokenRequest(
-                    code, grantType, redirectUri, clientId, scope, audiences);
+                    code, grantType, redirectUri, clientId, scope, username, password, audiences);
         }
     }
 }
