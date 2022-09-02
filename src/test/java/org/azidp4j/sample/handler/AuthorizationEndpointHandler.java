@@ -25,7 +25,10 @@ public class AuthorizationEndpointHandler implements HttpHandler {
                         .map(kv -> kv.split("="))
                         .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
         var authorizationRequest =
-                new AuthorizationRequest(httpExchange.getPrincipal().getUsername(), Set.of("http://todo.rs.example.com"), queryMap);
+                new AuthorizationRequest(
+                        httpExchange.getPrincipal().getUsername(),
+                        Set.of("http://todo.rs.example.com"),
+                        queryMap);
         var authorizationResponse = azIdp.authorize(authorizationRequest);
         authorizationResponse
                 .headers("https://example.com")

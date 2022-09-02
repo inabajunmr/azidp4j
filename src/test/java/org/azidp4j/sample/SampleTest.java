@@ -139,7 +139,8 @@ public class SampleTest {
                                                     + queryMap.get("code")
                                                     + "&redirect_uri=http://example.com&client_id=sample"))
                             .setHeader(
-                                    "Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
+                                    "Content-Type",
+                                    "application/x-www-form-urlencoded; charset=utf-8")
                             .build();
             var tokenResponse =
                     tokenRequestClient.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
