@@ -12,20 +12,24 @@ public class AzIdP {
 
     AuthorizationCodeStore authorizationCodeStore = new InMemoryAuthorizationCodeStore();
     Authorize authorize;
+    AuthorizationRequestParser authorizationRequestParser = new AuthorizationRequestParser();
     AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
     IssueToken issueToken;
     DynamicClientRegistration clientRegistration;
 
     public AzIdP(AzIdPConfig azIdPConfig, JWKSet jwkSet, ClientStore clientStore) {
         var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet);
-        this.authorize = new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
+        this.authorize =
+                new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
         this.issueToken =
-                new IssueToken(azIdPConfig, authorizationCodeStore, accessTokenStore, accessTokenIssuer);
+                new IssueToken(
+                        azIdPConfig, authorizationCodeStore, accessTokenStore, accessTokenIssuer);
         this.clientRegistration = new DynamicClientRegistration(clientStore);
     }
 
     public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {
-        return authorize.authorize(authorizationRequest);
+        var parsed = authorizationRequestParser.parse(authorizationRequest);
+        return authorize.authorize(parsed);
     }
 
     public TokenResponse issueToken(TokenRequest tokenRequest) {

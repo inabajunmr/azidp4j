@@ -2,14 +2,6 @@ package org.azidp4j.authorize;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.net.URI;
-import java.text.ParseException;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSObject;
@@ -17,6 +9,13 @@ import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import java.net.URI;
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
@@ -39,11 +38,16 @@ class AuthorizeTest {
                         "scope1 scope2");
         clientStore.save(client);
         var config = new AzIdPConfig("issuer", "kid", 3600);
-        var sut = new Authorize(clientStore, new InMemoryAuthorizationCodeStore(), new AccessTokenIssuer(config, new JWKSet()), config);
+        var sut =
+                new Authorize(
+                        clientStore,
+                        new InMemoryAuthorizationCodeStore(),
+                        new AccessTokenIssuer(config, new JWKSet()),
+                        config);
         // response type is null
         {
             var authorizationRequest =
-                    AuthorizationRequest.builder()
+                    InternalAuthorizationRequest.builder()
                             .clientId(client.clientId)
                             .redirectUri("http://example.com")
                             .scope("scope1")
@@ -56,7 +60,7 @@ class AuthorizeTest {
         // illegal response type
         {
             var authorizationRequest =
-                    AuthorizationRequest.builder()
+                    InternalAuthorizationRequest.builder()
                             .clientId(client.clientId)
                             .redirectUri("http://example.com")
                             .scope("scope1")
@@ -69,7 +73,7 @@ class AuthorizeTest {
         // client id is null
         {
             var authorizationRequest =
-                    AuthorizationRequest.builder()
+                    InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .redirectUri("http://example.com")
                             .scope("scope1")
@@ -82,7 +86,7 @@ class AuthorizeTest {
         // client not exist
         {
             var authorizationRequest =
-                    AuthorizationRequest.builder()
+                    InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId("unknown")
                             .redirectUri("http://example.com")
@@ -96,7 +100,7 @@ class AuthorizeTest {
         // unauthorized redirect uri
         {
             var authorizationRequest =
-                    AuthorizationRequest.builder()
+                    InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://not.authorized.example.com")
@@ -110,7 +114,7 @@ class AuthorizeTest {
         // unauthorized scope
         {
             var authorizationRequest =
-                    AuthorizationRequest.builder()
+                    InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://example.com")
@@ -142,7 +146,7 @@ class AuthorizeTest {
         clientStore.save(noGrantTypesClient);
         {
             var authorizationRequest =
-                    AuthorizationRequest.builder()
+                    InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(noGrantTypesClient.clientId)
                             .redirectUri("http://example.com")
@@ -174,7 +178,7 @@ class AuthorizeTest {
         clientStore.save(noResponseTypesClient);
         {
             var authorizationRequest =
-                    AuthorizationRequest.builder()
+                    InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(noResponseTypesClient.clientId)
                             .redirectUri("http://example.com")
@@ -210,9 +214,14 @@ class AuthorizeTest {
                         "scope1 scope2");
         clientStore.save(client);
         var config = new AzIdPConfig("issuer", "kid", 3600);
-        var sut = new Authorize(clientStore, new InMemoryAuthorizationCodeStore(), new AccessTokenIssuer(config, new JWKSet()), config);
+        var sut =
+                new Authorize(
+                        clientStore,
+                        new InMemoryAuthorizationCodeStore(),
+                        new AccessTokenIssuer(config, new JWKSet()),
+                        config);
         var authorizationRequest =
-                AuthorizationRequest.builder()
+                InternalAuthorizationRequest.builder()
                         .responseType("code")
                         .clientId(client.clientId)
                         .redirectUri("http://example.com")
@@ -250,9 +259,14 @@ class AuthorizeTest {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var config = new AzIdPConfig("az.example.com", key.getKeyID(), 3600);
-        var sut = new Authorize(clientStore, new InMemoryAuthorizationCodeStore(), new AccessTokenIssuer(config, jwks), config);
+        var sut =
+                new Authorize(
+                        clientStore,
+                        new InMemoryAuthorizationCodeStore(),
+                        new AccessTokenIssuer(config, jwks),
+                        config);
         var authorizationRequest =
-                AuthorizationRequest.builder()
+                InternalAuthorizationRequest.builder()
                         .responseType("token")
                         .clientId(client.clientId)
                         .redirectUri("http://example.com")
@@ -286,10 +300,18 @@ class AuthorizeTest {
         assertEquals(payload.get("scope"), "scope1");
         assertNotNull(payload.get("jti"));
         assertEquals(payload.get("iss"), "az.example.com");
-        assertTrue((long) Integer.parseInt(payload.get("exp").toString()) > Instant.now().getEpochSecond() + 3590);
-        assertTrue((long) Integer.parseInt(payload.get("exp").toString()) < Instant.now().getEpochSecond() + 3610);
-        assertTrue((long) Integer.parseInt(payload.get("iat").toString()) > Instant.now().getEpochSecond() - 10);
-        assertTrue((long) Integer.parseInt(payload.get("iat").toString()) < Instant.now().getEpochSecond() + 10);
+        assertTrue(
+                (long) Integer.parseInt(payload.get("exp").toString())
+                        > Instant.now().getEpochSecond() + 3590);
+        assertTrue(
+                (long) Integer.parseInt(payload.get("exp").toString())
+                        < Instant.now().getEpochSecond() + 3610);
+        assertTrue(
+                (long) Integer.parseInt(payload.get("iat").toString())
+                        > Instant.now().getEpochSecond() - 10);
+        assertTrue(
+                (long) Integer.parseInt(payload.get("iat").toString())
+                        < Instant.now().getEpochSecond() + 10);
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in").toString()), 3600);
     }

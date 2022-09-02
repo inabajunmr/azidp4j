@@ -1,6 +1,5 @@
 package org.azidp4j.token;
 
-import com.nimbusds.jose.jwk.JWKSet;
 import java.util.Map;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.AuthorizationCodeStore;

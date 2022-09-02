@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
@@ -19,15 +18,18 @@ public class Authorize {
 
     private final AzIdPConfig azIdPConfig;
 
-    public Authorize(ClientStore clientStore, AuthorizationCodeStore authorizationCodeStore, AccessTokenIssuer accessTokenIssuer, AzIdPConfig azIdPConfig) {
+    public Authorize(
+            ClientStore clientStore,
+            AuthorizationCodeStore authorizationCodeStore,
+            AccessTokenIssuer accessTokenIssuer,
+            AzIdPConfig azIdPConfig) {
         this.clientStore = clientStore;
         this.authorizationCodeStore = authorizationCodeStore;
         this.accessTokenIssuer = accessTokenIssuer;
         this.azIdPConfig = azIdPConfig;
     }
 
-    public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {
-        // TODO should be authorization request as hash?
+    public AuthorizationResponse authorize(InternalAuthorizationRequest authorizationRequest) {
         var responseType = ResponseType.of(authorizationRequest.responseType);
         if (authorizationRequest.responseType == null) {
             return new AuthorizationResponse(400, Map.of(), Map.of());
@@ -52,7 +54,7 @@ public class Authorize {
 
         if (responseType == ResponseType.code) {
             // validate scope
-            if(!hasEnoughScope(authorizationRequest.scope, client.scope)) {
+            if (!hasEnoughScope(authorizationRequest.scope, client.scope)) {
                 return new AuthorizationResponse(
                         302,
                         Map.of("error", "invalid_scope", "state", authorizationRequest.state),
@@ -88,8 +90,8 @@ public class Authorize {
                             authorizationRequest.state));
             return new AuthorizationResponse(
                     302, Map.of("code", code, "state", authorizationRequest.state), Map.of());
-        } else if(responseType == ResponseType.token) {
-            if(!hasEnoughScope(authorizationRequest.scope, client.scope)) {
+        } else if (responseType == ResponseType.token) {
+            if (!hasEnoughScope(authorizationRequest.scope, client.scope)) {
                 return new AuthorizationResponse(
                         302,
                         Map.of(),
@@ -101,7 +103,11 @@ public class Authorize {
                 return new AuthorizationResponse(
                         302,
                         Map.of(),
-                        Map.of("error", "unauthorized_client", "state", authorizationRequest.state));
+                        Map.of(
+                                "error",
+                                "unauthorized_client",
+                                "state",
+                                authorizationRequest.state));
             }
             if (!client.responseTypes.contains(ResponseType.token)) {
                 return new AuthorizationResponse(
@@ -115,19 +121,36 @@ public class Authorize {
             }
 
             // issue access token
-            var accessToken = accessTokenIssuer.issue(authorizationRequest.sub, authorizationRequest.audiences, authorizationRequest.clientId, authorizationRequest.scope);
+            var accessToken =
+                    accessTokenIssuer.issue(
+                            authorizationRequest.sub,
+                            authorizationRequest.audiences,
+                            authorizationRequest.clientId,
+                            authorizationRequest.scope);
             return new AuthorizationResponse(
-                    302, Map.of(), Map.of("access_token", accessToken.serialize(), "token_type", "bearer", "expires_in", String.valueOf(azIdPConfig.accessTokenExpirationSec),"scope", authorizationRequest.scope, "state", authorizationRequest.state));
+                    302,
+                    Map.of(),
+                    Map.of(
+                            "access_token",
+                            accessToken.serialize(),
+                            "token_type",
+                            "bearer",
+                            "expires_in",
+                            String.valueOf(azIdPConfig.accessTokenExpirationSec),
+                            "scope",
+                            authorizationRequest.scope,
+                            "state",
+                            authorizationRequest.state));
         }
 
         throw new AssertionError();
     }
+
     private boolean hasEnoughScope(String requestedScope, String clientRegisteredScope) {
         var requestedScopes = requestedScope.split(" ");
-        var clientScopes = Arrays.stream(clientRegisteredScope.split(" ")).collect(Collectors.toSet());
+        var clientScopes =
+                Arrays.stream(clientRegisteredScope.split(" ")).collect(Collectors.toSet());
         return requestedScopes.length
-                == Arrays.stream(requestedScopes)
-                .filter(s -> clientScopes.contains(s))
-                .count();
+                == Arrays.stream(requestedScopes).filter(s -> clientScopes.contains(s)).count();
     }
 }

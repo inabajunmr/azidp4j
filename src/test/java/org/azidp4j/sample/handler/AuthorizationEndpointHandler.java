@@ -23,23 +23,8 @@ public class AuthorizationEndpointHandler implements HttpHandler {
                 Arrays.stream(query.split("&"))
                         .map(kv -> kv.split("="))
                         .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
-
-        String responseType = queryMap.get("response_type");
-        String clientId = queryMap.get("client_id");
-        String redirectUri = queryMap.get("redirect_uri");
-        String scope = queryMap.get("scope");
-        String state = queryMap.get("state");
-
         var authorizationRequest =
-                AuthorizationRequest.builder()
-                        .sub(httpExchange.getPrincipal().getUsername())
-                        .responseType(responseType)
-                        .clientId(clientId)
-                        .redirectUri(redirectUri)
-                        .scope(scope)
-                        .state(state)
-                        .build();
-
+                new AuthorizationRequest(httpExchange.getPrincipal().getUsername(), null, queryMap);
         var authorizationResponse = azIdp.authorize(authorizationRequest);
         authorizationResponse
                 .headers("https://example.com")

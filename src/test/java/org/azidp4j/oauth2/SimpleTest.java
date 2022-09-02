@@ -12,6 +12,7 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
@@ -49,15 +50,20 @@ public class SimpleTest {
 
         // authorization request
         var redirectUri = "http://example.com";
-        var authorizationRequest =
-                AuthorizationRequest.builder()
-                        .sub("username")
-                        .clientId(clientId)
-                        .redirectUri(redirectUri)
-                        .responseType("code")
-                        .scope("scope1 scope2")
-                        .state("xyz")
-                        .build();
+        var queryParameters =
+                Map.of(
+                        "client_id",
+                        clientId,
+                        "redirect_uri",
+                        redirectUri,
+                        "response_type",
+                        "code",
+                        "scope",
+                        "scope1 scope2",
+                        "state",
+                        "xyz");
+        var authorizationRequest = new AuthorizationRequest("username", null, queryParameters);
+
         // exercise
         var authorizationResponse = sut.authorize(authorizationRequest);
 

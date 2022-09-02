@@ -30,11 +30,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
         var accessTokenIssuer = new AccessTokenIssuer(config, jwks);
         var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeStore,
-                        accessTokenStore,
-                        accessTokenIssuer);
+                new IssueToken(config, authorizationCodeStore, accessTokenStore, accessTokenIssuer);
         var tokenRequest =
                 TokenRequest.builder()
                         .grantType("client_credentials")
