@@ -17,6 +17,7 @@ public class AuthorizationRequestParser {
                         .redirectUri(redirectUri)
                         .scope(scope)
                         .state(state)
+                        .audiences(req.audiences)
                         .build();
         return authorizationRequest;
     }

@@ -69,9 +69,9 @@ public class SampleTest {
                         "redirect_uris",
                         Set.of("http://localhost:8080"),
                         "grant_types",
-                        Set.of(GrantType.authorization_code.name()),
+                        Set.of(GrantType.authorization_code.name(), GrantType.implicit),
                         "response_types",
-                        Set.of(ResponseType.code.name()),
+                        Set.of(ResponseType.code.name(), ResponseType.token.name()),
                         "scope",
                         "scope1 scope2");
         var clientRegistrationRequest =
@@ -88,7 +88,6 @@ public class SampleTest {
         var clientId = registeredClient.get("client_id").asText();
         var clientSecret = registeredClient.get("client_secret").asText();
 
-        // authorization request
         var authorizationRequestClient =
                 HttpClient.newBuilder()
                         .authenticator(
@@ -100,26 +99,6 @@ public class SampleTest {
                                     }
                                 })
                         .build();
-        var authorizationRequest =
-                HttpRequest.newBuilder(
-                                URI.create(
-                                        "http://localhost:8080/authorize?response_type=code&client_id="
-                                                + clientId
-                                                + "&redirect_uri=http://localhost:8080&scope=scope1&state=xyz"))
-                        .GET()
-                        .build();
-        var authorizationResponse =
-                authorizationRequestClient.send(
-                        authorizationRequest, HttpResponse.BodyHandlers.ofString());
-        var location = authorizationResponse.headers().firstValue("Location").get();
-        System.out.println(location);
-        var redirectQuery = URI.create(location).getQuery();
-        var queryMap =
-                Arrays.stream(redirectQuery.split("&"))
-                        .map(kv -> kv.split("="))
-                        .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
-
-        // token request
         var tokenRequestClient =
                 HttpClient.newBuilder()
                         .authenticator(
@@ -131,33 +110,87 @@ public class SampleTest {
                                     }
                                 })
                         .build();
-        var tokenRequest =
-                HttpRequest.newBuilder(URI.create("http://localhost:8080/token"))
-                        .POST(
-                                HttpRequest.BodyPublishers.ofString(
-                                        "grant_type=authorization_code&code="
-                                                + queryMap.get("code")
-                                                + "&redirect_uri=http://example.com&client_id=sample"))
-                        .setHeader(
-                                "Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
-                        .build();
-        var tokenResponse =
-                tokenRequestClient.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
-        System.out.println(tokenResponse.body());
+        // authorization code grant
+        {
+            var authorizationRequest =
+                    HttpRequest.newBuilder(
+                                    URI.create(
+                                            "http://localhost:8080/authorize?response_type=code&client_id="
+                                                    + clientId
+                                                    + "&redirect_uri=http://localhost:8080&scope=scope1&state=xyz"))
+                            .GET()
+                            .build();
+            var authorizationResponse =
+                    authorizationRequestClient.send(
+                            authorizationRequest, HttpResponse.BodyHandlers.ofString());
+            var location = authorizationResponse.headers().firstValue("Location").get();
+            var redirectQuery = URI.create(location).getQuery();
+            var queryMap =
+                    Arrays.stream(redirectQuery.split("&"))
+                            .map(kv -> kv.split("="))
+                            .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
 
-        // verify token
-        // signature
-        var jwks = JWKSet.load(new URL("http://localhost:8080/jwks"));
-        var tokenResponseJSON = new ObjectMapper().readTree(tokenResponse.body());
-        var accessToken = tokenResponseJSON.get("access_token");
-        var parsedAccessToken = JWSObject.parse(accessToken.asText());
-        var jwk = jwks.getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
-        var verifier = new ECDSAVerifier((ECKey) jwk);
-        assertTrue(parsedAccessToken.verify(verifier));
+            // token request
+            var tokenRequest =
+                    HttpRequest.newBuilder(URI.create("http://localhost:8080/token"))
+                            .POST(
+                                    HttpRequest.BodyPublishers.ofString(
+                                            "grant_type=authorization_code&code="
+                                                    + queryMap.get("code")
+                                                    + "&redirect_uri=http://example.com&client_id=sample"))
+                            .setHeader(
+                                    "Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
+                            .build();
+            var tokenResponse =
+                    tokenRequestClient.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
 
-        // claims
-        var payload = parsedAccessToken.getPayload().toJSONObject();
-        assertEquals("user1", payload.get("sub"));
+            // verify token
+            // signature
+            var jwks = JWKSet.load(new URL("http://localhost:8080/jwks"));
+            var tokenResponseJSON = new ObjectMapper().readTree(tokenResponse.body());
+            var accessToken = tokenResponseJSON.get("access_token");
+            var parsedAccessToken = JWSObject.parse(accessToken.asText());
+            var jwk = jwks.getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
+            var verifier = new ECDSAVerifier((ECKey) jwk);
+            assertTrue(parsedAccessToken.verify(verifier));
+
+            // claims
+            var payload = parsedAccessToken.getPayload().toJSONObject();
+            assertEquals("user1", payload.get("sub"));
+        }
+
+        // implicit grant
+        {
+            var authorizationRequest =
+                    HttpRequest.newBuilder(
+                                    URI.create(
+                                            "http://localhost:8080/authorize?response_type=token&client_id="
+                                                    + clientId
+                                                    + "&redirect_uri=http://localhost:8080&scope=scope1&state=xyz"))
+                            .GET()
+                            .build();
+            var authorizationResponse =
+                    authorizationRequestClient.send(
+                            authorizationRequest, HttpResponse.BodyHandlers.ofString());
+            var location = authorizationResponse.headers().firstValue("Location").get();
+            var fragment = URI.create(location).getFragment();
+            var fragmentMap =
+                    Arrays.stream(fragment.split("&"))
+                            .map(kv -> kv.split("="))
+                            .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
+            // verify token
+            // signature
+            var jwks = JWKSet.load(new URL("http://localhost:8080/jwks"));
+            var accessToken = fragmentMap.get("access_token");
+            var parsedAccessToken = JWSObject.parse(accessToken);
+            var jwk = jwks.getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
+            var verifier = new ECDSAVerifier((ECKey) jwk);
+            assertTrue(parsedAccessToken.verify(verifier));
+
+            // claims
+            var payload = parsedAccessToken.getPayload().toJSONObject();
+            assertEquals("user1", payload.get("sub"));
+        }
 
         // shutdown authorization server
         az.stop();
