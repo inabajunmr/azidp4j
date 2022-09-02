@@ -32,7 +32,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var issueToken =
                 new IssueToken(config, authorizationCodeStore, accessTokenStore, accessTokenIssuer);
         var tokenRequest =
-                TokenRequest.builder()
+                InternalTokenRequest.builder()
                         .grantType("client_credentials")
                         .clientId("clientId")
                         .scope("scope1")

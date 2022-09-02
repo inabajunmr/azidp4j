@@ -23,7 +23,7 @@ public class IssueToken {
         this.config = azIdPConfig;
     }
 
-    public TokenResponse issue(TokenRequest request) {
+    public TokenResponse issue(InternalTokenRequest request) {
         var grantType = GrantType.of(request.grantType);
         switch (grantType) {
             case authorization_code:

@@ -42,7 +42,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         accessTokenStore,
                         new AccessTokenIssuer(config, jwks));
         var tokenRequest =
-                TokenRequest.builder()
+                InternalTokenRequest.builder()
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")

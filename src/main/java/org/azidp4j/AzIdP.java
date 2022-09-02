@@ -15,6 +15,7 @@ public class AzIdP {
     AuthorizationRequestParser authorizationRequestParser = new AuthorizationRequestParser();
     AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
     IssueToken issueToken;
+    TokenRequestParser tokenRequestParser = new TokenRequestParser();
     DynamicClientRegistration clientRegistration;
 
     public AzIdP(AzIdPConfig azIdPConfig, JWKSet jwkSet, ClientStore clientStore) {
@@ -33,7 +34,8 @@ public class AzIdP {
     }
 
     public TokenResponse issueToken(TokenRequest tokenRequest) {
-        return issueToken.issue(tokenRequest);
+        var parsed = tokenRequestParser.parse(tokenRequest);
+        return issueToken.issue(parsed);
     }
 
     public ClientRegistrationResponse registerClient(

@@ -75,15 +75,16 @@ public class SimpleTest {
         assertEquals(queryMap.get("state"), "xyz");
 
         // token request
-        var code = queryMap.get("code");
-        var tokenRequest =
-                TokenRequest.builder()
-                        .clientId(clientId)
-                        .redirectUri(redirectUri)
-                        .grantType("authorization_code")
-                        .code(code)
-                        .audiences(Set.of("http://rs.example.com"))
-                        .build();
+        var body =
+                Map.of(
+                        "code",
+                        queryMap.get("code"),
+                        "redirect_uri",
+                        redirectUri,
+                        "grant_type",
+                        "authorization_code");
+        var tokenRequest = new TokenRequest(clientId, Set.of("http://rs.example.com"), body);
+
         // exercise
         var tokenResponse = sut.issueToken(tokenRequest);
 

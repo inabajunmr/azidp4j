@@ -33,14 +33,7 @@ public class TokenEndpointHandler implements HttpHandler {
         // var clientId = bodyMap.get("client_id"); TODO for public client?
         var scope = bodyMap.get("scope");
         var tokenRequest =
-                TokenRequest.builder()
-                        .code(code)
-                        .grantType(grantType)
-                        .redirectUri(redirectUri)
-                        .clientId(clientId)
-                        .scope(scope)
-                        .audiences(Set.of("http://" + scope + ".rs.example.com"))
-                        .build();
+                new TokenRequest(clientId, Set.of("http://" + scope + ".rs.example.com"), bodyMap);
         var tokenResponse = azIdp.issueToken(tokenRequest);
         var mapper = new ObjectMapper();
         var responseJSON = mapper.writeValueAsString(tokenResponse.body);
