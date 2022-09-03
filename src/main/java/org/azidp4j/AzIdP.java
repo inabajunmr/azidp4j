@@ -28,7 +28,8 @@ public class AzIdP {
                         authorizationCodeStore,
                         accessTokenStore,
                         accessTokenIssuer,
-                        null);
+                        null,
+                        clientStore);
         this.clientRegistration = new DynamicClientRegistration(clientStore);
     }
 
@@ -46,7 +47,8 @@ public class AzIdP {
                         authorizationCodeStore,
                         accessTokenStore,
                         accessTokenIssuer,
-                        userPasswordVerifier);
+                        userPasswordVerifier,
+                        clientStore);
         this.clientRegistration = new DynamicClientRegistration(clientStore);
     }
 

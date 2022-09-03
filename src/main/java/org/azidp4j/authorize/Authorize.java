@@ -1,12 +1,11 @@
 package org.azidp4j.authorize;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
+import org.azidp4j.scope.ScopeValidator;
 import org.azidp4j.token.AccessTokenIssuer;
 
 public class Authorize {
@@ -17,6 +16,8 @@ public class Authorize {
     private final AccessTokenIssuer accessTokenIssuer;
 
     private final AzIdPConfig azIdPConfig;
+
+    private final ScopeValidator scopeValidator = new ScopeValidator();
 
     public Authorize(
             ClientStore clientStore,
@@ -54,7 +55,7 @@ public class Authorize {
 
         if (responseType == ResponseType.code) {
             // validate scope
-            if (!hasEnoughScope(authorizationRequest.scope, client.scope)) {
+            if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
                 return new AuthorizationResponse(
                         302,
                         Map.of("error", "invalid_scope", "state", authorizationRequest.state),
@@ -91,7 +92,7 @@ public class Authorize {
             return new AuthorizationResponse(
                     302, Map.of("code", code, "state", authorizationRequest.state), Map.of());
         } else if (responseType == ResponseType.token) {
-            if (!hasEnoughScope(authorizationRequest.scope, client.scope)) {
+            if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
                 return new AuthorizationResponse(
                         302,
                         Map.of(),
@@ -144,13 +145,5 @@ public class Authorize {
         }
 
         throw new AssertionError();
-    }
-
-    private boolean hasEnoughScope(String requestedScope, String clientRegisteredScope) {
-        var requestedScopes = requestedScope.split(" ");
-        var clientScopes =
-                Arrays.stream(clientRegisteredScope.split(" ")).collect(Collectors.toSet());
-        return requestedScopes.length
-                == Arrays.stream(requestedScopes).filter(s -> clientScopes.contains(s)).count();
     }
 }

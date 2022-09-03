@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
+import org.azidp4j.client.Client;
+import org.azidp4j.client.GrantType;
+import org.azidp4j.client.InMemoryClientStore;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
@@ -36,13 +39,23 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         return true;
                     }
                 };
+        var clientStore = new InMemoryClientStore();
+        clientStore.save(
+                new Client(
+                        "clientId",
+                        "secret",
+                        null,
+                        Set.of(GrantType.password),
+                        Set.of(),
+                        "scope1 scope2"));
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
                         accessTokenStore,
                         accessTokenIssuer,
-                        userPasswordVerifier);
+                        userPasswordVerifier,
+                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("password")
@@ -99,13 +112,23 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         return false;
                     }
                 };
+        var clientStore = new InMemoryClientStore();
+        clientStore.save(
+                new Client(
+                        "clientId",
+                        "secret",
+                        null,
+                        Set.of(GrantType.password),
+                        Set.of(),
+                        "scope1 scope2"));
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
                         accessTokenStore,
                         accessTokenIssuer,
-                        userPasswordVerifier);
+                        userPasswordVerifier,
+                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("password")

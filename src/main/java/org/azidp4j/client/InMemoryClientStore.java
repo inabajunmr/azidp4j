@@ -11,7 +11,13 @@ public class InMemoryClientStore implements ClientStore {
     public InMemoryClientStore() {
         STORE.put(
                 "default",
-                new Client("default", "default", Set.of(), Set.of(), Set.of(), "default"));
+                new Client(
+                        "default",
+                        "default",
+                        Set.of(),
+                        Set.of(GrantType.client_credentials),
+                        Set.of(),
+                        "default"));
     }
 
     @Override

@@ -69,7 +69,10 @@ public class SampleTest {
                         "redirect_uris",
                         Set.of("http://localhost:8080"),
                         "grant_types",
-                        Set.of(GrantType.authorization_code.name(), GrantType.implicit),
+                        Set.of(
+                                GrantType.authorization_code.name(),
+                                GrantType.implicit,
+                                GrantType.password),
                         "response_types",
                         Set.of(ResponseType.code.name(), ResponseType.token.name()),
                         "scope",
@@ -200,13 +203,13 @@ public class SampleTest {
                     HttpRequest.newBuilder(URI.create("http://localhost:8080/token"))
                             .POST(
                                     HttpRequest.BodyPublishers.ofString(
-                                            "grant_type=password&scope=default&username=user1&password=password1"))
+                                            "grant_type=password&scope=scope1&username=user1&password=password1"))
                             .setHeader(
                                     "Content-Type",
                                     "application/x-www-form-urlencoded; charset=utf-8")
                             .build();
             var resourceOwnerPasswordCredentialResponse =
-                    defaultClient.send(
+                    tokenRequestClient.send(
                             resourceOwnerPasswordCredentialsTokenRequest,
                             HttpResponse.BodyHandlers.ofString());
             var userAccessToken =

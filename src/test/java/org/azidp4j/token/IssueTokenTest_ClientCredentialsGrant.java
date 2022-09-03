@@ -15,6 +15,9 @@ import java.util.List;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
+import org.azidp4j.client.Client;
+import org.azidp4j.client.GrantType;
+import org.azidp4j.client.InMemoryClientStore;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ClientCredentialsGrant {
@@ -29,9 +32,23 @@ class IssueTokenTest_ClientCredentialsGrant {
         var accessTokenStore = new InMemoryAccessTokenStore();
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
         var accessTokenIssuer = new AccessTokenIssuer(config, jwks);
+        var clientStore = new InMemoryClientStore();
+        clientStore.save(
+                new Client(
+                        "clientId",
+                        "secret",
+                        null,
+                        Set.of(GrantType.client_credentials),
+                        Set.of(),
+                        "scope1 scope2"));
         var issueToken =
                 new IssueToken(
-                        config, authorizationCodeStore, accessTokenStore, accessTokenIssuer, null);
+                        config,
+                        authorizationCodeStore,
+                        accessTokenStore,
+                        accessTokenIssuer,
+                        null,
+                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")

@@ -3,7 +3,9 @@ package org.azidp4j.token;
 import java.util.Map;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.AuthorizationCodeStore;
+import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
+import org.azidp4j.scope.ScopeValidator;
 
 public class IssueToken {
 
@@ -12,22 +14,33 @@ public class IssueToken {
     AccessTokenIssuer accessTokenIssuer;
     AzIdPConfig config;
     UserPasswordVerifier userPasswordVerifier;
+    ClientStore clientStore;
+    ScopeValidator scopeValidator = new ScopeValidator();
 
     public IssueToken(
             AzIdPConfig azIdPConfig,
             AuthorizationCodeStore authorizationCodeStore,
             AccessTokenStore accessTokenStore,
             AccessTokenIssuer accessTokenIssuer,
-            UserPasswordVerifier userPasswordVerifier) {
+            UserPasswordVerifier userPasswordVerifier,
+            ClientStore clientStore) {
         this.authorizationCodeStore = authorizationCodeStore;
         this.accessTokenStore = accessTokenStore;
         this.accessTokenIssuer = accessTokenIssuer;
         this.config = azIdPConfig;
         this.userPasswordVerifier = userPasswordVerifier;
+        this.clientStore = clientStore;
     }
 
     public TokenResponse issue(InternalTokenRequest request) {
         var grantType = GrantType.of(request.grantType);
+        var client = clientStore.find(request.clientId);
+        if (client == null) {
+            return new TokenResponse(400, Map.of("error", "unauthorized_client"));
+        }
+        if (!client.grantTypes.contains(grantType)) { // TODO test
+            return new TokenResponse(400, Map.of("error", "unsupported_grant_type"));
+        }
         switch (grantType) {
             case authorization_code:
                 {
@@ -54,7 +67,10 @@ public class IssueToken {
                 }
             case password:
                 {
-                    // TODO verify client grant type
+                    // verify scope // TODO test
+                    if (!scopeValidator.hasEnoughScope(request.scope, client)) {
+                        return new TokenResponse(400, Map.of("error", "invalid_scope"));
+                    }
                     // verify user
                     if (userPasswordVerifier == null) {
                         throw new AssertionError(
@@ -85,7 +101,10 @@ public class IssueToken {
                 }
             case client_credentials:
                 {
-                    // TODO verify client grant type
+                    // verify scope // TODO test
+                    if (!scopeValidator.hasEnoughScope(request.scope, client)) {
+                        return new TokenResponse(400, Map.of("error", "invalid_scope"));
+                    }
                     var jws =
                             accessTokenIssuer.issue(
                                     request.clientId,
