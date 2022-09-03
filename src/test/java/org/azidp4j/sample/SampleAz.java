@@ -19,6 +19,7 @@ import org.azidp4j.sample.handler.AuthorizationEndpointHandler;
 import org.azidp4j.sample.handler.DynamicClientRegistrationHandler;
 import org.azidp4j.sample.handler.JWKsEndpointHandler;
 import org.azidp4j.sample.handler.TokenEndpointHandler;
+import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.UserPasswordVerifier;
 
 public class SampleAz {
@@ -46,7 +47,13 @@ public class SampleAz {
                         return false;
                     }
                 };
-        var azIdP = new AzIdP(config, jwks, clientStore, userPasswordVerifier);
+        var azIdP =
+                new AzIdP(
+                        config,
+                        jwks,
+                        clientStore,
+                        new SampleScopeAudienceMapper(),
+                        userPasswordVerifier);
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/authorize", new AuthorizationEndpointHandler(azIdP))
                 .setAuthenticator(new UserBasicAuthenticator());

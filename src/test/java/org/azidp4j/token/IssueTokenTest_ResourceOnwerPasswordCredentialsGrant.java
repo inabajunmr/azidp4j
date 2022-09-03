@@ -18,6 +18,7 @@ import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
@@ -31,7 +32,8 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
-        var accessTokenIssuer = new AccessTokenIssuer(config, jwks);
+        var accessTokenIssuer =
+                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -47,7 +49,7 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         null,
                         Set.of(GrantType.password),
                         Set.of(),
-                        "scope1 scope2"));
+                        "rs:scope1 rs:scope2"));
         var issueToken =
                 new IssueToken(
                         config,
@@ -62,7 +64,7 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         .username("username")
                         .password("password")
                         .clientId("clientId")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .audiences(Set.of("http://rs.example.com"))
                         .build();
 
@@ -83,7 +85,7 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         assertEquals(payload.get("sub"), "username");
         assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
         assertEquals(payload.get("client_id"), "clientId");
-        assertEquals(payload.get("scope"), "scope1");
+        assertEquals(payload.get("scope"), "rs:scope1");
         assertNotNull(payload.get("jti"));
         assertEquals(payload.get("iss"), "as.example.com");
         assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
@@ -104,7 +106,8 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
-        var accessTokenIssuer = new AccessTokenIssuer(config, jwks);
+        var accessTokenIssuer =
+                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -120,7 +123,7 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         null,
                         Set.of(GrantType.password),
                         Set.of(),
-                        "scope1 scope2"));
+                        "rs:scope1 rs:scope2"));
         var issueToken =
                 new IssueToken(
                         config,
@@ -135,7 +138,7 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         .username("username")
                         .password("password")
                         .clientId("clientId")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .audiences(Set.of("http://rs.example.com"))
                         .build();
 
@@ -147,5 +150,58 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         // access token
         var error = response.body.get("error");
         assertEquals(error, "invalid_grant");
+    }
+
+    @Test
+    void clientHasNotEnoughScope() throws JOSEException {
+
+        // setup
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var accessTokenIssuer =
+                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var userPasswordVerifier =
+                new UserPasswordVerifier() {
+                    @Override
+                    public boolean verify(String username, String password) {
+                        return true;
+                    }
+                };
+        var clientStore = new InMemoryClientStore();
+        clientStore.save(
+                new Client(
+                        "clientId",
+                        "secret",
+                        null,
+                        Set.of(GrantType.password),
+                        Set.of(),
+                        "rs:scope1 rs:scope2"));
+        var issueToken =
+                new IssueToken(
+                        config,
+                        authorizationCodeStore,
+                        accessTokenStore,
+                        accessTokenIssuer,
+                        userPasswordVerifier,
+                        clientStore);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .grantType("password")
+                        .username("username")
+                        .password("password")
+                        .clientId("clientId")
+                        .scope("unauthorized")
+                        .audiences(Set.of("http://rs.example.com"))
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 400);
+        assertEquals(response.body.get("error"), "invalid_scope");
     }
 }

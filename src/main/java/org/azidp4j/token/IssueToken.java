@@ -45,10 +45,13 @@ public class IssueToken {
             case authorization_code:
                 {
                     var authorizationCode = authorizationCodeStore.find(request.code);
+                    // verify scope // TODO test
+                    if (!scopeValidator.hasEnoughScope(authorizationCode.scope, client)) {
+                        return new TokenResponse(400, Map.of("error", "invalid_scope"));
+                    }
                     var jws =
                             accessTokenIssuer.issue(
                                     authorizationCode.sub,
-                                    request.audiences,
                                     request.clientId,
                                     authorizationCode.scope);
                     return new TokenResponse(
@@ -80,10 +83,7 @@ public class IssueToken {
                     if (userPasswordVerifier.verify(request.username, request.password)) {
                         var jws =
                                 accessTokenIssuer.issue(
-                                        request.username,
-                                        request.audiences,
-                                        request.clientId,
-                                        request.scope);
+                                        request.username, request.clientId, request.scope);
                         return new TokenResponse(
                                 200,
                                 Map.of(
@@ -107,10 +107,7 @@ public class IssueToken {
                     }
                     var jws =
                             accessTokenIssuer.issue(
-                                    request.clientId,
-                                    request.audiences,
-                                    request.clientId,
-                                    request.scope);
+                                    request.clientId, request.clientId, request.scope);
                     return new TokenResponse(
                             200,
                             Map.of(

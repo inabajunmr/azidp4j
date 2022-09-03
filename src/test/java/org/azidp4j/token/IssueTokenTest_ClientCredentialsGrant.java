@@ -18,6 +18,7 @@ import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ClientCredentialsGrant {
@@ -31,7 +32,8 @@ class IssueTokenTest_ClientCredentialsGrant {
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
-        var accessTokenIssuer = new AccessTokenIssuer(config, jwks);
+        var accessTokenIssuer =
+                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -40,7 +42,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                         null,
                         Set.of(GrantType.client_credentials),
                         Set.of(),
-                        "scope1 scope2"));
+                        "rs:scope1 rs:scope2"));
         var issueToken =
                 new IssueToken(
                         config,
@@ -53,7 +55,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")
                         .clientId("clientId")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .audiences(Set.of("http://rs.example.com"))
                         .build();
 
@@ -74,7 +76,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         assertEquals(payload.get("sub"), "clientId");
         assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
         assertEquals(payload.get("client_id"), "clientId");
-        assertEquals(payload.get("scope"), "scope1");
+        assertEquals(payload.get("scope"), "rs:scope1");
         assertNotNull(payload.get("jti"));
         assertEquals(payload.get("iss"), "as.example.com");
         assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
@@ -84,5 +86,49 @@ class IssueTokenTest_ClientCredentialsGrant {
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertFalse(response.body.containsKey("refresh_token"));
+    }
+
+    @Test
+    void clientHasNotEnoughScope() throws JOSEException {
+
+        // setup
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var accessTokenIssuer =
+                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var clientStore = new InMemoryClientStore();
+        clientStore.save(
+                new Client(
+                        "clientId",
+                        "secret",
+                        null,
+                        Set.of(GrantType.client_credentials),
+                        Set.of(),
+                        "rs:scope1 rs:scope2"));
+        var issueToken =
+                new IssueToken(
+                        config,
+                        authorizationCodeStore,
+                        accessTokenStore,
+                        accessTokenIssuer,
+                        null,
+                        clientStore);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .grantType("client_credentials")
+                        .clientId("clientId")
+                        .scope("rs:unauthorized")
+                        .audiences(Set.of("http://rs.example.com"))
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 400);
+        assertEquals(response.body.get("error"), "invalid_scope");
     }
 }

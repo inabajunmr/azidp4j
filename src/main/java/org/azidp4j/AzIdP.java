@@ -6,6 +6,7 @@ import org.azidp4j.client.ClientRegistrationRequest;
 import org.azidp4j.client.ClientRegistrationResponse;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.DynamicClientRegistration;
+import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
 
 public class AzIdP {
@@ -18,8 +19,12 @@ public class AzIdP {
     TokenRequestParser tokenRequestParser = new TokenRequestParser();
     DynamicClientRegistration clientRegistration;
 
-    public AzIdP(AzIdPConfig azIdPConfig, JWKSet jwkSet, ClientStore clientStore) {
-        var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet);
+    public AzIdP(
+            AzIdPConfig azIdPConfig,
+            JWKSet jwkSet,
+            ClientStore clientStore,
+            ScopeAudienceMapper scopeAudienceMapper) {
+        var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         this.authorize =
                 new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
         this.issueToken =
@@ -37,8 +42,9 @@ public class AzIdP {
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
+            ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier) {
-        var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet);
+        var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         this.authorize =
                 new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
         this.issueToken =

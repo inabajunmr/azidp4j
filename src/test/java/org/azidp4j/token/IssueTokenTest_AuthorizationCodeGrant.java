@@ -21,6 +21,7 @@ import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_AuthorizationCodeGrant {
@@ -35,7 +36,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
                 new AuthorizationCode(
-                        subject, UUID.randomUUID().toString(), "scope1", "clientId", "xyz");
+                        subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
         var accessTokenStore = new InMemoryAccessTokenStore();
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
@@ -47,13 +48,13 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         null,
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
-                        "scope1 scope2"));
+                        "rs:scope1 rs:scope2"));
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
                         accessTokenStore,
-                        new AccessTokenIssuer(config, jwks),
+                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         null,
                         clientStore);
         var tokenRequest =
@@ -82,7 +83,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
         assertEquals(payload.get("sub"), subject);
         assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
         assertEquals(payload.get("client_id"), "clientId");
-        assertEquals(payload.get("scope"), "scope1");
+        assertEquals(payload.get("scope"), "rs:scope1");
         assertNotNull(payload.get("jti"));
         assertEquals(payload.get("iss"), "as.example.com");
         assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
@@ -92,5 +93,52 @@ class IssueTokenTest_AuthorizationCodeGrant {
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         // TODO response.body.get("refresh_token");
+    }
+
+    @Test
+    void clientHasNotEnoughScope() throws JOSEException {
+        // setup
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject, UUID.randomUUID().toString(), "notauthorized", "clientId", "xyz");
+        authorizationCodeStore.save(authorizationCode);
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var clientStore = new InMemoryClientStore();
+        clientStore.save(
+                new Client(
+                        "clientId",
+                        "secret",
+                        null,
+                        Set.of(GrantType.authorization_code),
+                        Set.of(ResponseType.code),
+                        "rs:scope1 rs:scope2"));
+        var issueToken =
+                new IssueToken(
+                        config,
+                        authorizationCodeStore,
+                        accessTokenStore,
+                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        null,
+                        clientStore);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .code(authorizationCode.code)
+                        .grantType("authorization_code")
+                        .redirectUri("http://example.com")
+                        .clientId("clientId")
+                        .audiences(Set.of("http://rs.example.com"))
+                        .build();
+
+        // exercise
+        var tokenResponse = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(tokenResponse.status, 400);
+        assertEquals("invalid_scope", tokenResponse.body.get("error"));
     }
 }

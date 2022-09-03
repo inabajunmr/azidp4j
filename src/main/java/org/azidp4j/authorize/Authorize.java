@@ -125,7 +125,6 @@ public class Authorize {
             var accessToken =
                     accessTokenIssuer.issue(
                             authorizationRequest.sub,
-                            authorizationRequest.audiences,
                             authorizationRequest.clientId,
                             authorizationRequest.scope);
             return new AuthorizationResponse(

@@ -20,6 +20,7 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.AccessTokenIssuer;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +43,8 @@ class AuthorizeTest {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(config, new JWKSet()),
+                        new AccessTokenIssuer(
+                                config, new JWKSet(), new SampleScopeAudienceMapper()),
                         config);
         // response type is null
         {
@@ -218,7 +220,8 @@ class AuthorizeTest {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(config, new JWKSet()),
+                        new AccessTokenIssuer(
+                                config, new JWKSet(), new SampleScopeAudienceMapper()),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
@@ -254,7 +257,7 @@ class AuthorizeTest {
                         Set.of("http://example.com"),
                         Set.of(GrantType.implicit),
                         Set.of(ResponseType.token),
-                        "scope1 scope2");
+                        "rs:scope1 rs:scope2");
         clientStore.save(client);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
@@ -263,14 +266,14 @@ class AuthorizeTest {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(config, jwks),
+                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("token")
                         .clientId(client.clientId)
                         .redirectUri("http://example.com")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .audiences(Set.of("http://rs.example.com"))
                         .sub("username")
                         .state("xyz")
@@ -297,7 +300,7 @@ class AuthorizeTest {
         assertEquals(payload.get("sub"), "username");
         assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
         assertEquals(payload.get("client_id"), "client1");
-        assertEquals(payload.get("scope"), "scope1");
+        assertEquals(payload.get("scope"), "rs:scope1");
         assertNotNull(payload.get("jti"));
         assertEquals(payload.get("iss"), "az.example.com");
         assertTrue(
