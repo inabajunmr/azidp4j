@@ -4,7 +4,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.AuthorizationRequest;
@@ -25,10 +24,7 @@ public class AuthorizationEndpointHandler implements HttpHandler {
                         .map(kv -> kv.split("="))
                         .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
         var authorizationRequest =
-                new AuthorizationRequest(
-                        httpExchange.getPrincipal().getUsername(),
-                        Set.of("http://todo.rs.example.com"),
-                        queryMap);
+                new AuthorizationRequest(httpExchange.getPrincipal().getUsername(), queryMap);
         var authorizationResponse = azIdp.authorize(authorizationRequest);
         authorizationResponse
                 .headers("https://example.com")

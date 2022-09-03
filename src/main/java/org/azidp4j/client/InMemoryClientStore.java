@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class InMemoryClientStore implements ClientStore {
 
-    private final Map<String, Client> STORE = new HashMap();
+    private final Map<String, Client> STORE = new HashMap<>();
 
     public InMemoryClientStore() {
         STORE.put(

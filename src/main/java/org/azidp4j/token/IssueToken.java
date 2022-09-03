@@ -35,14 +35,14 @@ public class IssueToken {
         if (client == null) {
             return new TokenResponse(400, Map.of("error", "unauthorized_client"));
         }
-        if (!client.grantTypes.contains(grantType)) { // TODO test
+        if (!client.grantTypes.contains(grantType)) {
             return new TokenResponse(400, Map.of("error", "unsupported_grant_type"));
         }
         switch (grantType) {
             case authorization_code:
                 {
                     var authorizationCode = authorizationCodeStore.find(request.code);
-                    // verify scope // TODO test
+                    // verify scope
                     if (!scopeValidator.hasEnoughScope(authorizationCode.scope, client)) {
                         return new TokenResponse(400, Map.of("error", "invalid_scope"));
                     }
@@ -67,7 +67,7 @@ public class IssueToken {
                 }
             case password:
                 {
-                    // verify scope // TODO test
+                    // verify scope
                     if (!scopeValidator.hasEnoughScope(request.scope, client)) {
                         return new TokenResponse(400, Map.of("error", "invalid_scope"));
                     }
@@ -98,7 +98,7 @@ public class IssueToken {
                 }
             case client_credentials:
                 {
-                    // verify scope // TODO test
+                    // verify scope
                     if (!scopeValidator.hasEnoughScope(request.scope, client)) {
                         return new TokenResponse(400, Map.of("error", "invalid_scope"));
                     }
