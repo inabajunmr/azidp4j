@@ -10,7 +10,6 @@ import org.azidp4j.scope.ScopeValidator;
 public class IssueToken {
 
     AuthorizationCodeStore authorizationCodeStore;
-    AccessTokenStore accessTokenStore;
     AccessTokenIssuer accessTokenIssuer;
     AzIdPConfig config;
     UserPasswordVerifier userPasswordVerifier;
@@ -20,12 +19,10 @@ public class IssueToken {
     public IssueToken(
             AzIdPConfig azIdPConfig,
             AuthorizationCodeStore authorizationCodeStore,
-            AccessTokenStore accessTokenStore,
             AccessTokenIssuer accessTokenIssuer,
             UserPasswordVerifier userPasswordVerifier,
             ClientStore clientStore) {
         this.authorizationCodeStore = authorizationCodeStore;
-        this.accessTokenStore = accessTokenStore;
         this.accessTokenIssuer = accessTokenIssuer;
         this.config = azIdPConfig;
         this.userPasswordVerifier = userPasswordVerifier;

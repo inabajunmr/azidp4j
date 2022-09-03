@@ -38,7 +38,6 @@ class IssueTokenTest_AuthorizationCodeGrant {
                 new AuthorizationCode(
                         subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
-        var accessTokenStore = new InMemoryAccessTokenStore();
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -53,7 +52,6 @@ class IssueTokenTest_AuthorizationCodeGrant {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenStore,
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         null,
                         clientStore);
@@ -106,7 +104,6 @@ class IssueTokenTest_AuthorizationCodeGrant {
                 new AuthorizationCode(
                         subject, UUID.randomUUID().toString(), "notauthorized", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
-        var accessTokenStore = new InMemoryAccessTokenStore();
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -121,7 +118,6 @@ class IssueTokenTest_AuthorizationCodeGrant {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenStore,
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         null,
                         clientStore);

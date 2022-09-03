@@ -14,7 +14,6 @@ public class AzIdP {
     AuthorizationCodeStore authorizationCodeStore = new InMemoryAuthorizationCodeStore();
     Authorize authorize;
     AuthorizationRequestParser authorizationRequestParser = new AuthorizationRequestParser();
-    AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
     IssueToken issueToken;
     TokenRequestParser tokenRequestParser = new TokenRequestParser();
     DynamicClientRegistration clientRegistration;
@@ -29,12 +28,7 @@ public class AzIdP {
                 new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
         this.issueToken =
                 new IssueToken(
-                        azIdPConfig,
-                        authorizationCodeStore,
-                        accessTokenStore,
-                        accessTokenIssuer,
-                        null,
-                        clientStore);
+                        azIdPConfig, authorizationCodeStore, accessTokenIssuer, null, clientStore);
         this.clientRegistration = new DynamicClientRegistration(clientStore);
     }
 
@@ -51,7 +45,6 @@ public class AzIdP {
                 new IssueToken(
                         azIdPConfig,
                         authorizationCodeStore,
-                        accessTokenStore,
                         accessTokenIssuer,
                         userPasswordVerifier,
                         clientStore);

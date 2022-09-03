@@ -34,7 +34,6 @@ public class IssueTokenTest {
                 new AuthorizationCode(
                         subject, UUID.randomUUID().toString(), "scope1", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
-        var accessTokenStore = new InMemoryAccessTokenStore();
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -49,7 +48,6 @@ public class IssueTokenTest {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenStore,
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         null,
                         clientStore);

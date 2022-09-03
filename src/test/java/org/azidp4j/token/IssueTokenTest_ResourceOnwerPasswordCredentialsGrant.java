@@ -30,7 +30,6 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var accessTokenStore = new InMemoryAccessTokenStore();
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
@@ -54,7 +53,6 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenStore,
                         accessTokenIssuer,
                         userPasswordVerifier,
                         clientStore);
@@ -104,7 +102,6 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var accessTokenStore = new InMemoryAccessTokenStore();
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
@@ -128,7 +125,6 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenStore,
                         accessTokenIssuer,
                         userPasswordVerifier,
                         clientStore);
@@ -159,7 +155,6 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var accessTokenStore = new InMemoryAccessTokenStore();
         var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
@@ -183,7 +178,6 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenStore,
                         accessTokenIssuer,
                         userPasswordVerifier,
                         clientStore);
