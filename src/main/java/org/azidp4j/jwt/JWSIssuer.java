@@ -14,7 +14,7 @@ public class JWSIssuer {
         this.jwkSet = jwkSet;
     }
 
-    public JWSObject issue(String kid, Map<String, Object> payload) {
+    public JWSObject issue(String kid, String type, Map<String, Object> payload) {
 
         try {
             var jwk = jwkSet.getKeyByKeyId(kid);
@@ -25,7 +25,7 @@ public class JWSIssuer {
                         new JWSObject(
                                 new JWSHeader.Builder(JWSAlgorithm.ES256)
                                         .keyID(ecJWK.getKeyID())
-                                        .type(new JOSEObjectType("at+JWT"))
+                                        .type(new JOSEObjectType(type))
                                         .build(),
                                 new Payload(payload));
                 jwsObject.sign(signer);

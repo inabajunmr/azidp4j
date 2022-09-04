@@ -19,6 +19,8 @@ import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ClientCredentialsGrant {
@@ -30,9 +32,11 @@ class IssueTokenTest_ClientCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var refreshTokenIssuer =
+                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -44,7 +48,13 @@ class IssueTokenTest_ClientCredentialsGrant {
                         "rs:scope1 rs:scope2"));
         var issueToken =
                 new IssueToken(
-                        config, authorizationCodeStore, accessTokenIssuer, null, clientStore);
+                        config,
+                        authorizationCodeStore,
+                        accessTokenIssuer,
+                        refreshTokenIssuer,
+                        null,
+                        clientStore,
+                        jwks);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")
@@ -89,9 +99,11 @@ class IssueTokenTest_ClientCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var refreshTokenIssuer =
+                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -103,7 +115,13 @@ class IssueTokenTest_ClientCredentialsGrant {
                         "rs:scope1 rs:scope2"));
         var issueToken =
                 new IssueToken(
-                        config, authorizationCodeStore, accessTokenIssuer, null, clientStore);
+                        config,
+                        authorizationCodeStore,
+                        accessTokenIssuer,
+                        refreshTokenIssuer,
+                        null,
+                        clientStore,
+                        jwks);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")

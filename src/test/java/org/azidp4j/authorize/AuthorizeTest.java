@@ -21,7 +21,7 @@ import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.junit.jupiter.api.Test;
 
 class AuthorizeTest {
@@ -38,7 +38,7 @@ class AuthorizeTest {
                         Set.of(ResponseType.code),
                         "scope1 scope2");
         clientStore.save(client);
-        var config = new AzIdPConfig("issuer", "kid", 3600);
+        var config = new AzIdPConfig("issuer", "kid", 3600, 604800);
         var sut =
                 new Authorize(
                         clientStore,
@@ -215,7 +215,7 @@ class AuthorizeTest {
                         Set.of(ResponseType.code),
                         "scope1 scope2");
         clientStore.save(client);
-        var config = new AzIdPConfig("issuer", "kid", 3600);
+        var config = new AzIdPConfig("issuer", "kid", 3600, 604800);
         var sut =
                 new Authorize(
                         clientStore,
@@ -261,7 +261,7 @@ class AuthorizeTest {
         clientStore.save(client);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var config = new AzIdPConfig("az.example.com", key.getKeyID(), 3600);
+        var config = new AzIdPConfig("az.example.com", key.getKeyID(), 3600, 604800);
         var sut =
                 new Authorize(
                         clientStore,

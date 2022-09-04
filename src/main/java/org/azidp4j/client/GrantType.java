@@ -4,7 +4,8 @@ public enum GrantType {
     authorization_code,
     implicit,
     password,
-    client_credentials;
+    client_credentials,
+    refresh_token;
 
     public static GrantType of(String value) {
         if (value == null) {
@@ -19,6 +20,8 @@ public enum GrantType {
                 return password;
             case "client_credentials":
                 return client_credentials;
+            case "refresh_token":
+                return refresh_token;
             default:
                 return null;
         }

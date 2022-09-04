@@ -6,7 +6,7 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.scope.ScopeValidator;
-import org.azidp4j.token.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 
 public class Authorize {
 

@@ -7,9 +7,14 @@ import org.azidp4j.client.Client;
 public class ScopeValidator {
 
     public boolean hasEnoughScope(String requestedScope, Client client) {
+        return hasEnoughScope(requestedScope, client.scope);
+    }
+
+    public boolean hasEnoughScope(String requestedScope, String authorizedScope) {
         var requestedScopes = requestedScope.split(" ");
-        var clientScopes = Arrays.stream(client.scope.split(" ")).collect(Collectors.toSet());
+        var authorizedScopes =
+                Arrays.stream(authorizedScope.split(" ")).collect(Collectors.toSet());
         return requestedScopes.length
-                == Arrays.stream(requestedScopes).filter(s -> clientScopes.contains(s)).count();
+                == Arrays.stream(requestedScopes).filter(s -> authorizedScopes.contains(s)).count();
     }
 }

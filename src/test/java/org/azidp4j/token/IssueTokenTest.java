@@ -1,6 +1,5 @@
 package org.azidp4j.token;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.nimbusds.jose.JOSEException;
@@ -18,6 +17,8 @@ import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 import org.junit.jupiter.api.Test;
 
 public class IssueTokenTest {
@@ -34,7 +35,7 @@ public class IssueTokenTest {
                 new AuthorizationCode(
                         subject, UUID.randomUUID().toString(), "scope1", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -49,8 +50,10 @@ public class IssueTokenTest {
                         config,
                         authorizationCodeStore,
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         null,
-                        clientStore);
+                        clientStore,
+                        jwks);
 
         // client not found
         {

@@ -22,6 +22,8 @@ import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_AuthorizationCodeGrant {
@@ -38,7 +40,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                 new AuthorizationCode(
                         subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -53,8 +55,10 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         config,
                         authorizationCodeStore,
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         null,
-                        clientStore);
+                        clientStore,
+                        jwks);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -90,7 +94,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
         assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
-        // TODO response.body.get("refresh_token");
+        assertTrue(response.body.containsKey("refresh_token"));
     }
 
     @Test
@@ -104,7 +108,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                 new AuthorizationCode(
                         subject, UUID.randomUUID().toString(), "notauthorized", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -119,8 +123,10 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         config,
                         authorizationCodeStore,
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         null,
-                        clientStore);
+                        clientStore,
+                        jwks);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)

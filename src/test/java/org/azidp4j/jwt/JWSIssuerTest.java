@@ -18,7 +18,7 @@ class JWSIssuerTest {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var sut = new JWSIssuer(jwks);
-        var jws = sut.issue(key.getKeyID(), Map.of("test", "abc"));
+        var jws = sut.issue(key.getKeyID(), "at+JWT", Map.of("test", "abc"));
         var payload = jws.getPayload().toJSONObject();
         assertEquals(payload.get("test"), "abc");
 

@@ -1,4 +1,4 @@
-package org.azidp4j.token;
+package org.azidp4j.token.refreshtoken;
 
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -9,7 +9,7 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.scope.ScopeAudienceMapper;
 
-public class AccessTokenIssuer {
+public class RefreshTokenIssuer {
 
     private final AzIdPConfig config;
 
@@ -17,7 +17,7 @@ public class AccessTokenIssuer {
 
     private final ScopeAudienceMapper scopeAudienceMapper;
 
-    public AccessTokenIssuer(
+    public RefreshTokenIssuer(
             AzIdPConfig config, JWKSet jwkSet, ScopeAudienceMapper scopeAudienceMapper) {
         this.config = config;
         this.jwsIssuer = new JWSIssuer(jwkSet);
@@ -35,7 +35,7 @@ public class AccessTokenIssuer {
                         "aud",
                         scopeAudienceMapper.map(scope),
                         "exp",
-                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                        Instant.now().getEpochSecond() + config.refreshTokenExpirationSec,
                         "iat",
                         Instant.now().getEpochSecond(),
                         "jti",
@@ -44,6 +44,6 @@ public class AccessTokenIssuer {
                         clientId,
                         "scope",
                         scope);
-        return jwsIssuer.issue(config.accessTokenKid, claims);
+        return jwsIssuer.issue(config.accessTokenKid, "rt+JWT", claims);
     }
 }

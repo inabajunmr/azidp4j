@@ -19,6 +19,8 @@ import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
@@ -30,9 +32,11 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var refreshTokenIssuer =
+                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -54,8 +58,10 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         config,
                         authorizationCodeStore,
                         accessTokenIssuer,
+                        refreshTokenIssuer,
                         userPasswordVerifier,
-                        clientStore);
+                        clientStore,
+                        jwks);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("password")
@@ -92,7 +98,7 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
-        assertFalse(response.body.containsKey("refresh_token"));
+        assertTrue(response.body.containsKey("refresh_token"));
     }
 
     @Test
@@ -102,9 +108,11 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var refreshTokenIssuer =
+                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -126,8 +134,10 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         config,
                         authorizationCodeStore,
                         accessTokenIssuer,
+                        refreshTokenIssuer,
                         userPasswordVerifier,
-                        clientStore);
+                        clientStore,
+                        jwks);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("password")
@@ -155,9 +165,11 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600);
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var refreshTokenIssuer =
+                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -179,8 +191,10 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         config,
                         authorizationCodeStore,
                         accessTokenIssuer,
+                        refreshTokenIssuer,
                         userPasswordVerifier,
-                        clientStore);
+                        clientStore,
+                        jwks);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("password")

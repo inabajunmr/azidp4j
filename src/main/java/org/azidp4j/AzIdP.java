@@ -8,6 +8,8 @@ import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.DynamicClientRegistration;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
+import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 
 public class AzIdP {
 
@@ -24,11 +26,18 @@ public class AzIdP {
             ClientStore clientStore,
             ScopeAudienceMapper scopeAudienceMapper) {
         var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
+        var refreshTokenIssuer = new RefreshTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         this.authorize =
                 new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
         this.issueToken =
                 new IssueToken(
-                        azIdPConfig, authorizationCodeStore, accessTokenIssuer, null, clientStore);
+                        azIdPConfig,
+                        authorizationCodeStore,
+                        accessTokenIssuer,
+                        refreshTokenIssuer,
+                        null,
+                        clientStore,
+                        jwkSet);
         this.clientRegistration = new DynamicClientRegistration(clientStore);
     }
 
@@ -39,6 +48,7 @@ public class AzIdP {
             ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier) {
         var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
+        var refreshTokenIssuer = new RefreshTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         this.authorize =
                 new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
         this.issueToken =
@@ -46,8 +56,10 @@ public class AzIdP {
                         azIdPConfig,
                         authorizationCodeStore,
                         accessTokenIssuer,
+                        refreshTokenIssuer,
                         userPasswordVerifier,
-                        clientStore);
+                        clientStore,
+                        jwkSet);
         this.clientRegistration = new DynamicClientRegistration(clientStore);
     }
 
