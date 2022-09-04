@@ -13,6 +13,7 @@ public class TokenRequestParser {
         }
         var username = tokenRequest.bodyParameters.get("username");
         var password = tokenRequest.bodyParameters.get("password");
+        var refreshToken = tokenRequest.bodyParameters.get("refresh_token");
         var internalTokenRequest =
                 InternalTokenRequest.builder()
                         .code(code)
@@ -22,6 +23,7 @@ public class TokenRequestParser {
                         .scope(scope)
                         .username(username)
                         .password(password)
+                        .refreshToken(refreshToken)
                         .audiences(tokenRequest.audiences)
                         .build();
         return internalTokenRequest;

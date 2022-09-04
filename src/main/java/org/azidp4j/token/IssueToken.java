@@ -155,7 +155,7 @@ public class IssueToken {
                             return new TokenResponse(400, Map.of("error", "invalid_grant"));
                         }
                         var parsedRt = requestedRt.getPayload().toJSONObject();
-                        if (!parsedRt.get("issuer").equals(config.issuer)) {
+                        if (!parsedRt.get("iss").equals(config.issuer)) {
                             return new TokenResponse(400, Map.of("error", "invalid_grant"));
                         }
                         if ((long) parsedRt.get("exp") < Instant.now().getEpochSecond()) {
@@ -166,15 +166,19 @@ public class IssueToken {
                             return new TokenResponse(400, Map.of("error", "invalid_scope"));
                         }
                         if (request.clientId != null
-                                && !parsedRt.get("clientId").equals(request.clientId)) {
+                                && !parsedRt.get("client_id").equals(request.clientId)) {
                             return new TokenResponse(400, Map.of("error", "invalid_client"));
                         }
+                        var scope =
+                                request.scope != null
+                                        ? request.scope
+                                        : (String) parsedRt.get("scope");
                         var at =
                                 accessTokenIssuer.issue(
-                                        request.username, request.clientId, request.scope);
+                                        (String) parsedRt.get("sub"), request.clientId, scope);
                         var rt =
                                 refreshTokenIssuer.issue(
-                                        request.username, request.clientId, request.scope);
+                                        (String) parsedRt.get("sub"), request.clientId, scope);
                         return new TokenResponse(
                                 200,
                                 Map.of(
@@ -187,9 +191,7 @@ public class IssueToken {
                                         "expires_in",
                                         config.accessTokenExpirationSec,
                                         "scope",
-                                        request.scope != null
-                                                ? request.scope
-                                                : parsedRt.get("scope")));
+                                        scope));
                     } catch (ParseException | IllegalStateException e) {
                         return new TokenResponse(400, Map.of("error", "invalid_grant"));
                     } catch (JOSEException e) {

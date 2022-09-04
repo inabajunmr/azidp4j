@@ -11,6 +11,9 @@ public class ScopeValidator {
     }
 
     public boolean hasEnoughScope(String requestedScope, String authorizedScope) {
+        if (requestedScope == null) {
+            return true;
+        }
         var requestedScopes = requestedScope.split(" ");
         var authorizedScopes =
                 Arrays.stream(authorizedScope.split(" ")).collect(Collectors.toSet());

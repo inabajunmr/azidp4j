@@ -28,6 +28,10 @@ import org.junit.jupiter.api.Test;
 
 public class SimpleTest {
 
+    /**
+     * 1. client registration 2. authorization request(authorization code grant) 3. token
+     * request(using authorization code) 4. token request(using refresh token)
+     */
     @Test
     void test() throws JOSEException, ParseException {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -43,7 +47,7 @@ public class SimpleTest {
         var clientRegistrationRequest =
                 ClientRegistrationRequest.builder()
                         .redirectUris(Set.of("http://example.com"))
-                        .grantTypes(Set.of(GrantType.authorization_code))
+                        .grantTypes(Set.of(GrantType.authorization_code, GrantType.refresh_token))
                         .responseTypes(Set.of(ResponseType.code))
                         .scope("scope1 scope2")
                         .build();
@@ -77,7 +81,7 @@ public class SimpleTest {
         assertEquals(queryMap.get("state"), "xyz");
 
         // token request
-        var body =
+        var tokenRequestBody1 =
                 Map.of(
                         "code",
                         queryMap.get("code"),
@@ -85,27 +89,43 @@ public class SimpleTest {
                         redirectUri,
                         "grant_type",
                         "authorization_code");
-        var tokenRequest = new TokenRequest(clientId, Set.of("http://rs.example.com"), body);
+        var tokenRequest1 =
+                new TokenRequest(clientId, Set.of("http://rs.example.com"), tokenRequestBody1);
 
         // exercise
-        var tokenResponse = sut.issueToken(tokenRequest);
+        var tokenResponse1 = sut.issueToken(tokenRequest1);
 
         // verify
-        var accessToken = tokenResponse.body.get("access_token");
-        var tokenType = tokenResponse.body.get("token_type");
-        var expiresIn = tokenResponse.body.get("expires_in");
-        var refreshToken = tokenResponse.body.get("refresh_token");
-        System.out.println(tokenResponse.body);
+        var accessToken = tokenResponse1.body.get("access_token");
+        var refreshToken = tokenResponse1.body.get("refresh_token");
 
         // verify signature
-        var parsedAccessToken = JWSObject.parse((String) accessToken);
+        var parsedAccessToken1 = JWSObject.parse((String) accessToken);
         var publicKey =
-                jwks.toPublicJWKSet().getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
-        System.out.println(publicKey);
+                jwks.toPublicJWKSet().getKeyByKeyId(parsedAccessToken1.getHeader().getKeyID());
         var jwsVerifier = new ECDSAVerifier((ECKey) publicKey);
-        assertTrue(parsedAccessToken.verify(jwsVerifier));
+        assertTrue(parsedAccessToken1.verify(jwsVerifier));
 
         // verify access token
-        assertEquals(parsedAccessToken.getPayload().toJSONObject().get("sub"), "username");
+        assertEquals(parsedAccessToken1.getPayload().toJSONObject().get("sub"), "username");
+
+        // token request
+        var tokenRequestBody2 =
+                Map.of("refresh_token", (String) refreshToken, "grant_type", "refresh_token");
+        var tokenRequest2 =
+                new TokenRequest(clientId, Set.of("http://rs.example.com"), tokenRequestBody2);
+
+        // exercise
+        var tokenResponse2 = sut.issueToken(tokenRequest2);
+
+        // verify
+        var refreshedAccessToken = tokenResponse2.body.get("access_token");
+
+        // verify signature
+        var parsedAccessToken2 = JWSObject.parse((String) refreshedAccessToken);
+        assertTrue(parsedAccessToken2.verify(jwsVerifier));
+
+        // verify access token
+        assertEquals(parsedAccessToken2.getPayload().toJSONObject().get("sub"), "username");
     }
 }
