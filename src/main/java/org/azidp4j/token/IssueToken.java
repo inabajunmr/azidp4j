@@ -146,7 +146,6 @@ public class IssueToken {
                 }
             case refresh_token:
                 {
-                    // TODO implement to sample az
                     try {
                         var requestedRt = JWSObject.parse(request.refreshToken);
                         var key = (ECKey) jwkSet.getKeyByKeyId(requestedRt.getHeader().getKeyID());

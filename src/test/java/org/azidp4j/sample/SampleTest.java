@@ -71,8 +71,9 @@ public class SampleTest {
                         "grant_types",
                         Set.of(
                                 GrantType.authorization_code.name(),
-                                GrantType.implicit,
-                                GrantType.password),
+                                GrantType.implicit.name(),
+                                GrantType.password.name(),
+                                GrantType.refresh_token.name()),
                         "response_types",
                         Set.of(ResponseType.code.name(), ResponseType.token.name()),
                         "scope",
@@ -162,6 +163,31 @@ public class SampleTest {
             // claims
             var payload = parsedAccessToken.getPayload().toJSONObject();
             assertEquals("user1", payload.get("sub"));
+
+            // token refresh
+            var refreshToken = tokenResponseJSON.get("refresh_token");
+
+            var refreshTokenRequest =
+                    HttpRequest.newBuilder(URI.create("http://localhost:8080/token"))
+                            .POST(
+                                    HttpRequest.BodyPublishers.ofString(
+                                            "grant_type=refresh_token&refresh_token="
+                                                    + refreshToken.textValue()))
+                            .setHeader(
+                                    "Content-Type",
+                                    "application/x-www-form-urlencoded; charset=utf-8")
+                            .build();
+            var refreshTokenResponse =
+                    tokenRequestClient.send(
+                            refreshTokenRequest, HttpResponse.BodyHandlers.ofString());
+            var parsedRefreshTokenResponse =
+                    new ObjectMapper().readTree(refreshTokenResponse.body());
+            var parsedRefreshedAccessToken =
+                    JWSObject.parse(parsedRefreshTokenResponse.get("access_token").asText());
+            assertTrue(parsedRefreshedAccessToken.verify(verifier));
+
+            // claims
+            assertEquals("user1", parsedAccessToken.getPayload().toJSONObject().get("sub"));
         }
 
         // implicit grant
