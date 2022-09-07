@@ -143,4 +143,56 @@ class IssueTokenTest_AuthorizationCodeGrant {
         assertEquals(tokenResponse.status, 400);
         assertEquals("invalid_scope", tokenResponse.body.get("error"));
     }
+
+    @Test
+    void usingSameAuthorizationCode() throws JOSEException {
+
+        // setup
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
+        authorizationCodeStore.save(authorizationCode);
+        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
+        var clientStore = new InMemoryClientStore();
+        clientStore.save(
+                new Client(
+                        "clientId",
+                        "secret",
+                        null,
+                        Set.of(GrantType.authorization_code),
+                        Set.of(ResponseType.code),
+                        "rs:scope1 rs:scope2"));
+        var issueToken =
+                new IssueToken(
+                        config,
+                        authorizationCodeStore,
+                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        null,
+                        clientStore,
+                        jwks);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .code(authorizationCode.code)
+                        .grantType("authorization_code")
+                        .redirectUri("http://example.com")
+                        .clientId("clientId")
+                        .audiences(Set.of("http://rs.example.com"))
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 200);
+
+        // second time
+        var response2 = issueToken.issue(tokenRequest);
+        assertEquals(response.status, 200);
+        assertEquals(response2.body.get("error"), "invalid_grant");
+    }
 }

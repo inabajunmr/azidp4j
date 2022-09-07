@@ -4,5 +4,5 @@ public interface AuthorizationCodeStore {
 
     void save(AuthorizationCode code);
 
-    AuthorizationCode find(String code);
+    AuthorizationCode consume(String code);
 }

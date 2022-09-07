@@ -56,7 +56,10 @@ public class IssueToken {
         switch (grantType) {
             case authorization_code:
                 {
-                    var authorizationCode = authorizationCodeStore.find(request.code);
+                    var authorizationCode = authorizationCodeStore.consume(request.code);
+                    if (authorizationCode == null) {
+                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                    }
                     // verify scope
                     if (!scopeValidator.hasEnoughScope(authorizationCode.scope, client)) {
                         return new TokenResponse(400, Map.of("error", "invalid_scope"));
