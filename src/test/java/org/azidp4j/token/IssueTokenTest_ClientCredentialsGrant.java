@@ -58,9 +58,8 @@ class IssueTokenTest_ClientCredentialsGrant {
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")
-                        .clientId("clientId")
+                        .authenticatedClientId("clientId")
                         .scope("rs:scope1")
-                        .audiences(Set.of("http://rs.example.com"))
                         .build();
 
         // exercise
@@ -125,9 +124,8 @@ class IssueTokenTest_ClientCredentialsGrant {
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")
-                        .clientId("clientId")
+                        .authenticatedClientId("clientId")
                         .scope("rs:unauthorized")
-                        .audiences(Set.of("http://rs.example.com"))
                         .build();
 
         // exercise

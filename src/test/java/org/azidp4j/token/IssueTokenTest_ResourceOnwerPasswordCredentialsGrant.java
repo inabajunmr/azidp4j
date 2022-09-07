@@ -67,9 +67,8 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         .grantType("password")
                         .username("username")
                         .password("password")
-                        .clientId("clientId")
+                        .authenticatedClientId("clientId")
                         .scope("rs:scope1")
-                        .audiences(Set.of("http://rs.example.com"))
                         .build();
 
         // exercise
@@ -143,9 +142,8 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         .grantType("password")
                         .username("username")
                         .password("password")
-                        .clientId("clientId")
+                        .authenticatedClientId("clientId")
                         .scope("rs:scope1")
-                        .audiences(Set.of("http://rs.example.com"))
                         .build();
 
         // exercise
@@ -200,9 +198,8 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         .grantType("password")
                         .username("username")
                         .password("password")
-                        .clientId("clientId")
+                        .authenticatedClientId("clientId")
                         .scope("unauthorized")
-                        .audiences(Set.of("http://rs.example.com"))
                         .build();
 
         // exercise

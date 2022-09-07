@@ -6,7 +6,6 @@ import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
 import org.azidp4j.token.TokenRequest;
@@ -27,10 +26,7 @@ public class TokenEndpointHandler implements HttpHandler {
                 Arrays.stream(body.split("&"))
                         .map(kv -> kv.split("="))
                         .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
-        // var clientId = bodyMap.get("client_id"); TODO for public client?
-        var scope = bodyMap.get("scope");
-        var tokenRequest =
-                new TokenRequest(clientId, Set.of("http://" + scope + ".rs.example.com"), bodyMap);
+        var tokenRequest = new TokenRequest(clientId, bodyMap);
         var tokenResponse = azIdp.issueToken(tokenRequest);
         var mapper = new ObjectMapper();
         var responseJSON = mapper.writeValueAsString(tokenResponse.body);

@@ -5,12 +5,9 @@ public class TokenRequestParser {
         var code = tokenRequest.bodyParameters.get("code");
         var grantType = tokenRequest.bodyParameters.get("grant_type");
         var redirectUri = tokenRequest.bodyParameters.get("redirect_uri");
-        // var clientId = bodyMap.get("client_id"); TODO for public client?
         var scope = tokenRequest.bodyParameters.get("scope");
-        var clientId = tokenRequest.authenticatedClientId;
-        if (tokenRequest.authenticatedClientId == null) {
-            clientId = tokenRequest.bodyParameters.get("clientId");
-        }
+        var authenticatedClientId = tokenRequest.authenticatedClientId;
+        var clientId = tokenRequest.bodyParameters.get("clientId");
         var username = tokenRequest.bodyParameters.get("username");
         var password = tokenRequest.bodyParameters.get("password");
         var refreshToken = tokenRequest.bodyParameters.get("refresh_token");
@@ -20,11 +17,11 @@ public class TokenRequestParser {
                         .grantType(grantType)
                         .redirectUri(redirectUri)
                         .clientId(clientId)
+                        .authenticatedClientId(authenticatedClientId)
                         .scope(scope)
                         .username(username)
                         .password(password)
                         .refreshToken(refreshToken)
-                        .audiences(tokenRequest.audiences)
                         .build();
         return internalTokenRequest;
     }

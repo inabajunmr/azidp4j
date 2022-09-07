@@ -61,8 +61,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1 rs:scope2")
                         .refreshToken(rt.serialize())
-                        .clientId("clientId")
-                        .audiences(Set.of("http://rs.example.com"))
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise
@@ -130,8 +129,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1")
                         .refreshToken(rt.serialize())
-                        .clientId("clientId")
-                        .audiences(Set.of("http://rs.example.com"))
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise
@@ -168,7 +166,7 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void error_scopeExpand() throws JOSEException, ParseException {
+    void error_scopeExpand() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -203,8 +201,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1 rs:scope2")
                         .refreshToken(rt.serialize())
-                        .clientId("clientId")
-                        .audiences(Set.of("http://rs.example.com"))
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise
@@ -218,7 +215,7 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void error_refreshTokenIsNotJWT() throws JOSEException, ParseException {
+    void error_refreshTokenIsNotJWT() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -252,8 +249,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1 rs:scope2")
                         .refreshToken("invalid")
-                        .clientId("clientId")
-                        .audiences(Set.of("http://rs.example.com"))
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise
@@ -267,7 +263,7 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void error_refreshTokenIsValidSignedJWT() throws JOSEException, ParseException {
+    void error_refreshTokenIsValidSignedJWT() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -308,8 +304,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1 rs:scope2")
                         .refreshToken(rt.serialize())
-                        .clientId("clientId")
-                        .audiences(Set.of("http://rs.example.com"))
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise
@@ -321,7 +316,7 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void error_invalidIssuer() throws JOSEException, ParseException {
+    void error_invalidIssuer() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -359,8 +354,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1 rs:scope2")
                         .refreshToken(rt.serialize())
-                        .clientId("clientId")
-                        .audiences(Set.of("http://rs.example.com"))
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise
@@ -372,7 +366,7 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void error_expiredRefreshToken() throws JOSEException, ParseException {
+    void error_expiredRefreshToken() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -408,8 +402,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1")
                         .refreshToken(rt.serialize())
-                        .clientId("clientId")
-                        .audiences(Set.of("http://rs.example.com"))
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise

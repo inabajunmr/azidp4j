@@ -63,7 +63,6 @@ public class IssueTokenTest {
                             .grantType("authorization_code")
                             .redirectUri("http://example.com")
                             .clientId("not found")
-                            .audiences(Set.of("http://rs.example.com"))
                             .build();
 
             // exercise
@@ -79,7 +78,6 @@ public class IssueTokenTest {
                             .grantType("password")
                             .redirectUri("http://example.com")
                             .clientId("clientId")
-                            .audiences(Set.of("http://rs.example.com"))
                             .build();
 
             // exercise

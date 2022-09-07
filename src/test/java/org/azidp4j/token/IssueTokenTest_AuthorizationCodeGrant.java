@@ -65,7 +65,6 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
                         .clientId("clientId")
-                        .audiences(Set.of("http://rs.example.com"))
                         .build();
 
         // exercise
@@ -133,7 +132,6 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
                         .clientId("clientId")
-                        .audiences(Set.of("http://rs.example.com"))
                         .build();
 
         // exercise
@@ -181,7 +179,6 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
                         .clientId("clientId")
-                        .audiences(Set.of("http://rs.example.com"))
                         .build();
 
         // exercise

@@ -8,6 +8,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Objects;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.AuthorizationCodeStore;
 import org.azidp4j.client.ClientStore;
@@ -46,7 +47,13 @@ public class IssueToken {
 
     public TokenResponse issue(InternalTokenRequest request) {
         var grantType = GrantType.of(request.grantType);
-        var client = clientStore.find(request.clientId);
+        if (request.authenticatedClientId != null
+                && request.clientId != null
+                && !Objects.equals(request.authenticatedClientId, request.clientId)) {
+            return new TokenResponse(400, Map.of("error", "invalid_request"));
+        }
+        var clientId = request.clientId != null ? request.clientId : request.authenticatedClientId;
+        var client = clientStore.find(clientId);
         if (client == null) {
             return new TokenResponse(400, Map.of("error", "unauthorized_client"));
         }
@@ -66,14 +73,10 @@ public class IssueToken {
                     }
                     var at =
                             accessTokenIssuer.issue(
-                                    authorizationCode.sub,
-                                    request.clientId,
-                                    authorizationCode.scope);
+                                    authorizationCode.sub, clientId, authorizationCode.scope);
                     var rt =
                             refreshTokenIssuer.issue(
-                                    authorizationCode.sub,
-                                    request.clientId,
-                                    authorizationCode.scope);
+                                    authorizationCode.sub, clientId, authorizationCode.scope);
                     return new TokenResponse(
                             200,
                             Map.of(
@@ -105,10 +108,14 @@ public class IssueToken {
                     if (userPasswordVerifier.verify(request.username, request.password)) {
                         var at =
                                 accessTokenIssuer.issue(
-                                        request.username, request.clientId, request.scope);
+                                        request.username,
+                                        request.authenticatedClientId,
+                                        request.scope);
                         var rt =
                                 refreshTokenIssuer.issue(
-                                        request.username, request.clientId, request.scope);
+                                        request.username,
+                                        request.authenticatedClientId,
+                                        request.scope);
                         return new TokenResponse(
                                 200,
                                 Map.of(
@@ -134,7 +141,9 @@ public class IssueToken {
                     }
                     var jws =
                             accessTokenIssuer.issue(
-                                    request.clientId, request.clientId, request.scope);
+                                    request.authenticatedClientId,
+                                    request.authenticatedClientId,
+                                    request.scope);
                     return new TokenResponse(
                             200,
                             Map.of(
@@ -167,8 +176,9 @@ public class IssueToken {
                                 request.scope, (String) parsedRt.get("scope"))) {
                             return new TokenResponse(400, Map.of("error", "invalid_scope"));
                         }
-                        if (request.clientId != null
-                                && !parsedRt.get("client_id").equals(request.clientId)) {
+                        if (request.authenticatedClientId != null
+                                && !parsedRt.get("client_id")
+                                        .equals(request.authenticatedClientId)) {
                             return new TokenResponse(400, Map.of("error", "invalid_client"));
                         }
                         var scope =
@@ -177,10 +187,14 @@ public class IssueToken {
                                         : (String) parsedRt.get("scope");
                         var at =
                                 accessTokenIssuer.issue(
-                                        (String) parsedRt.get("sub"), request.clientId, scope);
+                                        (String) parsedRt.get("sub"),
+                                        request.authenticatedClientId,
+                                        scope);
                         var rt =
                                 refreshTokenIssuer.issue(
-                                        (String) parsedRt.get("sub"), request.clientId, scope);
+                                        (String) parsedRt.get("sub"),
+                                        request.authenticatedClientId,
+                                        scope);
                         return new TokenResponse(
                                 200,
                                 Map.of(

@@ -1,7 +1,5 @@
 package org.azidp4j.token;
 
-import java.util.Set;
-
 public class InternalTokenRequest {
 
     /** for authorization code */
@@ -12,8 +10,19 @@ public class InternalTokenRequest {
     /** for authorization code */
     final String redirectUri;
 
-    /** for authorization code */
-    final String clientId; // TODO split clientId and authenticatedClientId?
+    /**
+     * authenticated(ex. via basic authentication) client id.
+     *
+     * <p>for authorization code
+     */
+    final String authenticatedClientId;
+
+    /**
+     * client id via request body.
+     *
+     * <p>for authorization code
+     */
+    final String clientId;
 
     /** for client credentials */
     final String scope;
@@ -25,27 +34,25 @@ public class InternalTokenRequest {
     /** for token refresh */
     final String refreshToken;
 
-    final Set<String> audiences;
-
     private InternalTokenRequest(
             String code,
             String grantType,
             String redirectUri,
             String clientId,
+            String authenticatedClientId,
             String scope,
             String username,
             String password,
-            String refreshToken,
-            Set<String> audiences) {
+            String refreshToken) {
         this.code = code;
         this.grantType = grantType;
         this.redirectUri = redirectUri;
         this.clientId = clientId;
+        this.authenticatedClientId = authenticatedClientId;
         this.scope = scope;
         this.username = username;
         this.password = password;
         this.refreshToken = refreshToken;
-        this.audiences = audiences;
     }
 
     public static Builder builder() {
@@ -58,23 +65,21 @@ public class InternalTokenRequest {
         private String grantType;
         private String redirectUri;
         private String clientId;
+        private String authenticatedClientId;
         private String scope;
         private String username;
         private String password;
         private String refreshToken;
-        private Set<String> audiences;
 
         public Builder code(String code) {
             this.code = code;
             return this;
         }
-        ;
 
         public Builder grantType(String grantType) {
             this.grantType = grantType;
             return this;
         }
-        ;
 
         public Builder redirectUri(String redirectUri) {
             this.redirectUri = redirectUri;
@@ -83,6 +88,11 @@ public class InternalTokenRequest {
 
         public Builder clientId(String clientId) {
             this.clientId = clientId;
+            return this;
+        }
+
+        public Builder authenticatedClientId(String authenticatedClientId) {
+            this.authenticatedClientId = authenticatedClientId;
             return this;
         }
 
@@ -106,22 +116,17 @@ public class InternalTokenRequest {
             return this;
         }
 
-        public Builder audiences(Set<String> audiences) {
-            this.audiences = audiences;
-            return this;
-        }
-
         public InternalTokenRequest build() {
             return new InternalTokenRequest(
                     code,
                     grantType,
                     redirectUri,
                     clientId,
+                    authenticatedClientId,
                     scope,
                     username,
                     password,
-                    refreshToken,
-                    audiences);
+                    refreshToken);
         }
     }
 }
