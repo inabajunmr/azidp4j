@@ -29,8 +29,7 @@ public class SampleAz {
     public void start(int port) throws IOException, JOSEException {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var config =
-                new AzIdPConfig("issuer", key.getKeyID(), key.getKeyID(), 3600, 604800, 604800);
+        var config = new AzIdPConfig("issuer", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
         var clientStore = new InMemoryClientStore();
         var userPasswordVerifier =
                 new UserPasswordVerifier() {

@@ -36,9 +36,9 @@ class AuthorizeTest {
                         Set.of("http://example.com"),
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
-                        "scope1 scope2");
+                        "scope1 scope2 openid");
         clientStore.save(client);
-        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 604800);
+        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
         var sut =
                 new Authorize(
                         clientStore,
@@ -200,6 +200,30 @@ class AuthorizeTest {
             assertEquals("xyz", queryMap.get("state"));
             assertEquals("unsupported_response_type", queryMap.get("error"));
         }
+        // invalid max_age
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("openid")
+                            .maxAge("invalid")
+                            .sub("username")
+                            .state("xyz")
+                            .build();
+            var response = sut.authorize(authorizationRequest);
+            assertEquals(response.status, 302);
+            var location = URI.create(response.headers("http://example.com").get("Location"));
+            assertEquals("example.com", location.getHost());
+            var queryMap =
+                    Arrays.stream(location.getQuery().split("&"))
+                            .collect(
+                                    Collectors.toMap(
+                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+            assertEquals("xyz", queryMap.get("state"));
+            assertEquals("invalid_request", queryMap.get("error"));
+        }
     }
 
     @Test
@@ -215,7 +239,7 @@ class AuthorizeTest {
                         Set.of(ResponseType.code),
                         "scope1 scope2");
         clientStore.save(client);
-        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 604800);
+        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
         var sut =
                 new Authorize(
                         clientStore,
@@ -263,7 +287,7 @@ class AuthorizeTest {
         var jwks = new JWKSet(key);
         var config =
                 new AzIdPConfig(
-                        "az.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 604800);
+                        "az.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
         var sut =
                 new Authorize(
                         clientStore,

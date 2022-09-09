@@ -38,7 +38,7 @@ public class IssueTokenTest {
         authorizationCodeStore.save(authorizationCode);
         var config =
                 new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 604800);
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(

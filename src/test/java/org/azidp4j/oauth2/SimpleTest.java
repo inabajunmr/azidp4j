@@ -39,7 +39,7 @@ public class SimpleTest {
         var sut =
                 new AzIdP(
                         new AzIdPConfig(
-                                "issuer", key.getKeyID(), key.getKeyID(), 3600, 604800, 604800),
+                                "issuer", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600),
                         jwks,
                         new InMemoryClientStore(),
                         new SampleScopeAudienceMapper());

@@ -81,7 +81,7 @@ public class IssueToken {
                     var rt =
                             refreshTokenIssuer.issue(
                                     authorizationCode.sub, clientId, authorizationCode.scope);
-                    if (scopeValidator.contains("openid", authorizationCode.scope)) {
+                    if (scopeValidator.contains(authorizationCode.scope, "openid")) {
                         // OIDC
                         var idToken =
                                 idTokenIssuer.issue(
