@@ -20,4 +20,9 @@ public class ScopeValidator {
         return requestedScopes.length
                 == Arrays.stream(requestedScopes).filter(s -> authorizedScopes.contains(s)).count();
     }
+
+    public boolean contains(String requestedScope, String target) {
+        var requestedScopes = requestedScope.split(" ");
+        return Arrays.stream(requestedScopes).anyMatch(s -> s.equals(target));
+    }
 }

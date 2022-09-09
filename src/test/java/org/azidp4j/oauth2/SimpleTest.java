@@ -38,7 +38,8 @@ public class SimpleTest {
         var jwks = new JWKSet(key);
         var sut =
                 new AzIdP(
-                        new AzIdPConfig("issuer", key.getKeyID(), 3600, 604800),
+                        new AzIdPConfig(
+                                "issuer", key.getKeyID(), key.getKeyID(), 3600, 604800, 604800),
                         jwks,
                         new InMemoryClientStore(),
                         new SampleScopeAudienceMapper());

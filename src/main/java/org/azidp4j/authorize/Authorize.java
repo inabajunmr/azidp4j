@@ -80,6 +80,25 @@ public class Authorize {
                         Map.of());
             }
 
+            Integer maxAge = null;
+            String nonce = null;
+            if (scopeValidator.contains("openid", authorizationRequest.scope)) {
+                // OIDC
+                try {
+                    maxAge = Integer.parseInt(authorizationRequest.maxAge);
+                } catch (NumberFormatException e) {
+                    return new AuthorizationResponse(
+                            302,
+                            Map.of(),
+                            Map.of(
+                                    "error",
+                                    "invalid_request",
+                                    "state",
+                                    authorizationRequest.state));
+                }
+                nonce = authorizationRequest.nonce;
+            }
+
             // issue authorization code
             var code = UUID.randomUUID().toString();
             authorizationCodeStore.save(
@@ -88,7 +107,9 @@ public class Authorize {
                             code,
                             authorizationRequest.scope,
                             authorizationRequest.clientId,
-                            authorizationRequest.state));
+                            authorizationRequest.state,
+                            maxAge,
+                            nonce));
             return new AuthorizationResponse(
                     302, Map.of("code", code, "state", authorizationRequest.state), Map.of());
         } else if (responseType == ResponseType.token) {

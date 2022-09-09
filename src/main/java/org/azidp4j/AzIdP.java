@@ -9,6 +9,7 @@ import org.azidp4j.client.DynamicClientRegistration;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 
 public class AzIdP {
@@ -26,6 +27,7 @@ public class AzIdP {
             ClientStore clientStore,
             ScopeAudienceMapper scopeAudienceMapper) {
         var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
+        var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
         var refreshTokenIssuer = new RefreshTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         this.authorize =
                 new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
@@ -34,6 +36,7 @@ public class AzIdP {
                         azIdPConfig,
                         authorizationCodeStore,
                         accessTokenIssuer,
+                        idTokenIssuer,
                         refreshTokenIssuer,
                         null,
                         clientStore,
@@ -48,6 +51,7 @@ public class AzIdP {
             ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier) {
         var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
+        var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
         var refreshTokenIssuer = new RefreshTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         this.authorize =
                 new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
@@ -56,6 +60,7 @@ public class AzIdP {
                         azIdPConfig,
                         authorizationCodeStore,
                         accessTokenIssuer,
+                        idTokenIssuer,
                         refreshTokenIssuer,
                         userPasswordVerifier,
                         clientStore,

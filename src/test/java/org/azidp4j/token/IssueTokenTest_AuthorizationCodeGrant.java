@@ -23,6 +23,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +41,9 @@ class IssueTokenTest_AuthorizationCodeGrant {
                 new AuthorizationCode(
                         subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 604800);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -55,6 +58,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         config,
                         authorizationCodeStore,
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new IDTokenIssuer(config, jwks),
                         new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         null,
                         clientStore,
@@ -107,7 +111,9 @@ class IssueTokenTest_AuthorizationCodeGrant {
                 new AuthorizationCode(
                         subject, UUID.randomUUID().toString(), "notauthorized", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 604800);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -122,6 +128,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         config,
                         authorizationCodeStore,
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new IDTokenIssuer(config, jwks),
                         new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         null,
                         clientStore,
@@ -154,7 +161,9 @@ class IssueTokenTest_AuthorizationCodeGrant {
                 new AuthorizationCode(
                         subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 604800);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -169,6 +178,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         config,
                         authorizationCodeStore,
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new IDTokenIssuer(config, jwks),
                         new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         null,
                         clientStore,

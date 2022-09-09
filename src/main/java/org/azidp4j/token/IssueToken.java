@@ -15,12 +15,14 @@ import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.scope.ScopeValidator;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 
 public class IssueToken {
 
     AuthorizationCodeStore authorizationCodeStore;
     AccessTokenIssuer accessTokenIssuer;
+    IDTokenIssuer idTokenIssuer;
     RefreshTokenIssuer refreshTokenIssuer;
     AzIdPConfig config;
     UserPasswordVerifier userPasswordVerifier;
@@ -32,12 +34,14 @@ public class IssueToken {
             AzIdPConfig azIdPConfig,
             AuthorizationCodeStore authorizationCodeStore,
             AccessTokenIssuer accessTokenIssuer,
+            IDTokenIssuer idTokenIssuer,
             RefreshTokenIssuer refreshTokenIssuer,
             UserPasswordVerifier userPasswordVerifier,
             ClientStore clientStore,
             JWKSet jwkSet) {
         this.authorizationCodeStore = authorizationCodeStore;
         this.accessTokenIssuer = accessTokenIssuer;
+        this.idTokenIssuer = idTokenIssuer;
         this.refreshTokenIssuer = refreshTokenIssuer;
         this.config = azIdPConfig;
         this.userPasswordVerifier = userPasswordVerifier;
@@ -77,21 +81,50 @@ public class IssueToken {
                     var rt =
                             refreshTokenIssuer.issue(
                                     authorizationCode.sub, clientId, authorizationCode.scope);
-                    return new TokenResponse(
-                            200,
-                            Map.of(
-                                    "access_token",
-                                    at.serialize(),
-                                    "refresh_token",
-                                    rt.serialize(),
-                                    "token_type",
-                                    "bearer",
-                                    "expires_in",
-                                    config.accessTokenExpirationSec,
-                                    "scope",
-                                    authorizationCode.scope,
-                                    "state",
-                                    authorizationCode.state));
+                    if (scopeValidator.contains("openid", authorizationCode.scope)) {
+                        // OIDC
+                        var idToken =
+                                idTokenIssuer.issue(
+                                        authorizationCode.sub,
+                                        clientId,
+                                        authorizationCode.maxAge,
+                                        authorizationCode.nonce);
+                        return new TokenResponse(
+                                200,
+                                Map.of(
+                                        "access_token",
+                                        at.serialize(),
+                                        "id_token",
+                                        idToken.serialize(),
+                                        "refresh_token",
+                                        rt.serialize(),
+                                        "token_type",
+                                        "bearer",
+                                        "expires_in",
+                                        config.accessTokenExpirationSec,
+                                        "scope",
+                                        authorizationCode.scope,
+                                        "state",
+                                        authorizationCode.state));
+
+                    } else {
+                        // OAuth2.0
+                        return new TokenResponse(
+                                200,
+                                Map.of(
+                                        "access_token",
+                                        at.serialize(),
+                                        "refresh_token",
+                                        rt.serialize(),
+                                        "token_type",
+                                        "bearer",
+                                        "expires_in",
+                                        config.accessTokenExpirationSec,
+                                        "scope",
+                                        authorizationCode.scope,
+                                        "state",
+                                        authorizationCode.state));
+                    }
                 }
             case password:
                 {
