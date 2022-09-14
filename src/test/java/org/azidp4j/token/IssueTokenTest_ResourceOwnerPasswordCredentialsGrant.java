@@ -24,7 +24,7 @@ import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 import org.junit.jupiter.api.Test;
 
-class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
+class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
 
     @Test
     void success() throws JOSEException, ParseException {
