@@ -83,11 +83,12 @@ public class IssueToken {
                                     authorizationCode.sub, clientId, authorizationCode.scope);
                     if (scopeValidator.contains(authorizationCode.scope, "openid")) {
                         // OIDC
+                        // TODO max_age and authTime validation
                         var idToken =
                                 idTokenIssuer.issue(
                                         authorizationCode.sub,
                                         clientId,
-                                        authorizationCode.maxAge,
+                                        request.authTime,
                                         authorizationCode.nonce);
                         return new TokenResponse(
                                 200,

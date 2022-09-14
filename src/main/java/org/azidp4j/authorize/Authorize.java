@@ -84,13 +84,15 @@ public class Authorize {
             String nonce = null;
             if (scopeValidator.contains(authorizationRequest.scope, "openid")) {
                 // OIDC
-                try {
-                    maxAge = Integer.parseInt(authorizationRequest.maxAge);
-                } catch (NumberFormatException e) {
-                    return new AuthorizationResponse(
-                            302,
-                            Map.of("error", "invalid_request", "state", authorizationRequest.state),
-                            Map.of());
+                if(authorizationRequest.maxAge != null) {
+                    try {
+                        maxAge = Integer.parseInt(authorizationRequest.maxAge);
+                    } catch (NumberFormatException e) {
+                        return new AuthorizationResponse(
+                                302,
+                                Map.of("error", "invalid_request", "state", authorizationRequest.state),
+                                Map.of());
+                    }
                 }
                 nonce = authorizationRequest.nonce;
             }

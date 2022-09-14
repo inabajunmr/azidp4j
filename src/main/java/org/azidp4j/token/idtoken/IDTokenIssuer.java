@@ -19,7 +19,7 @@ public class IDTokenIssuer {
         this.jwsIssuer = new JWSIssuer(jwkSet);
     }
 
-    public JWSObject issue(String sub, String clientId, int maxAge, String nonce) {
+    public JWSObject issue(String sub, String clientId, Long authTime, String nonce) {
         var jti = UUID.randomUUID().toString();
         Map<String, Object> claims =
                 Map.of(
@@ -36,7 +36,7 @@ public class IDTokenIssuer {
                         "jti",
                         jti,
                         "auth_time",
-                        Instant.now().getEpochSecond() + maxAge,
+                        authTime,
                         "nonce",
                         nonce);
         return jwsIssuer.issue(config.idTokenKid, claims);

@@ -22,6 +22,7 @@ public class TokenRequestParser {
                         .username(username)
                         .password(password)
                         .refreshToken(refreshToken)
+                        .authTime(tokenRequest.authTime)
                         .build();
         return internalTokenRequest;
     }

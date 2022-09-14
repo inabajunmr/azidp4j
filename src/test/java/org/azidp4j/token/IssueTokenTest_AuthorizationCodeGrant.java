@@ -146,6 +146,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
                         .clientId("clientId")
+                        .authTime(Instant.now().getEpochSecond())
                         .build();
 
         // exercise
@@ -197,8 +198,8 @@ class IssueTokenTest_AuthorizationCodeGrant {
             assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
             assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
             assertEquals(payload.get("nonce"), "abc");
-            assertTrue((long) payload.get("auth_time") > Instant.now().getEpochSecond() + 3590);
-            assertTrue((long) payload.get("auth_time") < Instant.now().getEpochSecond() + 3610);
+            assertTrue((long) payload.get("auth_time") > Instant.now().getEpochSecond() - 10);
+            assertTrue((long) payload.get("auth_time") < Instant.now().getEpochSecond() + 10);
         }
     }
 

@@ -33,6 +33,8 @@ public class InternalTokenRequest {
     final String password;
     /** for token refresh */
     final String refreshToken;
+    /** the time to authenticate by user **/
+    final Long authTime;
 
     private InternalTokenRequest(
             String code,
@@ -43,7 +45,8 @@ public class InternalTokenRequest {
             String scope,
             String username,
             String password,
-            String refreshToken) {
+            String refreshToken,
+            Long authTime) {
         this.code = code;
         this.grantType = grantType;
         this.redirectUri = redirectUri;
@@ -53,6 +56,7 @@ public class InternalTokenRequest {
         this.username = username;
         this.password = password;
         this.refreshToken = refreshToken;
+        this.authTime = authTime;
     }
 
     public static Builder builder() {
@@ -70,6 +74,7 @@ public class InternalTokenRequest {
         private String username;
         private String password;
         private String refreshToken;
+        private Long authTime;
 
         public Builder code(String code) {
             this.code = code;
@@ -116,6 +121,11 @@ public class InternalTokenRequest {
             return this;
         }
 
+        public Builder authTime(Long authTime) {
+            this.authTime = authTime;
+            return this;
+        }
+
         public InternalTokenRequest build() {
             return new InternalTokenRequest(
                     code,
@@ -126,7 +136,8 @@ public class InternalTokenRequest {
                     scope,
                     username,
                     password,
-                    refreshToken);
+                    refreshToken,
+                    authTime);
         }
     }
 }
