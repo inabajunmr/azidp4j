@@ -15,10 +15,7 @@ import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.sample.authenticator.ClientBasicAuthenticator;
 import org.azidp4j.sample.authenticator.JWSAccessTokenAuthenticator;
 import org.azidp4j.sample.authenticator.UserBasicAuthenticator;
-import org.azidp4j.sample.handler.AuthorizationEndpointHandler;
-import org.azidp4j.sample.handler.DynamicClientRegistrationHandler;
-import org.azidp4j.sample.handler.JWKsEndpointHandler;
-import org.azidp4j.sample.handler.TokenEndpointHandler;
+import org.azidp4j.sample.handler.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.UserPasswordVerifier;
 
@@ -62,6 +59,7 @@ public class SampleAz {
         server.createContext("/jwks", new JWKsEndpointHandler(jwks));
         server.createContext("/client", new DynamicClientRegistrationHandler(azIdP))
                 .setAuthenticator(new JWSAccessTokenAuthenticator(jwks));
+        server.createContext("/login", new LoginHandler());
         ExecutorService pool = Executors.newFixedThreadPool(1);
         server.setExecutor(pool);
         server.start();

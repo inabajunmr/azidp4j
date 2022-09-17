@@ -73,6 +73,12 @@ public class AzIdP {
         return authorize.authorize(parsed);
     }
 
+    public AuthorizationRequestValidationResult validateAuthorizationRequest(
+            AuthorizationRequest authorizationRequest) {
+        var parsed = authorizationRequestParser.parse(authorizationRequest);
+        return authorize.validate(parsed);
+    }
+
     public TokenResponse issueToken(TokenRequest tokenRequest) {
         var parsed = tokenRequestParser.parse(tokenRequest);
         return issueToken.issue(parsed);

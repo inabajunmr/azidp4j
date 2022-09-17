@@ -33,7 +33,7 @@ public class InternalTokenRequest {
     final String password;
     /** for token refresh */
     final String refreshToken;
-    /** the time to authenticate by user **/
+    /** the time to authenticate by user * */
     final Long authTime;
 
     private InternalTokenRequest(

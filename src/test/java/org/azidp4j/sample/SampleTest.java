@@ -124,6 +124,7 @@ public class SampleTest {
                                                     + clientId
                                                     + "&redirect_uri=http://localhost:8080&scope=scope1%20openid&state=xyz&nonce=abc"))
                             .GET()
+                            .header("Cookie", "Login=user1")
                             .build();
             var authorizationResponse =
                     authorizationRequestClient.send(
@@ -196,7 +197,8 @@ public class SampleTest {
             assertTrue(parsedRefreshedAccessToken.verify(verifier));
 
             // claims
-            assertEquals("user1", parsedRefreshedAccessToken.getPayload().toJSONObject().get("sub"));
+            assertEquals(
+                    "user1", parsedRefreshedAccessToken.getPayload().toJSONObject().get("sub"));
         }
 
         // implicit grant
@@ -208,6 +210,7 @@ public class SampleTest {
                                                     + clientId
                                                     + "&redirect_uri=http://localhost:8080&scope=scope1&state=xyz"))
                             .GET()
+                            .header("Cookie", "Login=user1")
                             .build();
             var authorizationResponse =
                     authorizationRequestClient.send(

@@ -342,6 +342,6 @@ class AuthorizeTest {
                 (long) Integer.parseInt(payload.get("iat").toString())
                         < Instant.now().getEpochSecond() + 10);
         assertEquals(fragmentMap.get("token_type"), "bearer");
-        assertEquals(Integer.parseInt(fragmentMap.get("expires_in").toString()), 3600);
+        assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
     }
 }

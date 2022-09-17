@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 public class AuthorizationResponse {
 
-    int status;
+    public final int status;
 
     private final Map<String, String> query;
     private final Map<String, String> fragment;

@@ -91,7 +91,8 @@ public class SimpleTest {
                         redirectUri,
                         "grant_type",
                         "authorization_code");
-        var tokenRequest1 = new TokenRequest(clientId, Instant.now().getEpochSecond(), tokenRequestBody1);
+        var tokenRequest1 =
+                new TokenRequest(clientId, Instant.now().getEpochSecond(), tokenRequestBody1);
 
         // exercise
         var tokenResponse1 = sut.issueToken(tokenRequest1);
@@ -113,7 +114,8 @@ public class SimpleTest {
         // token request
         var tokenRequestBody2 =
                 Map.of("refresh_token", (String) refreshToken, "grant_type", "refresh_token");
-        var tokenRequest2 = new TokenRequest(clientId, Instant.now().getEpochSecond(), tokenRequestBody2);
+        var tokenRequest2 =
+                new TokenRequest(clientId, Instant.now().getEpochSecond(), tokenRequestBody2);
 
         // exercise
         var tokenResponse2 = sut.issueToken(tokenRequest2);
