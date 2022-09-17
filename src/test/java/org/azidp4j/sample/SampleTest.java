@@ -92,17 +92,7 @@ public class SampleTest {
         var clientId = registeredClient.get("client_id").asText();
         var clientSecret = registeredClient.get("client_secret").asText();
 
-        var authorizationRequestClient =
-                HttpClient.newBuilder()
-                        .authenticator(
-                                new Authenticator() {
-                                    @Override
-                                    protected PasswordAuthentication getPasswordAuthentication() {
-                                        return new PasswordAuthentication(
-                                                "user1", "password1".toCharArray());
-                                    }
-                                })
-                        .build();
+        var authorizationRequestClient = HttpClient.newBuilder().build();
         var tokenRequestClient =
                 HttpClient.newBuilder()
                         .authenticator(

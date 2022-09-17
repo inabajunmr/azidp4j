@@ -14,7 +14,6 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.sample.authenticator.ClientBasicAuthenticator;
 import org.azidp4j.sample.authenticator.JWSAccessTokenAuthenticator;
-import org.azidp4j.sample.authenticator.UserBasicAuthenticator;
 import org.azidp4j.sample.handler.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.UserPasswordVerifier;
@@ -52,8 +51,7 @@ public class SampleAz {
                         new SampleScopeAudienceMapper(),
                         userPasswordVerifier);
         server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/authorize", new AuthorizationEndpointHandler(azIdP))
-                .setAuthenticator(new UserBasicAuthenticator());
+        server.createContext("/authorize", new AuthorizationEndpointHandler(azIdP));
         server.createContext("/token", new TokenEndpointHandler(azIdP))
                 .setAuthenticator(new ClientBasicAuthenticator(clientStore));
         server.createContext("/jwks", new JWKsEndpointHandler(jwks));
