@@ -16,6 +16,8 @@ public class CookieParser {
             return Map.of();
         }
         return Arrays.stream(cookie.split(";"))
-                .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+                .collect(
+                        Collectors.toMap(
+                                kv -> kv.split("=")[0].trim(), kv -> kv.split("=")[1].trim()));
     }
 }

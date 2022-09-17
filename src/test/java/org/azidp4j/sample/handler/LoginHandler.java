@@ -3,6 +3,8 @@ package org.azidp4j.sample.handler;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +16,7 @@ public class LoginHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         System.out.println("login");
         System.out.println(exchange.getRequestMethod());
+        System.out.println(exchange.getRequestURI());
 
         if (exchange.getRequestMethod().equals("GET")) {
             var query = exchange.getRequestURI().getQuery();
@@ -24,7 +27,10 @@ public class LoginHandler implements HttpHandler {
                                 .map(kv -> kv.split("="))
                                 .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
                 if (queryMap.containsKey("redirect_to")) {
-                    loginQuery = "?redirect_to=" + queryMap.get("redirect_to");
+                    loginQuery =
+                            "?redirect_to="
+                                    + URLEncoder.encode(
+                                            queryMap.get("redirect_to"), StandardCharsets.UTF_8);
                 }
             }
             var responseBody = exchange.getResponseBody();
@@ -69,7 +75,7 @@ public class LoginHandler implements HttpHandler {
             }
 
             // session cookie
-            exchange.getResponseHeaders().put("Set-Cookie", List.of("login=" + username));
+            exchange.getResponseHeaders().put("Set-Cookie", List.of("Login=" + username));
             var query = exchange.getRequestURI().getQuery();
             String redirectTo = null;
             if (query != null) {
@@ -80,7 +86,10 @@ public class LoginHandler implements HttpHandler {
                 redirectTo = queryMap.get("redirect_to");
             }
             if (redirectTo != null) {
-                exchange.getResponseHeaders().put("Location", List.of(redirectTo));
+                exchange.getResponseHeaders()
+                        .put(
+                                "Location",
+                                List.of(URLDecoder.decode(redirectTo, StandardCharsets.UTF_8)));
                 exchange.sendResponseHeaders(302, 0);
                 exchange.close();
             }

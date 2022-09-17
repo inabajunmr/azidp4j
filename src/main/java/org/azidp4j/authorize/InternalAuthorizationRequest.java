@@ -14,7 +14,7 @@ public class InternalAuthorizationRequest {
 
     // TODO what should handle parameter for ui?
     //    final String display;
-    //    final String prompt;
+    final String prompt;
 
     final String clientId;
     final String redirectUri;
@@ -35,6 +35,7 @@ public class InternalAuthorizationRequest {
             String state,
             String nonce,
             String maxAge,
+            String prompt,
             Set<String> audiences) {
         this.sub = sub;
         this.responseType = responseType;
@@ -44,6 +45,7 @@ public class InternalAuthorizationRequest {
         this.state = state;
         this.nonce = nonce;
         this.maxAge = maxAge;
+        this.prompt = prompt;
         this.audiences = audiences;
     }
 
@@ -57,6 +59,7 @@ public class InternalAuthorizationRequest {
         private String state;
         private String nonce;
         private String maxAge;
+        private String prompt;
         private Set<String> audiences;
 
         private Builder() {}
@@ -105,6 +108,11 @@ public class InternalAuthorizationRequest {
             return this;
         }
 
+        public Builder prompt(String prompt) {
+            this.prompt = prompt;
+            return this;
+        }
+
         public Builder audiences(Set<String> audiences) {
             this.audiences = audiences;
             return this;
@@ -120,6 +128,7 @@ public class InternalAuthorizationRequest {
                     state,
                     nonce,
                     maxAge,
+                    prompt,
                     audiences);
         }
     }

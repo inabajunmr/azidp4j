@@ -90,6 +90,23 @@ public class IssueToken {
                                         clientId,
                                         request.authTime,
                                         authorizationCode.nonce);
+                        if (authorizationCode.state == null) {
+                            return new TokenResponse(
+                                    200,
+                                    Map.of(
+                                            "access_token",
+                                            at.serialize(),
+                                            "id_token",
+                                            idToken.serialize(),
+                                            "refresh_token",
+                                            rt.serialize(),
+                                            "token_type",
+                                            "bearer",
+                                            "expires_in",
+                                            config.accessTokenExpirationSec,
+                                            "scope",
+                                            authorizationCode.scope));
+                        }
                         return new TokenResponse(
                                 200,
                                 Map.of(

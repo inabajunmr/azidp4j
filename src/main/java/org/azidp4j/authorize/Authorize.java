@@ -120,8 +120,12 @@ public class Authorize {
                             authorizationRequest.state,
                             maxAge,
                             nonce));
-            return new AuthorizationResponse(
-                    302, Map.of("code", code, "state", authorizationRequest.state), Map.of());
+            if (authorizationRequest.state == null) {
+                return new AuthorizationResponse(302, Map.of("code", code), Map.of());
+            } else {
+                return new AuthorizationResponse(
+                        302, Map.of("code", code, "state", authorizationRequest.state), Map.of());
+            }
         } else if (responseType == ResponseType.token) {
             if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
                 return new AuthorizationResponse(
@@ -206,6 +210,23 @@ public class Authorize {
                     true, new AuthorizationResponse(400, Map.of(), Map.of()), null);
         }
 
+        Prompt prompt = null;
+        if (authorizationRequest.prompt != null) {
+            prompt = Prompt.of(authorizationRequest.prompt);
+            if (prompt == null) {
+                var response =
+                        new AuthorizationResponse(
+                                302,
+                                Map.of(
+                                        "error",
+                                        "invalid_request",
+                                        "state",
+                                        authorizationRequest.state),
+                                Map.of());
+                return new AuthorizationRequestValidationResult(true, response, null);
+            }
+        }
+
         if (responseType == ResponseType.code) {
             // validate scope
             if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
@@ -274,10 +295,7 @@ public class Authorize {
                 nonce = authorizationRequest.nonce;
             }
 
-            return new AuthorizationRequestValidationResult(
-                    false, null, Prompt.none
-                    /** TODO * */
-                    );
+            return new AuthorizationRequestValidationResult(false, null, prompt);
         } else if (responseType == ResponseType.token) {
             if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
                 return new AuthorizationRequestValidationResult(
@@ -320,10 +338,8 @@ public class Authorize {
                                         authorizationRequest.state)),
                         null);
             }
-            return new AuthorizationRequestValidationResult(
-                    false, null, Prompt.none
-                    /** TODO * */
-                    );
+
+            return new AuthorizationRequestValidationResult(false, null, prompt);
         }
 
         throw new AssertionError();
