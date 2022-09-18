@@ -55,11 +55,11 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
             switch (authorizationResponse.additionalPage) {
                 case login:
                     {
-                        redirectToLoginPage(httpExchange, queryMap);
+                        redirectToLoginPage(httpExchange, authorizationRequest);
                     }
                 case consent:
                     {
-                        redirectToConsentPage(httpExchange, queryMap);
+                        redirectToConsentPage(httpExchange, authorizationRequest, queryMap);
                     }
             }
             return;
@@ -71,18 +71,22 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
         httpExchange.close();
     }
 
-    private void redirectToLoginPage(HttpExchange httpExchange, Map<String, String> queryMap)
+    private void redirectToLoginPage(
+            HttpExchange httpExchange, AuthorizationRequest authorizationRequest)
             throws IOException {
-        redirectWithRedirectTo(httpExchange, "/login", "login", queryMap, null);
+        redirectWithRedirectTo(httpExchange, "/login", "login", authorizationRequest, null);
     }
 
-    private void redirectToConsentPage(HttpExchange httpExchange, Map<String, String> queryMap)
+    private void redirectToConsentPage(
+            HttpExchange httpExchange,
+            AuthorizationRequest authorizationRequest,
+            Map<String, String> queryMap)
             throws IOException {
         redirectWithRedirectTo(
                 httpExchange,
                 "/consent",
                 "consent",
-                queryMap,
+                authorizationRequest,
                 Map.of("client_id", queryMap.get("client_id"), "scope", queryMap.get("scope")));
     }
 
@@ -90,7 +94,7 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
             HttpExchange httpExchange,
             String targetPage,
             String removePrompt,
-            Map<String, String> authorizationRequestQueryMap,
+            AuthorizationRequest authorizationRequest,
             Map<String, String> targetPageQueryMap)
             throws IOException {
         var url = "http://" + httpExchange.getRequestHeaders().getFirst("Host");
@@ -98,28 +102,27 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
                 url
                         + "/authorize?"
                         + URLEncoder.encode(
-                                new AuthorizationRequest(authorizationRequestQueryMap)
-                                                .removePrompt(removePrompt)
-                                                .queryParameters()
-                                                .entrySet()
-                                                .stream()
-                                                .map(e -> e.getKey() + "=" + e.getValue())
-                                                .collect(Collectors.joining("&")),
+                                authorizationRequest
+                                        .removePrompt(removePrompt)
+                                        .queryParameters()
+                                        .entrySet()
+                                        .stream()
+                                        .map(e -> e.getKey() + "=" + e.getValue())
+                                        .collect(Collectors.joining("&")),
                                 StandardCharsets.UTF_8);
 
         var targetUrl = new StringBuilder();
-        targetUrl.append(
-                url
-                        + targetPage
-                        + "?redirect_to="
-                        + URLEncoder.encode(redirectTo, StandardCharsets.UTF_8));
+        targetUrl
+                .append(url)
+                .append(targetPage)
+                .append("?redirect_to=")
+                .append(URLEncoder.encode(redirectTo, StandardCharsets.UTF_8));
         if (targetPageQueryMap != null) {
-            targetPageQueryMap
-                    .entrySet()
-                    .forEach(
-                            kv -> {
-                                targetUrl.append("&" + kv.getKey() + "=" + kv.getValue());
-                            });
+            for (Map.Entry<String, String> entry : targetPageQueryMap.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                targetUrl.append("&").append(key).append("=").append(value);
+            }
         }
         httpExchange.getResponseHeaders().put("Location", List.of(targetUrl.toString()));
         httpExchange.sendResponseHeaders(302, 0);

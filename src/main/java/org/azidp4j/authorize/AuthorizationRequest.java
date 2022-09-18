@@ -12,13 +12,6 @@ public class AuthorizationRequest {
     public final Set<String> consentedScope;
     protected final Map<String, String> queryParameters;
 
-    /** before user authentication */
-    public AuthorizationRequest(Map<String, String> queryParameters) {
-        this.authenticatedUserId = null;
-        this.consentedScope = Set.of();
-        this.queryParameters = queryParameters;
-    }
-
     public AuthorizationRequest(String authenticatedUserId, Map<String, String> queryParameters) {
         this.authenticatedUserId = authenticatedUserId;
         this.consentedScope = Set.of();

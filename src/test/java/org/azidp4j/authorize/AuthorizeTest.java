@@ -228,6 +228,242 @@ class AuthorizeTest {
             assertEquals("xyz", queryMap.get("state"));
             assertEquals("invalid_request", queryMap.get("error"));
         }
+        // prompt is none but user not authenticated
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("openid")
+                            .maxAge("invalid")
+                            .prompt("none")
+                            .consentedScope(Set.of())
+                            .state("xyz")
+                            .build();
+            var response = sut.authorize(authorizationRequest);
+            assertEquals(response.status, 302);
+            var location = URI.create(response.headers("http://example.com").get("Location"));
+            assertEquals("example.com", location.getHost());
+            var queryMap =
+                    Arrays.stream(location.getQuery().split("&"))
+                            .collect(
+                                    Collectors.toMap(
+                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+            assertEquals("xyz", queryMap.get("state"));
+            assertEquals("login_required", queryMap.get("error"));
+        }
+        // prompt is none but user not consented
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("openid")
+                            .maxAge("invalid")
+                            .prompt("none")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of())
+                            .state("xyz")
+                            .build();
+            var response = sut.authorize(authorizationRequest);
+            assertEquals(response.status, 302);
+            var location = URI.create(response.headers("http://example.com").get("Location"));
+            assertEquals("example.com", location.getHost());
+            var queryMap =
+                    Arrays.stream(location.getQuery().split("&"))
+                            .collect(
+                                    Collectors.toMap(
+                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+            assertEquals("xyz", queryMap.get("state"));
+            assertEquals("consent_required", queryMap.get("error"));
+        }
+        // prompt is none and other
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("openid")
+                            .maxAge("invalid")
+                            .prompt("none login")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of())
+                            .state("xyz")
+                            .build();
+            var response = sut.authorize(authorizationRequest);
+            assertEquals(response.status, 302);
+            var location = URI.create(response.headers("http://example.com").get("Location"));
+            assertEquals("example.com", location.getHost());
+            var queryMap =
+                    Arrays.stream(location.getQuery().split("&"))
+                            .collect(
+                                    Collectors.toMap(
+                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+            assertEquals("xyz", queryMap.get("state"));
+            assertEquals("invalid_request", queryMap.get("error"));
+        }
+    }
+
+    @Test
+    void additionalPage() {
+
+        // setup
+        var clientStore = new InMemoryClientStore();
+        var client =
+                new Client(
+                        "client1",
+                        "clientSecret",
+                        Set.of("http://example.com"),
+                        Set.of(GrantType.authorization_code),
+                        Set.of(ResponseType.code),
+                        "scope1 scope2");
+        clientStore.save(client);
+        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
+        var sut =
+                new Authorize(
+                        clientStore,
+                        new InMemoryAuthorizationCodeStore(),
+                        new AccessTokenIssuer(
+                                config, new JWKSet(), new SampleScopeAudienceMapper()),
+                        config);
+
+        // user not login
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("scope1")
+                            .state("xyz")
+                            .build();
+
+            // exercise
+            var response = sut.authorize(authorizationRequest);
+
+            // verify
+            assertEquals(AdditionalPage.login, response.additionalPage);
+        }
+        // no consented scope
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("scope1")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of())
+                            .state("xyz")
+                            .build();
+
+            // exercise
+            var response = sut.authorize(authorizationRequest);
+
+            // verify
+            assertEquals(AdditionalPage.consent, response.additionalPage);
+        }
+        // no enough scope consented
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("scope1 scope2")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of("scope1"))
+                            .state("xyz")
+                            .build();
+
+            // exercise
+            var response = sut.authorize(authorizationRequest);
+
+            // verify
+            assertEquals(AdditionalPage.consent, response.additionalPage);
+        }
+        // prompt is login
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("scope1 scope2")
+                            .prompt("login")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of("scope1 scope2"))
+                            .state("xyz")
+                            .build();
+
+            // exercise
+            var response = sut.authorize(authorizationRequest);
+
+            // verify
+            assertEquals(AdditionalPage.login, response.additionalPage);
+        }
+        // prompt is consent(authenticated)
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("scope1 scope2")
+                            .prompt("consent")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of("scope1 scope2"))
+                            .state("xyz")
+                            .build();
+
+            // exercise
+            var response = sut.authorize(authorizationRequest);
+
+            // verify
+            assertEquals(AdditionalPage.consent, response.additionalPage);
+        }
+        // prompt is consent(not authenticated)
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("scope1 scope2")
+                            .prompt("consent")
+                            .consentedScope(Set.of("scope1 scope2"))
+                            .state("xyz")
+                            .build();
+
+            // exercise
+            var response = sut.authorize(authorizationRequest);
+
+            // verify
+            assertEquals(AdditionalPage.login, response.additionalPage);
+        }
+        // prompt is login and consent
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://example.com")
+                            .scope("scope1 scope2")
+                            .prompt("login consent")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of("scope1 scope2"))
+                            .state("xyz")
+                            .build();
+
+            // exercise
+            var response = sut.authorize(authorizationRequest);
+
+            // verify
+            assertEquals(AdditionalPage.login, response.additionalPage);
+        }
     }
 
     @Test

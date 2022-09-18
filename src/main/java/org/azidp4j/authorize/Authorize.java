@@ -71,11 +71,34 @@ public class Authorize {
                     Map.of("error", "invalid_request", "state", authorizationRequest.state),
                     Map.of());
         } else {
+            if (prompt.contains(Prompt.none)) {
+                if (authorizationRequest.authenticatedUserId == null) {
+                    return new AuthorizationResponse(
+                            302,
+                            Map.of("error", "login_required", "state", authorizationRequest.state),
+                            Map.of());
+                }
+                if (!authorizationRequest.consentedScope.containsAll(
+                        Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
+                    return new AuthorizationResponse(
+                            302,
+                            Map.of(
+                                    "error",
+                                    "consent_required",
+                                    "state",
+                                    authorizationRequest.state),
+                            Map.of());
+                }
+            }
             if (prompt.contains(Prompt.login)) {
                 return new AuthorizationResponse(AdditionalPage.login);
             }
             if (prompt.contains(Prompt.consent)) {
-                return new AuthorizationResponse(AdditionalPage.consent);
+                if (authorizationRequest.authenticatedUserId == null) {
+                    return new AuthorizationResponse(AdditionalPage.login);
+                } else {
+                    return new AuthorizationResponse(AdditionalPage.consent);
+                }
             }
             if (prompt.contains(Prompt.select_account)) {
                 return new AuthorizationResponse(AdditionalPage.select_account);
