@@ -258,7 +258,7 @@ class AuthorizeTest {
                         .redirectUri("http://example.com")
                         .scope("scope1")
                         .authenticatedUserId("username")
-                        .consentedScope(Set.of("scope1 scope2"))
+                        .consentedScope(Set.of("scope1", "scope2"))
                         .state("xyz")
                         .build();
 
@@ -307,7 +307,7 @@ class AuthorizeTest {
                         .scope("rs:scope1")
                         .audiences(Set.of("http://rs.example.com"))
                         .authenticatedUserId("username")
-                        .consentedScope(Set.of("rs:scope1 rs:scope2"))
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .build();
 

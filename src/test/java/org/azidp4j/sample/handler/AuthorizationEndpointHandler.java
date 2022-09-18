@@ -40,20 +40,6 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
         }
         var authorizationRequest =
                 new AuthorizationRequest(cookies.get("Login"), consentedScope, queryMap);
-        // TODO result is redandant because it can be express by authorization response.
-        var result = azIdp.validateAuthorizationRequest(authorizationRequest);
-        if (result.hasError) {
-            result.authorizationResponse
-                    .headers("https://example.com")
-                    .entrySet()
-                    .forEach(
-                            h -> {
-                                httpExchange.getResponseHeaders().set(h.getKey(), h.getValue());
-                            });
-            httpExchange.sendResponseHeaders(302, 0);
-            httpExchange.close();
-            return;
-        }
         authorize(httpExchange, authorizationRequest, queryMap);
     }
 

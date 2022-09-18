@@ -70,7 +70,8 @@ public class SimpleTest {
                         "scope1 scope2",
                         "state",
                         "xyz");
-        var authorizationRequest = new AuthorizationRequest("username", queryParameters);
+        var authorizationRequest =
+                new AuthorizationRequest("username", Set.of("scope1", "scope2"), queryParameters);
 
         // exercise
         var authorizationResponse = sut.authorize(authorizationRequest);
