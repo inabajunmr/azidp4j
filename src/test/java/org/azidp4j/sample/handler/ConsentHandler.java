@@ -85,6 +85,7 @@ public class ConsentHandler extends AzIdpHttpHandler {
                             List.of(URLDecoder.decode(redirectTo, StandardCharsets.UTF_8)));
             exchange.sendResponseHeaders(302, 0);
             exchange.close();
+            return;
         }
         exchange.getResponseHeaders().put("Content-Type", List.of("text/html"));
         exchange.sendResponseHeaders(200, 0);
@@ -160,7 +161,7 @@ public class ConsentHandler extends AzIdpHttpHandler {
                 """
                         .replace("%QUERY%", consentQuery)
                         .replace("%CLIENT_ID%", clientId)
-                        .replace("%SCOPE", scope)
+                        .replace("%SCOPE%", scope)
                         .getBytes(StandardCharsets.UTF_8));
         responseBody.close();
         exchange.close();

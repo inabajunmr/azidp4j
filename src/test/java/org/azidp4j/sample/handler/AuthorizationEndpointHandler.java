@@ -34,9 +34,11 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
         Set<String> consentedScope = Set.of();
         if (cookies.containsKey("Consent")) {
             var consent = new ObjectMapper().readTree(cookies.get("Consent"));
-            consentedScope =
-                    Arrays.stream(consent.get(queryMap.get("client_id")).textValue().split(" "))
-                            .collect(Collectors.toSet());
+            if (consent.has(queryMap.get("client_id"))) {
+                consentedScope =
+                        Arrays.stream(consent.get(queryMap.get("client_id")).textValue().split(" "))
+                                .collect(Collectors.toSet());
+            }
         }
         var authorizationRequest =
                 new AuthorizationRequest(cookies.get("Login"), consentedScope, queryMap);
