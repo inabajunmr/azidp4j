@@ -34,9 +34,9 @@ public class ConsentHandler extends AzIdpHttpHandler {
         var clientId = bodyMap.get("client_id");
         var scope = bodyMap.get("scope");
         if (clientId == null || scope == null) {
-            // TODO 400
             exchange.sendResponseHeaders(400, 0);
             exchange.close();
+            return;
         }
         var cookies = CookieParser.parse(exchange);
         ObjectNode userAuthenticatedScope;
@@ -111,6 +111,7 @@ public class ConsentHandler extends AzIdpHttpHandler {
     }
 
     private static void responseForm(HttpExchange exchange) throws IOException {
+
         var query = exchange.getRequestURI().getQuery();
         String consentQuery = "";
         String scope = "";
@@ -127,11 +128,10 @@ public class ConsentHandler extends AzIdpHttpHandler {
                                 + URLEncoder.encode(
                                         queryMap.get("redirect_to"), StandardCharsets.UTF_8);
             }
-            if (!queryMap.containsKey("client_id")) {
-                // TODO 400
-            }
-            if (!queryMap.containsKey("scope")) {
-                // TODO 400
+            if (!queryMap.containsKey("client_id") || !queryMap.containsKey("scope")) {
+                exchange.sendResponseHeaders(400, 0);
+                exchange.close();
+                return;
             }
             scope = queryMap.get("scope");
             clientId = queryMap.get("client_id");

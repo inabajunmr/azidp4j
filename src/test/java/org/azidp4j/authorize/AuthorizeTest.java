@@ -53,7 +53,7 @@ class AuthorizeTest {
                             .clientId(client.clientId)
                             .redirectUri("http://example.com")
                             .scope("scope1")
-                            .sub("username")
+                            .authenticatedUserId("username")
                             .state("xyz")
                             .build();
             var response = sut.authorize(authorizationRequest);
@@ -66,7 +66,7 @@ class AuthorizeTest {
                             .clientId(client.clientId)
                             .redirectUri("http://example.com")
                             .scope("scope1")
-                            .sub("username")
+                            .authenticatedUserId("username")
                             .state("xyz")
                             .build();
             var response = sut.authorize(authorizationRequest);
@@ -79,7 +79,7 @@ class AuthorizeTest {
                             .responseType("code")
                             .redirectUri("http://example.com")
                             .scope("scope1")
-                            .sub("username")
+                            .authenticatedUserId("username")
                             .state("xyz")
                             .build();
             var response = sut.authorize(authorizationRequest);
@@ -93,7 +93,7 @@ class AuthorizeTest {
                             .clientId("unknown")
                             .redirectUri("http://example.com")
                             .scope("scope1")
-                            .sub("username")
+                            .authenticatedUserId("username")
                             .state("xyz")
                             .build();
             var response = sut.authorize(authorizationRequest);
@@ -107,13 +107,13 @@ class AuthorizeTest {
                             .clientId(client.clientId)
                             .redirectUri("http://not.authorized.example.com")
                             .scope("scope1")
-                            .sub("username")
+                            .authenticatedUserId("username")
                             .state("xyz")
                             .build();
             var response = sut.authorize(authorizationRequest);
             assertEquals(response.status, 400);
         }
-        // unauthorized scope
+        // scope unauthorized for client
         {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
@@ -121,7 +121,8 @@ class AuthorizeTest {
                             .clientId(client.clientId)
                             .redirectUri("http://example.com")
                             .scope("invalid")
-                            .sub("username")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of("invalid"))
                             .state("xyz")
                             .build();
             var response = sut.authorize(authorizationRequest);
@@ -153,7 +154,8 @@ class AuthorizeTest {
                             .clientId(noGrantTypesClient.clientId)
                             .redirectUri("http://example.com")
                             .scope("scope1")
-                            .sub("username")
+                            .consentedScope(Set.of("scope1"))
+                            .authenticatedUserId("username")
                             .state("xyz")
                             .build();
             var response = sut.authorize(authorizationRequest);
@@ -185,7 +187,8 @@ class AuthorizeTest {
                             .clientId(noResponseTypesClient.clientId)
                             .redirectUri("http://example.com")
                             .scope("scope1")
-                            .sub("username")
+                            .consentedScope(Set.of("scope1"))
+                            .authenticatedUserId("username")
                             .state("xyz")
                             .build();
             var response = sut.authorize(authorizationRequest);
@@ -209,7 +212,8 @@ class AuthorizeTest {
                             .redirectUri("http://example.com")
                             .scope("openid")
                             .maxAge("invalid")
-                            .sub("username")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of("openid"))
                             .state("xyz")
                             .build();
             var response = sut.authorize(authorizationRequest);
@@ -253,7 +257,8 @@ class AuthorizeTest {
                         .clientId(client.clientId)
                         .redirectUri("http://example.com")
                         .scope("scope1")
-                        .sub("username")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("scope1 scope2"))
                         .state("xyz")
                         .build();
 
@@ -301,7 +306,8 @@ class AuthorizeTest {
                         .redirectUri("http://example.com")
                         .scope("rs:scope1")
                         .audiences(Set.of("http://rs.example.com"))
-                        .sub("username")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("rs:scope1 rs:scope2"))
                         .state("xyz")
                         .build();
 

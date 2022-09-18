@@ -5,14 +5,15 @@ import java.util.Set;
 public class InternalAuthorizationRequest {
 
     /** user identifier * */
-    final String sub;
+    final String authenticatedUserId;
+
+    final Set<String> consentedScope;
 
     final String responseType;
     // TODO final String responseMode;
     final String nonce;
     final String maxAge;
 
-    // TODO what should handle parameter for ui?
     //    final String display;
     final String prompt;
 
@@ -27,7 +28,8 @@ public class InternalAuthorizationRequest {
     }
 
     private InternalAuthorizationRequest(
-            String sub,
+            String authenticatedUserId,
+            Set<String> consentedScope,
             String responseType,
             String clientId,
             String redirectUri,
@@ -37,7 +39,8 @@ public class InternalAuthorizationRequest {
             String maxAge,
             String prompt,
             Set<String> audiences) {
-        this.sub = sub;
+        this.authenticatedUserId = authenticatedUserId;
+        this.consentedScope = consentedScope;
         this.responseType = responseType;
         this.clientId = clientId;
         this.redirectUri = redirectUri;
@@ -51,7 +54,8 @@ public class InternalAuthorizationRequest {
 
     public static class Builder {
 
-        private String sub;
+        private String authenticatedUserId;
+        private Set<String> consentedScope;
         private String responseType;
         private String clientId;
         private String redirectUri;
@@ -68,8 +72,13 @@ public class InternalAuthorizationRequest {
             this.responseType = responseType;
         }
 
-        public Builder sub(String sub) {
-            this.sub = sub;
+        public Builder authenticatedUserId(String authenticatedUserId) {
+            this.authenticatedUserId = authenticatedUserId;
+            return this;
+        }
+
+        public Builder consentedScope(Set<String> consentedScope) {
+            this.consentedScope = consentedScope;
             return this;
         }
 
@@ -120,7 +129,8 @@ public class InternalAuthorizationRequest {
 
         public InternalAuthorizationRequest build() {
             return new InternalAuthorizationRequest(
-                    sub,
+                    authenticatedUserId,
+                    consentedScope,
                     responseType,
                     clientId,
                     redirectUri,

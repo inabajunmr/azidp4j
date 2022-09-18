@@ -6,15 +6,23 @@ import java.util.stream.Collectors;
 public class AuthorizationResponse {
 
     public final int status;
-
     private final Map<String, String> query;
     private final Map<String, String> fragment;
+    public final AdditionalPage additionalPage;
 
     public AuthorizationResponse(
             int status, Map<String, String> query, Map<String, String> fragment) {
         this.status = status;
         this.query = query;
         this.fragment = fragment;
+        this.additionalPage = null;
+    }
+
+    public AuthorizationResponse(AdditionalPage additionalPage) {
+        this.status = 0;
+        this.query = null;
+        this.fragment = null;
+        this.additionalPage = additionalPage;
     }
 
     public Map<String, String> headers(String redirectTo) {

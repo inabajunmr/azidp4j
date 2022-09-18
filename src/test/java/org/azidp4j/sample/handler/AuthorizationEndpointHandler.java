@@ -1,5 +1,6 @@
 package org.azidp4j.sample.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -7,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.AuthorizationRequest;
@@ -27,7 +29,19 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
                 Arrays.stream(query.split("&"))
                         .map(kv -> kv.split("="))
                         .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
-        var result = azIdp.validateAuthorizationRequest(new AuthorizationRequest(queryMap));
+
+        var cookies = CookieParser.parse(httpExchange);
+        Set<String> consentedScope = Set.of();
+        if (cookies.containsKey("Consent")) {
+            var consent = new ObjectMapper().readTree(cookies.get("Consent"));
+            consentedScope =
+                    Arrays.stream(consent.get(queryMap.get("client_id")).textValue().split(" "))
+                            .collect(Collectors.toSet());
+        }
+        var authorizationRequest =
+                new AuthorizationRequest(cookies.get("Login"), consentedScope, queryMap);
+        // TODO result is redandant because it can be express by authorization response.
+        var result = azIdp.validateAuthorizationRequest(authorizationRequest);
         if (result.hasError) {
             result.authorizationResponse
                     .headers("https://example.com")
@@ -40,68 +54,28 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
             httpExchange.close();
             return;
         }
-        if (result.prompt == null) {
-            // default prompt
-            // check session
-            var cookies = CookieParser.parse(httpExchange);
-            if (!cookies.containsKey("Login")) {
-                // to login page
-                redirectToLoginPage(httpExchange, queryMap);
-                return;
-            }
-
-            // check consent
-            if (!cookies.containsKey("Consent")) {
-                // to consent page
-                redirectToConsentPage(httpExchange, queryMap);
-                return;
-            }
-
-            var authorizationRequest = new AuthorizationRequest(cookies.get("Login"), queryMap);
-            authorize(httpExchange, authorizationRequest);
-            return;
-        }
-
-        switch (result.prompt.stream().findFirst().get()) { // TODO need to handle multiple prompt
-            case none:
-                {
-                    // check session
-                    var cookies = CookieParser.parse(httpExchange);
-                    var authorizationRequest = new AuthorizationRequest(queryMap);
-                    if (cookies.containsKey("Login")) {
-                        // TODO not good interface
-                        authorizationRequest =
-                                new AuthorizationRequest(cookies.get("Login"), queryMap);
-                    }
-                    authorize(httpExchange, authorizationRequest);
-                    return;
-                }
-            case login:
-                {
-                    redirectToLoginPage(httpExchange, queryMap);
-                    return;
-                }
-            case consent:
-                {
-                    var cookies = CookieParser.parse(httpExchange);
-                    if (!cookies.containsKey("Login")) {
-                        redirectToLoginPage(httpExchange, queryMap);
-                        return;
-                    }
-
-                    redirectToConsentPage(httpExchange, queryMap);
-                    return;
-                }
-            default:
-                {
-                    // TODO error
-                }
-        }
+        authorize(httpExchange, authorizationRequest, queryMap);
     }
 
-    private void authorize(HttpExchange httpExchange, AuthorizationRequest authorizationRequest)
+    private void authorize(
+            HttpExchange httpExchange,
+            AuthorizationRequest authorizationRequest,
+            Map<String, String> queryMap)
             throws IOException {
         var authorizationResponse = azIdp.authorize(authorizationRequest);
+        if (authorizationResponse.additionalPage != null) {
+            switch (authorizationResponse.additionalPage) {
+                case login:
+                    {
+                        redirectToLoginPage(httpExchange, queryMap);
+                    }
+                case consent:
+                    {
+                        redirectToConsentPage(httpExchange, queryMap);
+                    }
+            }
+            return;
+        }
         authorizationResponse
                 .headers("https://example.com")
                 .forEach((key, value) -> httpExchange.getResponseHeaders().set(key, value));

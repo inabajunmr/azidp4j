@@ -7,9 +7,10 @@ import java.util.stream.Collectors;
 public enum Prompt {
     none,
     login,
-    consent;
-
-    // TODO
+    consent,
+    select_account,
+    // authorization request has no prompt
+    no_prompt;
 
     public static Set<Prompt> parse(String prompt) {
         if (prompt == null) {
@@ -23,7 +24,7 @@ public enum Prompt {
 
     private static Prompt of(String prompt) {
         if (prompt == null) {
-            return null;
+            return no_prompt;
         }
         switch (prompt) {
             case "none":
@@ -32,6 +33,8 @@ public enum Prompt {
                 return login;
             case "consent":
                 return consent;
+            case "select_account":
+                return select_account;
             default:
                 return null;
         }

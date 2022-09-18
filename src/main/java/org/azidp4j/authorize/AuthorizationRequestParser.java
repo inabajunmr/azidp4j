@@ -13,7 +13,8 @@ public class AuthorizationRequestParser {
 
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
-                        .sub(req.userId)
+                        .authenticatedUserId(req.authenticatedUserId)
+                        .consentedScope(req.consentedScope)
                         .responseType(responseType)
                         .clientId(clientId)
                         .redirectUri(redirectUri)

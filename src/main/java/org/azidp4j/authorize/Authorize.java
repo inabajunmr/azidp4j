@@ -1,5 +1,6 @@
 package org.azidp4j.authorize;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -34,78 +35,17 @@ public class Authorize {
     public AuthorizationResponse authorize(InternalAuthorizationRequest authorizationRequest) {
 
         var responseType = ResponseType.of(authorizationRequest.responseType);
-        if (authorizationRequest.responseType == null) {
-            return new AuthorizationResponse(400, Map.of(), Map.of());
+        var result = validate(authorizationRequest);
+        if (result.hasError) {
+            return result.authorizationResponse;
         }
-
-        // validate client
-        if (authorizationRequest.clientId == null) {
-            return new AuthorizationResponse(400, Map.of(), Map.of());
-        }
-        var client = clientStore.find(authorizationRequest.clientId);
-        if (client == null) {
-            return new AuthorizationResponse(400, Map.of(), Map.of());
-        }
-
-        // validate redirect urls
-        if (authorizationRequest.redirectUri == null) {
-            return new AuthorizationResponse(400, Map.of(), Map.of());
-        }
-        if (!client.redirectUris.contains(authorizationRequest.redirectUri)) {
-            return new AuthorizationResponse(400, Map.of(), Map.of());
-        }
-
-        if (authorizationRequest.sub == null) {
-            return new AuthorizationResponse(
-                    302,
-                    Map.of("error", "login_required", "state", authorizationRequest.state),
-                    Map.of());
-        }
-
         if (responseType == ResponseType.code) {
-            // validate scope
-            if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
-                return new AuthorizationResponse(
-                        302,
-                        Map.of("error", "invalid_scope", "state", authorizationRequest.state),
-                        Map.of());
-            }
-
-            // validate grant type and response type
-            if (!client.grantTypes.contains(GrantType.authorization_code)) {
-                return new AuthorizationResponse(
-                        302,
-                        Map.of("error", "unauthorized_client", "state", authorizationRequest.state),
-                        Map.of());
-            }
-            if (!client.responseTypes.contains(ResponseType.code)) {
-                return new AuthorizationResponse(
-                        302,
-                        Map.of(
-                                "error",
-                                "unsupported_response_type",
-                                "state",
-                                authorizationRequest.state),
-                        Map.of());
-            }
-
             Integer maxAge = null;
             String nonce = null;
             if (scopeValidator.contains(authorizationRequest.scope, "openid")) {
                 // OIDC
                 if (authorizationRequest.maxAge != null) {
-                    try {
-                        maxAge = Integer.parseInt(authorizationRequest.maxAge);
-                    } catch (NumberFormatException e) {
-                        return new AuthorizationResponse(
-                                302,
-                                Map.of(
-                                        "error",
-                                        "invalid_request",
-                                        "state",
-                                        authorizationRequest.state),
-                                Map.of());
-                    }
+                    maxAge = Integer.parseInt(authorizationRequest.maxAge);
                 }
                 nonce = authorizationRequest.nonce;
             }
@@ -114,7 +54,7 @@ public class Authorize {
             var code = UUID.randomUUID().toString();
             authorizationCodeStore.save(
                     new AuthorizationCode(
-                            authorizationRequest.sub,
+                            authorizationRequest.authenticatedUserId,
                             code,
                             authorizationRequest.scope,
                             authorizationRequest.clientId,
@@ -128,39 +68,10 @@ public class Authorize {
                         302, Map.of("code", code, "state", authorizationRequest.state), Map.of());
             }
         } else if (responseType == ResponseType.token) {
-            if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
-                return new AuthorizationResponse(
-                        302,
-                        Map.of(),
-                        Map.of("error", "invalid_scope", "state", authorizationRequest.state));
-            }
-
-            // validate grant type and response type
-            if (!client.grantTypes.contains(GrantType.implicit)) {
-                return new AuthorizationResponse(
-                        302,
-                        Map.of(),
-                        Map.of(
-                                "error",
-                                "unauthorized_client",
-                                "state",
-                                authorizationRequest.state));
-            }
-            if (!client.responseTypes.contains(ResponseType.token)) {
-                return new AuthorizationResponse(
-                        302,
-                        Map.of(),
-                        Map.of(
-                                "error",
-                                "unsupported_response_type",
-                                "state",
-                                authorizationRequest.state));
-            }
-
             // issue access token
             var accessToken =
                     accessTokenIssuer.issue(
-                            authorizationRequest.sub,
+                            authorizationRequest.authenticatedUserId,
                             authorizationRequest.clientId,
                             authorizationRequest.scope);
             return new AuthorizationResponse(
@@ -178,7 +89,6 @@ public class Authorize {
                             "state",
                             authorizationRequest.state));
         }
-
         throw new AssertionError();
     }
 
@@ -211,20 +121,44 @@ public class Authorize {
                     true, new AuthorizationResponse(400, Map.of(), Map.of()), null);
         }
 
-        Set<Prompt> prompt = null;
-        if (authorizationRequest.prompt != null) {
-            prompt = Prompt.parse(authorizationRequest.prompt);
-            if (prompt == null) {
-                var response =
-                        new AuthorizationResponse(
-                                302,
-                                Map.of(
-                                        "error",
-                                        "invalid_request",
-                                        "state",
-                                        authorizationRequest.state),
-                                Map.of());
-                return new AuthorizationRequestValidationResult(true, response, null);
+        Set<Prompt> prompt = Prompt.parse(authorizationRequest.prompt);
+        if (prompt == null) {
+            var response =
+                    new AuthorizationResponse(
+                            302,
+                            Map.of("error", "invalid_request", "state", authorizationRequest.state),
+                            Map.of());
+            return new AuthorizationRequestValidationResult(true, response, null);
+        }
+        if (prompt.contains(Prompt.none) && prompt.size() != 1) {
+            // none with other prompt is invalid
+            var response =
+                    new AuthorizationResponse(
+                            302,
+                            Map.of("error", "invalid_request", "state", authorizationRequest.state),
+                            Map.of());
+            return new AuthorizationRequestValidationResult(true, response, null);
+        } else {
+            if (prompt.contains(Prompt.login)) {
+                return new AuthorizationRequestValidationResult(
+                        false, new AuthorizationResponse(AdditionalPage.login), null);
+            }
+            if (prompt.contains(Prompt.consent)) {
+                return new AuthorizationRequestValidationResult(
+                        false, new AuthorizationResponse(AdditionalPage.consent), null);
+            }
+            if (prompt.contains(Prompt.select_account)) {
+                return new AuthorizationRequestValidationResult(
+                        false, new AuthorizationResponse(AdditionalPage.select_account), null);
+            }
+            if (authorizationRequest.authenticatedUserId == null) {
+                return new AuthorizationRequestValidationResult(
+                        false, new AuthorizationResponse(AdditionalPage.login), null);
+            }
+            if (!authorizationRequest.consentedScope.containsAll(
+                    Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
+                return new AuthorizationRequestValidationResult(
+                        false, new AuthorizationResponse(AdditionalPage.consent), null);
             }
         }
 
@@ -272,13 +206,11 @@ public class Authorize {
                         null);
             }
 
-            Integer maxAge = null;
-            String nonce = null;
             if (scopeValidator.contains(authorizationRequest.scope, "openid")) {
                 // OIDC
                 if (authorizationRequest.maxAge != null) {
                     try {
-                        maxAge = Integer.parseInt(authorizationRequest.maxAge);
+                        Integer.parseInt(authorizationRequest.maxAge);
                     } catch (NumberFormatException e) {
                         return new AuthorizationRequestValidationResult(
                                 true,
@@ -293,7 +225,6 @@ public class Authorize {
                                 null);
                     }
                 }
-                nonce = authorizationRequest.nonce;
             }
 
             return new AuthorizationRequestValidationResult(false, null, prompt);

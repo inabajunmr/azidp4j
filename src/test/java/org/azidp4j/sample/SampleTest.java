@@ -107,6 +107,7 @@ public class SampleTest {
 
         // authorization code grant
         {
+            var consent = new ObjectMapper().writeValueAsString(Map.of(clientId, "scope1 openid"));
             var authorizationRequest =
                     HttpRequest.newBuilder(
                                     URI.create(
@@ -114,7 +115,7 @@ public class SampleTest {
                                                     + clientId
                                                     + "&redirect_uri=http://localhost:8080&scope=scope1%20openid&state=xyz&nonce=abc"))
                             .GET()
-                            .header("Cookie", "Login=user1; Consent=scope1 openid")
+                            .header("Cookie", "Login=user1; Consent=" + consent)
                             .build();
             var authorizationResponse =
                     authorizationRequestClient.send(
@@ -193,6 +194,7 @@ public class SampleTest {
 
         // implicit grant
         {
+            var consent = new ObjectMapper().writeValueAsString(Map.of(clientId, "scope1"));
             var authorizationRequest =
                     HttpRequest.newBuilder(
                                     URI.create(
@@ -200,7 +202,7 @@ public class SampleTest {
                                                     + clientId
                                                     + "&redirect_uri=http://localhost:8080&scope=scope1&state=xyz"))
                             .GET()
-                            .header("Cookie", "Login=user1; Consent=scope1")
+                            .header("Cookie", "Login=user1; Consent=" + consent)
                             .build();
             var authorizationResponse =
                     authorizationRequestClient.send(

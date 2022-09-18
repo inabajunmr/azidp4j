@@ -3,21 +3,34 @@ package org.azidp4j.authorize;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class AuthorizationRequest {
 
-    public final String userId;
+    public final String authenticatedUserId;
+    public final Set<String> consentedScope;
     protected final Map<String, String> queryParameters;
 
     /** before user authentication */
     public AuthorizationRequest(Map<String, String> queryParameters) {
-        this.userId = null;
+        this.authenticatedUserId = null;
+        this.consentedScope = Set.of();
         this.queryParameters = queryParameters;
     }
 
-    public AuthorizationRequest(String userId, Map<String, String> queryParameters) {
-        this.userId = userId;
+    public AuthorizationRequest(String authenticatedUserId, Map<String, String> queryParameters) {
+        this.authenticatedUserId = authenticatedUserId;
+        this.consentedScope = Set.of();
+        this.queryParameters = queryParameters;
+    }
+
+    public AuthorizationRequest(
+            String authenticatedUserId,
+            Set<String> consentedScope,
+            Map<String, String> queryParameters) {
+        this.authenticatedUserId = authenticatedUserId;
+        this.consentedScope = consentedScope;
         this.queryParameters = queryParameters;
     }
 
@@ -36,11 +49,12 @@ public class AuthorizationRequest {
                     queryParameters.entrySet().stream()
                             .filter(kv -> !kv.getKey().equals("prompt"))
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            return new AuthorizationRequest(this.userId, noPrompt);
+            return new AuthorizationRequest(this.authenticatedUserId, noPrompt);
         } else {
             var queryParameterWithNewPrompt = new HashMap<>(queryParameters);
             queryParameterWithNewPrompt.put("prompt", String.join(" ", after));
-            return new AuthorizationRequest(this.userId, Map.copyOf(queryParameterWithNewPrompt));
+            return new AuthorizationRequest(
+                    this.authenticatedUserId, Map.copyOf(queryParameterWithNewPrompt));
         }
     }
 
