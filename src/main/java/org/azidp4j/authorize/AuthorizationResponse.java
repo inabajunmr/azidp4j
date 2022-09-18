@@ -13,8 +13,14 @@ public class AuthorizationResponse {
     public AuthorizationResponse(
             int status, Map<String, String> query, Map<String, String> fragment) {
         this.status = status;
-        this.query = query;
-        this.fragment = fragment;
+        this.query =
+                query.entrySet().stream()
+                        .filter(q -> q.getValue() != null)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        this.fragment =
+                fragment.entrySet().stream()
+                        .filter(f -> f.getValue() != null)
+                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         this.additionalPage = null;
     }
 

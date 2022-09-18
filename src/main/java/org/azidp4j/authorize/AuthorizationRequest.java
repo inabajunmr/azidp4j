@@ -10,19 +10,24 @@ public class AuthorizationRequest {
 
     public final String authenticatedUserId;
     public final Set<String> consentedScope;
+    public final Long authTime;
     protected final Map<String, String> queryParameters;
 
-    public AuthorizationRequest(String authenticatedUserId, Map<String, String> queryParameters) {
+    public AuthorizationRequest(
+            String authenticatedUserId, Long authTime, Map<String, String> queryParameters) {
         this.authenticatedUserId = authenticatedUserId;
+        this.authTime = authTime;
         this.consentedScope = Set.of();
         this.queryParameters = queryParameters;
     }
 
     public AuthorizationRequest(
             String authenticatedUserId,
+            Long authTime,
             Set<String> consentedScope,
             Map<String, String> queryParameters) {
         this.authenticatedUserId = authenticatedUserId;
+        this.authTime = authTime;
         this.consentedScope = consentedScope;
         this.queryParameters = queryParameters;
     }
@@ -42,12 +47,14 @@ public class AuthorizationRequest {
                     queryParameters.entrySet().stream()
                             .filter(kv -> !kv.getKey().equals("prompt"))
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            return new AuthorizationRequest(this.authenticatedUserId, noPrompt);
+            return new AuthorizationRequest(this.authenticatedUserId, this.authTime, noPrompt);
         } else {
             var queryParameterWithNewPrompt = new HashMap<>(queryParameters);
             queryParameterWithNewPrompt.put("prompt", String.join(" ", after));
             return new AuthorizationRequest(
-                    this.authenticatedUserId, Map.copyOf(queryParameterWithNewPrompt));
+                    this.authenticatedUserId,
+                    this.authTime,
+                    Map.copyOf(queryParameterWithNewPrompt));
         }
     }
 

@@ -115,7 +115,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         "rs:scope1 openid",
                         "clientId",
                         "xyz",
-                        3600,
+                        Instant.now().getEpochSecond(),
                         "abc");
         authorizationCodeStore.save(authorizationCode);
         var config =
@@ -146,7 +146,6 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
                         .clientId("clientId")
-                        .authTime(Instant.now().getEpochSecond())
                         .build();
 
         // exercise

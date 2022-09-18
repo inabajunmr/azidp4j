@@ -71,7 +71,11 @@ public class SimpleTest {
                         "state",
                         "xyz");
         var authorizationRequest =
-                new AuthorizationRequest("username", Set.of("scope1", "scope2"), queryParameters);
+                new AuthorizationRequest(
+                        "username",
+                        Instant.now().getEpochSecond(),
+                        Set.of("scope1", "scope2"),
+                        queryParameters);
 
         // exercise
         var authorizationResponse = sut.authorize(authorizationRequest);

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +42,8 @@ public class LoginHandler extends AzIdpHttpHandler {
 
         // session cookie
         exchange.getResponseHeaders().put("Set-Cookie", List.of("Login=" + username));
+        exchange.getResponseHeaders()
+                .put("Set-Cookie", List.of("AuthTime=" + Instant.now().getEpochSecond()));
         var query = exchange.getRequestURI().getQuery();
         String redirectTo = null;
         if (query != null) {

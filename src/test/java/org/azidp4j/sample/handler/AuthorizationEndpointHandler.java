@@ -41,7 +41,11 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
             }
         }
         var authorizationRequest =
-                new AuthorizationRequest(cookies.get("Login"), consentedScope, queryMap);
+                new AuthorizationRequest(
+                        cookies.get("Login"),
+                        Long.parseLong(cookies.get("AuthTime")),
+                        consentedScope,
+                        queryMap);
         authorize(httpExchange, authorizationRequest, queryMap);
     }
 

@@ -15,6 +15,7 @@ public class AuthorizationRequestParser {
                 InternalAuthorizationRequest.builder()
                         .authenticatedUserId(req.authenticatedUserId)
                         .consentedScope(req.consentedScope)
+                        .authTime(req.authTime)
                         .responseType(responseType)
                         .clientId(clientId)
                         .redirectUri(redirectUri)

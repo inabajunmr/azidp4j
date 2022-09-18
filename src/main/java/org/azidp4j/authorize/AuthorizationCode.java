@@ -8,7 +8,7 @@ public class AuthorizationCode {
     public final String code;
     public final String scope;
     public final String clientId;
-    public final Integer maxAge;
+    public final Long authTime;
     public final String nonce;
     public final String state;
 
@@ -18,14 +18,14 @@ public class AuthorizationCode {
             String scope,
             String clientId,
             String state,
-            Integer maxAge,
+            Long authTime,
             String nonce) {
         this.sub = sub;
         this.code = code;
         this.scope = scope;
         this.clientId = clientId;
         this.state = state;
-        this.maxAge = maxAge;
+        this.authTime = authTime;
         this.nonce = nonce;
     }
 
@@ -35,7 +35,7 @@ public class AuthorizationCode {
         this.scope = scope;
         this.clientId = clientId;
         this.state = state;
-        this.maxAge = null;
+        this.authTime = null;
         this.nonce = null;
     }
 }

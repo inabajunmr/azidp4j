@@ -185,14 +185,10 @@ public class Authorize {
                             authorizationRequest.scope,
                             authorizationRequest.clientId,
                             authorizationRequest.state,
-                            maxAge,
+                            authorizationRequest.authTime, // TODO
                             nonce));
-            if (authorizationRequest.state == null) {
-                return new AuthorizationResponse(302, Map.of("code", code), Map.of());
-            } else {
-                return new AuthorizationResponse(
-                        302, Map.of("code", code, "state", authorizationRequest.state), Map.of());
-            }
+            return new AuthorizationResponse(
+                    302, Map.of("code", code, "state", authorizationRequest.state), Map.of());
         } else if (responseType == ResponseType.token) {
 
             if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {

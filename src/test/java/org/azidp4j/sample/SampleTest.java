@@ -18,6 +18,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -115,7 +116,12 @@ public class SampleTest {
                                                     + clientId
                                                     + "&redirect_uri=http://localhost:8080&scope=scope1%20openid&state=xyz&nonce=abc"))
                             .GET()
-                            .header("Cookie", "Login=user1; Consent=" + consent)
+                            .header(
+                                    "Cookie",
+                                    "Login=user1; AuthTime="
+                                            + Instant.now().getEpochSecond()
+                                            + "; Consent="
+                                            + consent)
                             .build();
             var authorizationResponse =
                     authorizationRequestClient.send(
@@ -202,7 +208,12 @@ public class SampleTest {
                                                     + clientId
                                                     + "&redirect_uri=http://localhost:8080&scope=scope1&state=xyz"))
                             .GET()
-                            .header("Cookie", "Login=user1; Consent=" + consent)
+                            .header(
+                                    "Cookie",
+                                    "Login=user1; AuthTime="
+                                            + Instant.now().getEpochSecond()
+                                            + "; Consent="
+                                            + consent)
                             .build();
             var authorizationResponse =
                     authorizationRequestClient.send(
