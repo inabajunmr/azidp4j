@@ -1,5 +1,6 @@
 package org.azidp4j.authorize;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -139,11 +140,14 @@ public class Authorize {
                         Map.of());
             }
 
-            if (scopeValidator.contains(authorizationRequest.scope, "openid")) {
+            Integer maxAge = null;
+            String nonce = null;
+            if (scopeValidator.contains(
+                    authorizationRequest.scope, "openid")) { // TODO only openid?
                 // OIDC
                 if (authorizationRequest.maxAge != null) {
                     try {
-                        Integer.parseInt(authorizationRequest.maxAge);
+                        maxAge = Integer.parseInt(authorizationRequest.maxAge);
                     } catch (NumberFormatException e) {
                         return new AuthorizationResponse(
                                 302,
@@ -154,15 +158,20 @@ public class Authorize {
                                         authorizationRequest.state),
                                 Map.of());
                     }
-                }
-            }
-
-            Integer maxAge = null;
-            String nonce = null;
-            if (scopeValidator.contains(authorizationRequest.scope, "openid")) {
-                // OIDC
-                if (authorizationRequest.maxAge != null) {
-                    maxAge = Integer.parseInt(authorizationRequest.maxAge);
+                    if (Instant.now().getEpochSecond() + maxAge < authorizationRequest.authTime) {
+                        if (prompt.contains(Prompt.none)) {
+                            return new AuthorizationResponse(
+                                    302,
+                                    Map.of(
+                                            "error",
+                                            "login_required",
+                                            "state",
+                                            authorizationRequest.state),
+                                    Map.of());
+                        } else {
+                            return new AuthorizationResponse(AdditionalPage.login);
+                        }
+                    }
                 }
                 nonce = authorizationRequest.nonce;
             }

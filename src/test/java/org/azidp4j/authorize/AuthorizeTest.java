@@ -305,6 +305,34 @@ class AuthorizeTest {
             assertEquals("xyz", queryMap.get("state"));
             assertEquals("invalid_request", queryMap.get("error"));
         }
+        // authentication time over max age
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .authTime(Instant.now().getEpochSecond() - 11)
+                            .maxAge("10")
+                            .redirectUri("http://example.com")
+                            .scope("openid")
+                            .maxAge("invalid")
+                            .prompt("none login")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of())
+                            .state("xyz")
+                            .build();
+            var response = sut.authorize(authorizationRequest);
+            assertEquals(response.status, 302);
+            var location = URI.create(response.headers("http://example.com").get("Location"));
+            assertEquals("example.com", location.getHost());
+            var queryMap =
+                    Arrays.stream(location.getQuery().split("&"))
+                            .collect(
+                                    Collectors.toMap(
+                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+            assertEquals("xyz", queryMap.get("state"));
+            assertEquals("invalid_request", queryMap.get("error"));
+        }
     }
 
     @Test
@@ -491,6 +519,54 @@ class AuthorizeTest {
                 InternalAuthorizationRequest.builder()
                         .responseType("code")
                         .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://example.com")
+                        .scope("scope1")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("scope1", "scope2"))
+                        .state("xyz")
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.status, 302);
+        var location = response.headers("http://example.com").get("Location");
+        var queryMap =
+                Arrays.stream(URI.create(location).getQuery().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals(queryMap.get("state"), "xyz");
+        assertNotNull(queryMap.get("code"));
+    }
+
+    @Test
+    void authorizationCodeGrant_withMaxAge() {
+        // setup
+        var clientStore = new InMemoryClientStore();
+        var client =
+                new Client(
+                        "client1",
+                        "clientSecret",
+                        Set.of("http://example.com"),
+                        Set.of(GrantType.authorization_code),
+                        Set.of(ResponseType.code),
+                        "scope1 scope2");
+        clientStore.save(client);
+        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
+        var sut =
+                new Authorize(
+                        clientStore,
+                        new InMemoryAuthorizationCodeStore(),
+                        new AccessTokenIssuer(
+                                config, new JWKSet(), new SampleScopeAudienceMapper()),
+                        config);
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("code")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .maxAge("10")
                         .redirectUri("http://example.com")
                         .scope("scope1")
                         .authenticatedUserId("username")
@@ -539,6 +615,7 @@ class AuthorizeTest {
                 InternalAuthorizationRequest.builder()
                         .responseType("token")
                         .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://example.com")
                         .scope("rs:scope1")
                         .audiences(Set.of("http://rs.example.com"))

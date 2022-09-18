@@ -4,16 +4,17 @@ import java.util.Set;
 
 public class InternalAuthorizationRequest {
 
-    /** user identifier * */
+    /** Authenticated user identifier (not authorization request parameter) */
     final String authenticatedUserId;
-
+    /** User consented scope (not authorization request parameter) */
     final Set<String> consentedScope;
+    /** Time when the End-User authentication occurred (not authorization request parameter) */
+    final Long authTime;
 
     final String responseType;
     // TODO final String responseMode;
     final String nonce;
     final String maxAge;
-
     //    final String display;
     final String prompt;
 
@@ -30,6 +31,7 @@ public class InternalAuthorizationRequest {
     private InternalAuthorizationRequest(
             String authenticatedUserId,
             Set<String> consentedScope,
+            Long authTime,
             String responseType,
             String clientId,
             String redirectUri,
@@ -41,6 +43,7 @@ public class InternalAuthorizationRequest {
             Set<String> audiences) {
         this.authenticatedUserId = authenticatedUserId;
         this.consentedScope = consentedScope;
+        this.authTime = authTime;
         this.responseType = responseType;
         this.clientId = clientId;
         this.redirectUri = redirectUri;
@@ -56,6 +59,7 @@ public class InternalAuthorizationRequest {
 
         private String authenticatedUserId;
         private Set<String> consentedScope;
+        private Long authTime;
         private String responseType;
         private String clientId;
         private String redirectUri;
@@ -79,6 +83,11 @@ public class InternalAuthorizationRequest {
 
         public Builder consentedScope(Set<String> consentedScope) {
             this.consentedScope = consentedScope;
+            return this;
+        }
+
+        public Builder authTime(Long authTime) {
+            this.authTime = authTime;
             return this;
         }
 
@@ -131,6 +140,7 @@ public class InternalAuthorizationRequest {
             return new InternalAuthorizationRequest(
                     authenticatedUserId,
                     consentedScope,
+                    authTime,
                     responseType,
                     clientId,
                     redirectUri,
