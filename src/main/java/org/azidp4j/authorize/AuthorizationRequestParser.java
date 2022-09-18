@@ -8,15 +8,21 @@ public class AuthorizationRequestParser {
         String redirectUri = req.queryParameters.get("redirect_uri");
         String scope = req.queryParameters.get("scope");
         String state = req.queryParameters.get("state");
+        String nonce = req.queryParameters.get("nonce");
+        String maxAge = req.queryParameters.get("max_age");
 
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
-                        .sub(req.userId)
+                        .authenticatedUserId(req.authenticatedUserId)
+                        .consentedScope(req.consentedScope)
+                        .authTime(req.authTime)
                         .responseType(responseType)
                         .clientId(clientId)
                         .redirectUri(redirectUri)
                         .scope(scope)
                         .state(state)
+                        .nonce(nonce)
+                        .maxAge(maxAge)
                         .build();
         return authorizationRequest;
     }

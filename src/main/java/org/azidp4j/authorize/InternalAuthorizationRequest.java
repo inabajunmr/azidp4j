@@ -4,10 +4,20 @@ import java.util.Set;
 
 public class InternalAuthorizationRequest {
 
-    /** user identifier * */
-    final String sub;
+    /** Authenticated user identifier (not authorization request parameter) */
+    final String authenticatedUserId;
+    /** User consented scope (not authorization request parameter) */
+    final Set<String> consentedScope;
+    /** Time when the End-User authentication occurred (not authorization request parameter) */
+    final Long authTime;
 
     final String responseType;
+    // TODO final String responseMode;
+    final String nonce;
+    final String maxAge;
+    //    final String display;
+    final String prompt;
+
     final String clientId;
     final String redirectUri;
     final String scope;
@@ -19,30 +29,45 @@ public class InternalAuthorizationRequest {
     }
 
     private InternalAuthorizationRequest(
-            String sub,
+            String authenticatedUserId,
+            Set<String> consentedScope,
+            Long authTime,
             String responseType,
             String clientId,
             String redirectUri,
             String scope,
             String state,
+            String nonce,
+            String maxAge,
+            String prompt,
             Set<String> audiences) {
-        this.sub = sub;
+        this.authenticatedUserId = authenticatedUserId;
+        this.consentedScope = consentedScope;
+        this.authTime = authTime;
         this.responseType = responseType;
         this.clientId = clientId;
         this.redirectUri = redirectUri;
         this.scope = scope;
         this.state = state;
+        this.nonce = nonce;
+        this.maxAge = maxAge;
+        this.prompt = prompt;
         this.audiences = audiences;
     }
 
     public static class Builder {
 
-        private String sub;
+        private String authenticatedUserId;
+        private Set<String> consentedScope;
+        private Long authTime;
         private String responseType;
         private String clientId;
         private String redirectUri;
         private String scope;
         private String state;
+        private String nonce;
+        private String maxAge;
+        private String prompt;
         private Set<String> audiences;
 
         private Builder() {}
@@ -51,8 +76,18 @@ public class InternalAuthorizationRequest {
             this.responseType = responseType;
         }
 
-        public Builder sub(String sub) {
-            this.sub = sub;
+        public Builder authenticatedUserId(String authenticatedUserId) {
+            this.authenticatedUserId = authenticatedUserId;
+            return this;
+        }
+
+        public Builder consentedScope(Set<String> consentedScope) {
+            this.consentedScope = consentedScope;
+            return this;
+        }
+
+        public Builder authTime(Long authTime) {
+            this.authTime = authTime;
             return this;
         }
 
@@ -60,7 +95,6 @@ public class InternalAuthorizationRequest {
             this.responseType = responseType;
             return this;
         }
-        ;
 
         public Builder clientId(String clientId) {
             this.clientId = clientId;
@@ -82,6 +116,21 @@ public class InternalAuthorizationRequest {
             return this;
         }
 
+        public Builder nonce(String nonce) {
+            this.nonce = nonce;
+            return this;
+        }
+
+        public Builder maxAge(String maxAge) {
+            this.maxAge = maxAge;
+            return this;
+        }
+
+        public Builder prompt(String prompt) {
+            this.prompt = prompt;
+            return this;
+        }
+
         public Builder audiences(Set<String> audiences) {
             this.audiences = audiences;
             return this;
@@ -89,7 +138,18 @@ public class InternalAuthorizationRequest {
 
         public InternalAuthorizationRequest build() {
             return new InternalAuthorizationRequest(
-                    sub, responseType, clientId, redirectUri, scope, state, audiences);
+                    authenticatedUserId,
+                    consentedScope,
+                    authTime,
+                    responseType,
+                    clientId,
+                    redirectUri,
+                    scope,
+                    state,
+                    nonce,
+                    maxAge,
+                    prompt,
+                    audiences);
         }
     }
 }

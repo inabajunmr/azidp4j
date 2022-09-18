@@ -1,6 +1,9 @@
 package org.azidp4j.authorize;
 
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.ClientStore;
@@ -31,6 +34,7 @@ public class Authorize {
     }
 
     public AuthorizationResponse authorize(InternalAuthorizationRequest authorizationRequest) {
+
         var responseType = ResponseType.of(authorizationRequest.responseType);
         if (authorizationRequest.responseType == null) {
             return new AuthorizationResponse(400, Map.of(), Map.of());
@@ -51,6 +55,62 @@ public class Authorize {
         }
         if (!client.redirectUris.contains(authorizationRequest.redirectUri)) {
             return new AuthorizationResponse(400, Map.of(), Map.of());
+        }
+
+        Set<Prompt> prompt = Prompt.parse(authorizationRequest.prompt);
+        if (prompt == null) {
+            // prompt is invalid
+            return new AuthorizationResponse(
+                    302,
+                    Map.of("error", "invalid_request", "state", authorizationRequest.state),
+                    Map.of());
+        }
+        if (prompt.contains(Prompt.none) && prompt.size() != 1) {
+            // none with other prompt is invalid
+            return new AuthorizationResponse(
+                    302,
+                    Map.of("error", "invalid_request", "state", authorizationRequest.state),
+                    Map.of());
+        } else {
+            if (prompt.contains(Prompt.none)) {
+                if (authorizationRequest.authenticatedUserId == null) {
+                    return new AuthorizationResponse(
+                            302,
+                            Map.of("error", "login_required", "state", authorizationRequest.state),
+                            Map.of());
+                }
+                if (!authorizationRequest.consentedScope.containsAll(
+                        Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
+                    return new AuthorizationResponse(
+                            302,
+                            Map.of(
+                                    "error",
+                                    "consent_required",
+                                    "state",
+                                    authorizationRequest.state),
+                            Map.of());
+                }
+            }
+            if (prompt.contains(Prompt.login)) {
+                return new AuthorizationResponse(AdditionalPage.login);
+            }
+            if (prompt.contains(Prompt.consent)) {
+                if (authorizationRequest.authenticatedUserId == null) {
+                    return new AuthorizationResponse(AdditionalPage.login);
+                } else {
+                    return new AuthorizationResponse(AdditionalPage.consent);
+                }
+            }
+            if (prompt.contains(Prompt.select_account)) {
+                return new AuthorizationResponse(AdditionalPage.select_account);
+            }
+            if (authorizationRequest.authenticatedUserId == null) {
+                return new AuthorizationResponse(AdditionalPage.login);
+            }
+            if (!authorizationRequest.consentedScope.containsAll(
+                    Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
+                return new AuthorizationResponse(AdditionalPage.consent);
+            }
         }
 
         if (responseType == ResponseType.code) {
@@ -80,18 +140,57 @@ public class Authorize {
                         Map.of());
             }
 
+            Integer maxAge = null;
+            String nonce = null;
+            if (scopeValidator.contains(
+                    authorizationRequest.scope, "openid")) { // TODO only openid?
+                // OIDC
+                if (authorizationRequest.maxAge != null) {
+                    try {
+                        maxAge = Integer.parseInt(authorizationRequest.maxAge);
+                    } catch (NumberFormatException e) {
+                        return new AuthorizationResponse(
+                                302,
+                                Map.of(
+                                        "error",
+                                        "invalid_request",
+                                        "state",
+                                        authorizationRequest.state),
+                                Map.of());
+                    }
+                    if (Instant.now().getEpochSecond() + maxAge < authorizationRequest.authTime) {
+                        if (prompt.contains(Prompt.none)) {
+                            return new AuthorizationResponse(
+                                    302,
+                                    Map.of(
+                                            "error",
+                                            "login_required",
+                                            "state",
+                                            authorizationRequest.state),
+                                    Map.of());
+                        } else {
+                            return new AuthorizationResponse(AdditionalPage.login);
+                        }
+                    }
+                }
+                nonce = authorizationRequest.nonce;
+            }
+
             // issue authorization code
             var code = UUID.randomUUID().toString();
             authorizationCodeStore.save(
                     new AuthorizationCode(
-                            authorizationRequest.sub,
+                            authorizationRequest.authenticatedUserId,
                             code,
                             authorizationRequest.scope,
                             authorizationRequest.clientId,
-                            authorizationRequest.state));
+                            authorizationRequest.state,
+                            authorizationRequest.authTime, // TODO
+                            nonce));
             return new AuthorizationResponse(
                     302, Map.of("code", code, "state", authorizationRequest.state), Map.of());
         } else if (responseType == ResponseType.token) {
+
             if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
                 return new AuthorizationResponse(
                         302,
@@ -124,7 +223,7 @@ public class Authorize {
             // issue access token
             var accessToken =
                     accessTokenIssuer.issue(
-                            authorizationRequest.sub,
+                            authorizationRequest.authenticatedUserId,
                             authorizationRequest.clientId,
                             authorizationRequest.scope);
             return new AuthorizationResponse(
@@ -142,7 +241,6 @@ public class Authorize {
                             "state",
                             authorizationRequest.state));
         }
-
         throw new AssertionError();
     }
 }

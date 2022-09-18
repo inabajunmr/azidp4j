@@ -20,10 +20,11 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 import org.junit.jupiter.api.Test;
 
-class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
+class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
 
     @Test
     void success() throws JOSEException, ParseException {
@@ -32,9 +33,12 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenIssuer =
                 new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var userPasswordVerifier =
@@ -58,6 +62,7 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         config,
                         authorizationCodeStore,
                         accessTokenIssuer,
+                        idTokenIssuer,
                         refreshTokenIssuer,
                         userPasswordVerifier,
                         clientStore,
@@ -107,9 +112,12 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenIssuer =
                 new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var userPasswordVerifier =
@@ -133,6 +141,7 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         config,
                         authorizationCodeStore,
                         accessTokenIssuer,
+                        idTokenIssuer,
                         refreshTokenIssuer,
                         userPasswordVerifier,
                         clientStore,
@@ -163,9 +172,12 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenIssuer =
                 new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var userPasswordVerifier =
@@ -189,6 +201,7 @@ class IssueTokenTest_ResourceOnwerPasswordCredentialsGrant {
                         config,
                         authorizationCodeStore,
                         accessTokenIssuer,
+                        idTokenIssuer,
                         refreshTokenIssuer,
                         userPasswordVerifier,
                         clientStore,

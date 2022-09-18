@@ -18,6 +18,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 import org.junit.jupiter.api.Test;
 
@@ -35,7 +36,9 @@ public class IssueTokenTest {
                 new AuthorizationCode(
                         subject, UUID.randomUUID().toString(), "scope1", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -50,6 +53,7 @@ public class IssueTokenTest {
                         config,
                         authorizationCodeStore,
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new IDTokenIssuer(config, jwks),
                         new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         null,
                         clientStore,

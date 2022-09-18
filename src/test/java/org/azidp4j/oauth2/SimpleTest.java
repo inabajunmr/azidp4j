@@ -11,6 +11,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.net.URI;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +39,8 @@ public class SimpleTest {
         var jwks = new JWKSet(key);
         var sut =
                 new AzIdP(
-                        new AzIdPConfig("issuer", key.getKeyID(), 3600, 604800),
+                        new AzIdPConfig(
+                                "issuer", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600),
                         jwks,
                         new InMemoryClientStore(),
                         new SampleScopeAudienceMapper());
@@ -68,7 +70,12 @@ public class SimpleTest {
                         "scope1 scope2",
                         "state",
                         "xyz");
-        var authorizationRequest = new AuthorizationRequest("username", queryParameters);
+        var authorizationRequest =
+                new AuthorizationRequest(
+                        "username",
+                        Instant.now().getEpochSecond(),
+                        Set.of("scope1", "scope2"),
+                        queryParameters);
 
         // exercise
         var authorizationResponse = sut.authorize(authorizationRequest);
@@ -89,7 +96,8 @@ public class SimpleTest {
                         redirectUri,
                         "grant_type",
                         "authorization_code");
-        var tokenRequest1 = new TokenRequest(clientId, tokenRequestBody1);
+        var tokenRequest1 =
+                new TokenRequest(clientId, Instant.now().getEpochSecond(), tokenRequestBody1);
 
         // exercise
         var tokenResponse1 = sut.issueToken(tokenRequest1);
@@ -111,7 +119,8 @@ public class SimpleTest {
         // token request
         var tokenRequestBody2 =
                 Map.of("refresh_token", (String) refreshToken, "grant_type", "refresh_token");
-        var tokenRequest2 = new TokenRequest(clientId, tokenRequestBody2);
+        var tokenRequest2 =
+                new TokenRequest(clientId, Instant.now().getEpochSecond(), tokenRequestBody2);
 
         // exercise
         var tokenResponse2 = sut.issueToken(tokenRequest2);

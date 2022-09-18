@@ -11,26 +11,27 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.azidp4j.AzIdP;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.sample.authenticator.ClientBasicAuthenticator;
 import org.azidp4j.sample.authenticator.JWSAccessTokenAuthenticator;
-import org.azidp4j.sample.authenticator.UserBasicAuthenticator;
-import org.azidp4j.sample.handler.AuthorizationEndpointHandler;
-import org.azidp4j.sample.handler.DynamicClientRegistrationHandler;
-import org.azidp4j.sample.handler.JWKsEndpointHandler;
-import org.azidp4j.sample.handler.TokenEndpointHandler;
+import org.azidp4j.sample.handler.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.UserPasswordVerifier;
 
 public class SampleAz {
 
     private HttpServer server;
+    public AzIdP azIdP;
+    private JWKSet jwks;
+    private ClientStore clientStore;
 
-    public void start(int port) throws IOException, JOSEException {
+    public SampleAz() throws JOSEException {
+
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var config = new AzIdPConfig("issuer", key.getKeyID(), 3600, 604800);
-        var clientStore = new InMemoryClientStore();
+        jwks = new JWKSet(key);
+        var config = new AzIdPConfig("issuer", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+        clientStore = new InMemoryClientStore();
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -47,21 +48,25 @@ public class SampleAz {
                         return false;
                     }
                 };
-        var azIdP =
+        azIdP =
                 new AzIdP(
                         config,
                         jwks,
                         clientStore,
                         new SampleScopeAudienceMapper(),
                         userPasswordVerifier);
+    }
+
+    public void start(int port) throws IOException, JOSEException {
         server = HttpServer.create(new InetSocketAddress(port), 0);
-        server.createContext("/authorize", new AuthorizationEndpointHandler(azIdP))
-                .setAuthenticator(new UserBasicAuthenticator());
+        server.createContext("/authorize", new AuthorizationEndpointHandler(azIdP));
         server.createContext("/token", new TokenEndpointHandler(azIdP))
                 .setAuthenticator(new ClientBasicAuthenticator(clientStore));
         server.createContext("/jwks", new JWKsEndpointHandler(jwks));
         server.createContext("/client", new DynamicClientRegistrationHandler(azIdP))
                 .setAuthenticator(new JWSAccessTokenAuthenticator(jwks));
+        server.createContext("/login", new LoginHandler());
+        server.createContext("/consent", new ConsentHandler());
         ExecutorService pool = Executors.newFixedThreadPool(1);
         server.setExecutor(pool);
         server.start();

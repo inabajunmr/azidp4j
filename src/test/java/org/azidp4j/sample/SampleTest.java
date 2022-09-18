@@ -18,6 +18,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -77,7 +78,7 @@ public class SampleTest {
                         "response_types",
                         Set.of(ResponseType.code.name(), ResponseType.token.name()),
                         "scope",
-                        "scope1 scope2");
+                        "scope1 scope2 openid");
         var clientRegistrationRequest =
                 HttpRequest.newBuilder(URI.create("http://localhost:8080/client"))
                         .header("Authorization", "Bearer " + clientAccessToken)
@@ -92,17 +93,7 @@ public class SampleTest {
         var clientId = registeredClient.get("client_id").asText();
         var clientSecret = registeredClient.get("client_secret").asText();
 
-        var authorizationRequestClient =
-                HttpClient.newBuilder()
-                        .authenticator(
-                                new Authenticator() {
-                                    @Override
-                                    protected PasswordAuthentication getPasswordAuthentication() {
-                                        return new PasswordAuthentication(
-                                                "user1", "password1".toCharArray());
-                                    }
-                                })
-                        .build();
+        var authorizationRequestClient = HttpClient.newBuilder().build();
         var tokenRequestClient =
                 HttpClient.newBuilder()
                         .authenticator(
@@ -117,18 +108,26 @@ public class SampleTest {
 
         // authorization code grant
         {
+            var consent = new ObjectMapper().writeValueAsString(Map.of(clientId, "scope1 openid"));
             var authorizationRequest =
                     HttpRequest.newBuilder(
                                     URI.create(
                                             "http://localhost:8080/authorize?response_type=code&client_id="
                                                     + clientId
-                                                    + "&redirect_uri=http://localhost:8080&scope=scope1&state=xyz"))
+                                                    + "&redirect_uri=http://localhost:8080&scope=scope1%20openid&state=xyz&nonce=abc"))
                             .GET()
+                            .header(
+                                    "Cookie",
+                                    "Login=user1; AuthTime="
+                                            + Instant.now().getEpochSecond()
+                                            + "; Consent="
+                                            + consent)
                             .build();
             var authorizationResponse =
                     authorizationRequestClient.send(
                             authorizationRequest, HttpResponse.BodyHandlers.ofString());
             var location = authorizationResponse.headers().firstValue("Location").get();
+            System.out.println(location);
             var redirectQuery = URI.create(location).getQuery();
             var queryMap =
                     Arrays.stream(redirectQuery.split("&"))
@@ -150,9 +149,10 @@ public class SampleTest {
             var tokenResponse =
                     tokenRequestClient.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
 
-            // verify token
+            // verify access token
             // signature
             var jwks = JWKSet.load(new URL("http://localhost:8080/jwks"));
+            System.out.println(tokenResponse.body());
             var tokenResponseJSON = new ObjectMapper().readTree(tokenResponse.body());
             var accessToken = tokenResponseJSON.get("access_token");
             var parsedAccessToken = JWSObject.parse(accessToken.asText());
@@ -161,8 +161,15 @@ public class SampleTest {
             assertTrue(parsedAccessToken.verify(verifier));
 
             // claims
-            var payload = parsedAccessToken.getPayload().toJSONObject();
-            assertEquals("user1", payload.get("sub"));
+            var atPayload = parsedAccessToken.getPayload().toJSONObject();
+            assertEquals("user1", atPayload.get("sub"));
+
+            // verify id token
+            var idToken = tokenResponseJSON.get("id_token");
+            var parsedIdToken = JWSObject.parse(idToken.asText());
+            assertTrue(parsedIdToken.verify(verifier));
+            var itPayload = parsedAccessToken.getPayload().toJSONObject();
+            assertEquals("user1", itPayload.get("sub"));
 
             // token refresh
             var refreshToken = tokenResponseJSON.get("refresh_token");
@@ -187,11 +194,13 @@ public class SampleTest {
             assertTrue(parsedRefreshedAccessToken.verify(verifier));
 
             // claims
-            assertEquals("user1", parsedAccessToken.getPayload().toJSONObject().get("sub"));
+            assertEquals(
+                    "user1", parsedRefreshedAccessToken.getPayload().toJSONObject().get("sub"));
         }
 
         // implicit grant
         {
+            var consent = new ObjectMapper().writeValueAsString(Map.of(clientId, "scope1"));
             var authorizationRequest =
                     HttpRequest.newBuilder(
                                     URI.create(
@@ -199,6 +208,12 @@ public class SampleTest {
                                                     + clientId
                                                     + "&redirect_uri=http://localhost:8080&scope=scope1&state=xyz"))
                             .GET()
+                            .header(
+                                    "Cookie",
+                                    "Login=user1; AuthTime="
+                                            + Instant.now().getEpochSecond()
+                                            + "; Consent="
+                                            + consent)
                             .build();
             var authorizationResponse =
                     authorizationRequestClient.send(

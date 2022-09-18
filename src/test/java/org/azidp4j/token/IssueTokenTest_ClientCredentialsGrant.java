@@ -20,6 +20,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 import org.junit.jupiter.api.Test;
 
@@ -32,9 +33,12 @@ class IssueTokenTest_ClientCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenIssuer =
                 new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var clientStore = new InMemoryClientStore();
@@ -51,6 +55,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                         config,
                         authorizationCodeStore,
                         accessTokenIssuer,
+                        idTokenIssuer,
                         refreshTokenIssuer,
                         null,
                         clientStore,
@@ -98,9 +103,12 @@ class IssueTokenTest_ClientCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config = new AzIdPConfig("as.example.com", key.getKeyID(), 3600, 604800);
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenIssuer =
                 new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var clientStore = new InMemoryClientStore();
@@ -117,6 +125,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                         config,
                         authorizationCodeStore,
                         accessTokenIssuer,
+                        idTokenIssuer,
                         refreshTokenIssuer,
                         null,
                         clientStore,

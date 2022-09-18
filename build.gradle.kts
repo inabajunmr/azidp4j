@@ -24,6 +24,6 @@ tasks.getByName<Test>("test") {
 
 spotless {
     java {
-        googleJavaFormat("1.8").aosp().reflowLongStrings()
+        googleJavaFormat("1.15.0").aosp().reflowLongStrings()
     }
 }

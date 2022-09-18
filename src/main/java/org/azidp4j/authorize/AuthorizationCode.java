@@ -8,8 +8,26 @@ public class AuthorizationCode {
     public final String code;
     public final String scope;
     public final String clientId;
-
+    public final Long authTime;
+    public final String nonce;
     public final String state;
+
+    public AuthorizationCode(
+            String sub,
+            String code,
+            String scope,
+            String clientId,
+            String state,
+            Long authTime,
+            String nonce) {
+        this.sub = sub;
+        this.code = code;
+        this.scope = scope;
+        this.clientId = clientId;
+        this.state = state;
+        this.authTime = authTime;
+        this.nonce = nonce;
+    }
 
     public AuthorizationCode(String sub, String code, String scope, String clientId, String state) {
         this.sub = sub;
@@ -17,5 +35,7 @@ public class AuthorizationCode {
         this.scope = scope;
         this.clientId = clientId;
         this.state = state;
+        this.authTime = null;
+        this.nonce = null;
     }
 }
