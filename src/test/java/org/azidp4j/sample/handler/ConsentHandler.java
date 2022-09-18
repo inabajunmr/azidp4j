@@ -1,5 +1,9 @@
 package org.azidp4j.sample.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -8,39 +12,63 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.azidp4j.sample.web.CookieParser;
 
-public class LoginHandler extends AzIdpHttpHandler {
+public class ConsentHandler extends AzIdpHttpHandler {
 
     @Override
     public void process(HttpExchange exchange) throws IOException {
-        System.out.println("login");
-        System.out.println(exchange.getRequestMethod());
-        System.out.println(exchange.getRequestURI());
-
         if (exchange.getRequestMethod().equals("GET")) {
             responseForm(exchange);
         } else if (exchange.getRequestMethod().equals("POST")) {
-            login(exchange);
+            consent(exchange);
         }
     }
 
-    private void login(HttpExchange exchange) throws IOException {
+    private void consent(HttpExchange exchange) throws IOException {
         var body = new String(exchange.getRequestBody().readAllBytes());
         var bodyMap =
                 Arrays.stream(body.split("&"))
                         .map(kv -> kv.split("="))
                         .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
-        var username = bodyMap.get("username");
-        var password = bodyMap.get("password");
-        if (username == null || password == null || !verifyPassword(username, password)) {
-            exchange.getResponseHeaders()
-                    .put("Location", List.of(exchange.getRequestURI().toString()));
-            exchange.sendResponseHeaders(302, 0);
+        var clientId = bodyMap.get("client_id");
+        var scope = bodyMap.get("scope");
+        if (clientId == null || scope == null) {
+            // TODO 400
+            exchange.sendResponseHeaders(400, 0);
             exchange.close();
+        }
+        var cookies = CookieParser.parse(exchange);
+        ObjectNode userAuthenticatedScope;
+        if (cookies.containsKey("Consent")) {
+            var consent = new ObjectMapper().readTree(cookies.get("Consent"));
+            if (consent.has(clientId)) {
+                var consentedScope = consent.get(clientId).asText();
+                // merge
+                userAuthenticatedScope = (ObjectNode) consent;
+                userAuthenticatedScope.replace(
+                        clientId,
+                        TextNode.valueOf(
+                                Arrays.stream((consentedScope + " " + scope).trim().split(" "))
+                                        .distinct()
+                                        .collect(Collectors.joining(" "))));
+            } else {
+                userAuthenticatedScope = JsonNodeFactory.instance.objectNode();
+                userAuthenticatedScope.set(clientId, TextNode.valueOf(scope));
+            }
+        } else {
+            userAuthenticatedScope = JsonNodeFactory.instance.objectNode();
+            userAuthenticatedScope.set(clientId, TextNode.valueOf(scope));
         }
 
         // session cookie
-        exchange.getResponseHeaders().put("Set-Cookie", List.of("Login=" + username));
+        exchange.getResponseHeaders()
+                .put(
+                        "Set-Cookie",
+                        List.of(
+                                "Consent="
+                                        + new ObjectMapper()
+                                                .writeValueAsString(userAuthenticatedScope)));
         var query = exchange.getRequestURI().getQuery();
         String redirectTo = null;
         if (query != null) {
@@ -84,18 +112,29 @@ public class LoginHandler extends AzIdpHttpHandler {
 
     private static void responseForm(HttpExchange exchange) throws IOException {
         var query = exchange.getRequestURI().getQuery();
-        String loginQuery = "";
+        String consentQuery = "";
+        String scope = "";
+        String clientId = "";
+
         if (query != null) {
             var queryMap =
                     Arrays.stream(query.split("&"))
                             .map(kv -> kv.split("="))
                             .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
             if (queryMap.containsKey("redirect_to")) {
-                loginQuery =
+                consentQuery =
                         "?redirect_to="
                                 + URLEncoder.encode(
                                         queryMap.get("redirect_to"), StandardCharsets.UTF_8);
             }
+            if (!queryMap.containsKey("client_id")) {
+                // TODO 400
+            }
+            if (!queryMap.containsKey("scope")) {
+                // TODO 400
+            }
+            scope = queryMap.get("scope");
+            clientId = queryMap.get("client_id");
         }
         var responseBody = exchange.getResponseBody();
         exchange.getResponseHeaders().put("Content-Type", List.of("text/html"));
@@ -111,29 +150,19 @@ public class LoginHandler extends AzIdpHttpHandler {
                             <title>Login</title>
                         </head>
                         <body>
-                            <form action="/login%QUERY%" method="post">
-                                <input type="text" name="username" placeholder="username">
-                                <input type="password" name="password" placeholder="password">
-                                <button type="submit">login</button>
+                            <form action="/consent%QUERY%" method="post">
+                                <input type="hidden" name="client_id" value="%CLIENT_ID%">
+                                <input type="hidden" name="scope" value="%SCOPE%">
+                                <button type="submit">consent</button>
                             </form>
                         </body>
                         </html>
                 """
-                        .replace("%QUERY%", loginQuery)
+                        .replace("%QUERY%", consentQuery)
+                        .replace("%CLIENT_ID%", clientId)
+                        .replace("%SCOPE", scope)
                         .getBytes(StandardCharsets.UTF_8));
         responseBody.close();
         exchange.close();
-    }
-
-    private boolean verifyPassword(String username, String password) {
-        switch (username) {
-            case "user1":
-                return password.equals("password1");
-            case "user2":
-                return password.equals("password2");
-            case "user3":
-                return password.equals("password3");
-        }
-        return false;
     }
 }

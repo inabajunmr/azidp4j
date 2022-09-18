@@ -114,7 +114,7 @@ public class SampleTest {
                                                     + clientId
                                                     + "&redirect_uri=http://localhost:8080&scope=scope1%20openid&state=xyz&nonce=abc"))
                             .GET()
-                            .header("Cookie", "Login=user1")
+                            .header("Cookie", "Login=user1; Consent=scope1 openid")
                             .build();
             var authorizationResponse =
                     authorizationRequestClient.send(
@@ -200,7 +200,7 @@ public class SampleTest {
                                                     + clientId
                                                     + "&redirect_uri=http://localhost:8080&scope=scope1&state=xyz"))
                             .GET()
-                            .header("Cookie", "Login=user1")
+                            .header("Cookie", "Login=user1; Consent=scope1")
                             .build();
             var authorizationResponse =
                     authorizationRequestClient.send(

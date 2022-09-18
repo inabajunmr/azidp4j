@@ -2,7 +2,6 @@ package org.azidp4j.sample.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
@@ -11,7 +10,7 @@ import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.ClientRegistrationRequest;
 import org.azidp4j.client.GrantType;
 
-public class DynamicClientRegistrationHandler implements HttpHandler {
+public class DynamicClientRegistrationHandler extends AzIdpHttpHandler {
 
     private final AzIdP azIdp;
 
@@ -20,7 +19,7 @@ public class DynamicClientRegistrationHandler implements HttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
+    public void process(HttpExchange httpExchange) throws IOException {
         var body = new ObjectMapper().readTree(httpExchange.getRequestBody());
         var responseTypes = new HashSet<ResponseType>();
         body.get("response_types")

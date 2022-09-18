@@ -1,6 +1,7 @@
 package org.azidp4j.authorize;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.ClientStore;
@@ -210,9 +211,9 @@ public class Authorize {
                     true, new AuthorizationResponse(400, Map.of(), Map.of()), null);
         }
 
-        Prompt prompt = null;
+        Set<Prompt> prompt = null;
         if (authorizationRequest.prompt != null) {
-            prompt = Prompt.of(authorizationRequest.prompt);
+            prompt = Prompt.parse(authorizationRequest.prompt);
             if (prompt == null) {
                 var response =
                         new AuthorizationResponse(

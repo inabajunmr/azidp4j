@@ -2,11 +2,10 @@ package org.azidp4j.sample.handler;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class JWKsEndpointHandler implements HttpHandler {
+public class JWKsEndpointHandler extends AzIdpHttpHandler {
 
     private final JWKSet jwkSet;
 
@@ -15,7 +14,7 @@ public class JWKsEndpointHandler implements HttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
+    public void process(HttpExchange httpExchange) throws IOException {
         var jwksJSON = jwkSet.toPublicJWKSet().toString(true);
         httpExchange.getResponseHeaders().set("Content-Type", "application/json");
         httpExchange.sendResponseHeaders(200, jwksJSON.getBytes(StandardCharsets.UTF_8).length);

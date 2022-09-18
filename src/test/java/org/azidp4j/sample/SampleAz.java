@@ -66,6 +66,7 @@ public class SampleAz {
         server.createContext("/client", new DynamicClientRegistrationHandler(azIdP))
                 .setAuthenticator(new JWSAccessTokenAuthenticator(jwks));
         server.createContext("/login", new LoginHandler());
+        server.createContext("/consent", new ConsentHandler());
         ExecutorService pool = Executors.newFixedThreadPool(1);
         server.setExecutor(pool);
         server.start();

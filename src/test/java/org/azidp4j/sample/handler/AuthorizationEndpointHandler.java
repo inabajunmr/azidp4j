@@ -1,7 +1,6 @@
 package org.azidp4j.sample.handler;
 
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -13,7 +12,7 @@ import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.AuthorizationRequest;
 import org.azidp4j.sample.web.CookieParser;
 
-public class AuthorizationEndpointHandler implements HttpHandler {
+public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
 
     private final AzIdP azIdp;
 
@@ -22,7 +21,7 @@ public class AuthorizationEndpointHandler implements HttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
+    public void process(HttpExchange httpExchange) throws IOException {
         var query = httpExchange.getRequestURI().getQuery();
         var queryMap =
                 Arrays.stream(query.split("&"))
@@ -51,13 +50,19 @@ public class AuthorizationEndpointHandler implements HttpHandler {
                 return;
             }
 
-            var authorizationRequest = new AuthorizationRequest(cookies.get("Login"), queryMap);
+            // check consent
+            if (!cookies.containsKey("Consent")) {
+                // to consent page
+                redirectToConsentPage(httpExchange, queryMap);
+                return;
+            }
 
+            var authorizationRequest = new AuthorizationRequest(cookies.get("Login"), queryMap);
             authorize(httpExchange, authorizationRequest);
             return;
         }
 
-        switch (result.prompt) {
+        switch (result.prompt.stream().findFirst().get()) { // TODO need to handle multiple prompt
             case none:
                 {
                     // check session
@@ -68,13 +73,23 @@ public class AuthorizationEndpointHandler implements HttpHandler {
                         authorizationRequest =
                                 new AuthorizationRequest(cookies.get("Login"), queryMap);
                     }
-
                     authorize(httpExchange, authorizationRequest);
                     return;
                 }
             case login:
                 {
                     redirectToLoginPage(httpExchange, queryMap);
+                    return;
+                }
+            case consent:
+                {
+                    var cookies = CookieParser.parse(httpExchange);
+                    if (!cookies.containsKey("Login")) {
+                        redirectToLoginPage(httpExchange, queryMap);
+                        return;
+                    }
+
+                    redirectToConsentPage(httpExchange, queryMap);
                     return;
                 }
             default:
@@ -89,33 +104,62 @@ public class AuthorizationEndpointHandler implements HttpHandler {
         var authorizationResponse = azIdp.authorize(authorizationRequest);
         authorizationResponse
                 .headers("https://example.com")
-                .entrySet()
-                .forEach(h -> httpExchange.getResponseHeaders().set(h.getKey(), h.getValue()));
+                .forEach((key, value) -> httpExchange.getResponseHeaders().set(key, value));
         httpExchange.sendResponseHeaders(authorizationResponse.status, 0);
         httpExchange.close();
     }
 
-    private static void redirectToLoginPage(HttpExchange httpExchange, Map<String, String> queryMap)
+    private void redirectToLoginPage(HttpExchange httpExchange, Map<String, String> queryMap)
+            throws IOException {
+        redirectWithRedirectTo(httpExchange, "/login", "login", queryMap, null);
+    }
+
+    private void redirectToConsentPage(HttpExchange httpExchange, Map<String, String> queryMap)
+            throws IOException {
+        redirectWithRedirectTo(
+                httpExchange,
+                "/consent",
+                "consent",
+                queryMap,
+                Map.of("client_id", queryMap.get("client_id"), "scope", queryMap.get("scope")));
+    }
+
+    private void redirectWithRedirectTo(
+            HttpExchange httpExchange,
+            String targetPage,
+            String removePrompt,
+            Map<String, String> authorizationRequestQueryMap,
+            Map<String, String> targetPageQueryMap)
             throws IOException {
         var url = "http://" + httpExchange.getRequestHeaders().getFirst("Host");
-
         var redirectTo =
                 url
                         + "/authorize?"
                         + URLEncoder.encode(
-                                new AuthorizationRequest(queryMap)
-                                        .noPrompt().queryParameters().entrySet().stream()
+                                new AuthorizationRequest(authorizationRequestQueryMap)
+                                                .removePrompt(removePrompt)
+                                                .queryParameters()
+                                                .entrySet()
+                                                .stream()
                                                 .map(e -> e.getKey() + "=" + e.getValue())
                                                 .collect(Collectors.joining("&")),
                                 StandardCharsets.UTF_8);
-        httpExchange
-                .getResponseHeaders()
-                .put(
-                        "Location",
-                        List.of(
-                                url
-                                        + "/login?redirect_to="
-                                        + URLEncoder.encode(redirectTo, StandardCharsets.UTF_8)));
+
+        var targetUrl = new StringBuilder();
+        targetUrl.append(
+                url
+                        + targetPage
+                        + "?redirect_to="
+                        + URLEncoder.encode(redirectTo, StandardCharsets.UTF_8));
+        if (targetPageQueryMap != null) {
+            targetPageQueryMap
+                    .entrySet()
+                    .forEach(
+                            kv -> {
+                                targetUrl.append("&" + kv.getKey() + "=" + kv.getValue());
+                            });
+        }
+        httpExchange.getResponseHeaders().put("Location", List.of(targetUrl.toString()));
         httpExchange.sendResponseHeaders(302, 0);
         httpExchange.close();
     }

@@ -2,7 +2,6 @@ package org.azidp4j.sample.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -11,7 +10,7 @@ import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
 import org.azidp4j.token.TokenRequest;
 
-public class TokenEndpointHandler implements HttpHandler {
+public class TokenEndpointHandler extends AzIdpHttpHandler {
 
     private final AzIdP azIdp;
 
@@ -20,7 +19,7 @@ public class TokenEndpointHandler implements HttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange httpExchange) throws IOException {
+    public void process(HttpExchange httpExchange) throws IOException {
         var clientId = httpExchange.getPrincipal().getUsername();
         var body = new String(httpExchange.getRequestBody().readAllBytes());
         var bodyMap =
