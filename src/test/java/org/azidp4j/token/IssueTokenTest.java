@@ -34,7 +34,12 @@ public class IssueTokenTest {
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
                 new AuthorizationCode(
-                        subject, UUID.randomUUID().toString(), "scope1", "clientId", "xyz");
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "scope1",
+                        "clientId",
+                        "http://example.com",
+                        "xyz");
         authorizationCodeStore.save(authorizationCode);
         var config =
                 new AzIdPConfig(

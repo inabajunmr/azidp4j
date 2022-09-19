@@ -141,7 +141,7 @@ public class SampleTest {
                                     HttpRequest.BodyPublishers.ofString(
                                             "grant_type=authorization_code&code="
                                                     + queryMap.get("code")
-                                                    + "&redirect_uri=http://example.com&client_id=sample"))
+                                                    + "&redirect_uri=http://localhost:8080&client_id=sample"))
                             .setHeader(
                                     "Content-Type",
                                     "application/x-www-form-urlencoded; charset=utf-8")

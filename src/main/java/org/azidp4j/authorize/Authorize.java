@@ -184,8 +184,9 @@ public class Authorize {
                             code,
                             authorizationRequest.scope,
                             authorizationRequest.clientId,
+                            authorizationRequest.redirectUri,
                             authorizationRequest.state,
-                            authorizationRequest.authTime, // TODO
+                            authorizationRequest.authTime,
                             nonce));
             return new AuthorizationResponse(
                     302, Map.of("code", code, "state", authorizationRequest.state), Map.of());

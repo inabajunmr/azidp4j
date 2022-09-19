@@ -72,12 +72,15 @@ public class IssueToken {
                     if (authorizationCode == null) {
                         return new TokenResponse(400, Map.of("error", "invalid_grant"));
                     }
-                    if (authorizationCode.clientId != clientId) {
+                    if (!authorizationCode.clientId.equals(clientId)) {
                         return new TokenResponse(400, Map.of("error", "invalid_grant"));
                     }
                     // verify scope
                     if (!scopeValidator.hasEnoughScope(authorizationCode.scope, client)) {
                         return new TokenResponse(400, Map.of("error", "invalid_scope"));
+                    }
+                    if (!authorizationCode.redirectUri.equals(request.redirectUri)) {
+                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
                     }
                     var at =
                             accessTokenIssuer.issue(

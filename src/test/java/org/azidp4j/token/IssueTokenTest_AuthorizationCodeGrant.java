@@ -90,7 +90,12 @@ class IssueTokenTest_AuthorizationCodeGrant {
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
                 new AuthorizationCode(
-                        subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "rs:scope1",
+                        "clientId",
+                        "http://example.com",
+                        "xyz");
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -140,6 +145,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         UUID.randomUUID().toString(),
                         "rs:scope1 openid",
                         "clientId",
+                        "http://example.com",
                         "xyz",
                         Instant.now().getEpochSecond(),
                         "abc");
@@ -212,7 +218,12 @@ class IssueTokenTest_AuthorizationCodeGrant {
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
                 new AuthorizationCode(
-                        subject, UUID.randomUUID().toString(), "notauthorized", "clientId", "xyz");
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "notauthorized",
+                        "clientId",
+                        "http://example.com",
+                        "xyz");
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -237,7 +248,12 @@ class IssueTokenTest_AuthorizationCodeGrant {
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
                 new AuthorizationCode(
-                        subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "rs:scope1",
+                        "clientId",
+                        "http://example.com",
+                        "xyz");
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -265,7 +281,12 @@ class IssueTokenTest_AuthorizationCodeGrant {
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
                 new AuthorizationCode(
-                        subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "rs:scope1",
+                        "clientId",
+                        "http://example.com",
+                        "xyz");
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -279,5 +300,34 @@ class IssueTokenTest_AuthorizationCodeGrant {
         var response = issueToken.issue(tokenRequest);
         assertEquals(response.status, 400);
         assertEquals(response.body.get("error"), "invalid_grant");
+    }
+
+    @Test
+    void unmatchedRedirectUri() {
+        // setup
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "rs:scope1",
+                        "clientId",
+                        "http://example.com",
+                        "xyz");
+        authorizationCodeStore.save(authorizationCode);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .code(authorizationCode.code)
+                        .grantType("authorization_code")
+                        .redirectUri("http://invalid.example.com")
+                        .clientId("clientId")
+                        .build();
+
+        // exercise
+        var tokenResponse = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(tokenResponse.status, 400);
+        assertEquals("invalid_grant", tokenResponse.body.get("error"));
     }
 }
