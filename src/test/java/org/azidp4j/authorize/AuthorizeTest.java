@@ -64,6 +64,7 @@ class AuthorizeTest {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
                             .clientId(client.clientId)
+                            .responseType("illegal")
                             .redirectUri("http://rp1.example.com")
                             .scope("scope1")
                             .authenticatedUserId("username")
@@ -189,10 +190,11 @@ class AuthorizeTest {
                         "clientId",
                         "clientSecret",
                         Set.of("http://rp1.example.com"),
-                        Set.of(GrantType.authorization_code),
+                        Set.of(GrantType.authorization_code, GrantType.implicit),
                         Set.of(),
                         "scope1 scope2");
         clientStore.save(noResponseTypesClient);
+        // authorization code grant
         {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
@@ -215,6 +217,30 @@ class AuthorizeTest {
                                             kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
             assertEquals("xyz", queryMap.get("state"));
             assertEquals("unsupported_response_type", queryMap.get("error"));
+        }
+        // implicit grant
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("token")
+                            .clientId(noResponseTypesClient.clientId)
+                            .redirectUri("http://rp1.example.com")
+                            .scope("scope1")
+                            .consentedScope(Set.of("scope1"))
+                            .authenticatedUserId("username")
+                            .state("xyz")
+                            .build();
+            var response = sut.authorize(authorizationRequest);
+            assertEquals(response.status, 302);
+            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+            assertEquals("rp1.example.com", location.getHost());
+            var fragmentMap =
+                    Arrays.stream(location.getFragment().split("&"))
+                            .collect(
+                                    Collectors.toMap(
+                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+            assertEquals("xyz", fragmentMap.get("state"));
+            assertEquals("unsupported_response_type", fragmentMap.get("error"));
         }
         // invalid max_age
         {

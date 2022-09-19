@@ -10,20 +10,20 @@ public class InternalAuthorizationRequest {
     final Set<String> consentedScope;
     /** Time when the End-User authentication occurred (not authorization request parameter) */
     final Long authTime;
-    /** rfc6749 "authorization code grant" * */
+    /** rfc6749 "authorization code grant" */
     final String responseType;
     // TODO final String responseMode;
     final String nonce;
     final String maxAge;
     //    final String display;
     final String prompt;
-    /** rfc6749 "authorization code grant" * */
+    /** rfc6749 "authorization code grant" */
     final String clientId;
-    /** rfc6749 "authorization code grant" * */
+    /** rfc6749 "authorization code grant" */
     final String redirectUri;
-    /** rfc6749 "authorization code grant" * */
+    /** rfc6749 "authorization code grant" */
     final String scope;
-    /** rfc6749 "authorization code grant" * */
+    /** rfc6749 "authorization code grant" */
     final String state;
 
     public static Builder builder() {

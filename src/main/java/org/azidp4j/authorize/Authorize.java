@@ -36,7 +36,7 @@ public class Authorize {
     public AuthorizationResponse authorize(InternalAuthorizationRequest authorizationRequest) {
 
         var responseType = ResponseType.of(authorizationRequest.responseType);
-        if (authorizationRequest.responseType == null) {
+        if (responseType == null) {
             return new AuthorizationResponse(400, Map.of(), Map.of());
         }
 
@@ -190,7 +190,6 @@ public class Authorize {
             return new AuthorizationResponse(
                     302, Map.of("code", code, "state", authorizationRequest.state), Map.of());
         } else if (responseType == ResponseType.token) {
-
             if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
                 return new AuthorizationResponse(
                         302,

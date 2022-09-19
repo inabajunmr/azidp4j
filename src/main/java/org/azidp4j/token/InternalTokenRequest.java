@@ -2,12 +2,13 @@ package org.azidp4j.token;
 
 public class InternalTokenRequest {
 
-    /** for authorization code */
+    /** rfc6749 "authorization code grant" */
     final String code;
 
+    /** rfc6749 "authorization code grant" */
     final String grantType;
 
-    /** for authorization code */
+    /** rfc6749 "authorization code grant" */
     final String redirectUri;
 
     /**
@@ -17,11 +18,7 @@ public class InternalTokenRequest {
      */
     final String authenticatedClientId;
 
-    /**
-     * client id via request body.
-     *
-     * <p>for authorization code
-     */
+    /** rfc6749 "authorization code grant" */
     final String clientId;
 
     /** for client credentials */

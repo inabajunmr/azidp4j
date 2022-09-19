@@ -7,6 +7,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.text.ParseException;
@@ -16,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.AuthorizationCode;
+import org.azidp4j.authorize.AuthorizationCodeStore;
 import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.Client;
@@ -25,25 +27,33 @@ import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_AuthorizationCodeGrant {
 
-    @Test
-    void success_oauth2() throws JOSEException, ParseException {
+    private final ECKey key;
 
-        // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var subject = UUID.randomUUID().toString();
-        var authorizationCode =
-                new AuthorizationCode(
-                        subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
-        authorizationCodeStore.save(authorizationCode);
-        var config =
-                new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+    {
+        try {
+            key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        } catch (JOSEException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private final JWKSet jwks = new JWKSet(key);
+
+    private AuthorizationCodeStore authorizationCodeStore;
+
+    private IssueToken issueToken;
+
+    private final AzIdPConfig config =
+            new AzIdPConfig("as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+
+    @BeforeEach
+    void init() throws JOSEException {
+        authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -52,8 +62,16 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         null,
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
-                        "rs:scope1 rs:scope2"));
-        var issueToken =
+                        "openid rs:scope1 rs:scope2"));
+        clientStore.save(
+                new Client(
+                        "other",
+                        "secret",
+                        null,
+                        Set.of(GrantType.authorization_code),
+                        Set.of(ResponseType.code),
+                        "openid rs:scope1 rs:scope2"));
+        issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
@@ -63,6 +81,17 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         null,
                         clientStore,
                         jwks);
+    }
+
+    @Test
+    void success_oauth2() throws JOSEException, ParseException {
+
+        // setup
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
+        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -104,9 +133,6 @@ class IssueTokenTest_AuthorizationCodeGrant {
     void success_oidc() throws JOSEException, ParseException {
 
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
                 new AuthorizationCode(
@@ -118,28 +144,6 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         Instant.now().getEpochSecond(),
                         "abc");
         authorizationCodeStore.save(authorizationCode);
-        var config =
-                new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.authorization_code),
-                        Set.of(ResponseType.code),
-                        "rs:scope1 openid"));
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeStore,
-                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
-                        new IDTokenIssuer(config, jwks),
-                        new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
-                        null,
-                        clientStore,
-                        jwks);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -205,36 +209,11 @@ class IssueTokenTest_AuthorizationCodeGrant {
     @Test
     void clientHasNotEnoughScope() throws JOSEException {
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
                 new AuthorizationCode(
                         subject, UUID.randomUUID().toString(), "notauthorized", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
-        var config =
-                new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.authorization_code),
-                        Set.of(ResponseType.code),
-                        "rs:scope1 rs:scope2"));
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeStore,
-                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
-                        new IDTokenIssuer(config, jwks),
-                        new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
-                        null,
-                        clientStore,
-                        jwks);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -255,36 +234,11 @@ class IssueTokenTest_AuthorizationCodeGrant {
     void usingSameAuthorizationCode() throws JOSEException {
 
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
                 new AuthorizationCode(
                         subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
         authorizationCodeStore.save(authorizationCode);
-        var config =
-                new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.authorization_code),
-                        Set.of(ResponseType.code),
-                        "rs:scope1 rs:scope2"));
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeStore,
-                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
-                        new IDTokenIssuer(config, jwks),
-                        new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
-                        null,
-                        clientStore,
-                        jwks);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -303,5 +257,27 @@ class IssueTokenTest_AuthorizationCodeGrant {
         var response2 = issueToken.issue(tokenRequest);
         assertEquals(response.status, 200);
         assertEquals(response2.body.get("error"), "invalid_grant");
+    }
+
+    @Test
+    void usingAuthorizationCodeForOtherClient() {
+        // setup
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject, UUID.randomUUID().toString(), "rs:scope1", "clientId", "xyz");
+        authorizationCodeStore.save(authorizationCode);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .code(authorizationCode.code)
+                        .grantType("authorization_code")
+                        .redirectUri("http://example.com")
+                        .clientId("other")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+        assertEquals(response.status, 400);
+        assertEquals(response.body.get("error"), "invalid_grant");
     }
 }

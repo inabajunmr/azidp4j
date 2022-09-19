@@ -56,6 +56,7 @@ public class IssueToken {
                 && !Objects.equals(request.authenticatedClientId, request.clientId)) {
             return new TokenResponse(400, Map.of("error", "invalid_request"));
         }
+        // TODO client id should be divide for public client
         var clientId = request.clientId != null ? request.clientId : request.authenticatedClientId;
         var client = clientStore.find(clientId);
         if (client == null) {
@@ -69,6 +70,9 @@ public class IssueToken {
                 {
                     var authorizationCode = authorizationCodeStore.consume(request.code);
                     if (authorizationCode == null) {
+                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                    }
+                    if (authorizationCode.clientId != clientId) {
                         return new TokenResponse(400, Map.of("error", "invalid_grant"));
                     }
                     // verify scope
