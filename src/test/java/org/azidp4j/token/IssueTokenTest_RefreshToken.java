@@ -451,4 +451,56 @@ public class IssueTokenTest_RefreshToken {
         assertEquals(response.status, 400);
         assertEquals("invalid_grant", response.body.get("error"));
     }
+
+    @Test
+    void error_authenticatedClientUnmatched() throws JOSEException {
+
+        // setup
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        // always issuing expired
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 3600, 604800);
+        var accessTokenIssuer =
+                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var idTokenIssuer = new IDTokenIssuer(config, jwks);
+        var refreshTokenIssuer =
+                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var clientStore = new InMemoryClientStore();
+        clientStore.save(
+                new Client(
+                        "clientId",
+                        "secret",
+                        null,
+                        Set.of(GrantType.refresh_token),
+                        Set.of(),
+                        "rs:scope1 rs:scope2"));
+        var issueToken =
+                new IssueToken(
+                        config,
+                        authorizationCodeStore,
+                        accessTokenIssuer,
+                        idTokenIssuer,
+                        refreshTokenIssuer,
+                        null,
+                        clientStore,
+                        jwks);
+        var rt = refreshTokenIssuer.issue("user", "unknown", "rs:scope1");
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .grantType("refresh_token")
+                        .scope("rs:scope1")
+                        .refreshToken(rt.serialize())
+                        .authenticatedClientId("clientId")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 400);
+        assertEquals("invalid_grant", response.body.get("error"));
+    }
 }

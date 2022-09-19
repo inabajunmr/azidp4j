@@ -6,24 +6,34 @@ public class InternalAuthorizationRequest {
 
     /** Authenticated user identifier (not authorization request parameter) */
     final String authenticatedUserId;
+
     /** User consented scope (not authorization request parameter) */
     final Set<String> consentedScope;
+
     /** Time when the End-User authentication occurred (not authorization request parameter) */
     final Long authTime;
-    /** rfc6749 "authorization code grant" */
+
+    /** rfc6749 "authorization code grant", "implicit grant" */
     final String responseType;
+
     // TODO final String responseMode;
     final String nonce;
+
     final String maxAge;
     //    final String display;
+
     final String prompt;
-    /** rfc6749 "authorization code grant" */
+
+    /** rfc6749 "authorization code grant", "implicit grant" */
     final String clientId;
-    /** rfc6749 "authorization code grant" */
+
+    /** rfc6749 "authorization code grant", "implicit grant" */
     final String redirectUri;
-    /** rfc6749 "authorization code grant" */
+
+    /** rfc6749 "authorization code grant", "implicit grant" */
     final String scope;
-    /** rfc6749 "authorization code grant" */
+
+    /** rfc6749 "authorization code grant", "implicit grant" */
     final String state;
 
     public static Builder builder() {

@@ -192,6 +192,10 @@ public class IssueToken {
                 }
             case client_credentials:
                 {
+                    if (request.authenticatedClientId == null) {
+                        // TODO should reconsider public client
+                        return new TokenResponse(400, Map.of("error", "invalid_client"));
+                    }
                     // verify scope
                     if (!scopeValidator.hasEnoughScope(request.scope, client)) {
                         return new TokenResponse(400, Map.of("error", "invalid_scope"));
@@ -224,6 +228,9 @@ public class IssueToken {
                         }
                         var parsedRt = requestedRt.getPayload().toJSONObject();
                         if (!parsedRt.get("iss").equals(config.issuer)) {
+                            return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                        }
+                        if (!parsedRt.get("client_id").equals(request.authenticatedClientId)) {
                             return new TokenResponse(400, Map.of("error", "invalid_grant"));
                         }
                         if ((long) parsedRt.get("exp") < Instant.now().getEpochSecond()) {

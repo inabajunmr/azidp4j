@@ -5,7 +5,10 @@ public class InternalTokenRequest {
     /** rfc6749 "authorization code grant" */
     final String code;
 
-    /** rfc6749 "authorization code grant" */
+    /**
+     * rfc6749 "authorization code grant", "resource owner password credential grant", "client
+     * credentials grant", "refresh"
+     */
     final String grantType;
 
     /** rfc6749 "authorization code grant" */
@@ -21,14 +24,16 @@ public class InternalTokenRequest {
     /** rfc6749 "authorization code grant" */
     final String clientId;
 
-    /** for client credentials */
+    /** rfc6749 "resource owner password credential grant", "client credentials grant", "refresh" */
     final String scope;
 
-    /** for resource owner password */
+    /** rfc6749 "resource owner password credential grant" */
     final String username;
-    /** for resource owner password */
+
+    /** rfc6749 "resource owner password credential grant" */
     final String password;
-    /** for token refresh */
+
+    /** rfc6749 "refresh" */
     final String refreshToken;
 
     private InternalTokenRequest(
