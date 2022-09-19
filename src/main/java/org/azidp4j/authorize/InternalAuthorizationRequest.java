@@ -10,19 +10,21 @@ public class InternalAuthorizationRequest {
     final Set<String> consentedScope;
     /** Time when the End-User authentication occurred (not authorization request parameter) */
     final Long authTime;
-
+    /** rfc6749 "authorization code grant" * */
     final String responseType;
     // TODO final String responseMode;
     final String nonce;
     final String maxAge;
     //    final String display;
     final String prompt;
-
+    /** rfc6749 "authorization code grant" * */
     final String clientId;
+    /** rfc6749 "authorization code grant" * */
     final String redirectUri;
+    /** rfc6749 "authorization code grant" * */
     final String scope;
+    /** rfc6749 "authorization code grant" * */
     final String state;
-    final Set<String> audiences;
 
     public static Builder builder() {
         return new Builder();
@@ -39,8 +41,7 @@ public class InternalAuthorizationRequest {
             String state,
             String nonce,
             String maxAge,
-            String prompt,
-            Set<String> audiences) {
+            String prompt) {
         this.authenticatedUserId = authenticatedUserId;
         this.consentedScope = consentedScope;
         this.authTime = authTime;
@@ -52,7 +53,6 @@ public class InternalAuthorizationRequest {
         this.nonce = nonce;
         this.maxAge = maxAge;
         this.prompt = prompt;
-        this.audiences = audiences;
     }
 
     public static class Builder {
@@ -68,13 +68,8 @@ public class InternalAuthorizationRequest {
         private String nonce;
         private String maxAge;
         private String prompt;
-        private Set<String> audiences;
 
         private Builder() {}
-
-        private Builder(String responseType) {
-            this.responseType = responseType;
-        }
 
         public Builder authenticatedUserId(String authenticatedUserId) {
             this.authenticatedUserId = authenticatedUserId;
@@ -131,11 +126,6 @@ public class InternalAuthorizationRequest {
             return this;
         }
 
-        public Builder audiences(Set<String> audiences) {
-            this.audiences = audiences;
-            return this;
-        }
-
         public InternalAuthorizationRequest build() {
             return new InternalAuthorizationRequest(
                     authenticatedUserId,
@@ -148,8 +138,7 @@ public class InternalAuthorizationRequest {
                     state,
                     nonce,
                     maxAge,
-                    prompt,
-                    audiences);
+                    prompt);
         }
     }
 }

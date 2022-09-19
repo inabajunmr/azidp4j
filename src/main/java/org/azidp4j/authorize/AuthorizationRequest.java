@@ -8,9 +8,13 @@ import java.util.stream.Collectors;
 
 public class AuthorizationRequest {
 
+    /** Authenticated user identifier (not authorization request parameter) */
     public final String authenticatedUserId;
+    /** User consented scope (not authorization request parameter) */
     public final Set<String> consentedScope;
+    /** Time when the End-User authentication occurred (not authorization request parameter) */
     public final Long authTime;
+    /** Authorization request query parameters. * */
     protected final Map<String, String> queryParameters;
 
     public AuthorizationRequest(

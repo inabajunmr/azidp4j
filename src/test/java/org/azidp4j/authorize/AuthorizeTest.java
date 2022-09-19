@@ -33,7 +33,7 @@ class AuthorizeTest {
                 new Client(
                         "client1",
                         "clientSecret",
-                        Set.of("http://example.com"),
+                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "scope1 scope2 openid");
@@ -51,7 +51,7 @@ class AuthorizeTest {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1")
                             .authenticatedUserId("username")
                             .state("xyz")
@@ -64,7 +64,7 @@ class AuthorizeTest {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1")
                             .authenticatedUserId("username")
                             .state("xyz")
@@ -77,7 +77,7 @@ class AuthorizeTest {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1")
                             .authenticatedUserId("username")
                             .state("xyz")
@@ -91,7 +91,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId("unknown")
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1")
                             .authenticatedUserId("username")
                             .state("xyz")
@@ -113,13 +113,26 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
             assertEquals(response.status, 400);
         }
+        // no redirect uri
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .scope("scope1")
+                            .authenticatedUserId("username")
+                            .state("xyz")
+                            .build();
+            var response = sut.authorize(authorizationRequest);
+            assertEquals(response.status, 400);
+        }
         // scope unauthorized for client
         {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("invalid")
                             .authenticatedUserId("username")
                             .consentedScope(Set.of("invalid"))
@@ -127,8 +140,8 @@ class AuthorizeTest {
                             .build();
             var response = sut.authorize(authorizationRequest);
             assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://example.com").get("Location"));
-            assertEquals("example.com", location.getHost());
+            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+            assertEquals("rp1.example.com", location.getHost());
             var queryMap =
                     Arrays.stream(location.getQuery().split("&"))
                             .collect(
@@ -142,7 +155,7 @@ class AuthorizeTest {
                 new Client(
                         "clientId",
                         "clientSecret",
-                        Set.of("http://example.com"),
+                        Set.of("http://rp1.example.com"),
                         Set.of(),
                         Set.of(ResponseType.code),
                         "scope1 scope2");
@@ -152,7 +165,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(noGrantTypesClient.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1")
                             .consentedScope(Set.of("scope1"))
                             .authenticatedUserId("username")
@@ -160,8 +173,8 @@ class AuthorizeTest {
                             .build();
             var response = sut.authorize(authorizationRequest);
             assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://example.com").get("Location"));
-            assertEquals("example.com", location.getHost());
+            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+            assertEquals("rp1.example.com", location.getHost());
             var queryMap =
                     Arrays.stream(location.getQuery().split("&"))
                             .collect(
@@ -175,7 +188,7 @@ class AuthorizeTest {
                 new Client(
                         "clientId",
                         "clientSecret",
-                        Set.of("http://example.com"),
+                        Set.of("http://rp1.example.com"),
                         Set.of(GrantType.authorization_code),
                         Set.of(),
                         "scope1 scope2");
@@ -185,7 +198,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(noResponseTypesClient.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1")
                             .consentedScope(Set.of("scope1"))
                             .authenticatedUserId("username")
@@ -193,8 +206,8 @@ class AuthorizeTest {
                             .build();
             var response = sut.authorize(authorizationRequest);
             assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://example.com").get("Location"));
-            assertEquals("example.com", location.getHost());
+            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+            assertEquals("rp1.example.com", location.getHost());
             var queryMap =
                     Arrays.stream(location.getQuery().split("&"))
                             .collect(
@@ -209,7 +222,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("openid")
                             .maxAge("invalid")
                             .authenticatedUserId("username")
@@ -218,8 +231,8 @@ class AuthorizeTest {
                             .build();
             var response = sut.authorize(authorizationRequest);
             assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://example.com").get("Location"));
-            assertEquals("example.com", location.getHost());
+            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+            assertEquals("rp1.example.com", location.getHost());
             var queryMap =
                     Arrays.stream(location.getQuery().split("&"))
                             .collect(
@@ -234,7 +247,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("openid")
                             .maxAge("invalid")
                             .prompt("none")
@@ -243,8 +256,8 @@ class AuthorizeTest {
                             .build();
             var response = sut.authorize(authorizationRequest);
             assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://example.com").get("Location"));
-            assertEquals("example.com", location.getHost());
+            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+            assertEquals("rp1.example.com", location.getHost());
             var queryMap =
                     Arrays.stream(location.getQuery().split("&"))
                             .collect(
@@ -259,7 +272,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("openid")
                             .maxAge("invalid")
                             .prompt("none")
@@ -269,8 +282,8 @@ class AuthorizeTest {
                             .build();
             var response = sut.authorize(authorizationRequest);
             assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://example.com").get("Location"));
-            assertEquals("example.com", location.getHost());
+            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+            assertEquals("rp1.example.com", location.getHost());
             var queryMap =
                     Arrays.stream(location.getQuery().split("&"))
                             .collect(
@@ -285,7 +298,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("openid")
                             .maxAge("invalid")
                             .prompt("none login")
@@ -295,8 +308,8 @@ class AuthorizeTest {
                             .build();
             var response = sut.authorize(authorizationRequest);
             assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://example.com").get("Location"));
-            assertEquals("example.com", location.getHost());
+            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+            assertEquals("rp1.example.com", location.getHost());
             var queryMap =
                     Arrays.stream(location.getQuery().split("&"))
                             .collect(
@@ -313,7 +326,7 @@ class AuthorizeTest {
                             .clientId(client.clientId)
                             .authTime(Instant.now().getEpochSecond() - 11)
                             .maxAge("10")
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("openid")
                             .maxAge("invalid")
                             .prompt("none login")
@@ -323,8 +336,8 @@ class AuthorizeTest {
                             .build();
             var response = sut.authorize(authorizationRequest);
             assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://example.com").get("Location"));
-            assertEquals("example.com", location.getHost());
+            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+            assertEquals("rp1.example.com", location.getHost());
             var queryMap =
                     Arrays.stream(location.getQuery().split("&"))
                             .collect(
@@ -344,7 +357,7 @@ class AuthorizeTest {
                 new Client(
                         "client1",
                         "clientSecret",
-                        Set.of("http://example.com"),
+                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "scope1 scope2");
@@ -364,7 +377,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1")
                             .state("xyz")
                             .build();
@@ -381,7 +394,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1")
                             .authenticatedUserId("username")
                             .consentedScope(Set.of())
@@ -400,7 +413,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1 scope2")
                             .authenticatedUserId("username")
                             .consentedScope(Set.of("scope1"))
@@ -419,7 +432,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1 scope2")
                             .prompt("login")
                             .authenticatedUserId("username")
@@ -439,7 +452,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1 scope2")
                             .prompt("consent")
                             .authenticatedUserId("username")
@@ -459,7 +472,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1 scope2")
                             .prompt("consent")
                             .consentedScope(Set.of("scope1 scope2"))
@@ -478,7 +491,7 @@ class AuthorizeTest {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://example.com")
+                            .redirectUri("http://rp1.example.com")
                             .scope("scope1 scope2")
                             .prompt("login consent")
                             .authenticatedUserId("username")
@@ -502,7 +515,7 @@ class AuthorizeTest {
                 new Client(
                         "client1",
                         "clientSecret",
-                        Set.of("http://example.com"),
+                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "scope1 scope2");
@@ -520,7 +533,7 @@ class AuthorizeTest {
                         .responseType("code")
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://example.com")
+                        .redirectUri("http://rp1.example.com")
                         .scope("scope1")
                         .authenticatedUserId("username")
                         .consentedScope(Set.of("scope1", "scope2"))
@@ -532,7 +545,7 @@ class AuthorizeTest {
 
         // verify
         assertEquals(response.status, 302);
-        var location = response.headers("http://example.com").get("Location");
+        var location = response.headers("http://rp1.example.com").get("Location");
         var queryMap =
                 Arrays.stream(URI.create(location).getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
@@ -548,7 +561,7 @@ class AuthorizeTest {
                 new Client(
                         "client1",
                         "clientSecret",
-                        Set.of("http://example.com"),
+                        Set.of("http://rp1.example.com"),
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "scope1 scope2");
@@ -567,7 +580,7 @@ class AuthorizeTest {
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
                         .maxAge("10")
-                        .redirectUri("http://example.com")
+                        .redirectUri("http://rp1.example.com")
                         .scope("scope1")
                         .authenticatedUserId("username")
                         .consentedScope(Set.of("scope1", "scope2"))
@@ -579,7 +592,7 @@ class AuthorizeTest {
 
         // verify
         assertEquals(response.status, 302);
-        var location = response.headers("http://example.com").get("Location");
+        var location = response.headers("http://rp1.example.com").get("Location");
         var queryMap =
                 Arrays.stream(URI.create(location).getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
@@ -595,7 +608,7 @@ class AuthorizeTest {
                 new Client(
                         "client1",
                         "clientSecret",
-                        Set.of("http://example.com"),
+                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
                         Set.of(GrantType.implicit),
                         Set.of(ResponseType.token),
                         "rs:scope1 rs:scope2");
@@ -616,9 +629,8 @@ class AuthorizeTest {
                         .responseType("token")
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://example.com")
+                        .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .audiences(Set.of("http://rs.example.com"))
                         .authenticatedUserId("username")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .state("xyz")
@@ -629,7 +641,7 @@ class AuthorizeTest {
 
         // verify
         assertEquals(response.status, 302);
-        var location = response.headers("http://example.com").get("Location");
+        var location = response.headers("http://rp1.example.com").get("Location");
         var fragmentMap =
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
