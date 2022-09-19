@@ -1,10 +1,7 @@
 package org.azidp4j.authorize;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
@@ -62,28 +59,29 @@ public class Authorize {
             // prompt is invalid
             return new AuthorizationResponse(
                     302,
-                    Map.of("error", "invalid_request", "state", authorizationRequest.state),
+                    nullRemovedMap("error", "invalid_request", "state", authorizationRequest.state),
                     Map.of());
         }
         if (prompt.contains(Prompt.none) && prompt.size() != 1) {
             // none with other prompt is invalid
             return new AuthorizationResponse(
                     302,
-                    Map.of("error", "invalid_request", "state", authorizationRequest.state),
+                    nullRemovedMap("error", "invalid_request", "state", authorizationRequest.state),
                     Map.of());
         } else {
             if (prompt.contains(Prompt.none)) {
                 if (authorizationRequest.authenticatedUserId == null) {
                     return new AuthorizationResponse(
                             302,
-                            Map.of("error", "login_required", "state", authorizationRequest.state),
+                            nullRemovedMap(
+                                    "error", "login_required", "state", authorizationRequest.state),
                             Map.of());
                 }
                 if (!authorizationRequest.consentedScope.containsAll(
                         Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
                     return new AuthorizationResponse(
                             302,
-                            Map.of(
+                            nullRemovedMap(
                                     "error",
                                     "consent_required",
                                     "state",
@@ -126,13 +124,17 @@ public class Authorize {
             if (!client.grantTypes.contains(GrantType.authorization_code)) {
                 return new AuthorizationResponse(
                         302,
-                        Map.of("error", "unauthorized_client", "state", authorizationRequest.state),
+                        nullRemovedMap(
+                                "error",
+                                "unauthorized_client",
+                                "state",
+                                authorizationRequest.state),
                         Map.of());
             }
             if (!client.responseTypes.contains(ResponseType.code)) {
                 return new AuthorizationResponse(
                         302,
-                        Map.of(
+                        nullRemovedMap(
                                 "error",
                                 "unsupported_response_type",
                                 "state",
@@ -151,7 +153,7 @@ public class Authorize {
                     } catch (NumberFormatException e) {
                         return new AuthorizationResponse(
                                 302,
-                                Map.of(
+                                nullRemovedMap(
                                         "error",
                                         "invalid_request",
                                         "state",
@@ -162,7 +164,7 @@ public class Authorize {
                         if (prompt.contains(Prompt.none)) {
                             return new AuthorizationResponse(
                                     302,
-                                    Map.of(
+                                    nullRemovedMap(
                                             "error",
                                             "login_required",
                                             "state",
@@ -189,13 +191,16 @@ public class Authorize {
                             authorizationRequest.authTime,
                             nonce));
             return new AuthorizationResponse(
-                    302, Map.of("code", code, "state", authorizationRequest.state), Map.of());
+                    302,
+                    nullRemovedMap("code", code, "state", authorizationRequest.state),
+                    Map.of());
         } else if (responseType == ResponseType.token) {
             if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
                 return new AuthorizationResponse(
                         302,
                         Map.of(),
-                        Map.of("error", "invalid_scope", "state", authorizationRequest.state));
+                        nullRemovedMap(
+                                "error", "invalid_scope", "state", authorizationRequest.state));
             }
 
             // validate grant type and response type
@@ -203,7 +208,7 @@ public class Authorize {
                 return new AuthorizationResponse(
                         302,
                         Map.of(),
-                        Map.of(
+                        nullRemovedMap(
                                 "error",
                                 "unauthorized_client",
                                 "state",
@@ -213,7 +218,7 @@ public class Authorize {
                 return new AuthorizationResponse(
                         302,
                         Map.of(),
-                        Map.of(
+                        nullRemovedMap(
                                 "error",
                                 "unsupported_response_type",
                                 "state",
@@ -229,7 +234,7 @@ public class Authorize {
             return new AuthorizationResponse(
                     302,
                     Map.of(),
-                    Map.of(
+                    nullRemovedMap(
                             "access_token",
                             accessToken.serialize(),
                             "token_type",
@@ -242,5 +247,21 @@ public class Authorize {
                             authorizationRequest.state));
         }
         throw new AssertionError();
+    }
+
+    private Map<String, String> nullRemovedMap(String... kv) {
+        if (kv.length % 2 != 0) {
+            throw new AssertionError();
+        }
+
+        var removed = new HashMap<String, String>();
+        for (int i = 0; i < kv.length; i += 2) {
+            var k = kv[i];
+            var v = kv[i + 1];
+            if (v != null) {
+                removed.put(k, v);
+            }
+        }
+        return removed;
     }
 }

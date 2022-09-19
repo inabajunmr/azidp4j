@@ -534,7 +534,52 @@ class AuthorizeTest {
     }
 
     @Test
-    void authorizationCodeGrant() {
+    void authorizationCodeGrant_withoutState() {
+        // setup
+        var clientStore = new InMemoryClientStore();
+        var client =
+                new Client(
+                        "client1",
+                        "clientSecret",
+                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
+                        Set.of(GrantType.authorization_code),
+                        Set.of(ResponseType.code),
+                        "scope1 scope2");
+        clientStore.save(client);
+        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
+        var sut =
+                new Authorize(
+                        clientStore,
+                        new InMemoryAuthorizationCodeStore(),
+                        new AccessTokenIssuer(
+                                config, new JWKSet(), new SampleScopeAudienceMapper()),
+                        config);
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("code")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("scope1")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("scope1", "scope2"))
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.status, 302);
+        var location = response.headers("http://rp1.example.com").get("Location");
+        var queryMap =
+                Arrays.stream(URI.create(location).getQuery().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertNull(queryMap.get("state"));
+        assertNotNull(queryMap.get("code"));
+    }
+
+    @Test
+    void authorizationCodeGrant_withState() {
         // setup
         var clientStore = new InMemoryClientStore();
         var client =
@@ -627,7 +672,82 @@ class AuthorizeTest {
     }
 
     @Test
-    void implicitGrant() throws JOSEException, ParseException {
+    void implicitGrant_withoutState() throws JOSEException, ParseException {
+        // setup
+        var clientStore = new InMemoryClientStore();
+        var client =
+                new Client(
+                        "client1",
+                        "clientSecret",
+                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
+                        Set.of(GrantType.implicit),
+                        Set.of(ResponseType.token),
+                        "rs:scope1 rs:scope2");
+        clientStore.save(client);
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var config =
+                new AzIdPConfig(
+                        "az.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+        var sut =
+                new Authorize(
+                        clientStore,
+                        new InMemoryAuthorizationCodeStore(),
+                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        config);
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("token")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("rs:scope1")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.status, 302);
+        var location = response.headers("http://rp1.example.com").get("Location");
+        var fragmentMap =
+                Arrays.stream(URI.create(location).getFragment().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertNull(fragmentMap.get("state"));
+        var accessToken = fragmentMap.get("access_token");
+        var parsedAccessToken = JWSObject.parse((String) accessToken);
+        // verify signature
+        assertTrue(parsedAccessToken.verify(new ECDSAVerifier(key)));
+        assertEquals(parsedAccessToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
+        assertEquals(parsedAccessToken.getHeader().getType().getType(), "at+JWT");
+        // verify claims
+        var payload = parsedAccessToken.getPayload().toJSONObject();
+        assertEquals(payload.get("sub"), "username");
+        assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
+        assertEquals(payload.get("client_id"), "client1");
+        assertEquals(payload.get("scope"), "rs:scope1");
+        assertNotNull(payload.get("jti"));
+        assertEquals(payload.get("iss"), "az.example.com");
+        assertTrue(
+                (long) Integer.parseInt(payload.get("exp").toString())
+                        > Instant.now().getEpochSecond() + 3590);
+        assertTrue(
+                (long) Integer.parseInt(payload.get("exp").toString())
+                        < Instant.now().getEpochSecond() + 3610);
+        assertTrue(
+                (long) Integer.parseInt(payload.get("iat").toString())
+                        > Instant.now().getEpochSecond() - 10);
+        assertTrue(
+                (long) Integer.parseInt(payload.get("iat").toString())
+                        < Instant.now().getEpochSecond() + 10);
+        assertEquals(fragmentMap.get("token_type"), "bearer");
+        assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
+    }
+
+    @Test
+    void implicitGrant_withState() throws JOSEException, ParseException {
         // setup
         var clientStore = new InMemoryClientStore();
         var client =
