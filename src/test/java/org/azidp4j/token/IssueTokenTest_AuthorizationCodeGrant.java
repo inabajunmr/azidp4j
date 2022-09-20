@@ -209,6 +209,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
             assertEquals(payload.get("nonce"), "abc");
             assertTrue((long) payload.get("auth_time") > Instant.now().getEpochSecond() - 10);
             assertTrue((long) payload.get("auth_time") < Instant.now().getEpochSecond() + 10);
+            assertNotNull(payload.get("at_hash"));
         }
     }
 
@@ -287,6 +288,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
             assertNull(payload.get("nonce"));
             assertTrue((long) payload.get("auth_time") > Instant.now().getEpochSecond() - 10);
             assertTrue((long) payload.get("auth_time") < Instant.now().getEpochSecond() + 10);
+            assertNotNull(payload.get("at_hash"));
         }
     }
 

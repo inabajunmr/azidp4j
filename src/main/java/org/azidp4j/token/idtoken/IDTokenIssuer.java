@@ -2,7 +2,11 @@ package org.azidp4j.token.idtoken;
 
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.util.Base64URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
@@ -19,7 +23,9 @@ public class IDTokenIssuer {
         this.jwsIssuer = new JWSIssuer(jwkSet);
     }
 
-    public JWSObject issue(String sub, String clientId, Long authTime, String nonce) {
+    public JWSObject issue(
+            String sub, String clientId, Long authTime, String nonce, String accessToken) {
+
         var jti = UUID.randomUUID().toString();
         if (nonce == null) {
             Map<String, Object> claims =
@@ -39,7 +45,9 @@ public class IDTokenIssuer {
                             "auth_time",
                             authTime,
                             "azp",
-                            clientId);
+                            clientId,
+                            "at_hash",
+                            calculateAtHash(accessToken));
             return jwsIssuer.issue(config.idTokenKid, claims);
         }
         Map<String, Object> claims =
@@ -61,7 +69,19 @@ public class IDTokenIssuer {
                         "nonce",
                         nonce,
                         "azp",
-                        clientId);
+                        clientId,
+                        "at_hash",
+                        calculateAtHash(accessToken));
         return jwsIssuer.issue(config.idTokenKid, claims);
+    }
+
+    private String calculateAtHash(String accessToken) {
+        try {
+            var sha256 = MessageDigest.getInstance("SHA-256");
+            var hash = sha256.digest(accessToken.getBytes());
+            return Base64URL.encode(Arrays.copyOfRange(hash, 0, hash.length / 2)).toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError(e);
+        }
     }
 }
