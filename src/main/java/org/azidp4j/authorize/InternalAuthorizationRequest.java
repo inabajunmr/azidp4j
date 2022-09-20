@@ -16,14 +16,6 @@ public class InternalAuthorizationRequest {
     /** rfc6749 "authorization code grant", "implicit grant" */
     final String responseType;
 
-    // TODO final String responseMode;
-    final String nonce;
-
-    final String maxAge;
-    //    final String display;
-
-    final String prompt;
-
     /** rfc6749 "authorization code grant", "implicit grant" */
     final String clientId;
 
@@ -35,6 +27,45 @@ public class InternalAuthorizationRequest {
 
     /** rfc6749 "authorization code grant", "implicit grant" */
     final String state;
+
+    /** OAuth 2.0 Multiple Response Type Encoding Practices */
+    // TODO final String responseMode;
+
+    /** OpenID Connect Core 1.0 "authorization code flow" */
+    final String nonce;
+
+    /** OpenID Connect Core 1.0 "authorization code flow" */
+    // TODO   final String display;
+
+    /** OpenID Connect Core 1.0 "authorization code flow" */
+    final String prompt;
+
+    /** OpenID Connect Core 1.0 "authorization code flow" */
+    final String maxAge;
+
+    /** OpenID Connect Core 1.0 "authorization code flow" */
+    // TODO   final String urLocales;
+
+    /** OpenID Connect Core 1.0 "authorization code flow" */
+    // TODO   final String idTokenHint;
+
+    /** OpenID Connect Core 1.0 "authorization code flow" */
+    // TODO   final String loginHint;
+
+    /** OpenID Connect Core 1.0 "authorization code flow" */
+    // TODO   final String acrValues;
+
+    /** OpenID Connect Core 1.0 "6. Passing Request Parameters as JWTs" */
+    final String request;
+
+    /** OpenID Connect Core 1.0 "6. Passing Request Parameters as JWTs" */
+    final String requestUri;
+
+    /**
+     * OpenID Connect Core 1.0 "7.2.1. Providing Information with the "registration" Request
+     * Parameter"
+     */
+    final String registration;
 
     public static Builder builder() {
         return new Builder();
@@ -51,7 +82,10 @@ public class InternalAuthorizationRequest {
             String state,
             String nonce,
             String maxAge,
-            String prompt) {
+            String prompt,
+            String request,
+            String requestUri,
+            String registration) {
         this.authenticatedUserId = authenticatedUserId;
         this.consentedScope = consentedScope;
         this.authTime = authTime;
@@ -63,6 +97,9 @@ public class InternalAuthorizationRequest {
         this.nonce = nonce;
         this.maxAge = maxAge;
         this.prompt = prompt;
+        this.request = request;
+        this.requestUri = requestUri;
+        this.registration = registration;
     }
 
     public static class Builder {
@@ -78,6 +115,12 @@ public class InternalAuthorizationRequest {
         private String nonce;
         private String maxAge;
         private String prompt;
+
+        private String request;
+
+        private String requestUri;
+
+        private String registration;
 
         private Builder() {}
 
@@ -136,6 +179,21 @@ public class InternalAuthorizationRequest {
             return this;
         }
 
+        public Builder request(String request) {
+            this.request = request;
+            return this;
+        }
+
+        public Builder requestUri(String requestUri) {
+            this.requestUri = requestUri;
+            return this;
+        }
+
+        public Builder registration(String registration) {
+            this.registration = registration;
+            return this;
+        }
+
         public InternalAuthorizationRequest build() {
             return new InternalAuthorizationRequest(
                     authenticatedUserId,
@@ -148,7 +206,10 @@ public class InternalAuthorizationRequest {
                     state,
                     nonce,
                     maxAge,
-                    prompt);
+                    prompt,
+                    request,
+                    requestUri,
+                    registration);
         }
     }
 }

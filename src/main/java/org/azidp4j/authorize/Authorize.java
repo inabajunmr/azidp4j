@@ -53,7 +53,33 @@ public class Authorize {
         if (!client.redirectUris.contains(authorizationRequest.redirectUri)) {
             return new AuthorizationResponse(400, Map.of(), Map.of());
         }
-
+        if (authorizationRequest.request != null) {
+            return new AuthorizationResponse(
+                    302,
+                    nullRemovedMap(
+                            "error", "request_not_supported", "state", authorizationRequest.state),
+                    Map.of());
+        }
+        if (authorizationRequest.requestUri != null) {
+            return new AuthorizationResponse(
+                    302,
+                    nullRemovedMap(
+                            "error",
+                            "request_uri_not_supported",
+                            "state",
+                            authorizationRequest.state),
+                    Map.of());
+        }
+        if (authorizationRequest.registration != null) {
+            return new AuthorizationResponse(
+                    302,
+                    nullRemovedMap(
+                            "error",
+                            "registration_not_supported",
+                            "state",
+                            authorizationRequest.state),
+                    Map.of());
+        }
         Set<Prompt> prompt = Prompt.parse(authorizationRequest.prompt);
         if (prompt == null) {
             // prompt is invalid

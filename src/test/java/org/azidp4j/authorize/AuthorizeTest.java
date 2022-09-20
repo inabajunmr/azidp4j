@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.Client;
+import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
@@ -26,376 +27,48 @@ import org.junit.jupiter.api.Test;
 
 class AuthorizeTest {
 
-    @Test
-    void validationError() {
-        var clientStore = new InMemoryClientStore();
-        var client =
-                new Client(
-                        "client1",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                        Set.of(GrantType.authorization_code),
-                        Set.of(ResponseType.code),
-                        "scope1 scope2 openid");
+    ClientStore clientStore = new InMemoryClientStore();
+    Client client =
+            new Client(
+                    "client1",
+                    "clientSecret",
+                    Set.of("http://rp1.example.com", "http://rp2.example.com"),
+                    Set.of(GrantType.authorization_code),
+                    Set.of(ResponseType.code),
+                    "scope1 scope2 openid");
+    Client noGrantTypesClient =
+            new Client(
+                    "noGrantTypesClient",
+                    "clientSecret",
+                    Set.of("http://rp1.example.com"),
+                    Set.of(),
+                    Set.of(ResponseType.code),
+                    "scope1 scope2");
+
+    Client noResponseTypesClient =
+            new Client(
+                    "noResponseTypesClient",
+                    "clientSecret",
+                    Set.of("http://rp1.example.com"),
+                    Set.of(GrantType.authorization_code, GrantType.implicit),
+                    Set.of(),
+                    "scope1 scope2");
+    AzIdPConfig config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
+    Authorize sut =
+            new Authorize(
+                    clientStore,
+                    new InMemoryAuthorizationCodeStore(),
+                    new AccessTokenIssuer(config, new JWKSet(), new SampleScopeAudienceMapper()),
+                    config);
+
+    public AuthorizeTest() {
         clientStore.save(client);
-        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
-        var sut =
-                new Authorize(
-                        clientStore,
-                        new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(
-                                config, new JWKSet(), new SampleScopeAudienceMapper()),
-                        config);
-        // response type is null
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
-                            .scope("scope1")
-                            .authenticatedUserId("username")
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 400);
-        }
-        // illegal response type
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .clientId(client.clientId)
-                            .responseType("illegal")
-                            .redirectUri("http://rp1.example.com")
-                            .scope("scope1")
-                            .authenticatedUserId("username")
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 400);
-        }
-        // client id is null
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("code")
-                            .redirectUri("http://rp1.example.com")
-                            .scope("scope1")
-                            .authenticatedUserId("username")
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 400);
-        }
-        // client not exist
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("code")
-                            .clientId("unknown")
-                            .redirectUri("http://rp1.example.com")
-                            .scope("scope1")
-                            .authenticatedUserId("username")
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 400);
-        }
-        // unauthorized redirect uri
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("code")
-                            .clientId(client.clientId)
-                            .redirectUri("http://not.authorized.example.com")
-                            .scope("scope1")
-                            .authenticatedUserId("username")
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 400);
-        }
-        // no redirect uri
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("code")
-                            .clientId(client.clientId)
-                            .scope("scope1")
-                            .authenticatedUserId("username")
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 400);
-        }
-        // scope unauthorized for client
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("code")
-                            .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
-                            .scope("invalid")
-                            .authenticatedUserId("username")
-                            .consentedScope(Set.of("invalid"))
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
-            assertEquals("rp1.example.com", location.getHost());
-            var queryMap =
-                    Arrays.stream(location.getQuery().split("&"))
-                            .collect(
-                                    Collectors.toMap(
-                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
-            assertEquals("xyz", queryMap.get("state"));
-            assertEquals("invalid_scope", queryMap.get("error"));
-        }
-        // client doesn't support grant type
-        var noGrantTypesClient =
-                new Client(
-                        "clientId",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com"),
-                        Set.of(),
-                        Set.of(ResponseType.code),
-                        "scope1 scope2");
         clientStore.save(noGrantTypesClient);
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("code")
-                            .clientId(noGrantTypesClient.clientId)
-                            .redirectUri("http://rp1.example.com")
-                            .scope("scope1")
-                            .consentedScope(Set.of("scope1"))
-                            .authenticatedUserId("username")
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
-            assertEquals("rp1.example.com", location.getHost());
-            var queryMap =
-                    Arrays.stream(location.getQuery().split("&"))
-                            .collect(
-                                    Collectors.toMap(
-                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
-            assertEquals("xyz", queryMap.get("state"));
-            assertEquals("unauthorized_client", queryMap.get("error"));
-        }
-        // client doesn't support response type
-        var noResponseTypesClient =
-                new Client(
-                        "clientId",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com"),
-                        Set.of(GrantType.authorization_code, GrantType.implicit),
-                        Set.of(),
-                        "scope1 scope2");
         clientStore.save(noResponseTypesClient);
-        // authorization code grant
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("code")
-                            .clientId(noResponseTypesClient.clientId)
-                            .redirectUri("http://rp1.example.com")
-                            .scope("scope1")
-                            .consentedScope(Set.of("scope1"))
-                            .authenticatedUserId("username")
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
-            assertEquals("rp1.example.com", location.getHost());
-            var queryMap =
-                    Arrays.stream(location.getQuery().split("&"))
-                            .collect(
-                                    Collectors.toMap(
-                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
-            assertEquals("xyz", queryMap.get("state"));
-            assertEquals("unsupported_response_type", queryMap.get("error"));
-        }
-        // implicit grant
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("token")
-                            .clientId(noResponseTypesClient.clientId)
-                            .redirectUri("http://rp1.example.com")
-                            .scope("scope1")
-                            .consentedScope(Set.of("scope1"))
-                            .authenticatedUserId("username")
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
-            assertEquals("rp1.example.com", location.getHost());
-            var fragmentMap =
-                    Arrays.stream(location.getFragment().split("&"))
-                            .collect(
-                                    Collectors.toMap(
-                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
-            assertEquals("xyz", fragmentMap.get("state"));
-            assertEquals("unsupported_response_type", fragmentMap.get("error"));
-        }
-        // invalid max_age
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("code")
-                            .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
-                            .scope("openid")
-                            .maxAge("invalid")
-                            .authenticatedUserId("username")
-                            .consentedScope(Set.of("openid"))
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
-            assertEquals("rp1.example.com", location.getHost());
-            var queryMap =
-                    Arrays.stream(location.getQuery().split("&"))
-                            .collect(
-                                    Collectors.toMap(
-                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
-            assertEquals("xyz", queryMap.get("state"));
-            assertEquals("invalid_request", queryMap.get("error"));
-        }
-        // prompt is none but user not authenticated
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("code")
-                            .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
-                            .scope("openid")
-                            .maxAge("invalid")
-                            .prompt("none")
-                            .consentedScope(Set.of())
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
-            assertEquals("rp1.example.com", location.getHost());
-            var queryMap =
-                    Arrays.stream(location.getQuery().split("&"))
-                            .collect(
-                                    Collectors.toMap(
-                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
-            assertEquals("xyz", queryMap.get("state"));
-            assertEquals("login_required", queryMap.get("error"));
-        }
-        // prompt is none but user not consented
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("code")
-                            .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
-                            .scope("openid")
-                            .maxAge("invalid")
-                            .prompt("none")
-                            .authenticatedUserId("username")
-                            .consentedScope(Set.of())
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
-            assertEquals("rp1.example.com", location.getHost());
-            var queryMap =
-                    Arrays.stream(location.getQuery().split("&"))
-                            .collect(
-                                    Collectors.toMap(
-                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
-            assertEquals("xyz", queryMap.get("state"));
-            assertEquals("consent_required", queryMap.get("error"));
-        }
-        // prompt is none and other
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("code")
-                            .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
-                            .scope("openid")
-                            .maxAge("invalid")
-                            .prompt("none login")
-                            .authenticatedUserId("username")
-                            .consentedScope(Set.of())
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
-            assertEquals("rp1.example.com", location.getHost());
-            var queryMap =
-                    Arrays.stream(location.getQuery().split("&"))
-                            .collect(
-                                    Collectors.toMap(
-                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
-            assertEquals("xyz", queryMap.get("state"));
-            assertEquals("invalid_request", queryMap.get("error"));
-        }
-        // authentication time over max age
-        {
-            var authorizationRequest =
-                    InternalAuthorizationRequest.builder()
-                            .responseType("code")
-                            .clientId(client.clientId)
-                            .authTime(Instant.now().getEpochSecond() - 11)
-                            .maxAge("10")
-                            .redirectUri("http://rp1.example.com")
-                            .scope("openid")
-                            .maxAge("invalid")
-                            .prompt("none login")
-                            .authenticatedUserId("username")
-                            .consentedScope(Set.of())
-                            .state("xyz")
-                            .build();
-            var response = sut.authorize(authorizationRequest);
-            assertEquals(response.status, 302);
-            var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
-            assertEquals("rp1.example.com", location.getHost());
-            var queryMap =
-                    Arrays.stream(location.getQuery().split("&"))
-                            .collect(
-                                    Collectors.toMap(
-                                            kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
-            assertEquals("xyz", queryMap.get("state"));
-            assertEquals("invalid_request", queryMap.get("error"));
-        }
     }
 
     @Test
     void additionalPage() {
-
-        // setup
-        var clientStore = new InMemoryClientStore();
-        var client =
-                new Client(
-                        "client1",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                        Set.of(GrantType.authorization_code),
-                        Set.of(ResponseType.code),
-                        "scope1 scope2");
-        clientStore.save(client);
-        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
-        var sut =
-                new Authorize(
-                        clientStore,
-                        new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(
-                                config, new JWKSet(), new SampleScopeAudienceMapper()),
-                        config);
 
         // user not login
         {
@@ -536,24 +209,6 @@ class AuthorizeTest {
     @Test
     void authorizationCodeGrant_withoutState() {
         // setup
-        var clientStore = new InMemoryClientStore();
-        var client =
-                new Client(
-                        "client1",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                        Set.of(GrantType.authorization_code),
-                        Set.of(ResponseType.code),
-                        "scope1 scope2");
-        clientStore.save(client);
-        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
-        var sut =
-                new Authorize(
-                        clientStore,
-                        new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(
-                                config, new JWKSet(), new SampleScopeAudienceMapper()),
-                        config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("code")

@@ -135,7 +135,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
     }
 
     @Test
-    void success_oidc() throws JOSEException, ParseException {
+    void success_oidcWithNonce() throws JOSEException, ParseException {
 
         // setup
         var subject = UUID.randomUUID().toString();
@@ -207,6 +207,84 @@ class IssueTokenTest_AuthorizationCodeGrant {
             assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
             assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
             assertEquals(payload.get("nonce"), "abc");
+            assertTrue((long) payload.get("auth_time") > Instant.now().getEpochSecond() - 10);
+            assertTrue((long) payload.get("auth_time") < Instant.now().getEpochSecond() + 10);
+        }
+    }
+
+    @Test
+    void success_oidcWithoutNonce() throws JOSEException, ParseException {
+
+        // setup
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "rs:scope1 openid",
+                        "clientId",
+                        "http://example.com",
+                        "xyz",
+                        Instant.now().getEpochSecond(),
+                        null);
+        authorizationCodeStore.save(authorizationCode);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .code(authorizationCode.code)
+                        .grantType("authorization_code")
+                        .redirectUri("http://example.com")
+                        .clientId("clientId")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 200);
+        // access token
+        {
+            var accessToken = response.body.get("access_token");
+            var parsedAccessToken = JWSObject.parse((String) accessToken);
+            // verify signature
+            assertTrue(parsedAccessToken.verify(new ECDSAVerifier(key)));
+            assertEquals(parsedAccessToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
+            assertEquals(parsedAccessToken.getHeader().getType().getType(), "at+JWT");
+            // verify claims
+            var payload = parsedAccessToken.getPayload().toJSONObject();
+            assertEquals(payload.get("sub"), subject);
+            assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
+            assertEquals(payload.get("client_id"), "clientId");
+            assertEquals(payload.get("scope"), "rs:scope1 openid");
+            assertNotNull(payload.get("jti"));
+            assertEquals(payload.get("iss"), "as.example.com");
+            assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
+            assertTrue((long) payload.get("exp") < Instant.now().getEpochSecond() + 3610);
+            assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
+            assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
+            assertEquals(response.body.get("token_type"), "bearer");
+            assertEquals(response.body.get("expires_in"), 3600);
+        }
+
+        assertTrue(response.body.containsKey("refresh_token"));
+
+        // id token
+        {
+            var idToken = response.body.get("id_token");
+            var parsedIdToken = JWSObject.parse((String) idToken);
+            // verify signature
+            assertTrue(parsedIdToken.verify(new ECDSAVerifier(key)));
+            assertEquals(parsedIdToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
+            // verify claims
+            var payload = parsedIdToken.getPayload().toJSONObject();
+            assertEquals(payload.get("sub"), subject);
+            assertEquals(payload.get("aud"), "clientId");
+            assertNotNull(payload.get("jti"));
+            assertEquals(payload.get("iss"), "as.example.com");
+            assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
+            assertTrue((long) payload.get("exp") < Instant.now().getEpochSecond() + 3610);
+            assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
+            assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
+            assertNull(payload.get("nonce"));
             assertTrue((long) payload.get("auth_time") > Instant.now().getEpochSecond() - 10);
             assertTrue((long) payload.get("auth_time") < Instant.now().getEpochSecond() + 10);
         }

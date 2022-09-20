@@ -37,7 +37,9 @@ public class IDTokenIssuer {
                             "jti",
                             jti,
                             "auth_time",
-                            authTime);
+                            authTime,
+                            "azp",
+                            clientId);
             return jwsIssuer.issue(config.idTokenKid, claims);
         }
         Map<String, Object> claims =
@@ -57,7 +59,9 @@ public class IDTokenIssuer {
                         "auth_time",
                         authTime,
                         "nonce",
-                        nonce);
+                        nonce,
+                        "azp",
+                        clientId);
         return jwsIssuer.issue(config.idTokenKid, claims);
     }
 }
