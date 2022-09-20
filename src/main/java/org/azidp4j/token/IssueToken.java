@@ -66,54 +66,37 @@ public class IssueToken {
             return new TokenResponse(400, Map.of("error", "unsupported_grant_type"));
         }
         switch (grantType) {
-            case authorization_code:
-                {
-                    var authorizationCode = authorizationCodeStore.consume(request.code);
-                    if (authorizationCode == null) {
-                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                    }
-                    if (!authorizationCode.clientId.equals(clientId)) {
-                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                    }
-                    // verify scope
-                    if (!scopeValidator.hasEnoughScope(authorizationCode.scope, client)) {
-                        return new TokenResponse(400, Map.of("error", "invalid_scope"));
-                    }
-                    if (!authorizationCode.redirectUri.equals(request.redirectUri)) {
-                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                    }
-                    var at =
-                            accessTokenIssuer.issue(
-                                    authorizationCode.sub, clientId, authorizationCode.scope);
-                    var rt =
-                            refreshTokenIssuer.issue(
-                                    authorizationCode.sub, clientId, authorizationCode.scope);
-                    if (scopeValidator.contains(authorizationCode.scope, "openid")) {
-                        // OIDC
-                        var idToken =
-                                idTokenIssuer.issue(
-                                        authorizationCode.sub,
-                                        clientId,
-                                        authorizationCode.authTime,
-                                        authorizationCode.nonce,
-                                        at.serialize());
-                        if (authorizationCode.state == null) {
-                            return new TokenResponse(
-                                    200,
-                                    Map.of(
-                                            "access_token",
-                                            at.serialize(),
-                                            "id_token",
-                                            idToken.serialize(),
-                                            "refresh_token",
-                                            rt.serialize(),
-                                            "token_type",
-                                            "bearer",
-                                            "expires_in",
-                                            config.accessTokenExpirationSec,
-                                            "scope",
-                                            authorizationCode.scope));
-                        }
+            case authorization_code -> {
+                var authorizationCode = authorizationCodeStore.consume(request.code);
+                if (authorizationCode == null) {
+                    return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                }
+                if (!authorizationCode.clientId.equals(clientId)) {
+                    return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                }
+                // verify scope
+                if (!scopeValidator.hasEnoughScope(authorizationCode.scope, client)) {
+                    return new TokenResponse(400, Map.of("error", "invalid_scope"));
+                }
+                if (!authorizationCode.redirectUri.equals(request.redirectUri)) {
+                    return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                }
+                var at =
+                        accessTokenIssuer.issue(
+                                authorizationCode.sub, clientId, authorizationCode.scope);
+                var rt =
+                        refreshTokenIssuer.issue(
+                                authorizationCode.sub, clientId, authorizationCode.scope);
+                if (scopeValidator.contains(authorizationCode.scope, "openid")) {
+                    // OIDC
+                    var idToken =
+                            idTokenIssuer.issue(
+                                    authorizationCode.sub,
+                                    clientId,
+                                    authorizationCode.authTime,
+                                    authorizationCode.nonce,
+                                    at.serialize());
+                    if (authorizationCode.state == null) {
                         return new TokenResponse(
                                 200,
                                 Map.of(
@@ -128,161 +111,165 @@ public class IssueToken {
                                         "expires_in",
                                         config.accessTokenExpirationSec,
                                         "scope",
-                                        authorizationCode.scope,
-                                        "state",
-                                        authorizationCode.state));
-
-                    } else {
-                        // OAuth2.0
-                        return new TokenResponse(
-                                200,
-                                Map.of(
-                                        "access_token",
-                                        at.serialize(),
-                                        "refresh_token",
-                                        rt.serialize(),
-                                        "token_type",
-                                        "bearer",
-                                        "expires_in",
-                                        config.accessTokenExpirationSec,
-                                        "scope",
-                                        authorizationCode.scope,
-                                        "state",
-                                        authorizationCode.state));
+                                        authorizationCode.scope));
                     }
-                }
-            case password:
-                {
-                    // verify scope
-                    if (!scopeValidator.hasEnoughScope(request.scope, client)) {
-                        return new TokenResponse(400, Map.of("error", "invalid_scope"));
-                    }
-                    // verify user
-                    if (userPasswordVerifier == null) {
-                        throw new AssertionError(
-                                "Resource owner password credentials grant needs to set"
-                                        + " userPasswordVerifier on AzIdp instance.");
-                    }
-                    if (userPasswordVerifier.verify(request.username, request.password)) {
-                        var at =
-                                accessTokenIssuer.issue(
-                                        request.username,
-                                        request.authenticatedClientId,
-                                        request.scope);
-                        var rt =
-                                refreshTokenIssuer.issue(
-                                        request.username,
-                                        request.authenticatedClientId,
-                                        request.scope);
-                        return new TokenResponse(
-                                200,
-                                Map.of(
-                                        "access_token",
-                                        at.serialize(),
-                                        "refresh_token",
-                                        rt.serialize(),
-                                        "token_type",
-                                        "bearer",
-                                        "expires_in",
-                                        config.accessTokenExpirationSec,
-                                        "scope",
-                                        request.scope));
-                    } else {
-                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                    }
-                }
-            case client_credentials:
-                {
-                    if (request.authenticatedClientId == null) {
-                        // TODO should reconsider public client
-                        return new TokenResponse(400, Map.of("error", "invalid_client"));
-                    }
-                    // verify scope
-                    if (!scopeValidator.hasEnoughScope(request.scope, client)) {
-                        return new TokenResponse(400, Map.of("error", "invalid_scope"));
-                    }
-                    var jws =
-                            accessTokenIssuer.issue(
-                                    request.authenticatedClientId,
-                                    request.authenticatedClientId,
-                                    request.scope);
                     return new TokenResponse(
                             200,
                             Map.of(
                                     "access_token",
-                                    jws.serialize(),
+                                    at.serialize(),
+                                    "id_token",
+                                    idToken.serialize(),
+                                    "refresh_token",
+                                    rt.serialize(),
+                                    "token_type",
+                                    "bearer",
+                                    "expires_in",
+                                    config.accessTokenExpirationSec,
+                                    "scope",
+                                    authorizationCode.scope,
+                                    "state",
+                                    authorizationCode.state));
+
+                } else {
+                    // OAuth2.0
+                    return new TokenResponse(
+                            200,
+                            Map.of(
+                                    "access_token",
+                                    at.serialize(),
+                                    "refresh_token",
+                                    rt.serialize(),
+                                    "token_type",
+                                    "bearer",
+                                    "expires_in",
+                                    config.accessTokenExpirationSec,
+                                    "scope",
+                                    authorizationCode.scope,
+                                    "state",
+                                    authorizationCode.state));
+                }
+            }
+            case password -> {
+                // verify scope
+                if (!scopeValidator.hasEnoughScope(request.scope, client)) {
+                    return new TokenResponse(400, Map.of("error", "invalid_scope"));
+                }
+                // verify user
+                if (userPasswordVerifier == null) {
+                    throw new AssertionError(
+                            "Resource owner password credentials grant needs to set"
+                                    + " userPasswordVerifier on AzIdp instance.");
+                }
+                if (userPasswordVerifier.verify(request.username, request.password)) {
+                    var at =
+                            accessTokenIssuer.issue(
+                                    request.username, request.authenticatedClientId, request.scope);
+                    var rt =
+                            refreshTokenIssuer.issue(
+                                    request.username, request.authenticatedClientId, request.scope);
+                    return new TokenResponse(
+                            200,
+                            Map.of(
+                                    "access_token",
+                                    at.serialize(),
+                                    "refresh_token",
+                                    rt.serialize(),
                                     "token_type",
                                     "bearer",
                                     "expires_in",
                                     config.accessTokenExpirationSec,
                                     "scope",
                                     request.scope));
+                } else {
+                    return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
-            case refresh_token:
-                {
-                    try {
-                        var requestedRt = JWSObject.parse(request.refreshToken);
-                        var key = (ECKey) jwkSet.getKeyByKeyId(requestedRt.getHeader().getKeyID());
-                        var verifier = new ECDSAVerifier(key);
-                        if (!requestedRt.verify(verifier)) {
-                            return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                        }
-                        var parsedRt = requestedRt.getPayload().toJSONObject();
-                        if (!parsedRt.get("iss").equals(config.issuer)) {
-                            return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                        }
-                        if (!parsedRt.get("client_id").equals(request.authenticatedClientId)) {
-                            return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                        }
-                        if ((long) parsedRt.get("exp") < Instant.now().getEpochSecond()) {
-                            return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                        }
-                        if (!scopeValidator.hasEnoughScope(
-                                request.scope, (String) parsedRt.get("scope"))) {
-                            return new TokenResponse(400, Map.of("error", "invalid_scope"));
-                        }
-                        if (request.authenticatedClientId != null
-                                && !parsedRt.get("client_id")
-                                        .equals(request.authenticatedClientId)) {
-                            return new TokenResponse(400, Map.of("error", "invalid_client"));
-                        }
-                        var scope =
-                                request.scope != null
-                                        ? request.scope
-                                        : (String) parsedRt.get("scope");
-                        var at =
-                                accessTokenIssuer.issue(
-                                        (String) parsedRt.get("sub"),
-                                        request.authenticatedClientId,
-                                        scope);
-                        var rt =
-                                refreshTokenIssuer.issue(
-                                        (String) parsedRt.get("sub"),
-                                        request.authenticatedClientId,
-                                        scope);
-                        return new TokenResponse(
-                                200,
-                                Map.of(
-                                        "access_token",
-                                        at.serialize(),
-                                        "refresh_token",
-                                        rt.serialize(),
-                                        "token_type",
-                                        "bearer",
-                                        "expires_in",
-                                        config.accessTokenExpirationSec,
-                                        "scope",
-                                        scope));
-                    } catch (ParseException | IllegalStateException e) {
+            }
+            case client_credentials -> {
+                if (request.authenticatedClientId == null) {
+                    // TODO should reconsider public client
+                    return new TokenResponse(400, Map.of("error", "invalid_client"));
+                }
+                // verify scope
+                if (!scopeValidator.hasEnoughScope(request.scope, client)) {
+                    return new TokenResponse(400, Map.of("error", "invalid_scope"));
+                }
+                var jws =
+                        accessTokenIssuer.issue(
+                                request.authenticatedClientId,
+                                request.authenticatedClientId,
+                                request.scope);
+                return new TokenResponse(
+                        200,
+                        Map.of(
+                                "access_token",
+                                jws.serialize(),
+                                "token_type",
+                                "bearer",
+                                "expires_in",
+                                config.accessTokenExpirationSec,
+                                "scope",
+                                request.scope));
+            }
+            case refresh_token -> {
+                try {
+                    var requestedRt = JWSObject.parse(request.refreshToken);
+                    var key = (ECKey) jwkSet.getKeyByKeyId(requestedRt.getHeader().getKeyID());
+                    var verifier = new ECDSAVerifier(key);
+                    if (!requestedRt.verify(verifier)) {
                         return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                    } catch (JOSEException e) {
-                        throw new AssertionError("JWKs is something wrong.");
                     }
+                    var parsedRt = requestedRt.getPayload().toJSONObject();
+                    if (!parsedRt.get("iss").equals(config.issuer)) {
+                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                    }
+                    if (!parsedRt.get("client_id").equals(request.authenticatedClientId)) {
+                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                    }
+                    if ((long) parsedRt.get("exp") < Instant.now().getEpochSecond()) {
+                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                    }
+                    if (!scopeValidator.hasEnoughScope(
+                            request.scope, (String) parsedRt.get("scope"))) {
+                        return new TokenResponse(400, Map.of("error", "invalid_scope"));
+                    }
+                    if (!parsedRt.get("client_id").equals(request.authenticatedClientId)) {
+                        return new TokenResponse(400, Map.of("error", "invalid_client"));
+                    }
+                    var scope =
+                            request.scope != null ? request.scope : (String) parsedRt.get("scope");
+                    var at =
+                            accessTokenIssuer.issue(
+                                    (String) parsedRt.get("sub"),
+                                    request.authenticatedClientId,
+                                    scope);
+                    var rt =
+                            refreshTokenIssuer.issue(
+                                    (String) parsedRt.get("sub"),
+                                    request.authenticatedClientId,
+                                    scope);
+                    return new TokenResponse(
+                            200,
+                            Map.of(
+                                    "access_token",
+                                    at.serialize(),
+                                    "refresh_token",
+                                    rt.serialize(),
+                                    "token_type",
+                                    "bearer",
+                                    "expires_in",
+                                    config.accessTokenExpirationSec,
+                                    "scope",
+                                    scope));
+                } catch (ParseException | IllegalStateException e) {
+                    return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                } catch (JOSEException e) {
+                    throw new AssertionError("JWKs is something wrong.");
                 }
-            default:
-                {
-                    throw new RuntimeException("unsupported grant type");
-                }
+            }
+            default -> {
+                throw new RuntimeException("unsupported grant type");
+            }
         }
     }
 }
