@@ -1,5 +1,7 @@
 package org.azidp4j.authorize;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -36,14 +38,25 @@ public class AuthorizationResponse {
         if (!query.entrySet().isEmpty()) {
             var queryResponse =
                     query.entrySet().stream()
-                            .map(kv -> kv.getKey() + '=' + kv.getValue())
+                            .map(
+                                    kv ->
+                                            kv.getKey()
+                                                    + '='
+                                                    + URLEncoder.encode(
+                                                            kv.getValue(), StandardCharsets.UTF_8))
                             .collect(Collectors.joining("&"));
             uri.append("?").append(queryResponse);
         }
+
         if (!fragment.entrySet().isEmpty()) {
             var fragmentResponse =
                     fragment.entrySet().stream()
-                            .map(kv -> kv.getKey() + '=' + kv.getValue())
+                            .map(
+                                    kv ->
+                                            kv.getKey()
+                                                    + '='
+                                                    + URLEncoder.encode(
+                                                            kv.getValue(), StandardCharsets.UTF_8))
                             .collect(Collectors.joining("&"));
             uri.append("#").append(fragmentResponse);
         }
