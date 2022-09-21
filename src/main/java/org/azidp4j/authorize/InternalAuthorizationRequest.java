@@ -31,7 +31,7 @@ public class InternalAuthorizationRequest {
     /** OAuth 2.0 Multiple Response Type Encoding Practices */
     // TODO final String responseMode;
 
-    /** OpenID Connect Core 1.0 "authorization code flow" */
+    /** OpenID Connect Core 1.0 "authorization code flow", "implicit flow" */
     final String nonce;
 
     /** OpenID Connect Core 1.0 "authorization code flow" */
