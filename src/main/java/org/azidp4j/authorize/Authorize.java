@@ -34,31 +34,38 @@ public class Authorize {
 
         var responseType = ResponseType.of(authorizationRequest.responseType);
         if (responseType == null) {
-            return new AuthorizationResponse(400, Map.of(), Map.of());
+            return new AuthorizationResponse(400);
+        }
+
+        // TODO multiple response type
+        // TODO test
+        var responseMode = ResponseMode.of(authorizationRequest.responseMode, Set.of(responseType));
+        if (responseMode == null) {
+            return new AuthorizationResponse(400);
         }
 
         // validate client
         if (authorizationRequest.clientId == null) {
-            return new AuthorizationResponse(400, Map.of(), Map.of());
+            return new AuthorizationResponse(400);
         }
         var client = clientStore.find(authorizationRequest.clientId);
         if (client == null) {
-            return new AuthorizationResponse(400, Map.of(), Map.of());
+            return new AuthorizationResponse(400);
         }
 
         // validate redirect urls
         if (authorizationRequest.redirectUri == null) {
-            return new AuthorizationResponse(400, Map.of(), Map.of());
+            return new AuthorizationResponse(400);
         }
         if (!client.redirectUris.contains(authorizationRequest.redirectUri)) {
-            return new AuthorizationResponse(400, Map.of(), Map.of());
+            return new AuthorizationResponse(400);
         }
         if (authorizationRequest.request != null) {
             return new AuthorizationResponse(
                     302,
                     nullRemovedMap(
                             "error", "request_not_supported", "state", authorizationRequest.state),
-                    Map.of());
+                    responseMode);
         }
         if (authorizationRequest.requestUri != null) {
             return new AuthorizationResponse(
@@ -68,7 +75,7 @@ public class Authorize {
                             "request_uri_not_supported",
                             "state",
                             authorizationRequest.state),
-                    Map.of());
+                    responseMode);
         }
         if (authorizationRequest.registration != null) {
             return new AuthorizationResponse(
@@ -78,7 +85,7 @@ public class Authorize {
                             "registration_not_supported",
                             "state",
                             authorizationRequest.state),
-                    Map.of());
+                    responseMode);
         }
         Set<Prompt> prompt = Prompt.parse(authorizationRequest.prompt);
         if (prompt == null) {
@@ -86,14 +93,14 @@ public class Authorize {
             return new AuthorizationResponse(
                     302,
                     nullRemovedMap("error", "invalid_request", "state", authorizationRequest.state),
-                    Map.of());
+                    responseMode);
         }
         if (prompt.contains(Prompt.none) && prompt.size() != 1) {
             // none with other prompt is invalid
             return new AuthorizationResponse(
                     302,
                     nullRemovedMap("error", "invalid_request", "state", authorizationRequest.state),
-                    Map.of());
+                    responseMode);
         } else {
             if (prompt.contains(Prompt.none)) {
                 if (authorizationRequest.authenticatedUserId == null) {
@@ -101,7 +108,7 @@ public class Authorize {
                             302,
                             nullRemovedMap(
                                     "error", "login_required", "state", authorizationRequest.state),
-                            Map.of());
+                            responseMode);
                 }
                 if (!authorizationRequest.consentedScope.containsAll(
                         Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
@@ -112,7 +119,7 @@ public class Authorize {
                                     "consent_required",
                                     "state",
                                     authorizationRequest.state),
-                            Map.of());
+                            responseMode);
                 }
             }
             if (prompt.contains(Prompt.login)) {
@@ -143,7 +150,7 @@ public class Authorize {
                 return new AuthorizationResponse(
                         302,
                         Map.of("error", "invalid_scope", "state", authorizationRequest.state),
-                        Map.of());
+                        responseMode);
             }
 
             // validate grant type and response type
@@ -155,7 +162,7 @@ public class Authorize {
                                 "unauthorized_client",
                                 "state",
                                 authorizationRequest.state),
-                        Map.of());
+                        responseMode);
             }
             if (!client.responseTypes.contains(ResponseType.code)) {
                 return new AuthorizationResponse(
@@ -165,7 +172,7 @@ public class Authorize {
                                 "unsupported_response_type",
                                 "state",
                                 authorizationRequest.state),
-                        Map.of());
+                        responseMode);
             }
 
             Integer maxAge = null;
@@ -184,7 +191,7 @@ public class Authorize {
                                         "invalid_request",
                                         "state",
                                         authorizationRequest.state),
-                                Map.of());
+                                responseMode);
                     }
                     if (Instant.now().getEpochSecond() + maxAge < authorizationRequest.authTime) {
                         if (prompt.contains(Prompt.none)) {
@@ -195,7 +202,7 @@ public class Authorize {
                                             "login_required",
                                             "state",
                                             authorizationRequest.state),
-                                    Map.of());
+                                    responseMode);
                         } else {
                             return new AuthorizationResponse(AdditionalPage.login);
                         }
@@ -219,36 +226,36 @@ public class Authorize {
             return new AuthorizationResponse(
                     302,
                     nullRemovedMap("code", code, "state", authorizationRequest.state),
-                    Map.of());
+                    responseMode);
         } else if (responseType == ResponseType.token) {
             if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
                 return new AuthorizationResponse(
                         302,
-                        Map.of(),
                         nullRemovedMap(
-                                "error", "invalid_scope", "state", authorizationRequest.state));
+                                "error", "invalid_scope", "state", authorizationRequest.state),
+                        responseMode);
             }
 
             // validate grant type and response type
             if (!client.grantTypes.contains(GrantType.implicit)) {
                 return new AuthorizationResponse(
                         302,
-                        Map.of(),
                         nullRemovedMap(
                                 "error",
                                 "unauthorized_client",
                                 "state",
-                                authorizationRequest.state));
+                                authorizationRequest.state),
+                        responseMode);
             }
             if (!client.responseTypes.contains(ResponseType.token)) {
                 return new AuthorizationResponse(
                         302,
-                        Map.of(),
                         nullRemovedMap(
                                 "error",
                                 "unsupported_response_type",
                                 "state",
-                                authorizationRequest.state));
+                                authorizationRequest.state),
+                        responseMode);
             }
 
             // issue access token
@@ -259,7 +266,6 @@ public class Authorize {
                             authorizationRequest.scope);
             return new AuthorizationResponse(
                     302,
-                    Map.of(),
                     nullRemovedMap(
                             "access_token",
                             accessToken.serialize(),
@@ -270,7 +276,8 @@ public class Authorize {
                             "scope",
                             authorizationRequest.scope,
                             "state",
-                            authorizationRequest.state));
+                            authorizationRequest.state),
+                    responseMode);
         }
         throw new AssertionError();
     }

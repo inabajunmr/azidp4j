@@ -14,6 +14,7 @@ public class InternalAuthorizationRequest {
     final Long authTime;
 
     /** rfc6749 "authorization code grant", "implicit grant" */
+    // TODO id_token
     final String responseType;
 
     /** rfc6749 "authorization code grant", "implicit grant" */
@@ -29,7 +30,7 @@ public class InternalAuthorizationRequest {
     final String state;
 
     /** OAuth 2.0 Multiple Response Type Encoding Practices */
-    // TODO final String responseMode;
+    final String responseMode;
 
     /** OpenID Connect Core 1.0 "authorization code flow", "implicit flow" */
     final String nonce;
@@ -80,6 +81,7 @@ public class InternalAuthorizationRequest {
             String redirectUri,
             String scope,
             String state,
+            String responseMode,
             String nonce,
             String maxAge,
             String prompt,
@@ -94,6 +96,7 @@ public class InternalAuthorizationRequest {
         this.redirectUri = redirectUri;
         this.scope = scope;
         this.state = state;
+        this.responseMode = responseMode;
         this.nonce = nonce;
         this.maxAge = maxAge;
         this.prompt = prompt;
@@ -112,6 +115,7 @@ public class InternalAuthorizationRequest {
         private String redirectUri;
         private String scope;
         private String state;
+        private String responseMode;
         private String nonce;
         private String maxAge;
         private String prompt;
@@ -164,6 +168,11 @@ public class InternalAuthorizationRequest {
             return this;
         }
 
+        public Builder responseMode(String responseMode) {
+            this.responseMode = responseMode;
+            return this;
+        }
+
         public Builder nonce(String nonce) {
             this.nonce = nonce;
             return this;
@@ -204,6 +213,7 @@ public class InternalAuthorizationRequest {
                     redirectUri,
                     scope,
                     state,
+                    responseMode,
                     nonce,
                     maxAge,
                     prompt,

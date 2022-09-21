@@ -12,18 +12,48 @@ public class AuthorizationResponse {
     private final Map<String, String> fragment;
     public final AdditionalPage additionalPage;
 
-    public AuthorizationResponse(
-            int status, Map<String, String> query, Map<String, String> fragment) {
+    public AuthorizationResponse(int status) {
         this.status = status;
-        this.query =
-                query.entrySet().stream()
-                        .filter(q -> q.getValue() != null)
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        this.fragment =
-                fragment.entrySet().stream()
-                        .filter(f -> f.getValue() != null)
-                        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        this.query = null;
+        this.fragment = null;
         this.additionalPage = null;
+    }
+
+    public AuthorizationResponse(
+            int status, Map<String, String> parameters, ResponseMode responseMode) {
+        if (responseMode == null) {
+            throw new AssertionError();
+        }
+        this.additionalPage = null;
+        this.status = status;
+        switch (responseMode) {
+            case query:
+                {
+                    this.query =
+                            parameters.entrySet().stream()
+                                    .filter(q -> q.getValue() != null)
+                                    .collect(
+                                            Collectors.toMap(
+                                                    Map.Entry::getKey, Map.Entry::getValue));
+                    this.fragment = Map.of();
+                    break;
+                }
+            case fragment:
+                {
+                    this.query = Map.of();
+                    this.fragment =
+                            parameters.entrySet().stream()
+                                    .filter(f -> f.getValue() != null)
+                                    .collect(
+                                            Collectors.toMap(
+                                                    Map.Entry::getKey, Map.Entry::getValue));
+                    break;
+                }
+            default:
+                {
+                    throw new AssertionError();
+                }
+        }
     }
 
     public AuthorizationResponse(AdditionalPage additionalPage) {

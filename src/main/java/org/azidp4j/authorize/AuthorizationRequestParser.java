@@ -8,6 +8,7 @@ public class AuthorizationRequestParser {
         String redirectUri = req.queryParameters.get("redirect_uri");
         String scope = req.queryParameters.get("scope");
         String state = req.queryParameters.get("state");
+        String responseMode = req.queryParameters.get("response_mode");
         String nonce = req.queryParameters.get("nonce");
         String maxAge = req.queryParameters.get("max_age");
         String request = req.queryParameters.get("request");
@@ -23,6 +24,7 @@ public class AuthorizationRequestParser {
                 .redirectUri(redirectUri)
                 .scope(scope)
                 .state(state)
+                .responseMode(responseMode)
                 .nonce(nonce)
                 .maxAge(maxAge)
                 .request(request)
