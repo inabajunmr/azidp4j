@@ -226,7 +226,6 @@ class AuthorizeTest_Implicit {
         var fragmentMap =
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
-
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
                 fragmentMap.get("access_token"),
@@ -249,11 +248,7 @@ class AuthorizeTest_Implicit {
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
-                null);
+                null,
+                fragmentMap.get("access_token"));
     }
-
-    // TODO    code token
-    // TODO   code id_token
-    // TODO   id_token token
-    // TODO   code id_token token
 }

@@ -14,7 +14,6 @@ public class InternalAuthorizationRequest {
     final Long authTime;
 
     /** rfc6749 "authorization code grant", "implicit grant" */
-    // TODO id_token
     final String responseType;
 
     /** rfc6749 "authorization code grant", "implicit grant" */

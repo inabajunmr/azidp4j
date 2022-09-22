@@ -1,5 +1,7 @@
 package org.azidp4j.authorize;
 
+import static org.azidp4j.util.MapUtil.nullRemovedMap;
+
 import java.time.Instant;
 import java.util.*;
 import org.azidp4j.AzIdPConfig;
@@ -304,21 +306,5 @@ public class Authorize {
                         "state",
                         authorizationRequest.state),
                 responseMode);
-    }
-
-    private Map<String, String> nullRemovedMap(String... kv) {
-        if (kv.length % 2 != 0) {
-            throw new AssertionError();
-        }
-
-        var removed = new HashMap<String, String>();
-        for (int i = 0; i < kv.length; i += 2) {
-            var k = kv[i];
-            var v = kv[i + 1];
-            if (v != null) {
-                removed.put(k, v);
-            }
-        }
-        return removed;
     }
 }

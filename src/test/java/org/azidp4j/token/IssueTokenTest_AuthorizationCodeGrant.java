@@ -174,7 +174,8 @@ class IssueTokenTest_AuthorizationCodeGrant {
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
-                "abc");
+                "abc",
+                (String) response.body.get("access_token"));
     }
 
     @Test
@@ -231,7 +232,8 @@ class IssueTokenTest_AuthorizationCodeGrant {
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
-                null);
+                null,
+                (String) response.body.get("access_token"));
     }
 
     @Test
