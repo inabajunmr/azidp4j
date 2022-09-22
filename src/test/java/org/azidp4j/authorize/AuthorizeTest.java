@@ -23,6 +23,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
 
 class AuthorizeTest {
@@ -59,6 +60,7 @@ class AuthorizeTest {
                     clientStore,
                     new InMemoryAuthorizationCodeStore(),
                     new AccessTokenIssuer(config, new JWKSet(), new SampleScopeAudienceMapper()),
+                    new IDTokenIssuer(config, new JWKSet()),
                     config);
 
     public AuthorizeTest() {
@@ -253,6 +255,7 @@ class AuthorizeTest {
                         new InMemoryAuthorizationCodeStore(),
                         new AccessTokenIssuer(
                                 config, new JWKSet(), new SampleScopeAudienceMapper()),
+                        new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
@@ -299,6 +302,7 @@ class AuthorizeTest {
                         new InMemoryAuthorizationCodeStore(),
                         new AccessTokenIssuer(
                                 config, new JWKSet(), new SampleScopeAudienceMapper()),
+                        new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
@@ -349,6 +353,7 @@ class AuthorizeTest {
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
@@ -424,6 +429,7 @@ class AuthorizeTest {
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
@@ -500,6 +506,7 @@ class AuthorizeTest {
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()

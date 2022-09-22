@@ -7,6 +7,7 @@ import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.scope.ScopeValidator;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenIssuer;
 
 public class Authorize {
 
@@ -14,6 +15,8 @@ public class Authorize {
     private final ClientStore clientStore;
 
     private final AccessTokenIssuer accessTokenIssuer;
+
+    private final IDTokenIssuer idTokenIssuer;
 
     private final AzIdPConfig azIdPConfig;
 
@@ -23,23 +26,25 @@ public class Authorize {
             ClientStore clientStore,
             AuthorizationCodeStore authorizationCodeStore,
             AccessTokenIssuer accessTokenIssuer,
+            IDTokenIssuer idTokenIssuer,
             AzIdPConfig azIdPConfig) {
         this.clientStore = clientStore;
         this.authorizationCodeStore = authorizationCodeStore;
         this.accessTokenIssuer = accessTokenIssuer;
+        this.idTokenIssuer = idTokenIssuer;
         this.azIdPConfig = azIdPConfig;
     }
 
     public AuthorizationResponse authorize(InternalAuthorizationRequest authorizationRequest) {
 
-        var responseType = ResponseType.of(authorizationRequest.responseType);
+        var responseType = ResponseType.parse(authorizationRequest.responseType);
         if (responseType == null) {
             return new AuthorizationResponse(400);
         }
 
         // TODO multiple response type
         // TODO test
-        var responseMode = ResponseMode.of(authorizationRequest.responseMode, Set.of(responseType));
+        var responseMode = ResponseMode.of(authorizationRequest.responseMode, responseType);
         if (responseMode == null) {
             return new AuthorizationResponse(400);
         }
@@ -144,17 +149,23 @@ public class Authorize {
             }
         }
 
-        if (responseType == ResponseType.code) {
-            // validate scope
-            if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
-                return new AuthorizationResponse(
-                        302,
-                        Map.of("error", "invalid_scope", "state", authorizationRequest.state),
-                        responseMode);
-            }
+        if (!client.responseTypes.containsAll(responseType)) {
+            return new AuthorizationResponse(
+                    302,
+                    nullRemovedMap(
+                            "error",
+                            "unsupported_response_type",
+                            "state",
+                            authorizationRequest.state),
+                    responseMode);
+        }
 
+        // https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
+        if (responseType.contains(ResponseType.code)) {
             // validate grant type and response type
             if (!client.grantTypes.contains(GrantType.authorization_code)) {
+                // if response type has code, need to allowed authorization_code
+                // https://www.rfc-editor.org/rfc/rfc7591.html#section-2.1
                 return new AuthorizationResponse(
                         302,
                         nullRemovedMap(
@@ -164,35 +175,49 @@ public class Authorize {
                                 authorizationRequest.state),
                         responseMode);
             }
-            if (!client.responseTypes.contains(ResponseType.code)) {
+        }
+
+        if (responseType.contains(ResponseType.token)
+                || responseType.contains(ResponseType.id_token)) {
+            // validate grant type and response type
+            if (!client.grantTypes.contains(GrantType.implicit)) {
                 return new AuthorizationResponse(
                         302,
                         nullRemovedMap(
                                 "error",
-                                "unsupported_response_type",
+                                "unauthorized_client",
                                 "state",
                                 authorizationRequest.state),
                         responseMode);
             }
+        }
 
-            Integer maxAge = null;
-            String nonce = null;
-            if (scopeValidator.contains(
-                    authorizationRequest.scope, "openid")) { // TODO only openid?
-                // OIDC
-                if (authorizationRequest.maxAge != null) {
-                    try {
-                        maxAge = Integer.parseInt(authorizationRequest.maxAge);
-                    } catch (NumberFormatException e) {
-                        return new AuthorizationResponse(
-                                302,
-                                nullRemovedMap(
-                                        "error",
-                                        "invalid_request",
-                                        "state",
-                                        authorizationRequest.state),
-                                responseMode);
-                    }
+        // validate scope
+        if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
+            return new AuthorizationResponse(
+                    302,
+                    Map.of("error", "invalid_scope", "state", authorizationRequest.state),
+                    responseMode);
+        }
+
+        // TODO prompt=none
+
+        String accessToken = null;
+        if (responseType.contains(ResponseType.token)) {
+            // issue access token
+            accessToken =
+                    accessTokenIssuer
+                            .issue(
+                                    authorizationRequest.authenticatedUserId,
+                                    authorizationRequest.clientId,
+                                    authorizationRequest.scope)
+                            .serialize();
+        }
+
+        if (scopeValidator.contains(authorizationRequest.scope, "openid")) {
+            if (authorizationRequest.maxAge != null) {
+                try {
+                    var maxAge = Integer.parseInt(authorizationRequest.maxAge);
                     if (Instant.now().getEpochSecond() + maxAge < authorizationRequest.authTime) {
                         if (prompt.contains(Prompt.none)) {
                             return new AuthorizationResponse(
@@ -207,79 +232,75 @@ public class Authorize {
                             return new AuthorizationResponse(AdditionalPage.login);
                         }
                     }
+                } catch (NumberFormatException e) {
+                    return new AuthorizationResponse(
+                            302,
+                            nullRemovedMap(
+                                    "error",
+                                    "invalid_request",
+                                    "state",
+                                    authorizationRequest.state),
+                            responseMode);
                 }
-                nonce = authorizationRequest.nonce;
             }
+        }
 
-            // issue authorization code
-            var code = UUID.randomUUID().toString();
-            authorizationCodeStore.save(
-                    new AuthorizationCode(
-                            authorizationRequest.authenticatedUserId,
-                            code,
-                            authorizationRequest.scope,
-                            authorizationRequest.clientId,
-                            authorizationRequest.redirectUri,
-                            authorizationRequest.state,
-                            authorizationRequest.authTime,
-                            nonce));
-            return new AuthorizationResponse(
-                    302,
-                    nullRemovedMap("code", code, "state", authorizationRequest.state),
-                    responseMode);
-        } else if (responseType == ResponseType.token) {
-            if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
+        String idToken = null;
+        if (responseType.contains(ResponseType.id_token)) {
+            // validate scope
+            if (!scopeValidator.contains(authorizationRequest.scope, "openid")) {
                 return new AuthorizationResponse(
                         302,
                         nullRemovedMap(
                                 "error", "invalid_scope", "state", authorizationRequest.state),
                         responseMode);
             }
-
-            // validate grant type and response type
-            if (!client.grantTypes.contains(GrantType.implicit)) {
-                return new AuthorizationResponse(
-                        302,
-                        nullRemovedMap(
-                                "error",
-                                "unauthorized_client",
-                                "state",
-                                authorizationRequest.state),
-                        responseMode);
-            }
-            if (!client.responseTypes.contains(ResponseType.token)) {
-                return new AuthorizationResponse(
-                        302,
-                        nullRemovedMap(
-                                "error",
-                                "unsupported_response_type",
-                                "state",
-                                authorizationRequest.state),
-                        responseMode);
-            }
-
-            // issue access token
-            var accessToken =
-                    accessTokenIssuer.issue(
-                            authorizationRequest.authenticatedUserId,
-                            authorizationRequest.clientId,
-                            authorizationRequest.scope);
-            return new AuthorizationResponse(
-                    302,
-                    nullRemovedMap(
-                            "access_token",
-                            accessToken.serialize(),
-                            "token_type",
-                            "bearer",
-                            "expires_in",
-                            String.valueOf(azIdPConfig.accessTokenExpirationSec),
-                            "scope",
-                            authorizationRequest.scope,
-                            "state",
-                            authorizationRequest.state),
-                    responseMode);
+            idToken =
+                    idTokenIssuer
+                            .issue(
+                                    authorizationRequest.authenticatedUserId,
+                                    authorizationRequest.clientId,
+                                    authorizationRequest.authTime,
+                                    authorizationRequest.nonce,
+                                    accessToken)
+                            .serialize();
         }
-        throw new AssertionError();
+
+        String authorizationCode = null;
+        if (responseType.contains(ResponseType.code)) {
+            // issue authorization code
+            var code =
+                    new AuthorizationCode(
+                            authorizationRequest.authenticatedUserId,
+                            UUID.randomUUID().toString(),
+                            authorizationRequest.scope,
+                            authorizationRequest.clientId,
+                            authorizationRequest.redirectUri,
+                            authorizationRequest.state,
+                            authorizationRequest.authTime,
+                            authorizationRequest.nonce);
+            authorizationCodeStore.save(code);
+            authorizationCode = code.code;
+        }
+
+        return new AuthorizationResponse(
+                302,
+                nullRemovedMap(
+                        "access_token",
+                        accessToken,
+                        "id_token",
+                        idToken,
+                        "code",
+                        authorizationCode,
+                        "token_type",
+                        "bearer",
+                        "expires_in",
+                        String.valueOf(azIdPConfig.accessTokenExpirationSec),
+                        "scope",
+                        authorizationRequest.scope,
+                        "state",
+                        authorizationRequest.state),
+                responseMode);
     }
 
     private Map<String, String> nullRemovedMap(String... kv) {
