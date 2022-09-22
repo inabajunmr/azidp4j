@@ -3,9 +3,6 @@ package org.azidp4j.authorize;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
@@ -108,13 +105,6 @@ class AuthorizeTest_Implicit {
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertNull(fragmentMap.get("state"));
-        var accessToken = fragmentMap.get("access_token");
-        var parsedAccessToken = JWSObject.parse((String) accessToken);
-        // verify signature
-        assertTrue(parsedAccessToken.verify(new ECDSAVerifier(key)));
-        assertEquals(parsedAccessToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
-        assertEquals(parsedAccessToken.getHeader().getType().getType(), "at+JWT");
-        // verify claims
         AccessTokenAssert.assertAccessToken(
                 fragmentMap.get("access_token"),
                 key,
@@ -258,7 +248,8 @@ class AuthorizeTest_Implicit {
                 "az.example.com",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond(),
+                null);
     }
 
     // TODO    code token

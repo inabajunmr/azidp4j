@@ -3,18 +3,15 @@ package org.azidp4j.token;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.text.ParseException;
 import java.time.Instant;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.IdTokenAssert;
 import org.azidp4j.authorize.AuthorizationCode;
@@ -53,7 +50,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
             new AzIdPConfig("as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
 
     @BeforeEach
-    void init() throws JOSEException {
+    void init() {
         authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -111,25 +108,16 @@ class IssueTokenTest_AuthorizationCodeGrant {
 
         // verify
         assertEquals(response.status, 200);
-        // access token
-        var accessToken = response.body.get("access_token");
-        var parsedAccessToken = JWSObject.parse((String) accessToken);
-        // verify signature
-        assertTrue(parsedAccessToken.verify(new ECDSAVerifier(key)));
-        assertEquals(parsedAccessToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
-        assertEquals(parsedAccessToken.getHeader().getType().getType(), "at+JWT");
-        // verify claims
-        var payload = parsedAccessToken.getPayload().toJSONObject();
-        assertEquals(payload.get("sub"), subject);
-        assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
-        assertEquals(payload.get("client_id"), "clientId");
-        assertEquals(payload.get("scope"), "rs:scope1");
-        assertNotNull(payload.get("jti"));
-        assertEquals(payload.get("iss"), "as.example.com");
-        assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
-        assertTrue((long) payload.get("exp") < Instant.now().getEpochSecond() + 3610);
-        assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
-        assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
+        AccessTokenAssert.assertAccessToken(
+                (String) response.body.get("access_token"),
+                key,
+                subject,
+                "http://rs.example.com",
+                "clientId",
+                "rs:scope1",
+                "as.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
@@ -164,54 +152,29 @@ class IssueTokenTest_AuthorizationCodeGrant {
 
         // verify
         assertEquals(response.status, 200);
-        // access token
-        {
-            var accessToken = response.body.get("access_token");
-            var parsedAccessToken = JWSObject.parse((String) accessToken);
-            // verify signature
-            assertTrue(parsedAccessToken.verify(new ECDSAVerifier(key)));
-            assertEquals(parsedAccessToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
-            assertEquals(parsedAccessToken.getHeader().getType().getType(), "at+JWT");
-            // verify claims
-            var payload = parsedAccessToken.getPayload().toJSONObject();
-            assertEquals(payload.get("sub"), subject);
-            assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
-            assertEquals(payload.get("client_id"), "clientId");
-            assertEquals(payload.get("scope"), "rs:scope1 openid");
-            assertNotNull(payload.get("jti"));
-            assertEquals(payload.get("iss"), "as.example.com");
-            assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
-            assertTrue((long) payload.get("exp") < Instant.now().getEpochSecond() + 3610);
-            assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
-            assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
-            assertEquals(response.body.get("token_type"), "bearer");
-            assertEquals(response.body.get("expires_in"), 3600);
-        }
-
+        AccessTokenAssert.assertAccessToken(
+                (String) response.body.get("access_token"),
+                key,
+                subject,
+                "http://rs.example.com",
+                "clientId",
+                "rs:scope1 openid",
+                "as.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
+        assertEquals(response.body.get("token_type"), "bearer");
+        assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
-
-        // id token
-        {
-            var idToken = response.body.get("id_token");
-            var parsedIdToken = JWSObject.parse((String) idToken);
-            // verify signature
-            assertTrue(parsedIdToken.verify(new ECDSAVerifier(key)));
-            assertEquals(parsedIdToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
-            // verify claims
-            var payload = parsedIdToken.getPayload().toJSONObject();
-            assertEquals(payload.get("sub"), subject);
-            assertEquals(payload.get("aud"), "clientId");
-            assertNotNull(payload.get("jti"));
-            assertEquals(payload.get("iss"), "as.example.com");
-            assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
-            assertTrue((long) payload.get("exp") < Instant.now().getEpochSecond() + 3610);
-            assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
-            assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
-            assertEquals(payload.get("nonce"), "abc");
-            assertTrue((long) payload.get("auth_time") > Instant.now().getEpochSecond() - 10);
-            assertTrue((long) payload.get("auth_time") < Instant.now().getEpochSecond() + 10);
-            assertNotNull(payload.get("at_hash"));
-        }
+        IdTokenAssert.assertIdToken(
+                (String) response.body.get("id_token"),
+                key,
+                subject,
+                "clientId",
+                "as.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond(),
+                Instant.now().getEpochSecond(),
+                "abc");
     }
 
     @Test
@@ -244,29 +207,20 @@ class IssueTokenTest_AuthorizationCodeGrant {
         // verify
         assertEquals(response.status, 200);
         // access token
-        {
-            var accessToken = response.body.get("access_token");
-            var parsedAccessToken = JWSObject.parse((String) accessToken);
-            // verify signature
-            assertTrue(parsedAccessToken.verify(new ECDSAVerifier(key)));
-            assertEquals(parsedAccessToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
-            assertEquals(parsedAccessToken.getHeader().getType().getType(), "at+JWT");
-            // verify claims
-            var payload = parsedAccessToken.getPayload().toJSONObject();
-            assertEquals(payload.get("sub"), subject);
-            assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
-            assertEquals(payload.get("client_id"), "clientId");
-            assertEquals(payload.get("scope"), "rs:scope1 openid");
-            assertNotNull(payload.get("jti"));
-            assertEquals(payload.get("iss"), "as.example.com");
-            assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
-            assertTrue((long) payload.get("exp") < Instant.now().getEpochSecond() + 3610);
-            assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
-            assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
-            assertEquals(response.body.get("token_type"), "bearer");
-            assertEquals(response.body.get("expires_in"), 3600);
-        }
-
+        AccessTokenAssert.assertAccessToken(
+                (String) response.body.get("access_token"),
+                key,
+                subject,
+                "http://rs.example.com",
+                "clientId",
+                "rs:scope1 openid",
+                "as.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
+        assertEquals(response.body.get("token_type"), "bearer");
+        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("token_type"), "bearer");
+        assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
         IdTokenAssert.assertIdToken(
                 (String) response.body.get("id_token"),
@@ -276,7 +230,8 @@ class IssueTokenTest_AuthorizationCodeGrant {
                 "as.example.com",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond(),
+                null);
     }
 
     @Test
