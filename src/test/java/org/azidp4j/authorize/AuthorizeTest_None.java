@@ -7,7 +7,6 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.net.URI;
-import java.text.ParseException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Set;

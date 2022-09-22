@@ -13,9 +13,9 @@ import java.net.URI;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.IdTokenAssert;
 import org.azidp4j.client.Client;
@@ -115,25 +115,16 @@ class AuthorizeTest_Implicit {
         assertEquals(parsedAccessToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
         assertEquals(parsedAccessToken.getHeader().getType().getType(), "at+JWT");
         // verify claims
-        var payload = parsedAccessToken.getPayload().toJSONObject();
-        assertEquals(payload.get("sub"), "username");
-        assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
-        assertEquals(payload.get("client_id"), "client1");
-        assertEquals(payload.get("scope"), "rs:scope1");
-        assertNotNull(payload.get("jti"));
-        assertEquals(payload.get("iss"), "az.example.com");
-        assertTrue(
-                (long) Integer.parseInt(payload.get("exp").toString())
-                        > Instant.now().getEpochSecond() + 3590);
-        assertTrue(
-                (long) Integer.parseInt(payload.get("exp").toString())
-                        < Instant.now().getEpochSecond() + 3610);
-        assertTrue(
-                (long) Integer.parseInt(payload.get("iat").toString())
-                        > Instant.now().getEpochSecond() - 10);
-        assertTrue(
-                (long) Integer.parseInt(payload.get("iat").toString())
-                        < Instant.now().getEpochSecond() + 10);
+        AccessTokenAssert.assertAccessToken(
+                fragmentMap.get("access_token"),
+                key,
+                "username",
+                "http://rs.example.com",
+                "client1",
+                "rs:scope1",
+                "az.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
     }
@@ -185,32 +176,16 @@ class AuthorizeTest_Implicit {
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
-        var accessToken = fragmentMap.get("access_token");
-        var parsedAccessToken = JWSObject.parse((String) accessToken);
-        // verify signature
-        assertTrue(parsedAccessToken.verify(new ECDSAVerifier(key)));
-        assertEquals(parsedAccessToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
-        assertEquals(parsedAccessToken.getHeader().getType().getType(), "at+JWT");
-        // verify claims
-        var payload = parsedAccessToken.getPayload().toJSONObject();
-        assertEquals(payload.get("sub"), "username");
-        assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
-        assertEquals(payload.get("client_id"), "client1");
-        assertEquals(payload.get("scope"), "rs:scope1");
-        assertNotNull(payload.get("jti"));
-        assertEquals(payload.get("iss"), "az.example.com");
-        assertTrue(
-                (long) Integer.parseInt(payload.get("exp").toString())
-                        > Instant.now().getEpochSecond() + 3590);
-        assertTrue(
-                (long) Integer.parseInt(payload.get("exp").toString())
-                        < Instant.now().getEpochSecond() + 3610);
-        assertTrue(
-                (long) Integer.parseInt(payload.get("iat").toString())
-                        > Instant.now().getEpochSecond() - 10);
-        assertTrue(
-                (long) Integer.parseInt(payload.get("iat").toString())
-                        < Instant.now().getEpochSecond() + 10);
+        AccessTokenAssert.assertAccessToken(
+                fragmentMap.get("access_token"),
+                key,
+                "username",
+                "http://rs.example.com",
+                "client1",
+                "rs:scope1",
+                "az.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
     }
@@ -261,40 +236,20 @@ class AuthorizeTest_Implicit {
         var fragmentMap =
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+
         assertEquals(fragmentMap.get("state"), "xyz");
-
-        // access token
-        {
-            var accessToken = fragmentMap.get("access_token");
-            var parsedAccessToken = JWSObject.parse((String) accessToken);
-            // verify signature
-            assertTrue(parsedAccessToken.verify(new ECDSAVerifier(key)));
-            assertEquals(parsedAccessToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
-            assertEquals(parsedAccessToken.getHeader().getType().getType(), "at+JWT");
-            // verify claims
-            var payload = parsedAccessToken.getPayload().toJSONObject();
-            assertEquals(payload.get("sub"), "username");
-            assertEquals(payload.get("aud"), List.of("http://rs.example.com"));
-            assertEquals(payload.get("client_id"), "client1");
-            assertEquals(payload.get("scope"), "openid rs:scope1");
-            assertNotNull(payload.get("jti"));
-            assertEquals(payload.get("iss"), "az.example.com");
-            assertTrue(
-                    (long) Integer.parseInt(payload.get("exp").toString())
-                            > Instant.now().getEpochSecond() + 3590);
-            assertTrue(
-                    (long) Integer.parseInt(payload.get("exp").toString())
-                            < Instant.now().getEpochSecond() + 3610);
-            assertTrue(
-                    (long) Integer.parseInt(payload.get("iat").toString())
-                            > Instant.now().getEpochSecond() - 10);
-            assertTrue(
-                    (long) Integer.parseInt(payload.get("iat").toString())
-                            < Instant.now().getEpochSecond() + 10);
-            assertEquals(fragmentMap.get("token_type"), "bearer");
-            assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
-        }
-
+        AccessTokenAssert.assertAccessToken(
+                fragmentMap.get("access_token"),
+                key,
+                "username",
+                "http://rs.example.com",
+                "client1",
+                "openid rs:scope1",
+                "az.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
+        assertEquals(fragmentMap.get("token_type"), "bearer");
+        assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
         IdTokenAssert.assertIdToken(
                 fragmentMap.get("id_token"),
                 key,
