@@ -493,7 +493,7 @@ class AuthorizeTest {
                         "clientSecret",
                         Set.of("http://rp1.example.com", "http://rp2.example.com"),
                         Set.of(GrantType.implicit),
-                        Set.of(ResponseType.token),
+                        Set.of(ResponseType.token, ResponseType.id_token),
                         "openid rs:scope1 rs:scope2");
         clientStore.save(client);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -506,11 +506,11 @@ class AuthorizeTest {
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
-                        new IDTokenIssuer(config, new JWKSet()),
+                        new IDTokenIssuer(config, jwks),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
-                        .responseType("token")
+                        .responseType("token id_token")
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
@@ -563,30 +563,27 @@ class AuthorizeTest {
             assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
         }
 
-        // TODO after support multiple response type
-        //        // id token
-        //        {
-        //            var idToken = fragmentMap.get("id_token");
-        //            var parsedIdToken = JWSObject.parse(idToken);
-        //            // verify signature
-        //            assertTrue(parsedIdToken.verify(new ECDSAVerifier(key)));
-        //            assertEquals(parsedIdToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
-        //            // verify claims
-        //            var payload = parsedIdToken.getPayload().toJSONObject();
-        //            assertEquals(payload.get("sub"), "username");
-        //            assertEquals(payload.get("aud"), "clientId");
-        //            assertNotNull(payload.get("jti"));
-        //            assertEquals(payload.get("iss"), "as.example.com");
-        //            assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
-        //            assertTrue((long) payload.get("exp") < Instant.now().getEpochSecond() + 3610);
-        //            assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
-        //            assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
-        //            assertNull(payload.get("nonce"));
-        //            assertTrue((long) payload.get("auth_time") > Instant.now().getEpochSecond() -
-        // 10);
-        //            assertTrue((long) payload.get("auth_time") < Instant.now().getEpochSecond() +
-        // 10);
-        //            assertNotNull(payload.get("at_hash"));
-        //        }
+        // id token
+        {
+            var idToken = fragmentMap.get("id_token");
+            var parsedIdToken = JWSObject.parse(idToken);
+            // verify signature
+            assertTrue(parsedIdToken.verify(new ECDSAVerifier(key)));
+            assertEquals(parsedIdToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
+            // verify claims
+            var payload = parsedIdToken.getPayload().toJSONObject();
+            assertEquals(payload.get("sub"), "username");
+            assertEquals(payload.get("aud"), "client1");
+            assertNotNull(payload.get("jti"));
+            assertEquals(payload.get("iss"), "az.example.com");
+            assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
+            assertTrue((long) payload.get("exp") < Instant.now().getEpochSecond() + 3610);
+            assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
+            assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
+            assertNull(payload.get("nonce"));
+            assertTrue((long) payload.get("auth_time") > Instant.now().getEpochSecond() - 10);
+            assertTrue((long) payload.get("auth_time") < Instant.now().getEpochSecond() + 10);
+            assertNotNull(payload.get("at_hash"));
+        }
     }
 }
