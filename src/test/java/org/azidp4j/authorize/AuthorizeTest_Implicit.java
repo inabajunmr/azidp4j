@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.IdTokenAssert;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
@@ -54,14 +55,6 @@ class AuthorizeTest_Implicit {
                     Set.of(GrantType.authorization_code, GrantType.implicit),
                     Set.of(),
                     "scope1 scope2");
-    AzIdPConfig config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
-    Authorize sut =
-            new Authorize(
-                    clientStore,
-                    new InMemoryAuthorizationCodeStore(),
-                    new AccessTokenIssuer(config, new JWKSet(), new SampleScopeAudienceMapper()),
-                    new IDTokenIssuer(config, new JWKSet()),
-                    config);
 
     public AuthorizeTest_Implicit() {
         clientStore.save(client);
@@ -302,27 +295,19 @@ class AuthorizeTest_Implicit {
             assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
         }
 
-        // id token
-        {
-            var idToken = fragmentMap.get("id_token");
-            var parsedIdToken = JWSObject.parse(idToken);
-            // verify signature
-            assertTrue(parsedIdToken.verify(new ECDSAVerifier(key)));
-            assertEquals(parsedIdToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
-            // verify claims
-            var payload = parsedIdToken.getPayload().toJSONObject();
-            assertEquals(payload.get("sub"), "username");
-            assertEquals(payload.get("aud"), "client1");
-            assertNotNull(payload.get("jti"));
-            assertEquals(payload.get("iss"), "az.example.com");
-            assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
-            assertTrue((long) payload.get("exp") < Instant.now().getEpochSecond() + 3610);
-            assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
-            assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
-            assertNull(payload.get("nonce"));
-            assertTrue((long) payload.get("auth_time") > Instant.now().getEpochSecond() - 10);
-            assertTrue((long) payload.get("auth_time") < Instant.now().getEpochSecond() + 10);
-            assertNotNull(payload.get("at_hash"));
-        }
+        IdTokenAssert.assertIdToken(
+                fragmentMap.get("id_token"),
+                key,
+                "username",
+                "client1",
+                "az.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond(),
+                Instant.now().getEpochSecond());
     }
+
+    // TODO    code token
+    // TODO   code id_token
+    // TODO   id_token token
+    // TODO   code id_token token
 }

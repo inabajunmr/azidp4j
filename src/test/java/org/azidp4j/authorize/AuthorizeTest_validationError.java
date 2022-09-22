@@ -19,6 +19,7 @@ import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
 
 class AuthorizeTest_validationError {
+    // TODO response type and response mode unmatched
 
     ClientStore clientStore = new InMemoryClientStore();
     Client client =

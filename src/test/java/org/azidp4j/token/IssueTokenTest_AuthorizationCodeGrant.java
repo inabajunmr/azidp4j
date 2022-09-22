@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.IdTokenAssert;
 import org.azidp4j.authorize.AuthorizationCode;
 import org.azidp4j.authorize.AuthorizationCodeStore;
 import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
@@ -267,29 +268,15 @@ class IssueTokenTest_AuthorizationCodeGrant {
         }
 
         assertTrue(response.body.containsKey("refresh_token"));
-
-        // id token
-        {
-            var idToken = response.body.get("id_token");
-            var parsedIdToken = JWSObject.parse((String) idToken);
-            // verify signature
-            assertTrue(parsedIdToken.verify(new ECDSAVerifier(key)));
-            assertEquals(parsedIdToken.getHeader().getAlgorithm(), JWSAlgorithm.ES256);
-            // verify claims
-            var payload = parsedIdToken.getPayload().toJSONObject();
-            assertEquals(payload.get("sub"), subject);
-            assertEquals(payload.get("aud"), "clientId");
-            assertNotNull(payload.get("jti"));
-            assertEquals(payload.get("iss"), "as.example.com");
-            assertTrue((long) payload.get("exp") > Instant.now().getEpochSecond() + 3590);
-            assertTrue((long) payload.get("exp") < Instant.now().getEpochSecond() + 3610);
-            assertTrue((long) payload.get("iat") > Instant.now().getEpochSecond() - 10);
-            assertTrue((long) payload.get("iat") < Instant.now().getEpochSecond() + 10);
-            assertNull(payload.get("nonce"));
-            assertTrue((long) payload.get("auth_time") > Instant.now().getEpochSecond() - 10);
-            assertTrue((long) payload.get("auth_time") < Instant.now().getEpochSecond() + 10);
-            assertNotNull(payload.get("at_hash"));
-        }
+        IdTokenAssert.assertIdToken(
+                (String) response.body.get("id_token"),
+                key,
+                subject,
+                "clientId",
+                "as.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond(),
+                Instant.now().getEpochSecond());
     }
 
     @Test
