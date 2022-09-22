@@ -200,7 +200,10 @@ public class Authorize {
                     responseMode);
         }
 
-        // TODO prompt=none
+        if (responseType.contains(ResponseType.none)) {
+            return new AuthorizationResponse(
+                    302, nullRemovedMap("state", authorizationRequest.state), responseMode);
+        }
 
         String accessToken = null;
         if (responseType.contains(ResponseType.token)) {
