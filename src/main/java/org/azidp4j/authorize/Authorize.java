@@ -44,8 +44,6 @@ public class Authorize {
             return new AuthorizationResponse(400);
         }
 
-        // TODO multiple response type
-        // TODO test
         var responseMode = ResponseMode.of(authorizationRequest.responseMode, responseType);
         if (responseMode == null) {
             return new AuthorizationResponse(400);
@@ -94,6 +92,46 @@ public class Authorize {
                             authorizationRequest.state),
                     responseMode);
         }
+        // https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
+        if (responseType.contains(ResponseType.code)) {
+            // validate grant type and response type
+            if (!client.grantTypes.contains(GrantType.authorization_code)) {
+                // if response type has code, need to allowed authorization_code
+                // https://www.rfc-editor.org/rfc/rfc7591.html#section-2.1
+                return new AuthorizationResponse(
+                        302,
+                        nullRemovedMap(
+                                "error",
+                                "unauthorized_client",
+                                "state",
+                                authorizationRequest.state),
+                        responseMode);
+            }
+        }
+
+        if (responseType.contains(ResponseType.token)
+                || responseType.contains(ResponseType.id_token)) {
+            // validate grant type and response type
+            if (!client.grantTypes.contains(GrantType.implicit)) {
+                return new AuthorizationResponse(
+                        302,
+                        nullRemovedMap(
+                                "error",
+                                "unauthorized_client",
+                                "state",
+                                authorizationRequest.state),
+                        responseMode);
+            }
+        }
+
+        // validate scope
+        if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
+            return new AuthorizationResponse(
+                    302,
+                    Map.of("error", "invalid_scope", "state", authorizationRequest.state),
+                    responseMode);
+        }
+
         Set<Prompt> prompt = Prompt.parse(authorizationRequest.prompt);
         if (prompt == null) {
             // prompt is invalid
@@ -159,46 +197,6 @@ public class Authorize {
                             "unsupported_response_type",
                             "state",
                             authorizationRequest.state),
-                    responseMode);
-        }
-
-        // https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
-        if (responseType.contains(ResponseType.code)) {
-            // validate grant type and response type
-            if (!client.grantTypes.contains(GrantType.authorization_code)) {
-                // if response type has code, need to allowed authorization_code
-                // https://www.rfc-editor.org/rfc/rfc7591.html#section-2.1
-                return new AuthorizationResponse(
-                        302,
-                        nullRemovedMap(
-                                "error",
-                                "unauthorized_client",
-                                "state",
-                                authorizationRequest.state),
-                        responseMode);
-            }
-        }
-
-        if (responseType.contains(ResponseType.token)
-                || responseType.contains(ResponseType.id_token)) {
-            // validate grant type and response type
-            if (!client.grantTypes.contains(GrantType.implicit)) {
-                return new AuthorizationResponse(
-                        302,
-                        nullRemovedMap(
-                                "error",
-                                "unauthorized_client",
-                                "state",
-                                authorizationRequest.state),
-                        responseMode);
-            }
-        }
-
-        // validate scope
-        if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
-            return new AuthorizationResponse(
-                    302,
-                    Map.of("error", "invalid_scope", "state", authorizationRequest.state),
                     responseMode);
         }
 
