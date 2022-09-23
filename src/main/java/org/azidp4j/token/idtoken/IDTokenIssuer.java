@@ -25,9 +25,15 @@ public class IDTokenIssuer {
     }
 
     public JWSObject issue(
-            String sub, String clientId, Long authTime, String nonce, String accessToken) {
+            String sub,
+            String clientId,
+            Long authTime,
+            String nonce,
+            String accessToken,
+            String authorizationCode) {
         var jti = UUID.randomUUID().toString();
-        var atHash = accessToken != null ? calculateAtHash(accessToken) : null;
+        var atHash = accessToken != null ? calculateXHash(accessToken) : null;
+        var cHash = authorizationCode != null ? calculateXHash(authorizationCode) : null;
         Map<String, Object> claims =
                 MapUtil.nullRemovedMap(
                         "iss",
@@ -49,14 +55,16 @@ public class IDTokenIssuer {
                         "azp",
                         clientId,
                         "at_hash",
-                        atHash);
+                        atHash,
+                        "c_hash",
+                        cHash);
         return jwsIssuer.issue(config.idTokenKid, claims);
     }
 
-    private String calculateAtHash(String accessToken) {
+    private String calculateXHash(String token) {
         try {
             var sha256 = MessageDigest.getInstance("SHA-256");
-            var hash = sha256.digest(accessToken.getBytes());
+            var hash = sha256.digest(token.getBytes());
             return Base64URL.encode(Arrays.copyOfRange(hash, 0, hash.length / 2)).toString();
         } catch (NoSuchAlgorithmException e) {
             throw new AssertionError(e);

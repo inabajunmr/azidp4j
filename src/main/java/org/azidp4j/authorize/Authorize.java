@@ -254,6 +254,23 @@ public class Authorize {
             }
         }
 
+        String authorizationCode = null;
+        if (responseType.contains(ResponseType.code)) {
+            // issue authorization code
+            var code =
+                    new AuthorizationCode(
+                            authorizationRequest.authenticatedUserId,
+                            UUID.randomUUID().toString(),
+                            authorizationRequest.scope,
+                            authorizationRequest.clientId,
+                            authorizationRequest.redirectUri,
+                            authorizationRequest.state,
+                            authorizationRequest.authTime,
+                            authorizationRequest.nonce);
+            authorizationCodeStore.save(code);
+            authorizationCode = code.code;
+        }
+
         String idToken = null;
         if (responseType.contains(ResponseType.id_token)) {
             // validate scope
@@ -271,25 +288,9 @@ public class Authorize {
                                     authorizationRequest.clientId,
                                     authorizationRequest.authTime,
                                     authorizationRequest.nonce,
-                                    accessToken)
+                                    accessToken,
+                                    authorizationCode)
                             .serialize();
-        }
-
-        String authorizationCode = null;
-        if (responseType.contains(ResponseType.code)) {
-            // issue authorization code
-            var code =
-                    new AuthorizationCode(
-                            authorizationRequest.authenticatedUserId,
-                            UUID.randomUUID().toString(),
-                            authorizationRequest.scope,
-                            authorizationRequest.clientId,
-                            authorizationRequest.redirectUri,
-                            authorizationRequest.state,
-                            authorizationRequest.authTime,
-                            authorizationRequest.nonce);
-            authorizationCodeStore.save(code);
-            authorizationCode = code.code;
         }
 
         return new AuthorizationResponse(

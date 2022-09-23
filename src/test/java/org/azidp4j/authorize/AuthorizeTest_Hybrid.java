@@ -131,7 +131,8 @@ class AuthorizeTest_Hybrid {
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
                 "abc",
-                null);
+                null,
+                fragmentMap.get("code"));
 
         assertNull(fragmentMap.get("token_type"));
         assertNull(fragmentMap.get("expires_in"));
@@ -174,6 +175,7 @@ class AuthorizeTest_Hybrid {
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
                 "abc",
+                fragmentMap.get("access_token"),
                 null);
         AccessTokenAssert.assertAccessToken(
                 fragmentMap.get("access_token"),
@@ -226,7 +228,8 @@ class AuthorizeTest_Hybrid {
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
                 "abc",
-                null);
+                fragmentMap.get("access_token"),
+                fragmentMap.get("id_token"));
         AccessTokenAssert.assertAccessToken(
                 fragmentMap.get("access_token"),
                 key,
