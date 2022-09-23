@@ -86,7 +86,9 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         "rs:scope1",
                         "clientId",
                         "http://example.com",
-                        "xyz");
+                        "xyz",
+                        null,
+                        null);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()

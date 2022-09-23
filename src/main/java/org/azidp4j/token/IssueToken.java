@@ -5,6 +5,9 @@ import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.util.Base64URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Map;
@@ -90,6 +93,31 @@ public class IssueToken {
                 }
                 if (!authorizationCode.redirectUri.equals(request.redirectUri)) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                }
+                if (authorizationCode.codeChallengeMethod != null) {
+                    switch (authorizationCode.codeChallengeMethod) {
+                        case PLAIN -> {
+                            if (!authorizationCode.codeChallenge.equals(request.codeVerifier)) {
+                                return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                            }
+                        }
+                        case S256 -> {
+                            MessageDigest sha256;
+                            try {
+                                sha256 = MessageDigest.getInstance("SHA-256");
+                            } catch (NoSuchAlgorithmException e) {
+                                throw new AssertionError();
+                            }
+                            var hash = sha256.digest(request.codeVerifier.getBytes());
+                            if (!authorizationCode.codeChallenge.equals(
+                                    Base64URL.encode(hash).toString())) {
+                                return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                            }
+                        }
+                        default -> {
+                            throw new AssertionError();
+                        }
+                    }
                 }
                 var at =
                         accessTokenIssuer.issue(

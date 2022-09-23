@@ -95,7 +95,9 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "rs:scope1",
                         "clientId",
                         "http://example.com",
-                        "xyz");
+                        "xyz",
+                        null,
+                        null);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -139,7 +141,9 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "http://example.com",
                         "xyz",
                         Instant.now().getEpochSecond(),
-                        "abc");
+                        "abc",
+                        null,
+                        null);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -195,6 +199,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "http://example.com",
                         "xyz",
                         Instant.now().getEpochSecond(),
+                        null,
+                        null,
                         null);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
@@ -251,7 +257,9 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "notauthorized",
                         "clientId",
                         "http://example.com",
-                        "xyz");
+                        "xyz",
+                        null,
+                        null);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -281,7 +289,9 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "rs:scope1",
                         "clientId",
                         "http://example.com",
-                        "xyz");
+                        "xyz",
+                        null,
+                        null);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -314,7 +324,9 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "rs:scope1",
                         "clientId",
                         "http://example.com",
-                        "xyz");
+                        "xyz",
+                        null,
+                        null);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -341,7 +353,9 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "rs:scope1",
                         "clientId",
                         "http://example.com",
-                        "xyz");
+                        "xyz",
+                        null,
+                        null);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -371,7 +385,9 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "rs:scope1",
                         "clientId",
                         "http://example.com",
-                        "xyz");
+                        "xyz",
+                        null,
+                        null);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
