@@ -53,7 +53,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         null,
                         Set.of(GrantType.password),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -70,6 +71,78 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         .username("username")
                         .password("password")
                         .authenticatedClientId("clientId")
+                        .scope("rs:scope1")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 200);
+        // access token
+        AccessTokenAssert.assertAccessToken(
+                (String) response.body.get("access_token"),
+                key,
+                "username",
+                "http://rs.example.com",
+                "clientId",
+                "rs:scope1",
+                "as.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
+        assertEquals(response.body.get("token_type"), "bearer");
+        assertEquals(response.body.get("expires_in"), 3600);
+        assertTrue(response.body.containsKey("refresh_token"));
+    }
+
+    @Test
+    void success_publicClient() throws JOSEException, ParseException {
+
+        // setup
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+        var accessTokenIssuer =
+                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var idTokenIssuer = new IDTokenIssuer(config, jwks);
+        var refreshTokenIssuer =
+                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var userPasswordVerifier =
+                new UserPasswordVerifier() {
+                    @Override
+                    public boolean verify(String username, String password) {
+                        return true;
+                    }
+                };
+        var clientStore = new InMemoryClientStore();
+        clientStore.save(
+                new Client(
+                        "clientId",
+                        "secret",
+                        null,
+                        Set.of(GrantType.password),
+                        Set.of(),
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.none));
+        var issueToken =
+                new IssueToken(
+                        config,
+                        authorizationCodeStore,
+                        accessTokenIssuer,
+                        idTokenIssuer,
+                        refreshTokenIssuer,
+                        userPasswordVerifier,
+                        clientStore,
+                        jwks);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .grantType("password")
+                        .username("username")
+                        .password("password")
+                        .clientId("clientId")
                         .scope("rs:scope1")
                         .build();
 
@@ -124,7 +197,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         null,
                         Set.of(GrantType.password),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -184,7 +258,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         null,
                         Set.of(GrantType.password),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,

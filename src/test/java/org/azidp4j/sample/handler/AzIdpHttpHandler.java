@@ -7,7 +7,7 @@ import java.io.IOException;
 public abstract class AzIdpHttpHandler implements HttpHandler {
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
+    public void handle(HttpExchange exchange) {
         try {
             System.out.println(this.getClass().getSimpleName());
             System.out.println(exchange.getRequestMethod());

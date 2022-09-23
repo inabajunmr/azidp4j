@@ -28,7 +28,7 @@ import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class IssueTokenTest_AuthorizationCodeGrant {
+class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
 
     private final ECKey key;
 
@@ -60,7 +60,8 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         null,
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
-                        "openid rs:scope1 rs:scope2"));
+                        "openid rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         clientStore.save(
                 new Client(
                         "other",
@@ -68,7 +69,8 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         null,
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
-                        "openid rs:scope1 rs:scope2"));
+                        "openid rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         issueToken =
                 new IssueToken(
                         config,
@@ -100,7 +102,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .clientId("clientId")
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise
@@ -144,7 +146,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .clientId("clientId")
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise
@@ -199,7 +201,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .clientId("clientId")
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise
@@ -254,7 +256,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .clientId("clientId")
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise
@@ -284,7 +286,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .clientId("clientId")
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise
@@ -317,7 +319,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .clientId("other")
+                        .authenticatedClientId("other")
                         .build();
 
         // exercise
@@ -344,7 +346,7 @@ class IssueTokenTest_AuthorizationCodeGrant {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://invalid.example.com")
-                        .clientId("clientId")
+                        .authenticatedClientId("clientId")
                         .build();
 
         // exercise
@@ -353,5 +355,35 @@ class IssueTokenTest_AuthorizationCodeGrant {
         // verify
         assertEquals(tokenResponse.status, 400);
         assertEquals("invalid_grant", tokenResponse.body.get("error"));
+    }
+
+    @Test
+    void notAuthenticatedClient() throws ParseException, JOSEException {
+
+        // setup
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "rs:scope1",
+                        "clientId",
+                        "http://example.com",
+                        "xyz");
+        authorizationCodeStore.save(authorizationCode);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .code(authorizationCode.code)
+                        .grantType("authorization_code")
+                        .redirectUri("http://example.com")
+                        .clientId("clientId")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 400);
+        assertEquals("invalid_client", response.body.get("error"));
     }
 }

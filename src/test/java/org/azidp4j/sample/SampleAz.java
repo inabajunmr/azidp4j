@@ -13,7 +13,6 @@ import org.azidp4j.AzIdP;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
-import org.azidp4j.sample.authenticator.ClientBasicAuthenticator;
 import org.azidp4j.sample.authenticator.JWSAccessTokenAuthenticator;
 import org.azidp4j.sample.handler.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
@@ -23,8 +22,8 @@ public class SampleAz {
 
     private HttpServer server;
     public AzIdP azIdP;
-    private JWKSet jwks;
-    private ClientStore clientStore;
+    private final JWKSet jwks;
+    private final ClientStore clientStore;
 
     public SampleAz() throws JOSEException {
 
@@ -36,16 +35,12 @@ public class SampleAz {
                 new UserPasswordVerifier() {
                     @Override
                     public boolean verify(String username, String password) {
-                        switch (username) {
-                            case "user1":
-                                return password.equals("password1");
-                            case "user2":
-                                return password.equals("password2");
-                            case "user3":
-                                return password.equals("password3");
-                        }
-
-                        return false;
+                        return switch (username) {
+                            case "user1" -> password.equals("password1");
+                            case "user2" -> password.equals("password2");
+                            case "user3" -> password.equals("password3");
+                            default -> false;
+                        };
                     }
                 };
         azIdP =
@@ -60,8 +55,7 @@ public class SampleAz {
     public void start(int port) throws IOException, JOSEException {
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/authorize", new AuthorizationEndpointHandler(azIdP));
-        server.createContext("/token", new TokenEndpointHandler(azIdP))
-                .setAuthenticator(new ClientBasicAuthenticator(clientStore));
+        server.createContext("/token", new TokenEndpointHandler(azIdP, clientStore));
         server.createContext("/jwks", new JWKsEndpointHandler(jwks));
         server.createContext("/client", new DynamicClientRegistrationHandler(azIdP))
                 .setAuthenticator(new JWSAccessTokenAuthenticator(jwks));

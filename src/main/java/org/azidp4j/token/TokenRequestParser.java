@@ -7,7 +7,7 @@ public class TokenRequestParser {
         var redirectUri = tokenRequest.bodyParameters.get("redirect_uri");
         var scope = tokenRequest.bodyParameters.get("scope");
         var authenticatedClientId = tokenRequest.authenticatedClientId;
-        var clientId = tokenRequest.bodyParameters.get("clientId");
+        var clientId = tokenRequest.bodyParameters.get("client_id");
         var username = tokenRequest.bodyParameters.get("username");
         var password = tokenRequest.bodyParameters.get("password");
         var refreshToken = tokenRequest.bodyParameters.get("refresh_token");

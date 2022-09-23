@@ -51,16 +51,26 @@ public class IssueToken {
 
     public TokenResponse issue(InternalTokenRequest request) {
         var grantType = GrantType.of(request.grantType);
+        if (request.authenticatedClientId == null && request.clientId == null) {
+            return new TokenResponse(400, Map.of("error", "invalid_request"));
+        }
         if (request.authenticatedClientId != null
                 && request.clientId != null
                 && !Objects.equals(request.authenticatedClientId, request.clientId)) {
             return new TokenResponse(400, Map.of("error", "invalid_request"));
         }
-        // TODO client id should be divide for public client
-        var clientId = request.clientId != null ? request.clientId : request.authenticatedClientId;
-        var client = clientStore.find(clientId);
+        var client =
+                clientStore.find(
+                        request.clientId != null
+                                ? request.clientId
+                                : request.authenticatedClientId);
         if (client == null) {
             return new TokenResponse(400, Map.of("error", "unauthorized_client"));
+        }
+        if (client.tokenEndpointAuthMethod != TokenEndpointAuthMethod.none
+                && request.authenticatedClientId == null) {
+            // client authentication required
+            return new TokenResponse(400, Map.of("error", "invalid_client"));
         }
         if (!client.grantTypes.contains(grantType)) {
             return new TokenResponse(400, Map.of("error", "unsupported_grant_type"));
@@ -71,7 +81,7 @@ public class IssueToken {
                 if (authorizationCode == null) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
-                if (!authorizationCode.clientId.equals(clientId)) {
+                if (!authorizationCode.clientId.equals(client.clientId)) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
                 // verify scope
@@ -83,16 +93,16 @@ public class IssueToken {
                 }
                 var at =
                         accessTokenIssuer.issue(
-                                authorizationCode.sub, clientId, authorizationCode.scope);
+                                authorizationCode.sub, client.clientId, authorizationCode.scope);
                 var rt =
                         refreshTokenIssuer.issue(
-                                authorizationCode.sub, clientId, authorizationCode.scope);
+                                authorizationCode.sub, client.clientId, authorizationCode.scope);
                 if (scopeValidator.contains(authorizationCode.scope, "openid")) {
                     // OIDC
                     var idToken =
                             idTokenIssuer.issue(
                                     authorizationCode.sub,
-                                    clientId,
+                                    client.clientId,
                                     authorizationCode.authTime,
                                     authorizationCode.nonce,
                                     at.serialize());
@@ -164,10 +174,10 @@ public class IssueToken {
                 if (userPasswordVerifier.verify(request.username, request.password)) {
                     var at =
                             accessTokenIssuer.issue(
-                                    request.username, request.authenticatedClientId, request.scope);
+                                    request.username, client.clientId, request.scope);
                     var rt =
                             refreshTokenIssuer.issue(
-                                    request.username, request.authenticatedClientId, request.scope);
+                                    request.username, client.clientId, request.scope);
                     return new TokenResponse(
                             200,
                             Map.of(
@@ -186,19 +196,14 @@ public class IssueToken {
                 }
             }
             case client_credentials -> {
-                if (request.authenticatedClientId == null) {
-                    // TODO should reconsider public client
+                if (client.tokenEndpointAuthMethod == TokenEndpointAuthMethod.none) {
                     return new TokenResponse(400, Map.of("error", "invalid_client"));
                 }
                 // verify scope
                 if (!scopeValidator.hasEnoughScope(request.scope, client)) {
                     return new TokenResponse(400, Map.of("error", "invalid_scope"));
                 }
-                var jws =
-                        accessTokenIssuer.issue(
-                                request.authenticatedClientId,
-                                request.authenticatedClientId,
-                                request.scope);
+                var jws = accessTokenIssuer.issue(client.clientId, client.clientId, request.scope);
                 return new TokenResponse(
                         200,
                         Map.of(
@@ -223,7 +228,7 @@ public class IssueToken {
                     if (!parsedRt.get("iss").equals(config.issuer)) {
                         return new TokenResponse(400, Map.of("error", "invalid_grant"));
                     }
-                    if (!parsedRt.get("client_id").equals(request.authenticatedClientId)) {
+                    if (!parsedRt.get("client_id").equals(client.clientId)) {
                         return new TokenResponse(400, Map.of("error", "invalid_grant"));
                     }
                     if ((long) parsedRt.get("exp") < Instant.now().getEpochSecond()) {
@@ -233,21 +238,14 @@ public class IssueToken {
                             request.scope, (String) parsedRt.get("scope"))) {
                         return new TokenResponse(400, Map.of("error", "invalid_scope"));
                     }
-                    if (!parsedRt.get("client_id").equals(request.authenticatedClientId)) {
-                        return new TokenResponse(400, Map.of("error", "invalid_client"));
-                    }
                     var scope =
                             request.scope != null ? request.scope : (String) parsedRt.get("scope");
                     var at =
                             accessTokenIssuer.issue(
-                                    (String) parsedRt.get("sub"),
-                                    request.authenticatedClientId,
-                                    scope);
+                                    (String) parsedRt.get("sub"), client.clientId, scope);
                     var rt =
                             refreshTokenIssuer.issue(
-                                    (String) parsedRt.get("sub"),
-                                    request.authenticatedClientId,
-                                    scope);
+                                    (String) parsedRt.get("sub"), client.clientId, scope);
                     return new TokenResponse(
                             200,
                             Map.of(

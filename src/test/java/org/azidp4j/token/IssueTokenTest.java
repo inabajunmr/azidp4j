@@ -52,7 +52,8 @@ public class IssueTokenTest {
                         null,
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
-                        "scope1 scope2"));
+                        "scope1 scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -87,6 +88,7 @@ public class IssueTokenTest {
                             .grantType("password")
                             .redirectUri("http://example.com")
                             .clientId("clientId")
+                            .authenticatedClientId("clientId")
                             .build();
 
             // exercise

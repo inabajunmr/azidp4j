@@ -9,6 +9,7 @@ import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.ClientRegistrationRequest;
 import org.azidp4j.client.GrantType;
+import org.azidp4j.token.TokenEndpointAuthMethod;
 
 public class DynamicClientRegistrationHandler extends AzIdpHttpHandler {
 
@@ -31,12 +32,22 @@ public class DynamicClientRegistrationHandler extends AzIdpHttpHandler {
                 .forEachRemaining(v -> grantTypes.add(GrantType.of(v.asText())));
         var redirectUris = new HashSet<String>();
         body.get("redirect_uris").spliterator().forEachRemaining(v -> redirectUris.add(v.asText()));
+        var tokenEndpointAuthMethod = TokenEndpointAuthMethod.client_secret_basic;
+        if (body.has("token_endpoint_auth_method")) {
+            var requested =
+                    TokenEndpointAuthMethod.of(body.get("token_endpoint_auth_method").asText());
+            if (requested != null) {
+                tokenEndpointAuthMethod = requested;
+            }
+        }
+
         var request =
                 ClientRegistrationRequest.builder()
                         .scope(body.get("scope").asText())
                         .responseTypes(responseTypes)
                         .grantTypes(grantTypes)
                         .redirectUris(redirectUris)
+                        .tokenEndpointAuthMethod(tokenEndpointAuthMethod)
                         .build();
         var response = azIdp.registerClient(request);
         var os = httpExchange.getResponseBody();
