@@ -30,7 +30,12 @@ public class AzIdP {
         var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
         var refreshTokenIssuer = new RefreshTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         this.authorize =
-                new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
+                new Authorize(
+                        clientStore,
+                        authorizationCodeStore,
+                        accessTokenIssuer,
+                        idTokenIssuer,
+                        azIdPConfig);
         this.issueToken =
                 new IssueToken(
                         azIdPConfig,
@@ -54,7 +59,12 @@ public class AzIdP {
         var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
         var refreshTokenIssuer = new RefreshTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         this.authorize =
-                new Authorize(clientStore, authorizationCodeStore, accessTokenIssuer, azIdPConfig);
+                new Authorize(
+                        clientStore,
+                        authorizationCodeStore,
+                        accessTokenIssuer,
+                        idTokenIssuer,
+                        azIdPConfig);
         this.issueToken =
                 new IssueToken(
                         azIdPConfig,

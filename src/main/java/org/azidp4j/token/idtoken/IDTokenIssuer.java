@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.jwt.JWSIssuer;
+import org.azidp4j.util.MapUtil;
 
 public class IDTokenIssuer {
 
@@ -25,33 +26,10 @@ public class IDTokenIssuer {
 
     public JWSObject issue(
             String sub, String clientId, Long authTime, String nonce, String accessToken) {
-
         var jti = UUID.randomUUID().toString();
-        if (nonce == null) {
-            Map<String, Object> claims =
-                    Map.of(
-                            "iss",
-                            config.issuer,
-                            "sub",
-                            sub,
-                            "aud",
-                            clientId,
-                            "exp",
-                            Instant.now().getEpochSecond() + config.idTokenExpirationSec,
-                            "iat",
-                            Instant.now().getEpochSecond(),
-                            "jti",
-                            jti,
-                            "auth_time",
-                            authTime,
-                            "azp",
-                            clientId,
-                            "at_hash",
-                            calculateAtHash(accessToken));
-            return jwsIssuer.issue(config.idTokenKid, claims);
-        }
+        var atHash = accessToken != null ? calculateAtHash(accessToken) : null;
         Map<String, Object> claims =
-                Map.of(
+                MapUtil.nullRemovedMap(
                         "iss",
                         config.issuer,
                         "sub",
@@ -71,7 +49,7 @@ public class IDTokenIssuer {
                         "azp",
                         clientId,
                         "at_hash",
-                        calculateAtHash(accessToken));
+                        atHash);
         return jwsIssuer.issue(config.idTokenKid, claims);
     }
 
