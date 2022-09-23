@@ -208,6 +208,9 @@ public class Authorize {
         }
 
         String accessToken = null;
+        String tokenType = null;
+        String expiresIn = null;
+        String scope = null;
         if (responseType.contains(ResponseType.token)) {
             // issue access token
             accessToken =
@@ -217,6 +220,9 @@ public class Authorize {
                                     authorizationRequest.clientId,
                                     authorizationRequest.scope)
                             .serialize();
+            tokenType = "bearer";
+            expiresIn = String.valueOf(azIdPConfig.accessTokenExpirationSec);
+            scope = authorizationRequest.scope;
         }
 
         if (scopeValidator.contains(authorizationRequest.scope, "openid")) {
@@ -298,11 +304,11 @@ public class Authorize {
                         "code",
                         authorizationCode,
                         "token_type",
-                        "bearer",
+                        tokenType,
                         "expires_in",
-                        String.valueOf(azIdPConfig.accessTokenExpirationSec),
+                        expiresIn,
                         "scope",
-                        authorizationRequest.scope,
+                        scope,
                         "state",
                         authorizationRequest.state),
                 responseMode);

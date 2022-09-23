@@ -130,11 +130,113 @@ class AuthorizeTest_Hybrid {
                 Instant.now().getEpochSecond(),
                 "abc",
                 null);
+
+        assertNull(fragmentMap.get("token_type"));
+        assertNull(fragmentMap.get("expires_in"));
+        assertNotNull(fragmentMap.get("code"));
+    }
+
+    @Test
+    void idTokenAndToken() throws JOSEException, ParseException {
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("id_token token")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("openid rs:scope1")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
+                        .state("xyz")
+                        .nonce("abc")
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.status, 302);
+        var location = response.headers("http://rp1.example.com").get("Location");
+        var fragmentMap =
+                Arrays.stream(URI.create(location).getFragment().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals(fragmentMap.get("state"), "xyz");
+        IdTokenAssert.assertIdToken(
+                fragmentMap.get("id_token"),
+                key,
+                "username",
+                "client1",
+                "az.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond(),
+                Instant.now().getEpochSecond(),
+                "abc",
+                null);
+        AccessTokenAssert.assertAccessToken(
+                fragmentMap.get("access_token"),
+                key,
+                "username",
+                "http://rs.example.com",
+                "client1",
+                "openid rs:scope1",
+                "az.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
+        assertEquals(fragmentMap.get("token_type"), "bearer");
+        assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
+        assertNull(fragmentMap.get("code"));
+    }
+
+    @Test
+    void codeAndIdTokenAndToken() throws JOSEException, ParseException {
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("code id_token token")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("openid rs:scope1")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
+                        .state("xyz")
+                        .nonce("abc")
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.status, 302);
+        var location = response.headers("http://rp1.example.com").get("Location");
+        var fragmentMap =
+                Arrays.stream(URI.create(location).getFragment().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals(fragmentMap.get("state"), "xyz");
+        IdTokenAssert.assertIdToken(
+                fragmentMap.get("id_token"),
+                key,
+                "username",
+                "client1",
+                "az.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond(),
+                Instant.now().getEpochSecond(),
+                "abc",
+                null);
+        AccessTokenAssert.assertAccessToken(
+                fragmentMap.get("access_token"),
+                key,
+                "username",
+                "http://rs.example.com",
+                "client1",
+                "openid rs:scope1",
+                "az.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
         assertNotNull(fragmentMap.get("code"));
     }
-
-    // TODO   id_token token
-    // TODO   code id_token token
 }
