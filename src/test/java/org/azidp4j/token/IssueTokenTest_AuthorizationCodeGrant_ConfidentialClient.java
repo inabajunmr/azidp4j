@@ -177,7 +177,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
                 "abc",
-                (String) response.body.get("access_token"));
+                (String) response.body.get("access_token"),
+                null);
     }
 
     @Test
@@ -235,7 +236,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
                 null,
-                (String) response.body.get("access_token"));
+                (String) response.body.get("access_token"),
+                null);
     }
 
     @Test

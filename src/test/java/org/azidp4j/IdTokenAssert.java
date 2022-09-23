@@ -20,7 +20,8 @@ public class IdTokenAssert {
             long iat,
             long authTime,
             String nonce,
-            String accessToken)
+            String accessToken,
+            String authorizationCode)
             throws ParseException, JOSEException {
         var parsedIdToken = JWSObject.parse(idToken);
         // verify signature
@@ -41,6 +42,9 @@ public class IdTokenAssert {
         assertEquals(nonce, payload.get("nonce"));
         if (accessToken != null) {
             assertNotNull(payload.get("at_hash"));
+        }
+        if (authorizationCode != null) {
+            assertNotNull(payload.get("c_hash"));
         }
     }
 }

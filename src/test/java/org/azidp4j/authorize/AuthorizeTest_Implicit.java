@@ -256,6 +256,7 @@ class AuthorizeTest_Implicit {
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
                 null,
-                fragmentMap.get("access_token"));
+                fragmentMap.get("access_token"),
+                null);
     }
 }

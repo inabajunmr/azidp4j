@@ -105,7 +105,8 @@ public class IssueToken {
                                     client.clientId,
                                     authorizationCode.authTime,
                                     authorizationCode.nonce,
-                                    at.serialize());
+                                    at.serialize(),
+                                    null);
                     if (authorizationCode.state == null) {
                         return new TokenResponse(
                                 200,
