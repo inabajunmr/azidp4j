@@ -14,6 +14,7 @@ import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.token.TokenEndpointAuthMethod;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
@@ -28,7 +29,8 @@ class AuthorizeTest_AuthorizationCode {
                     Set.of("http://rp1.example.com", "http://rp2.example.com"),
                     Set.of(GrantType.authorization_code),
                     Set.of(ResponseType.code),
-                    "scope1 scope2 openid");
+                    "scope1 scope2 openid",
+                    TokenEndpointAuthMethod.client_secret_basic);
     Client noGrantTypesClient =
             new Client(
                     "noGrantTypesClient",
@@ -36,7 +38,8 @@ class AuthorizeTest_AuthorizationCode {
                     Set.of("http://rp1.example.com"),
                     Set.of(),
                     Set.of(ResponseType.code),
-                    "scope1 scope2");
+                    "scope1 scope2",
+                    TokenEndpointAuthMethod.client_secret_basic);
 
     Client noResponseTypesClient =
             new Client(
@@ -45,7 +48,8 @@ class AuthorizeTest_AuthorizationCode {
                     Set.of("http://rp1.example.com"),
                     Set.of(GrantType.authorization_code, GrantType.implicit),
                     Set.of(),
-                    "scope1 scope2");
+                    "scope1 scope2",
+                    TokenEndpointAuthMethod.client_secret_basic);
     AzIdPConfig config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
     Authorize sut =
             new Authorize(
@@ -99,7 +103,8 @@ class AuthorizeTest_AuthorizationCode {
                         Set.of("http://rp1.example.com", "http://rp2.example.com"),
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
-                        "scope1 scope2");
+                        "scope1 scope2",
+                        TokenEndpointAuthMethod.client_secret_basic);
         clientStore.save(client);
         var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
         var sut =
@@ -146,7 +151,8 @@ class AuthorizeTest_AuthorizationCode {
                         Set.of("http://rp1.example.com"),
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
-                        "scope1 scope2");
+                        "scope1 scope2",
+                        TokenEndpointAuthMethod.client_secret_basic);
         clientStore.save(client);
         var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
         var sut =
@@ -194,7 +200,8 @@ class AuthorizeTest_AuthorizationCode {
                         Set.of("http://rp1.example.com"),
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
-                        "scope1 scope2");
+                        "scope1 scope2",
+                        TokenEndpointAuthMethod.client_secret_basic);
         clientStore.save(client);
         var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
         var sut =

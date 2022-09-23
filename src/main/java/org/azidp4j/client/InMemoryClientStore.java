@@ -3,6 +3,7 @@ package org.azidp4j.client;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.azidp4j.token.TokenEndpointAuthMethod;
 
 public class InMemoryClientStore implements ClientStore {
 
@@ -17,7 +18,8 @@ public class InMemoryClientStore implements ClientStore {
                         Set.of(),
                         Set.of(GrantType.client_credentials),
                         Set.of(),
-                        "default"));
+                        "default",
+                        TokenEndpointAuthMethod.client_secret_basic));
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.token.TokenEndpointAuthMethod;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,8 @@ class AuthorizeTest_None {
                         Set.of("http://rp1.example.com", "http://rp2.example.com"),
                         Set.of(),
                         Set.of(ResponseType.none),
-                        "rs:scope1 rs:scope2");
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic);
         clientStore.save(client);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);

@@ -47,7 +47,8 @@ public class IssueTokenTest_RefreshToken {
                         null,
                         Set.of(GrantType.refresh_token),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -111,7 +112,8 @@ public class IssueTokenTest_RefreshToken {
                         null,
                         Set.of(GrantType.refresh_token),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -179,7 +181,8 @@ public class IssueTokenTest_RefreshToken {
                         null,
                         Set.of(GrantType.refresh_token),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -232,7 +235,8 @@ public class IssueTokenTest_RefreshToken {
                         null,
                         Set.of(GrantType.refresh_token),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -295,7 +299,8 @@ public class IssueTokenTest_RefreshToken {
                         null,
                         Set.of(GrantType.refresh_token),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -355,7 +360,8 @@ public class IssueTokenTest_RefreshToken {
                         null,
                         Set.of(GrantType.refresh_token),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -406,7 +412,8 @@ public class IssueTokenTest_RefreshToken {
                         null,
                         Set.of(GrantType.refresh_token),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -458,7 +465,8 @@ public class IssueTokenTest_RefreshToken {
                         null,
                         Set.of(GrantType.refresh_token),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,

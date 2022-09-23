@@ -1,7 +1,10 @@
 package org.azidp4j.client;
 
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import org.azidp4j.authorize.ResponseType;
+import org.azidp4j.token.TokenEndpointAuthMethod;
+import org.azidp4j.util.MapUtil;
 
 public class DynamicClientRegistration {
 
@@ -12,25 +15,30 @@ public class DynamicClientRegistration {
     }
 
     public ClientRegistrationResponse register(ClientRegistrationRequest request) {
-        var clientId = UUID.randomUUID().toString();
-        var clientSecret = UUID.randomUUID().toString();
+        var grantTypes =
+                request.grantTypes != null
+                        ? request.grantTypes
+                        : Set.of(GrantType.authorization_code);
+        var responseTypes =
+                request.responseTypes != null ? request.responseTypes : Set.of(ResponseType.code);
         var client =
                 new Client(
-                        clientId,
-                        clientSecret,
+                        UUID.randomUUID().toString(),
+                        request.tokenEndpointAuthMethod != TokenEndpointAuthMethod.none
+                                ? UUID.randomUUID().toString()
+                                : null,
                         request.redirectUris,
-                        request.grantTypes,
-                        request.responseTypes,
-                        request.scope);
-
+                        grantTypes,
+                        responseTypes,
+                        request.scope,
+                        request.tokenEndpointAuthMethod);
         clientStore.save(client);
-
         return new ClientRegistrationResponse(
-                Map.of(
+                MapUtil.nullRemovedMap(
                         "client_id",
-                        clientId,
+                        client.clientId,
                         "client_secret",
-                        clientSecret,
+                        client.clientSecret,
                         "redirect_uris",
                         request.redirectUris,
                         "grant_types",
@@ -38,6 +46,8 @@ public class DynamicClientRegistration {
                         "response_types",
                         request.responseTypes,
                         "scope",
-                        request.scope));
+                        request.scope,
+                        "token_endpoint_auth_method",
+                        request.tokenEndpointAuthMethod));
     }
 }

@@ -1,7 +1,6 @@
 package org.azidp4j.sample;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
@@ -10,16 +9,16 @@ import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import java.io.IOException;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.URI;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,23 +26,13 @@ import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.GrantType;
 import org.junit.jupiter.api.Test;
 
-public class SampleTest {
+public class SampleTest_PublicClient {
     @Test
     void test() throws IOException, InterruptedException, ParseException, JOSEException {
         // setup authorization server
         var az = new SampleAz();
         az.start(8080);
-        var defaultClient =
-                HttpClient.newBuilder()
-                        .authenticator(
-                                new Authenticator() {
-                                    @Override
-                                    protected PasswordAuthentication getPasswordAuthentication() {
-                                        return new PasswordAuthentication(
-                                                "default", "default".toCharArray());
-                                    }
-                                })
-                        .build();
+        var httpClient = HttpClient.newBuilder().build();
 
         // client credentials
         var clientCredentialsTokenRequest =
@@ -53,9 +42,16 @@ public class SampleTest {
                                         "grant_type=client_credentials&scope=default"))
                         .setHeader(
                                 "Content-Type", "application/x-www-form-urlencoded; charset=utf-8")
+                        .setHeader(
+                                "Authorization",
+                                "Basic "
+                                        + Base64.getEncoder()
+                                                .encodeToString(
+                                                        "default:default"
+                                                                .getBytes(StandardCharsets.UTF_8)))
                         .build();
         var clientCredentialsTokenResponse =
-                defaultClient.send(
+                httpClient.send(
                         clientCredentialsTokenRequest, HttpResponse.BodyHandlers.ofString());
         var clientAccessToken =
                 new ObjectMapper()
@@ -78,7 +74,10 @@ public class SampleTest {
                         "response_types",
                         Set.of(ResponseType.code.name(), ResponseType.token.name()),
                         "scope",
-                        "scope1 scope2 openid");
+                        "scope1 scope2 openid",
+                        "token_endpoint_auth_method",
+                        // public client
+                        "none");
         var clientRegistrationRequest =
                 HttpRequest.newBuilder(URI.create("http://localhost:8080/client"))
                         .header("Authorization", "Bearer " + clientAccessToken)
@@ -91,20 +90,9 @@ public class SampleTest {
                         clientRegistrationRequest, HttpResponse.BodyHandlers.ofString());
         var registeredClient = new ObjectMapper().readTree(clientRegistrationResponse.body());
         var clientId = registeredClient.get("client_id").asText();
-        var clientSecret = registeredClient.get("client_secret").asText();
+        assertFalse(registeredClient.has("client_secret"));
 
         var authorizationRequestClient = HttpClient.newBuilder().build();
-        var tokenRequestClient =
-                HttpClient.newBuilder()
-                        .authenticator(
-                                new Authenticator() {
-                                    @Override
-                                    protected PasswordAuthentication getPasswordAuthentication() {
-                                        return new PasswordAuthentication(
-                                                clientId, clientSecret.toCharArray());
-                                    }
-                                })
-                        .build();
 
         // authorization code grant
         {
@@ -141,13 +129,13 @@ public class SampleTest {
                                     HttpRequest.BodyPublishers.ofString(
                                             "grant_type=authorization_code&code="
                                                     + queryMap.get("code")
-                                                    + "&redirect_uri=http://localhost:8080&client_id=sample"))
+                                                    + "&redirect_uri=http://localhost:8080&client_id="
+                                                    + clientId))
                             .setHeader(
                                     "Content-Type",
                                     "application/x-www-form-urlencoded; charset=utf-8")
                             .build();
-            var tokenResponse =
-                    tokenRequestClient.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
+            var tokenResponse = httpClient.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
 
             // verify access token
             // signature
@@ -179,14 +167,15 @@ public class SampleTest {
                             .POST(
                                     HttpRequest.BodyPublishers.ofString(
                                             "grant_type=refresh_token&refresh_token="
-                                                    + refreshToken.textValue()))
+                                                    + refreshToken.textValue()
+                                                    + "&client_id="
+                                                    + clientId))
                             .setHeader(
                                     "Content-Type",
                                     "application/x-www-form-urlencoded; charset=utf-8")
                             .build();
             var refreshTokenResponse =
-                    tokenRequestClient.send(
-                            refreshTokenRequest, HttpResponse.BodyHandlers.ofString());
+                    httpClient.send(refreshTokenRequest, HttpResponse.BodyHandlers.ofString());
             var parsedRefreshTokenResponse =
                     new ObjectMapper().readTree(refreshTokenResponse.body());
             var parsedRefreshedAccessToken =
@@ -244,13 +233,14 @@ public class SampleTest {
                     HttpRequest.newBuilder(URI.create("http://localhost:8080/token"))
                             .POST(
                                     HttpRequest.BodyPublishers.ofString(
-                                            "grant_type=password&scope=scope1&username=user1&password=password1"))
+                                            "grant_type=password&scope=scope1&username=user1&password=password1&client_id="
+                                                    + clientId))
                             .setHeader(
                                     "Content-Type",
                                     "application/x-www-form-urlencoded; charset=utf-8")
                             .build();
             var resourceOwnerPasswordCredentialResponse =
-                    tokenRequestClient.send(
+                    httpClient.send(
                             resourceOwnerPasswordCredentialsTokenRequest,
                             HttpResponse.BodyHandlers.ofString());
             var userAccessToken =

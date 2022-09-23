@@ -53,7 +53,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         null,
                         Set.of(GrantType.password),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -124,7 +125,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         null,
                         Set.of(GrantType.password),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -184,7 +186,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         null,
                         Set.of(GrantType.password),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,

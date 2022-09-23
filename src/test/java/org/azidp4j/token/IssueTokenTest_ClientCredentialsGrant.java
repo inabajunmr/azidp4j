@@ -46,7 +46,8 @@ class IssueTokenTest_ClientCredentialsGrant {
                         null,
                         Set.of(GrantType.client_credentials),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -107,7 +108,8 @@ class IssueTokenTest_ClientCredentialsGrant {
                         null,
                         Set.of(GrantType.client_credentials),
                         Set.of(),
-                        "rs:scope1 rs:scope2"));
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
         var issueToken =
                 new IssueToken(
                         config,
@@ -131,5 +133,105 @@ class IssueTokenTest_ClientCredentialsGrant {
         // verify
         assertEquals(response.status, 400);
         assertEquals(response.body.get("error"), "invalid_scope");
+    }
+
+    @Test
+    void notAuthenticatedClient() throws JOSEException {
+
+        // setup
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+        var accessTokenIssuer =
+                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var idTokenIssuer = new IDTokenIssuer(config, jwks);
+        var refreshTokenIssuer =
+                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var clientStore = new InMemoryClientStore();
+        clientStore.save(
+                new Client(
+                        "clientId",
+                        "secret",
+                        null,
+                        Set.of(GrantType.client_credentials),
+                        Set.of(),
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic));
+        var issueToken =
+                new IssueToken(
+                        config,
+                        authorizationCodeStore,
+                        accessTokenIssuer,
+                        idTokenIssuer,
+                        refreshTokenIssuer,
+                        null,
+                        clientStore,
+                        jwks);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .grantType("client_credentials")
+                        .clientId("clientId")
+                        .scope("rs:unauthorized")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 400);
+        assertEquals(response.body.get("error"), "invalid_client");
+    }
+
+    @Test
+    void publicClient() throws JOSEException {
+
+        // setup
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var config =
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+        var accessTokenIssuer =
+                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var idTokenIssuer = new IDTokenIssuer(config, jwks);
+        var refreshTokenIssuer =
+                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var clientStore = new InMemoryClientStore();
+        clientStore.save(
+                new Client(
+                        "clientId",
+                        "secret",
+                        null,
+                        Set.of(GrantType.client_credentials),
+                        Set.of(),
+                        "rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.none));
+        var issueToken =
+                new IssueToken(
+                        config,
+                        authorizationCodeStore,
+                        accessTokenIssuer,
+                        idTokenIssuer,
+                        refreshTokenIssuer,
+                        null,
+                        clientStore,
+                        jwks);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .grantType("client_credentials")
+                        .authenticatedClientId("clientId")
+                        .scope("rs:scope1")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 400);
+        assertEquals(response.body.get("error"), "invalid_client");
     }
 }
