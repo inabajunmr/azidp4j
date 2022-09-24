@@ -1,4 +1,4 @@
-package com.example.azidp4jspringsecuritysample;
+package org.azidp4j.springsecuritysample;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

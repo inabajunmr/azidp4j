@@ -1,4 +1,4 @@
-package com.example.azidp4jspringsecuritysample;
+package org.azidp4j.springsecuritysample;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
