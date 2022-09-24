@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.azidp4j.sample.SampleTest_ConfidentialClient" tests="1" skipped="0" failures="0" errors="0" timestamp="2022-09-24T14:41:09" hostname="junnoMacBook-Air.local" time="0.244">
+  <properties/>
+  <testcase name="test()" classname="org.azidp4j.sample.SampleTest_ConfidentialClient" time="0.244"/>
+  <system-out><![CDATA[TokenEndpointHandler
+POST
+/token
+DynamicClientRegistrationHandler
+POST
+/client
+AuthorizationEndpointHandler
+GET
+/authorize?response_type=code&client_id=787e0c7b-176d-47db-a050-1d2f832de0f7&redirect_uri=http://localhost:8080&scope=scope1%20openid&state=xyz&nonce=abc
+https://example.com?code=f9cf9f51-3f48-462b-b04f-a02cb5a8ba73&state=xyz
+TokenEndpointHandler
+POST
+/token
+JWKsEndpointHandler
+GET
+/jwks
+{"token_type":"bearer","scope":"scope1 openid","access_token":"eyJraWQiOiIxMjMiLCJ0eXAiOiJhdCtKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOlsiaHR0cDovL3Njb3BlMS5leGFtcGxlLmNvbSJdLCJzdWIiOiJ1c2VyMSIsInNjb3BlIjoic2NvcGUxIG9wZW5pZCIsImlzcyI6Imlzc3VlciIsImV4cCI6MTY2NDAzNDA2OSwiaWF0IjoxNjY0MDMwNDY5LCJjbGllbnRfaWQiOiI3ODdlMGM3Yi0xNzZkLTQ3ZGItYTA1MC0xZDJmODMyZGUwZjciLCJqdGkiOiI3YjY5OWUwNy0zOWY3LTRkNWQtOTEzOS0xNzdlY2RhZDdmZjAifQ.gNxHqHxmnq1a-5TOvRexQ0RPmX6uPk7C3SEbWJWAZSJGWJsnUqPYhwGvONgGfUm8ucjdMBgKTtG51nqTxPKvQg","id_token":"eyJraWQiOiIxMjMiLCJhbGciOiJFUzI1NiJ9.eyJhdF9oYXNoIjoiU25JdGt5MW0zeGlndzJEaEpNRTlmQSIsInN1YiI6InVzZXIxIiwiYXVkIjoiNzg3ZTBjN2ItMTc2ZC00N2RiLWEwNTAtMWQyZjgzMmRlMGY3IiwiYXpwIjoiNzg3ZTBjN2ItMTc2ZC00N2RiLWEwNTAtMWQyZjgzMmRlMGY3IiwiYXV0aF90aW1lIjoxNjY0MDMwNDY5LCJpc3MiOiJpc3N1ZXIiLCJleHAiOjE2NjQwMzQwNjksImlhdCI6MTY2NDAzMDQ2OSwibm9uY2UiOiJhYmMiLCJqdGkiOiI0ODA1OTExZS02ZmQxLTQzZTctOGI4NS1mOTU3MTNjYTYzN2UifQ.cUNcgWp03vL5BBujGJKsqzf1ikx2vWqCUUbJP-axFOnVS7jGgf8anL5natD1bJMpHm7JZXZd0VEgk2Gve_DqaQ","refresh_token":"eyJraWQiOiIxMjMiLCJ0eXAiOiJydCtKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOlsiaHR0cDovL3Njb3BlMS5leGFtcGxlLmNvbSJdLCJzdWIiOiJ1c2VyMSIsInNjb3BlIjoic2NvcGUxIG9wZW5pZCIsImlzcyI6Imlzc3VlciIsImV4cCI6MTY2NDYzNTI2OSwiaWF0IjoxNjY0MDMwNDY5LCJjbGllbnRfaWQiOiI3ODdlMGM3Yi0xNzZkLTQ3ZGItYTA1MC0xZDJmODMyZGUwZjciLCJqdGkiOiI0ZTAyN2QyNS1hYWIwLTQ2YTItOTU0MC1jZDQ1ZThiZDVlZTkifQ.4KhpocG7TWY3zsJuPLxGXL51708qgpWxtWnNe5PkbPhasgD4yEf2oAqBSPkWNWzkqJl_PjtFG5Bvd-X5KZDXTQ","expires_in":3600,"state":"xyz"}
+TokenEndpointHandler
+POST
+/token
+AuthorizationEndpointHandler
+GET
+/authorize?response_type=token&client_id=787e0c7b-176d-47db-a050-1d2f832de0f7&redirect_uri=http://localhost:8080&scope=scope1&state=xyz
+JWKsEndpointHandler
+GET
+/jwks
+TokenEndpointHandler
+POST
+/token
+JWKsEndpointHandler
+GET
+/jwks
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
