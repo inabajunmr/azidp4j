@@ -15,6 +15,7 @@ repositories {
 dependencies {
     implementation(project(":azidp4j"))
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-web")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
