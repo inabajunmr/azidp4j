@@ -67,6 +67,12 @@ public class InternalAuthorizationRequest {
      */
     final String registration;
 
+    /** Proof Key for Code Exchange by OAuth Public Clients */
+    final String codeChallenge;
+
+    /** Proof Key for Code Exchange by OAuth Public Clients */
+    final String codeChallengeMethod;
+
     public static Builder builder() {
         return new Builder();
     }
@@ -86,7 +92,9 @@ public class InternalAuthorizationRequest {
             String prompt,
             String request,
             String requestUri,
-            String registration) {
+            String registration,
+            String codeChallenge,
+            String codeChallengeMethod) {
         this.authenticatedUserId = authenticatedUserId;
         this.consentedScope = consentedScope;
         this.authTime = authTime;
@@ -102,6 +110,8 @@ public class InternalAuthorizationRequest {
         this.request = request;
         this.requestUri = requestUri;
         this.registration = registration;
+        this.codeChallenge = codeChallenge;
+        this.codeChallengeMethod = codeChallengeMethod;
     }
 
     public static class Builder {
@@ -118,12 +128,11 @@ public class InternalAuthorizationRequest {
         private String nonce;
         private String maxAge;
         private String prompt;
-
         private String request;
-
         private String requestUri;
-
         private String registration;
+        private String codeChallenge;
+        private String codeChallengeMethod;
 
         private Builder() {}
 
@@ -202,6 +211,16 @@ public class InternalAuthorizationRequest {
             return this;
         }
 
+        public Builder codeChallenge(String codeChallenge) {
+            this.codeChallenge = codeChallenge;
+            return this;
+        }
+
+        public Builder codeChallengeMethod(String codeChallengeMethod) {
+            this.codeChallengeMethod = codeChallengeMethod;
+            return this;
+        }
+
         public InternalAuthorizationRequest build() {
             return new InternalAuthorizationRequest(
                     authenticatedUserId,
@@ -218,7 +237,9 @@ public class InternalAuthorizationRequest {
                     prompt,
                     request,
                     requestUri,
-                    registration);
+                    registration,
+                    codeChallenge,
+                    codeChallengeMethod);
         }
     }
 }

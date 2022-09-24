@@ -14,6 +14,8 @@ public class AuthorizationRequestParser {
         String request = req.queryParameters.get("request");
         String requestUri = req.queryParameters.get("request_uri");
         String registration = req.queryParameters.get("registration");
+        String codeChallenge = req.queryParameters.get("code_challenge");
+        String codeChallengeMethod = req.queryParameters.get("code_challenge_method");
 
         return InternalAuthorizationRequest.builder()
                 .authenticatedUserId(req.authenticatedUserId)
@@ -30,6 +32,8 @@ public class AuthorizationRequestParser {
                 .request(request)
                 .requestUri(requestUri)
                 .registration(registration)
+                .codeChallenge(codeChallenge)
+                .codeChallengeMethod(codeChallengeMethod)
                 .build();
     }
 }

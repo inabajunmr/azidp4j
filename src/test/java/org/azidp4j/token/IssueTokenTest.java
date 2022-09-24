@@ -39,7 +39,9 @@ public class IssueTokenTest {
                         "scope1",
                         "clientId",
                         "http://example.com",
-                        "xyz");
+                        "xyz",
+                        null,
+                        null);
         authorizationCodeStore.save(authorizationCode);
         var config =
                 new AzIdPConfig(

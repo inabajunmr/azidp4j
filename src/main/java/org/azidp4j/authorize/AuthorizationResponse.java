@@ -27,32 +27,22 @@ public class AuthorizationResponse {
         this.additionalPage = null;
         this.status = status;
         switch (responseMode) {
-            case query:
-                {
-                    this.query =
-                            parameters.entrySet().stream()
-                                    .filter(q -> q.getValue() != null)
-                                    .collect(
-                                            Collectors.toMap(
-                                                    Map.Entry::getKey, Map.Entry::getValue));
-                    this.fragment = Map.of();
-                    break;
-                }
-            case fragment:
-                {
-                    this.query = Map.of();
-                    this.fragment =
-                            parameters.entrySet().stream()
-                                    .filter(f -> f.getValue() != null)
-                                    .collect(
-                                            Collectors.toMap(
-                                                    Map.Entry::getKey, Map.Entry::getValue));
-                    break;
-                }
-            default:
-                {
-                    throw new AssertionError();
-                }
+            case query -> {
+                this.query =
+                        parameters.entrySet().stream()
+                                .filter(q -> q.getValue() != null)
+                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                this.fragment = Map.of();
+                break;
+            }
+            case fragment -> {
+                this.query = Map.of();
+                this.fragment =
+                        parameters.entrySet().stream()
+                                .filter(f -> f.getValue() != null)
+                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            }
+            default -> throw new AssertionError();
         }
     }
 

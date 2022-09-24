@@ -131,6 +131,25 @@ public class Authorize {
                     Map.of("error", "invalid_scope", "state", authorizationRequest.state),
                     responseMode);
         }
+        if (authorizationRequest.codeChallenge == null
+                && authorizationRequest.codeChallengeMethod != null) {
+            return new AuthorizationResponse(
+                    302,
+                    nullRemovedMap("error", "invalid_request", "state", authorizationRequest.state),
+                    responseMode);
+        }
+        ;
+        CodeChallengeMethod codeChallengeMethod = null;
+        if (authorizationRequest.codeChallengeMethod != null) {
+            codeChallengeMethod = CodeChallengeMethod.of(authorizationRequest.codeChallengeMethod);
+            if (codeChallengeMethod == null) {
+                return new AuthorizationResponse(
+                        302,
+                        nullRemovedMap(
+                                "error", "invalid_request", "state", authorizationRequest.state),
+                        responseMode);
+            }
+        }
 
         Set<Prompt> prompt = Prompt.parse(authorizationRequest.prompt);
         if (prompt == null) {
@@ -266,7 +285,9 @@ public class Authorize {
                             authorizationRequest.redirectUri,
                             authorizationRequest.state,
                             authorizationRequest.authTime,
-                            authorizationRequest.nonce);
+                            authorizationRequest.nonce,
+                            authorizationRequest.codeChallenge,
+                            codeChallengeMethod);
             authorizationCodeStore.save(code);
             authorizationCode = code.code;
         }

@@ -29,17 +29,12 @@ public enum ResponseType {
         if (responseType == null) {
             return null;
         }
-        switch (responseType) {
-            case "code":
-                return code;
-            case "token":
-                return token;
-            case "id_token":
-                return id_token;
-            case "none":
-                return none;
-            default:
-                return null;
-        }
+        return switch (responseType) {
+            case "code" -> code;
+            case "token" -> token;
+            case "id_token" -> id_token;
+            case "none" -> none;
+            default -> null;
+        };
     }
 }

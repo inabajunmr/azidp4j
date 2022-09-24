@@ -36,6 +36,9 @@ public class InternalTokenRequest {
     /** rfc6749 "refresh" */
     final String refreshToken;
 
+    /** Proof Key for Code Exchange by OAuth Public Clients */
+    final String codeVerifier;
+
     private InternalTokenRequest(
             String code,
             String grantType,
@@ -45,7 +48,8 @@ public class InternalTokenRequest {
             String scope,
             String username,
             String password,
-            String refreshToken) {
+            String refreshToken,
+            String codeVerifier) {
         this.code = code;
         this.grantType = grantType;
         this.redirectUri = redirectUri;
@@ -55,6 +59,7 @@ public class InternalTokenRequest {
         this.username = username;
         this.password = password;
         this.refreshToken = refreshToken;
+        this.codeVerifier = codeVerifier;
     }
 
     public static Builder builder() {
@@ -72,6 +77,7 @@ public class InternalTokenRequest {
         private String username;
         private String password;
         private String refreshToken;
+        private String codeVerifier;
 
         public Builder code(String code) {
             this.code = code;
@@ -118,6 +124,11 @@ public class InternalTokenRequest {
             return this;
         }
 
+        public Builder codeVerifier(String codeVerifier) {
+            this.codeVerifier = codeVerifier;
+            return this;
+        }
+
         public InternalTokenRequest build() {
             return new InternalTokenRequest(
                     code,
@@ -128,7 +139,8 @@ public class InternalTokenRequest {
                     scope,
                     username,
                     password,
-                    refreshToken);
+                    refreshToken,
+                    codeVerifier);
         }
     }
 }

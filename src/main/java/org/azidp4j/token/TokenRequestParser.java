@@ -11,6 +11,7 @@ public class TokenRequestParser {
         var username = tokenRequest.bodyParameters.get("username");
         var password = tokenRequest.bodyParameters.get("password");
         var refreshToken = tokenRequest.bodyParameters.get("refresh_token");
+        var codeVerifier = tokenRequest.bodyParameters.get("code_verifier");
         var internalTokenRequest =
                 InternalTokenRequest.builder()
                         .code(code)
@@ -22,6 +23,7 @@ public class TokenRequestParser {
                         .username(username)
                         .password(password)
                         .refreshToken(refreshToken)
+                        .codeVerifier(codeVerifier)
                         .build();
         return internalTokenRequest;
     }

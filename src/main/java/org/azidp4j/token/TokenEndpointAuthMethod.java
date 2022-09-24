@@ -11,13 +11,10 @@ public enum TokenEndpointAuthMethod {
         if (value == null) {
             return null;
         }
-        switch (value) {
-            case "client_secret_basic":
-                return client_secret_basic;
-            case "none":
-                return none;
-            default:
-                return null;
-        }
+        return switch (value) {
+            case "client_secret_basic" -> client_secret_basic;
+            case "none" -> none;
+            default -> null;
+        };
     }
 }

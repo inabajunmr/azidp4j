@@ -102,7 +102,8 @@ public class SampleTest_PublicClient {
                                     URI.create(
                                             "http://localhost:8080/authorize?response_type=code&client_id="
                                                     + clientId
-                                                    + "&redirect_uri=http://localhost:8080&scope=scope1%20openid&state=xyz&nonce=abc"))
+                                                    + "&redirect_uri=http://localhost:8080&scope=scope1%20openid&state=xyz&nonce=abc"
+                                                    + "&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256"))
                             .GET()
                             .header(
                                     "Cookie",
@@ -129,7 +130,7 @@ public class SampleTest_PublicClient {
                                     HttpRequest.BodyPublishers.ofString(
                                             "grant_type=authorization_code&code="
                                                     + queryMap.get("code")
-                                                    + "&redirect_uri=http://localhost:8080&client_id="
+                                                    + "&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk&redirect_uri=http://localhost:8080&client_id="
                                                     + clientId))
                             .setHeader(
                                     "Content-Type",
