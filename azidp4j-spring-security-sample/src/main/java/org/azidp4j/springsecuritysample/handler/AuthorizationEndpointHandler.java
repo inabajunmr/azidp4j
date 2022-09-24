@@ -59,9 +59,27 @@ public class AuthorizationEndpointHandler {
                     return "redirect:/login";
                 }
                 case consent -> {
-
-                    // TODO
-                    return "redirect:/consent";
+                    var session = req.getSession();
+                    var map = new LinkedMultiValueMap<String, String>();
+                    authzReq.removePrompt("consent").queryParameters().forEach(map::add);
+                    session.setAttribute(
+                            "SPRING_SECURITY_SAVED_REQUEST",
+                            new SimpleSavedRequest(
+                                    UriComponentsBuilder.fromPath("/authorize")
+                                            .queryParams(map)
+                                            .build()
+                                            .toUriString()));
+                    authzReq.removePrompt("consent").queryParameters().forEach(map::add);
+                    UriComponentsBuilder.fromPath("/consent")
+                            .queryParam("scope", authzReq.queryParameters().get("scope"))
+                            .build();
+                    return "redirect:"
+                            + UriComponentsBuilder.fromPath("/consent")
+                                    // TODO not good interface
+                                    .queryParam("scope", authzReq.queryParameters().get("scope"))
+                                    .queryParam(
+                                            "clientId", authzReq.queryParameters().get("client_id"))
+                                    .build();
                 }
                 case select_account -> {
                     resp.sendError(400);

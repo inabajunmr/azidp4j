@@ -1,0 +1,18 @@
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Hello Security!</title>
+</head>
+<body>
+<h1>Consent</h1>
+<p th:text="${clientId} + 'required following scopes.'"></p>
+<th:block th:each="scope : ${scopes}">
+    <ul>
+        <li th:text="${scope}"></li>
+    </ul>
+</th:block>
+<form method="post">
+    <button type="submit">consent</button>
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+</form>
+</body>
+</html>
