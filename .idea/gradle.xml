@@ -13,7 +13,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/azidp4j" />
-            <option value="$PROJECT_DIR$/spring-security-sample" />
+            <option value="$PROJECT_DIR$/azidp4j-spring-security-sample" />
           </set>
         </option>
       </GradleProjectSettings>
