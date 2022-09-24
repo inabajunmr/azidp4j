@@ -49,8 +49,11 @@ public class SimpleTest {
         var clientRegistrationRequest =
                 ClientRegistrationRequest.builder()
                         .redirectUris(Set.of("http://example.com"))
-                        .grantTypes(Set.of(GrantType.authorization_code, GrantType.refresh_token))
-                        .responseTypes(Set.of(ResponseType.code))
+                        .grantTypes(
+                                Set.of(
+                                        GrantType.authorization_code.name(),
+                                        GrantType.refresh_token.name()))
+                        .responseTypes(Set.of(ResponseType.code.name()))
                         .scope("scope1 scope2")
                         .build();
         var clientRegistrationResponse = sut.registerClient(clientRegistrationRequest);

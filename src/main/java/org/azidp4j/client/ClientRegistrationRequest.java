@@ -1,17 +1,14 @@
 package org.azidp4j.client;
 
 import java.util.Set;
-import org.azidp4j.authorize.ResponseType;
-import org.azidp4j.token.TokenEndpointAuthMethod;
-// TODO should be all parameters string for web api interface?
 
 public class ClientRegistrationRequest {
 
     final Set<String> redirectUris;
-    final Set<GrantType> grantTypes;
-    final Set<ResponseType> responseTypes;
+    final Set<String> grantTypes;
+    final Set<String> responseTypes;
     final String scope;
-    final TokenEndpointAuthMethod tokenEndpointAuthMethod;
+    final String tokenEndpointAuthMethod;
 
     public static Builder builder() {
         return new Builder();
@@ -19,10 +16,10 @@ public class ClientRegistrationRequest {
 
     private ClientRegistrationRequest(
             Set<String> redirectUris,
-            Set<GrantType> grantTypes,
-            Set<ResponseType> responseTypes,
+            Set<String> grantTypes,
+            Set<String> responseTypes,
             String scope,
-            TokenEndpointAuthMethod tokenEndpointAuthMethod) {
+            String tokenEndpointAuthMethod) {
         this.redirectUris = redirectUris;
         this.grantTypes = grantTypes;
         this.responseTypes = responseTypes;
@@ -32,22 +29,22 @@ public class ClientRegistrationRequest {
 
     public static class Builder {
         private Set<String> redirectUris;
-        private Set<GrantType> grantTypes;
-        private Set<ResponseType> responseTypes;
+        private Set<String> grantTypes;
+        private Set<String> responseTypes;
         private String scope;
-        private TokenEndpointAuthMethod tokenEndpointAuthMethod;
+        private String tokenEndpointAuthMethod;
 
         public Builder redirectUris(Set<String> redirectUris) {
             this.redirectUris = redirectUris;
             return this;
         }
 
-        public Builder grantTypes(Set<GrantType> grantTypes) {
+        public Builder grantTypes(Set<String> grantTypes) {
             this.grantTypes = grantTypes;
             return this;
         }
 
-        public Builder responseTypes(Set<ResponseType> responseTypes) {
+        public Builder responseTypes(Set<String> responseTypes) {
             this.responseTypes = responseTypes;
             return this;
         }
@@ -57,7 +54,7 @@ public class ClientRegistrationRequest {
             return this;
         }
 
-        public Builder tokenEndpointAuthMethod(TokenEndpointAuthMethod tokenEndpointAuthMethod) {
+        public Builder tokenEndpointAuthMethod(String tokenEndpointAuthMethod) {
             this.tokenEndpointAuthMethod = tokenEndpointAuthMethod;
             return this;
         }

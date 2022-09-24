@@ -6,10 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import org.azidp4j.AzIdP;
-import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.ClientRegistrationRequest;
-import org.azidp4j.client.GrantType;
-import org.azidp4j.token.TokenEndpointAuthMethod;
 
 public class DynamicClientRegistrationHandler extends AzIdpHttpHandler {
 
@@ -22,23 +19,17 @@ public class DynamicClientRegistrationHandler extends AzIdpHttpHandler {
     @Override
     public void process(HttpExchange httpExchange) throws IOException {
         var body = new ObjectMapper().readTree(httpExchange.getRequestBody());
-        var responseTypes = new HashSet<ResponseType>();
+        var responseTypes = new HashSet<String>();
         body.get("response_types")
                 .spliterator()
-                .forEachRemaining(v -> responseTypes.add(ResponseType.of(v.asText())));
-        var grantTypes = new HashSet<GrantType>();
-        body.get("grant_types")
-                .spliterator()
-                .forEachRemaining(v -> grantTypes.add(GrantType.of(v.asText())));
+                .forEachRemaining(v -> responseTypes.add(v.asText()));
+        var grantTypes = new HashSet<String>();
+        body.get("grant_types").spliterator().forEachRemaining(v -> grantTypes.add(v.asText()));
         var redirectUris = new HashSet<String>();
         body.get("redirect_uris").spliterator().forEachRemaining(v -> redirectUris.add(v.asText()));
-        var tokenEndpointAuthMethod = TokenEndpointAuthMethod.client_secret_basic;
+        String tokenEndpointAuthMethod = null;
         if (body.has("token_endpoint_auth_method")) {
-            var requested =
-                    TokenEndpointAuthMethod.of(body.get("token_endpoint_auth_method").asText());
-            if (requested != null) {
-                tokenEndpointAuthMethod = requested;
-            }
+            tokenEndpointAuthMethod = body.get("token_endpoint_auth_method").asText();
         }
 
         var request =
@@ -55,7 +46,7 @@ public class DynamicClientRegistrationHandler extends AzIdpHttpHandler {
                 new ObjectMapper()
                         .writeValueAsString(response.body)
                         .getBytes(StandardCharsets.UTF_8);
-        httpExchange.sendResponseHeaders(200, responseBody.length);
+        httpExchange.sendResponseHeaders(response.status, responseBody.length);
         os.write(responseBody);
         os.close();
         httpExchange.close();

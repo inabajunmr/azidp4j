@@ -10,19 +10,18 @@ import org.azidp4j.client.GrantType;
 public class SampleAzRunner {
     public static void main(String[] args) throws IOException, JOSEException {
         var az = new SampleAz();
-
         var clientRegistrationRequest =
                 ClientRegistrationRequest.builder()
                         .grantTypes(
                                 Set.of(
-                                        GrantType.authorization_code,
-                                        GrantType.client_credentials,
-                                        GrantType.implicit,
-                                        GrantType.password,
-                                        GrantType.refresh_token))
+                                        GrantType.authorization_code.name(),
+                                        GrantType.client_credentials.name(),
+                                        GrantType.implicit.name(),
+                                        GrantType.password.name(),
+                                        GrantType.refresh_token.name()))
                         .scope("rs:scope1 rs:scope2 openid")
                         .redirectUris(Set.of("http://example.com"))
-                        .responseTypes(Set.of(ResponseType.code, ResponseType.token))
+                        .responseTypes(Set.of(ResponseType.code.name(), ResponseType.token.name()))
                         .build();
 
         try {
