@@ -14,10 +14,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.AzIdPConfig;
-import org.azidp4j.authorize.AuthorizationCode;
-import org.azidp4j.authorize.AuthorizationCodeStore;
-import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
-import org.azidp4j.authorize.ResponseType;
+import org.azidp4j.authorize.*;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
@@ -116,5 +113,127 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
+    }
+
+    @Test
+    void success_pkce_plain() throws JOSEException, ParseException {
+
+        // setup
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "rs:scope1",
+                        "clientId",
+                        "http://example.com",
+                        "xyz",
+                        "plain",
+                        CodeChallengeMethod.PLAIN);
+        authorizationCodeStore.save(authorizationCode);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .code(authorizationCode.code)
+                        .grantType("authorization_code")
+                        .redirectUri("http://example.com")
+                        .clientId("clientId")
+                        .codeVerifier("plain")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 200);
+        AccessTokenAssert.assertAccessToken(
+                (String) response.body.get("access_token"),
+                key,
+                subject,
+                "http://rs.example.com",
+                "clientId",
+                "rs:scope1",
+                "as.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
+        assertEquals(response.body.get("token_type"), "bearer");
+        assertEquals(response.body.get("expires_in"), 3600);
+        assertTrue(response.body.containsKey("refresh_token"));
+    }
+
+    @Test
+    void success_pkce_s256() throws JOSEException, ParseException {
+
+        // setup
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "rs:scope1",
+                        "clientId",
+                        "http://example.com",
+                        "xyz",
+                        "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+                        CodeChallengeMethod.S256);
+        authorizationCodeStore.save(authorizationCode);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .code(authorizationCode.code)
+                        .grantType("authorization_code")
+                        .redirectUri("http://example.com")
+                        .clientId("clientId")
+                        .codeVerifier("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 200);
+        AccessTokenAssert.assertAccessToken(
+                (String) response.body.get("access_token"),
+                key,
+                subject,
+                "http://rs.example.com",
+                "clientId",
+                "rs:scope1",
+                "as.example.com",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
+        assertEquals(response.body.get("token_type"), "bearer");
+        assertEquals(response.body.get("expires_in"), 3600);
+        assertTrue(response.body.containsKey("refresh_token"));
+    }
+
+    @Test
+    void error_pkce_plain() throws JOSEException, ParseException {
+
+        // setup
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "rs:scope1",
+                        "clientId",
+                        "http://example.com",
+                        "xyz",
+                        "plain",
+                        CodeChallengeMethod.PLAIN);
+        authorizationCodeStore.save(authorizationCode);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .code(authorizationCode.code)
+                        .grantType("authorization_code")
+                        .redirectUri("http://example.com")
+                        .clientId("clientId")
+                        .codeVerifier("invalid")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.body.get("error"), "invalid_grant");
     }
 }

@@ -129,14 +129,11 @@ public class LoginHandler extends AzIdpHttpHandler {
     }
 
     private boolean verifyPassword(String username, String password) {
-        switch (username) {
-            case "user1":
-                return password.equals("password1");
-            case "user2":
-                return password.equals("password2");
-            case "user3":
-                return password.equals("password3");
-        }
-        return false;
+        return switch (username) {
+            case "user1" -> password.equals("password1");
+            case "user2" -> password.equals("password2");
+            case "user3" -> password.equals("password3");
+            default -> false;
+        };
     }
 }

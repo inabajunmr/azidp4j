@@ -9,13 +9,10 @@ public enum CodeChallengeMethod {
             // default
             return S256;
         }
-        switch (codeChallengeMethod) {
-            case "PLAIN":
-                return PLAIN;
-            case "S256":
-                return S256;
-            default:
-                return null;
-        }
+        return switch (codeChallengeMethod) {
+            case "PLAIN" -> PLAIN;
+            case "S256" -> S256;
+            default -> null;
+        };
     }
 }

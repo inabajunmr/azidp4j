@@ -114,9 +114,7 @@ public class IssueToken {
                                 return new TokenResponse(400, Map.of("error", "invalid_grant"));
                             }
                         }
-                        default -> {
-                            throw new AssertionError();
-                        }
+                        default -> throw new AssertionError();
                     }
                 }
                 var at =

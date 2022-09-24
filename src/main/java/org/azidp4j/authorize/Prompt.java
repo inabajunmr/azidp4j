@@ -26,17 +26,12 @@ public enum Prompt {
         if (prompt == null) {
             return no_prompt;
         }
-        switch (prompt) {
-            case "none":
-                return none;
-            case "login":
-                return login;
-            case "consent":
-                return consent;
-            case "select_account":
-                return select_account;
-            default:
-                return null;
-        }
+        return switch (prompt) {
+            case "none" -> none;
+            case "login" -> login;
+            case "consent" -> consent;
+            case "select_account" -> select_account;
+            default -> null;
+        };
     }
 }
