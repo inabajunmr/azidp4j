@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.azidp4j.authorize.AuthorizeTest_validationError" tests="19" skipped="0" failures="0" errors="0" timestamp="2022-09-24T14:41:09" hostname="junnoMacBook-Air.local" time="0.011">
+<testsuite name="org.azidp4j.authorize.AuthorizeTest_validationError" tests="19" skipped="0" failures="0" errors="0" timestamp="2022-09-24T18:01:49" hostname="junnoMacBook-Air.local" time="0.007">
   <properties/>
-  <testcase name="specifyRequestUriParameter()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.001"/>
+  <testcase name="specifyRequestUriParameter()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
   <testcase name="promptIsNoneAndOther()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
   <testcase name="noRedirectUri()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
-  <testcase name="invalidMaxAge()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.001"/>
-  <testcase name="responseTypeIsNull()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
+  <testcase name="invalidMaxAge()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
+  <testcase name="responseTypeIsNull()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.001"/>
   <testcase name="clientIdIsNull()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
-  <testcase name="promptIsNoneButUserConsented()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.001"/>
+  <testcase name="promptIsNoneButUserConsented()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
   <testcase name="illegalResponseType()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
   <testcase name="specifyRegistrationParameter()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
   <testcase name="responseTypeNotSupportedClient_AuthorizationCodeGrant()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.001"/>
   <testcase name="responseModeIsQueryButResponseTypeIsCodeAndToken()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
   <testcase name="scopeUnauthorizedForClient()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.001"/>
   <testcase name="authenticationTimeOverMaxAge()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
-  <testcase name="unauthorizedRedirectUri()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.001"/>
-  <testcase name="grantTypeNotClientSupported()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
+  <testcase name="unauthorizedRedirectUri()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
+  <testcase name="grantTypeNotClientSupported()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.001"/>
   <testcase name="clientNotExist()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
-  <testcase name="promptIsNoneButUserNotAuthenticated()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.001"/>
+  <testcase name="promptIsNoneButUserNotAuthenticated()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
   <testcase name="responseTypeNotSupportedClient_ImplicitGrant()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
-  <testcase name="specifyRequestParameter()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.001"/>
+  <testcase name="specifyRequestParameter()" classname="org.azidp4j.authorize.AuthorizeTest_validationError" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

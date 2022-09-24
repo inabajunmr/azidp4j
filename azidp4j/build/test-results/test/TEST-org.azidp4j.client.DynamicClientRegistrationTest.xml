@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.azidp4j.client.DynamicClientRegistrationTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2022-09-24T14:41:09" hostname="junnoMacBook-Air.local" time="0.002">
+<testsuite name="org.azidp4j.client.DynamicClientRegistrationTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2022-09-24T18:01:49" hostname="junnoMacBook-Air.local" time="0.001">
   <properties/>
-  <testcase name="success()" classname="org.azidp4j.client.DynamicClientRegistrationTest" time="0.002"/>
+  <testcase name="success()" classname="org.azidp4j.client.DynamicClientRegistrationTest" time="0.001"/>
   <testcase name="success_Default()" classname="org.azidp4j.client.DynamicClientRegistrationTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>

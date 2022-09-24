@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("java-library")
     id("com.diffplug.spotless") version "6.10.0"
     id("org.springframework.boot") version "2.7.4"
     id("io.spring.dependency-management") version "1.0.14.RELEASE"

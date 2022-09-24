@@ -18,7 +18,14 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
-        http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+
+        http.authorizeHttpRequests(
+                        (authorize) ->
+                                authorize
+                                        .mvcMatchers("/authorize", "/token")
+                                        .permitAll()
+                                        .anyRequest()
+                                        .authenticated())
                 .httpBasic(withDefaults())
                 .formLogin(withDefaults());
         // @formatter:on

@@ -166,7 +166,7 @@ class AuthorizeTest_validationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.status, 302);
-        var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+        var location = URI.create(response.headers().get("Location"));
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -189,7 +189,7 @@ class AuthorizeTest_validationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.status, 302);
-        var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+        var location = URI.create(response.headers().get("Location"));
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -212,7 +212,7 @@ class AuthorizeTest_validationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.status, 302);
-        var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+        var location = URI.create(response.headers().get("Location"));
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -235,7 +235,7 @@ class AuthorizeTest_validationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.status, 302);
-        var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+        var location = URI.create(response.headers().get("Location"));
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -259,7 +259,7 @@ class AuthorizeTest_validationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.status, 302);
-        var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+        var location = URI.create(response.headers().get("Location"));
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -283,7 +283,7 @@ class AuthorizeTest_validationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.status, 302);
-        var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+        var location = URI.create(response.headers().get("Location"));
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -308,7 +308,7 @@ class AuthorizeTest_validationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.status, 302);
-        var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+        var location = URI.create(response.headers().get("Location"));
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -333,7 +333,7 @@ class AuthorizeTest_validationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.status, 302);
-        var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+        var location = URI.create(response.headers().get("Location"));
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -360,7 +360,7 @@ class AuthorizeTest_validationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.status, 302);
-        var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+        var location = URI.create(response.headers().get("Location"));
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -388,7 +388,7 @@ class AuthorizeTest_validationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.status, 302);
-        var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+        var location = URI.create(response.headers().get("Location"));
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -416,7 +416,7 @@ class AuthorizeTest_validationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.status, 302);
-        var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+        var location = URI.create(response.headers().get("Location"));
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -442,7 +442,7 @@ class AuthorizeTest_validationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.status, 302);
-        var location = URI.create(response.headers("http://rp1.example.com").get("Location"));
+        var location = URI.create(response.headers().get("Location"));
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))

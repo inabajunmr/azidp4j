@@ -105,7 +105,7 @@ class AuthorizeTest_Implicit {
 
         // verify
         assertEquals(response.status, 302);
-        var location = response.headers("http://rp1.example.com").get("Location");
+        var location = response.headers().get("Location");
         var fragmentMap =
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
@@ -167,7 +167,7 @@ class AuthorizeTest_Implicit {
 
         // verify
         assertEquals(response.status, 302);
-        var location = response.headers("http://rp1.example.com").get("Location");
+        var location = response.headers().get("Location");
         var fragmentMap =
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
@@ -229,7 +229,7 @@ class AuthorizeTest_Implicit {
 
         // verify
         assertEquals(response.status, 302);
-        var location = response.headers("http://rp1.example.com").get("Location");
+        var location = response.headers().get("Location");
         var fragmentMap =
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));

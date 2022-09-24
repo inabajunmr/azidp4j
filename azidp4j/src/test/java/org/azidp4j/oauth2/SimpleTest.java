@@ -84,7 +84,7 @@ public class SimpleTest {
         var authorizationResponse = sut.authorize(authorizationRequest);
 
         // verify
-        var location = authorizationResponse.headers("http://example.com").get("Location");
+        var location = authorizationResponse.headers().get("Location");
         var queryMap =
                 Arrays.stream(URI.create(location).getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));

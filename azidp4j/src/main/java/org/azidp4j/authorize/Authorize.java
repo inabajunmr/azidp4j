@@ -2,6 +2,7 @@ package org.azidp4j.authorize;
 
 import static org.azidp4j.util.MapUtil.nullRemovedMap;
 
+import java.net.URI;
 import java.time.Instant;
 import java.util.*;
 import org.azidp4j.AzIdPConfig;
@@ -65,9 +66,16 @@ public class Authorize {
         if (!client.redirectUris.contains(authorizationRequest.redirectUri)) {
             return new AuthorizationResponse(400);
         }
+        URI redirectUri = null;
+        try {
+            redirectUri = URI.create(authorizationRequest.redirectUri);
+        } catch (IllegalArgumentException e) {
+            return new AuthorizationResponse(400);
+        }
         if (authorizationRequest.request != null) {
             return new AuthorizationResponse(
                     302,
+                    redirectUri,
                     nullRemovedMap(
                             "error", "request_not_supported", "state", authorizationRequest.state),
                     responseMode);
@@ -75,6 +83,7 @@ public class Authorize {
         if (authorizationRequest.requestUri != null) {
             return new AuthorizationResponse(
                     302,
+                    redirectUri,
                     nullRemovedMap(
                             "error",
                             "request_uri_not_supported",
@@ -85,6 +94,7 @@ public class Authorize {
         if (authorizationRequest.registration != null) {
             return new AuthorizationResponse(
                     302,
+                    redirectUri,
                     nullRemovedMap(
                             "error",
                             "registration_not_supported",
@@ -100,6 +110,7 @@ public class Authorize {
                 // https://www.rfc-editor.org/rfc/rfc7591.html#section-2.1
                 return new AuthorizationResponse(
                         302,
+                        redirectUri,
                         nullRemovedMap(
                                 "error",
                                 "unauthorized_client",
@@ -115,6 +126,7 @@ public class Authorize {
             if (!client.grantTypes.contains(GrantType.implicit)) {
                 return new AuthorizationResponse(
                         302,
+                        redirectUri,
                         nullRemovedMap(
                                 "error",
                                 "unauthorized_client",
@@ -128,13 +140,15 @@ public class Authorize {
         if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
             return new AuthorizationResponse(
                     302,
-                    Map.of("error", "invalid_scope", "state", authorizationRequest.state),
+                    redirectUri,
+                    nullRemovedMap("error", "invalid_scope", "state", authorizationRequest.state),
                     responseMode);
         }
         if (authorizationRequest.codeChallenge == null
                 && authorizationRequest.codeChallengeMethod != null) {
             return new AuthorizationResponse(
                     302,
+                    redirectUri,
                     nullRemovedMap("error", "invalid_request", "state", authorizationRequest.state),
                     responseMode);
         }
@@ -145,6 +159,7 @@ public class Authorize {
             if (codeChallengeMethod == null) {
                 return new AuthorizationResponse(
                         302,
+                        redirectUri,
                         nullRemovedMap(
                                 "error", "invalid_request", "state", authorizationRequest.state),
                         responseMode);
@@ -156,6 +171,7 @@ public class Authorize {
             // prompt is invalid
             return new AuthorizationResponse(
                     302,
+                    redirectUri,
                     nullRemovedMap("error", "invalid_request", "state", authorizationRequest.state),
                     responseMode);
         }
@@ -163,6 +179,7 @@ public class Authorize {
             // none with other prompt is invalid
             return new AuthorizationResponse(
                     302,
+                    redirectUri,
                     nullRemovedMap("error", "invalid_request", "state", authorizationRequest.state),
                     responseMode);
         } else {
@@ -170,6 +187,7 @@ public class Authorize {
                 if (authorizationRequest.authenticatedUserId == null) {
                     return new AuthorizationResponse(
                             302,
+                            redirectUri,
                             nullRemovedMap(
                                     "error", "login_required", "state", authorizationRequest.state),
                             responseMode);
@@ -178,6 +196,7 @@ public class Authorize {
                         Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
                     return new AuthorizationResponse(
                             302,
+                            redirectUri,
                             nullRemovedMap(
                                     "error",
                                     "consent_required",
@@ -211,6 +230,7 @@ public class Authorize {
         if (!client.responseTypes.containsAll(responseType)) {
             return new AuthorizationResponse(
                     302,
+                    redirectUri,
                     nullRemovedMap(
                             "error",
                             "unsupported_response_type",
@@ -221,7 +241,10 @@ public class Authorize {
 
         if (responseType.contains(ResponseType.none)) {
             return new AuthorizationResponse(
-                    302, nullRemovedMap("state", authorizationRequest.state), responseMode);
+                    302,
+                    redirectUri,
+                    nullRemovedMap("state", authorizationRequest.state),
+                    responseMode);
         }
 
         String accessToken = null;
@@ -250,6 +273,7 @@ public class Authorize {
                         if (prompt.contains(Prompt.none)) {
                             return new AuthorizationResponse(
                                     302,
+                                    redirectUri,
                                     nullRemovedMap(
                                             "error",
                                             "login_required",
@@ -263,6 +287,7 @@ public class Authorize {
                 } catch (NumberFormatException e) {
                     return new AuthorizationResponse(
                             302,
+                            redirectUri,
                             nullRemovedMap(
                                     "error",
                                     "invalid_request",
@@ -298,6 +323,7 @@ public class Authorize {
             if (!scopeValidator.contains(authorizationRequest.scope, "openid")) {
                 return new AuthorizationResponse(
                         302,
+                        redirectUri,
                         nullRemovedMap(
                                 "error", "invalid_scope", "state", authorizationRequest.state),
                         responseMode);
@@ -316,6 +342,7 @@ public class Authorize {
 
         return new AuthorizationResponse(
                 302,
+                redirectUri,
                 nullRemovedMap(
                         "access_token",
                         accessToken,

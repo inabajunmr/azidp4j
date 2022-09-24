@@ -1,0 +1,75 @@
+package org.azidp4j.springsecuritysample;
+
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import java.util.Set;
+import org.azidp4j.AzIdP;
+import org.azidp4j.client.ClientRegistrationRequest;
+import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
+import org.azidp4j.token.UserPasswordVerifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class AzIdPConfig {
+
+    @Bean
+    public AzIdP azIdP() throws JOSEException {
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var config =
+                new org.azidp4j.AzIdPConfig(
+                        "issuer", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+        var clientStore = new InMemoryClientStore();
+        var userPasswordVerifier =
+                new UserPasswordVerifier() {
+                    @Override
+                    public boolean verify(String username, String password) {
+                        return switch (username) {
+                            case "user1" -> password.equals("password1");
+                            case "user2" -> password.equals("password2");
+                            case "user3" -> password.equals("password3");
+                            default -> false;
+                        };
+                    }
+                };
+        var azIdp =
+                new AzIdP(
+                        config,
+                        jwks,
+                        clientStore,
+                        scope -> Set.of("rs.example.com"),
+                        userPasswordVerifier);
+        var clientRegistration =
+                ClientRegistrationRequest.builder()
+                        .redirectUris(
+                                Set.of(
+                                        "http://client.example.com/callback1",
+                                        "http://client.example.com/callback2"))
+                        .grantTypes(
+                                Set.of(
+                                        "authorization_code",
+                                        "implicit",
+                                        "refresh_token",
+                                        "client_credentials"))
+                        .scope("scope1 scope2")
+                        .responseTypes(Set.of("code", "token", "id_token"))
+                        .tokenEndpointAuthMethod("client_secret_basic")
+                        .build();
+        var client = azIdp.registerClient(clientRegistration);
+        System.out.println(client.body);
+        System.out.println(
+                "http://localhost:8080/authorize?response_type=code&client_id="
+                        + client.body.get("client_id")
+                        + "&redirect_uri=http://client.example.com/callback1&scope=scope1");
+        return azIdp;
+    }
+
+    @Bean
+    public InMemoryUserConsentStore InMemoryUserConsentStore() {
+        return new InMemoryUserConsentStore();
+    }
+}
