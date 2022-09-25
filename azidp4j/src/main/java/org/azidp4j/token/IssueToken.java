@@ -189,6 +189,7 @@ public class IssueToken {
                 }
             }
             case password -> {
+                // TODO scope is required
                 // verify scope
                 if (!scopeValidator.hasEnoughScope(request.scope, client)) {
                     return new TokenResponse(400, Map.of("error", "invalid_scope"));
@@ -224,6 +225,7 @@ public class IssueToken {
                 }
             }
             case client_credentials -> {
+                // TODO scope is required
                 if (client.tokenEndpointAuthMethod == TokenEndpointAuthMethod.none) {
                     return new TokenResponse(400, Map.of("error", "invalid_client"));
                 }

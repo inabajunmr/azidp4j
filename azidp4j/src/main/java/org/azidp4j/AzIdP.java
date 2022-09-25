@@ -1,11 +1,9 @@
 package org.azidp4j;
 
 import com.nimbusds.jose.jwk.JWKSet;
+import java.util.Map;
 import org.azidp4j.authorize.*;
-import org.azidp4j.client.ClientRegistrationRequest;
-import org.azidp4j.client.ClientRegistrationResponse;
-import org.azidp4j.client.ClientStore;
-import org.azidp4j.client.DynamicClientRegistration;
+import org.azidp4j.client.*;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
@@ -20,6 +18,8 @@ public class AzIdP {
     IssueToken issueToken;
     TokenRequestParser tokenRequestParser = new TokenRequestParser();
     DynamicClientRegistration clientRegistration;
+    ClientRegistrationRequestParser clientRegistrationRequestParser =
+            new ClientRegistrationRequestParser();
 
     public AzIdP(
             AzIdPConfig azIdPConfig,
@@ -88,8 +88,12 @@ public class AzIdP {
         return issueToken.issue(parsed);
     }
 
-    public ClientRegistrationResponse registerClient(
-            ClientRegistrationRequest clientRegistrationRequest) {
-        return clientRegistration.register(clientRegistrationRequest);
+    public ClientRegistrationRequest parseClientRegistrationRequest(
+            Map<String, Object> parameters) {
+        return clientRegistrationRequestParser.parse(parameters);
+    }
+
+    public ClientRegistrationResponse registerClient(ClientRegistrationRequest request) {
+        return clientRegistration.register(request);
     }
 }

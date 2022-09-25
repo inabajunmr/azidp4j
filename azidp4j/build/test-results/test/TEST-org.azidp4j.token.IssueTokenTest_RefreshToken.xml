@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.azidp4j.token.IssueTokenTest_RefreshToken" tests="9" skipped="0" failures="0" errors="0" timestamp="2022-09-25T13:39:51" hostname="junnoMacBook-Air.local" time="0.026">
+  <properties/>
+  <testcase name="success()" classname="org.azidp4j.token.IssueTokenTest_RefreshToken" time="0.004"/>
+  <testcase name="success_publicClient()" classname="org.azidp4j.token.IssueTokenTest_RefreshToken" time="0.005"/>
+  <testcase name="error_expiredRefreshToken()" classname="org.azidp4j.token.IssueTokenTest_RefreshToken" time="0.002"/>
+  <testcase name="error_scopeExpand()" classname="org.azidp4j.token.IssueTokenTest_RefreshToken" time="0.002"/>
+  <testcase name="error_authenticatedClientUnmatched()" classname="org.azidp4j.token.IssueTokenTest_RefreshToken" time="0.003"/>
+  <testcase name="error_invalidIssuer()" classname="org.azidp4j.token.IssueTokenTest_RefreshToken" time="0.002"/>
+  <testcase name="error_refreshTokenIsNotJWT()" classname="org.azidp4j.token.IssueTokenTest_RefreshToken" time="0.001"/>
+  <testcase name="success_scopeShrink()" classname="org.azidp4j.token.IssueTokenTest_RefreshToken" time="0.004"/>
+  <testcase name="error_refreshTokenIsValidSignedJWT()" classname="org.azidp4j.token.IssueTokenTest_RefreshToken" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

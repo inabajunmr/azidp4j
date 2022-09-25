@@ -1,10 +1,10 @@
 <html xmlns:th="https://www.thymeleaf.org">
 <head>
-    <title>Hello Security!</title>
+    <title>Consent</title>
 </head>
 <body>
 <h1>Consent</h1>
-<p th:text="${clientId} + 'required following scopes.'"></p>
+<p th:text="${clientId} + ' required following scopes.'"></p>
 <th:block th:each="scope : ${scopes}">
     <ul>
         <li th:text="${scope}"></li>
