@@ -7,23 +7,27 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.util.Set;
 import org.azidp4j.AzIdP;
 import org.azidp4j.client.ClientRegistrationRequest;
+import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.token.UserPasswordVerifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.provisioning.UserDetailsManager;
 
 @Configuration
 public class AzIdPConfig {
 
+    @Autowired UserDetailsManager userDetailsManager;
+
     @Bean
-    public AzIdP azIdP() throws JOSEException {
+    public AzIdP azIdP(ClientStore clientStore) throws JOSEException {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var config =
                 new org.azidp4j.AzIdPConfig(
                         "issuer", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
-        var clientStore = new InMemoryClientStore();
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -65,7 +69,20 @@ public class AzIdPConfig {
                 "http://localhost:8080/authorize?response_type=code&client_id="
                         + client.body.get("client_id")
                         + "&redirect_uri=http://client.example.com/callback1&scope=scope1");
+        System.out.println(
+                "curl -X POST -u "
+                        + client.body.get("client_id")
+                        + ":"
+                        + client.body.get("client_secret")
+                        + " -d 'grant_type=authorization_code' -d"
+                        + " 'redirect_uri=http://client.example.com/callback1' -d 'code=xxx'"
+                        + " http://localhost:8080/token");
         return azIdp;
+    }
+
+    @Bean
+    public ClientStore clientStore() {
+        return new InMemoryClientStore();
     }
 
     @Bean

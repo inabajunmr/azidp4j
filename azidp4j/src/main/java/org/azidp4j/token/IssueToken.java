@@ -20,6 +20,7 @@ import org.azidp4j.scope.ScopeValidator;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
+import org.azidp4j.util.MapUtil;
 
 public class IssueToken {
 
@@ -136,7 +137,7 @@ public class IssueToken {
                     if (authorizationCode.state == null) {
                         return new TokenResponse(
                                 200,
-                                Map.of(
+                                MapUtil.nullRemovedMap(
                                         "access_token",
                                         at.serialize(),
                                         "id_token",
@@ -152,7 +153,7 @@ public class IssueToken {
                     }
                     return new TokenResponse(
                             200,
-                            Map.of(
+                            MapUtil.nullRemovedMap(
                                     "access_token",
                                     at.serialize(),
                                     "id_token",
@@ -172,7 +173,7 @@ public class IssueToken {
                     // OAuth2.0
                     return new TokenResponse(
                             200,
-                            Map.of(
+                            MapUtil.nullRemovedMap(
                                     "access_token",
                                     at.serialize(),
                                     "refresh_token",
@@ -207,7 +208,7 @@ public class IssueToken {
                                     request.username, client.clientId, request.scope);
                     return new TokenResponse(
                             200,
-                            Map.of(
+                            MapUtil.nullRemovedMap(
                                     "access_token",
                                     at.serialize(),
                                     "refresh_token",
@@ -233,7 +234,7 @@ public class IssueToken {
                 var jws = accessTokenIssuer.issue(client.clientId, client.clientId, request.scope);
                 return new TokenResponse(
                         200,
-                        Map.of(
+                        MapUtil.nullRemovedMap(
                                 "access_token",
                                 jws.serialize(),
                                 "token_type",
@@ -275,7 +276,7 @@ public class IssueToken {
                                     (String) parsedRt.get("sub"), client.clientId, scope);
                     return new TokenResponse(
                             200,
-                            Map.of(
+                            MapUtil.nullRemovedMap(
                                     "access_token",
                                     at.serialize(),
                                     "refresh_token",

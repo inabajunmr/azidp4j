@@ -18,7 +18,6 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
-
         http.authorizeHttpRequests(
                         (authorize) ->
                                 authorize
@@ -28,6 +27,8 @@ public class SecurityConfiguration {
                                         .authenticated())
                 .httpBasic(withDefaults())
                 .formLogin(withDefaults());
+        http.httpBasic().disable();
+        http.csrf().ignoringAntMatchers("/authorize", "/token");
         // @formatter:on
         return http.build();
     }
