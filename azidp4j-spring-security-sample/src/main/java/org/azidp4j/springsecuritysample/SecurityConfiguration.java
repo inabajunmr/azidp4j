@@ -31,7 +31,7 @@ public class SecurityConfiguration {
                                                 "/authorize", "/token", "/.well-known/jwks.json")
                                         .permitAll()
                                         .mvcMatchers("/client")
-                                        .hasAuthority("SCOPE_client")
+                                        .hasAnyAuthority("SCOPE_client", "SCOPE_default")
                                         .anyRequest()
                                         .authenticated())
                 .httpBasic(withDefaults())
@@ -43,7 +43,6 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    // @formatter:off
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
         UserDetails user =
@@ -54,7 +53,6 @@ public class SecurityConfiguration {
                         .build();
         return new InMemoryUserDetailsManager(user);
     }
-    // @formatter:on
 
     @Bean
     JwtDecoder jwtDecoder() {
