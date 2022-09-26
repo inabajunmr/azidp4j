@@ -12,9 +12,11 @@ public class ClientRegistrationRequestParser {
         var redirectUris = valuesToStringSet(parameters.getOrDefault("redirect_uris", Set.of()));
         var grantTypes = valuesToStringSet(parameters.getOrDefault("grant_types", Set.of()));
         var responseTypes = valuesToStringSet(parameters.getOrDefault("response_types", Set.of()));
-        var scope = parameters.getOrDefault("scope", "").toString();
+        var scope = parameters.containsKey("scope") ? parameters.get("scope").toString() : null;
         var tokenEndpointAuthMethod =
-                parameters.getOrDefault("token_endpoint_auth_method", "").toString();
+                parameters.containsKey("token_endpoint_auth_method")
+                        ? parameters.get("token_endpoint_auth_method").toString()
+                        : null;
         return ClientRegistrationRequest.builder()
                 .redirectUris(redirectUris)
                 .grantTypes(grantTypes)
