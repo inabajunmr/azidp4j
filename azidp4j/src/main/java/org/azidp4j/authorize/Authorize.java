@@ -312,7 +312,9 @@ public class Authorize {
                             authorizationRequest.authTime,
                             authorizationRequest.nonce,
                             authorizationRequest.codeChallenge,
-                            codeChallengeMethod);
+                            codeChallengeMethod,
+                            Instant.now().getEpochSecond()
+                                    + azIdPConfig.authorizationCodeExpirationSec);
             authorizationCodeStore.save(code);
             authorizationCode = code.code;
         }

@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
@@ -41,11 +42,12 @@ public class IssueTokenTest {
                         "http://example.com",
                         "xyz",
                         null,
-                        null);
+                        null,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var config =
                 new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(

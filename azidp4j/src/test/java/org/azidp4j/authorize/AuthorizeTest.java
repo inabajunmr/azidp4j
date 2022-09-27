@@ -46,7 +46,7 @@ class AuthorizeTest {
                     Set.of(),
                     "scope1 scope2",
                     TokenEndpointAuthMethod.client_secret_basic);
-    AzIdPConfig config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
+    AzIdPConfig config = new AzIdPConfig("issuer", "kid", "kid", 3600, 600, 604800, 3600);
     Authorize sut =
             new Authorize(
                     clientStore,

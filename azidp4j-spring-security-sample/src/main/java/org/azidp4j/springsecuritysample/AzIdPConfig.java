@@ -26,7 +26,7 @@ public class AzIdPConfig {
         var key = jwkSet.getKeys().get(0);
         var config =
                 new org.azidp4j.AzIdPConfig(
-                        "issuer", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+                        "issuer", key.getKeyID(), key.getKeyID(), 3600, 600, 600, 604800, 3600);
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
