@@ -8,6 +8,7 @@ import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.text.ParseException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
@@ -47,7 +48,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
     private IssueToken issueToken;
 
     private final AzIdPConfig config =
-            new AzIdPConfig("as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+            new AzIdPConfig(
+                    "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
 
     @BeforeEach
     void init() {
@@ -97,7 +99,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "http://example.com",
                         "xyz",
                         null,
-                        null);
+                        null,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -143,7 +146,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         Instant.now().getEpochSecond(),
                         "abc",
                         null,
-                        null);
+                        null,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -201,7 +205,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         Instant.now().getEpochSecond(),
                         null,
                         null,
-                        null);
+                        null,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -259,7 +264,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "http://example.com",
                         "xyz",
                         null,
-                        null);
+                        null,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -291,7 +297,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "http://example.com",
                         "xyz",
                         null,
-                        null);
+                        null,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -326,7 +333,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "http://example.com",
                         "xyz",
                         null,
-                        null);
+                        null,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -343,6 +351,41 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
     }
 
     @Test
+    void authorizationCodeExpired() {
+
+        // setup
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "rs:scope1 openid",
+                        "clientId",
+                        "http://example.com",
+                        "xyz",
+                        Instant.now().getEpochSecond(),
+                        "abc",
+                        null,
+                        null,
+                        Instant.now().minus(Duration.ofSeconds(10)).getEpochSecond());
+        authorizationCodeStore.save(authorizationCode);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .code(authorizationCode.code)
+                        .grantType("authorization_code")
+                        .redirectUri("http://example.com")
+                        .authenticatedClientId("clientId")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 400);
+        assertEquals("invalid_grant", response.body.get("error"));
+    }
+
+    @Test
     void unmatchedRedirectUri() {
         // setup
         var subject = UUID.randomUUID().toString();
@@ -355,7 +398,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "http://example.com",
                         "xyz",
                         null,
-                        null);
+                        null,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -387,7 +431,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "http://example.com",
                         "xyz",
                         null,
-                        null);
+                        null,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()

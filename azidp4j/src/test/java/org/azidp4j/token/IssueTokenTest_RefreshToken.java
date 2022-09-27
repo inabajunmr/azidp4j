@@ -33,7 +33,7 @@ public class IssueTokenTest_RefreshToken {
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config =
                 new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -98,7 +98,7 @@ public class IssueTokenTest_RefreshToken {
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config =
                 new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -167,7 +167,7 @@ public class IssueTokenTest_RefreshToken {
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config =
                 new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -232,7 +232,7 @@ public class IssueTokenTest_RefreshToken {
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config =
                 new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -286,7 +286,7 @@ public class IssueTokenTest_RefreshToken {
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config =
                 new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -339,7 +339,7 @@ public class IssueTokenTest_RefreshToken {
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config =
                 new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -352,6 +352,7 @@ public class IssueTokenTest_RefreshToken {
                                 key2.getKeyID(),
                                 key2.getKeyID(),
                                 3600,
+                                600,
                                 604800,
                                 604800),
                         jwks2,
@@ -402,7 +403,7 @@ public class IssueTokenTest_RefreshToken {
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config =
                 new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -413,6 +414,7 @@ public class IssueTokenTest_RefreshToken {
                                 key.getKeyID(),
                                 key.getKeyID(),
                                 3600,
+                                600,
                                 604800,
                                 604800),
                         jwks,
@@ -463,7 +465,8 @@ public class IssueTokenTest_RefreshToken {
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         // always issuing expired
         var config =
-                new AzIdPConfig("as.example.com", key.getKeyID(), key.getKeyID(), 3600, -1, 604800);
+                new AzIdPConfig(
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, -1, 604800);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -516,7 +519,7 @@ public class IssueTokenTest_RefreshToken {
         // always issuing expired
         var config =
                 new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 3600, 604800);
+                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 3600, 604800);
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);

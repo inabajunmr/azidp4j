@@ -44,7 +44,8 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
     private IssueToken issueToken;
 
     private final AzIdPConfig config =
-            new AzIdPConfig("as.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+            new AzIdPConfig(
+                    "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
 
     @BeforeEach
     void init() {
@@ -85,7 +86,8 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         "http://example.com",
                         "xyz",
                         null,
-                        null);
+                        null,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -129,7 +131,8 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         "http://example.com",
                         "xyz",
                         "plain",
-                        CodeChallengeMethod.PLAIN);
+                        CodeChallengeMethod.PLAIN,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -174,7 +177,8 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         "http://example.com",
                         "xyz",
                         "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
-                        CodeChallengeMethod.S256);
+                        CodeChallengeMethod.S256,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -219,7 +223,8 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         "http://example.com",
                         "xyz",
                         "plain",
-                        CodeChallengeMethod.PLAIN);
+                        CodeChallengeMethod.PLAIN,
+                        Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()

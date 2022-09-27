@@ -29,7 +29,8 @@ public class SampleAz {
 
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         jwks = new JWKSet(key);
-        var config = new AzIdPConfig("issuer", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+        var config =
+                new AzIdPConfig("issuer", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
         clientStore = new InMemoryClientStore();
         var userPasswordVerifier =
                 new UserPasswordVerifier() {

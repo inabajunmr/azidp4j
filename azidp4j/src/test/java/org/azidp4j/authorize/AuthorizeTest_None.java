@@ -40,7 +40,7 @@ class AuthorizeTest_None {
         var jwks = new JWKSet(key);
         var config =
                 new AzIdPConfig(
-                        "az.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+                        "az.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
         var sut =
                 new Authorize(
                         clientStore,

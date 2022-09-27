@@ -14,6 +14,7 @@ public class AuthorizationCode {
     public final String state;
     public final String codeChallenge;
     public final CodeChallengeMethod codeChallengeMethod;
+    public final long expiresAtEpochSec;
 
     public AuthorizationCode(
             String sub,
@@ -25,7 +26,8 @@ public class AuthorizationCode {
             Long authTime,
             String nonce,
             String codeChallenge,
-            CodeChallengeMethod codeChallengeMethod) {
+            CodeChallengeMethod codeChallengeMethod,
+            long expiresAtEpochSec) {
         this.sub = sub;
         this.code = code;
         this.scope = scope;
@@ -36,6 +38,7 @@ public class AuthorizationCode {
         this.nonce = nonce;
         this.codeChallenge = codeChallenge;
         this.codeChallengeMethod = codeChallengeMethod;
+        this.expiresAtEpochSec = expiresAtEpochSec;
     }
 
     public AuthorizationCode(
@@ -46,7 +49,8 @@ public class AuthorizationCode {
             String redirectUri,
             String state,
             String codeChallenge,
-            CodeChallengeMethod codeChallengeMethod) {
+            CodeChallengeMethod codeChallengeMethod,
+            long expiresAtEpochSec) {
         this.sub = sub;
         this.code = code;
         this.scope = scope;
@@ -57,5 +61,6 @@ public class AuthorizationCode {
         this.nonce = null;
         this.codeChallenge = codeChallenge;
         this.codeChallengeMethod = codeChallengeMethod;
+        this.expiresAtEpochSec = expiresAtEpochSec;
     }
 }

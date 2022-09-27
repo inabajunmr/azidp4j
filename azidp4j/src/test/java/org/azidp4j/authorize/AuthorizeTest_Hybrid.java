@@ -42,7 +42,8 @@ class AuthorizeTest_Hybrid {
     ECKey key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
     JWKSet jwks = new JWKSet(key);
     AzIdPConfig config =
-            new AzIdPConfig("az.example.com", key.getKeyID(), key.getKeyID(), 3600, 604800, 3600);
+            new AzIdPConfig(
+                    "az.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
     Authorize sut =
             new Authorize(
                     clientStore,

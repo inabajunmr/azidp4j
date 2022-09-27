@@ -50,7 +50,7 @@ class AuthorizeTest_AuthorizationCode {
                     Set.of(),
                     "scope1 scope2",
                     TokenEndpointAuthMethod.client_secret_basic);
-    AzIdPConfig config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
+    AzIdPConfig config = new AzIdPConfig("issuer", "kid", "kid", 3600, 600, 604800, 3600);
     Authorize sut =
             new Authorize(
                     clientStore,
@@ -106,7 +106,7 @@ class AuthorizeTest_AuthorizationCode {
                         "scope1 scope2",
                         TokenEndpointAuthMethod.client_secret_basic);
         clientStore.save(client);
-        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
+        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 600, 604800, 3600);
         var sut =
                 new Authorize(
                         clientStore,
@@ -154,7 +154,7 @@ class AuthorizeTest_AuthorizationCode {
                         "scope1 scope2",
                         TokenEndpointAuthMethod.client_secret_basic);
         clientStore.save(client);
-        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
+        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 600, 604800, 3600);
         var sut =
                 new Authorize(
                         clientStore,
@@ -203,7 +203,7 @@ class AuthorizeTest_AuthorizationCode {
                         "scope1 scope2",
                         TokenEndpointAuthMethod.client_secret_basic);
         clientStore.save(client);
-        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 604800, 3600);
+        var config = new AzIdPConfig("issuer", "kid", "kid", 3600, 600, 604800, 3600);
         var sut =
                 new Authorize(
                         clientStore,

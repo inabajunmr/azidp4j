@@ -121,6 +121,10 @@ public class IssueToken {
                         default -> throw new AssertionError();
                     }
                 }
+                if (authorizationCode.expiresAtEpochSec <= Instant.now().getEpochSecond()) {
+                    return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                }
+
                 var at =
                         accessTokenIssuer.issue(
                                 authorizationCode.sub, client.clientId, authorizationCode.scope);
