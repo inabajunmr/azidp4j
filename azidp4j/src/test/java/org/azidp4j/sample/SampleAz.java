@@ -17,6 +17,7 @@ import org.azidp4j.sample.authenticator.JWSAccessTokenAuthenticator;
 import org.azidp4j.sample.handler.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.UserPasswordVerifier;
+import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 
 public class SampleAz {
 
@@ -49,6 +50,7 @@ public class SampleAz {
                         config,
                         jwks,
                         clientStore,
+                        new InMemoryRefreshTokenStore(),
                         new SampleScopeAudienceMapper(),
                         userPasswordVerifier);
     }

@@ -25,7 +25,7 @@ import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
-import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
+import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -79,7 +79,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         authorizationCodeStore,
                         new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
                         new IDTokenIssuer(config, jwks),
-                        new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new InMemoryRefreshTokenStore(),
                         null,
                         clientStore,
                         jwks);

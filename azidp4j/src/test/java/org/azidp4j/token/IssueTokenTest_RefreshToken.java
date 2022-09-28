@@ -3,13 +3,13 @@ package org.azidp4j.token;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Set;
+import java.util.UUID;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
@@ -19,7 +19,8 @@ import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
-import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
+import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
+import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.junit.jupiter.api.Test;
 
 public class IssueTokenTest_RefreshToken {
@@ -37,8 +38,6 @@ public class IssueTokenTest_RefreshToken {
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -49,22 +48,30 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic));
+        var refreshTokenStore = new InMemoryRefreshTokenStore();
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        new InMemoryRefreshTokenStore(),
                         null,
                         clientStore,
                         jwks);
-        var rt = refreshTokenIssuer.issue("user", "clientId", "rs:scope1 rs:scope2");
+        var refreshToken =
+                new RefreshToken(
+                        UUID.randomUUID().toString(),
+                        "user",
+                        "rs:scope1 rs:scope2",
+                        "clientId",
+                        Instant.now().getEpochSecond() + 3600);
+        refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("refresh_token")
                         .scope("rs:scope1 rs:scope2")
-                        .refreshToken(rt.serialize())
+                        .refreshToken(refreshToken.token)
                         .authenticatedClientId("clientId")
                         .build();
 
@@ -102,8 +109,7 @@ public class IssueTokenTest_RefreshToken {
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -120,16 +126,23 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        refreshTokenStore,
                         null,
                         clientStore,
                         jwks);
-        var rt = refreshTokenIssuer.issue("user", "clientId", "rs:scope1 rs:scope2");
+        var refreshToken =
+                new RefreshToken(
+                        UUID.randomUUID().toString(),
+                        "user",
+                        "rs:scope1 rs:scope2",
+                        "clientId",
+                        Instant.now().getEpochSecond() + 3600);
+        refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("refresh_token")
                         .scope("rs:scope1")
-                        .refreshToken(rt.serialize())
+                        .refreshToken(refreshToken.token)
                         .authenticatedClientId("clientId")
                         .build();
 
@@ -153,9 +166,8 @@ public class IssueTokenTest_RefreshToken {
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
 
-        var refreshToken = response.body.get("refresh_token");
-        var parsedRefreshToken = JWSObject.parse((String) refreshToken).getPayload().toJSONObject();
-        assertEquals(parsedRefreshToken.get("scope"), "rs:scope1");
+        var newRefreshToken = response.body.get("refresh_token");
+        assertEquals(refreshTokenStore.consume(newRefreshToken.toString()).scope, "rs:scope1");
     }
 
     @Test
@@ -171,8 +183,7 @@ public class IssueTokenTest_RefreshToken {
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -189,16 +200,23 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        refreshTokenStore,
                         null,
                         clientStore,
                         jwks);
-        var rt = refreshTokenIssuer.issue("user", "clientId", "rs:scope1 rs:scope2");
+        var refreshToken =
+                new RefreshToken(
+                        UUID.randomUUID().toString(),
+                        "user",
+                        "rs:scope1 rs:scope2",
+                        "clientId",
+                        Instant.now().getEpochSecond() + 3600);
+        refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("refresh_token")
                         .scope("rs:scope1 rs:scope2")
-                        .refreshToken(rt.serialize())
+                        .refreshToken(refreshToken.token)
                         .clientId("clientId")
                         .build();
 
@@ -236,8 +254,7 @@ public class IssueTokenTest_RefreshToken {
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -254,16 +271,23 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        refreshTokenStore,
                         null,
                         clientStore,
                         jwks);
-        var rt = refreshTokenIssuer.issue("user", "clientId", "rs:scope1");
+        var refreshToken =
+                new RefreshToken(
+                        UUID.randomUUID().toString(),
+                        "user",
+                        "rs:scope1",
+                        "clientId",
+                        Instant.now().getEpochSecond() + 3600);
+        refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("refresh_token")
                         .scope("rs:scope1 rs:scope2")
-                        .refreshToken(rt.serialize())
+                        .refreshToken(refreshToken.token)
                         .authenticatedClientId("clientId")
                         .build();
 
@@ -278,7 +302,7 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void error_refreshTokenIsNotJWT() throws JOSEException {
+    void error_refreshTokenIsNotFound() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -290,8 +314,6 @@ public class IssueTokenTest_RefreshToken {
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -308,7 +330,7 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        new InMemoryRefreshTokenStore(),
                         null,
                         clientStore,
                         jwks);
@@ -331,132 +353,6 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void error_refreshTokenIsValidSignedJWT() throws JOSEException {
-
-        // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config =
-                new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var key2 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks2 = new JWKSet(key2);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(
-                        new AzIdPConfig(
-                                "as.example.com",
-                                key2.getKeyID(),
-                                key2.getKeyID(),
-                                3600,
-                                600,
-                                604800,
-                                604800),
-                        jwks2,
-                        new SampleScopeAudienceMapper());
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.refresh_token),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeStore,
-                        accessTokenIssuer,
-                        idTokenIssuer,
-                        refreshTokenIssuer,
-                        null,
-                        clientStore,
-                        jwks);
-        var rt = refreshTokenIssuer.issue("user", "clientId", "rs:scope1");
-        var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("refresh_token")
-                        .scope("rs:scope1 rs:scope2")
-                        .refreshToken(rt.serialize())
-                        .authenticatedClientId("clientId")
-                        .build();
-
-        // exercise
-        var response = issueToken.issue(tokenRequest);
-
-        // verify
-        assertEquals(response.status, 400);
-        assertEquals("invalid_grant", response.body.get("error"));
-    }
-
-    @Test
-    void error_invalidIssuer() throws JOSEException {
-
-        // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config =
-                new AzIdPConfig(
-                        "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(
-                        new AzIdPConfig(
-                                "unknown.example.com",
-                                key.getKeyID(),
-                                key.getKeyID(),
-                                3600,
-                                600,
-                                604800,
-                                604800),
-                        jwks,
-                        new SampleScopeAudienceMapper());
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.refresh_token),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeStore,
-                        accessTokenIssuer,
-                        idTokenIssuer,
-                        refreshTokenIssuer,
-                        null,
-                        clientStore,
-                        jwks);
-        var rt = refreshTokenIssuer.issue("user", "clientId", "rs:scope1");
-        var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("refresh_token")
-                        .scope("rs:scope1 rs:scope2")
-                        .refreshToken(rt.serialize())
-                        .authenticatedClientId("clientId")
-                        .build();
-
-        // exercise
-        var response = issueToken.issue(tokenRequest);
-
-        // verify
-        assertEquals(response.status, 400);
-        assertEquals("invalid_grant", response.body.get("error"));
-    }
-
-    @Test
     void error_expiredRefreshToken() throws JOSEException {
 
         // setup
@@ -470,8 +366,7 @@ public class IssueTokenTest_RefreshToken {
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -488,16 +383,22 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        refreshTokenStore,
                         null,
                         clientStore,
                         jwks);
-        var rt = refreshTokenIssuer.issue("user", "clientId", "rs:scope1");
+        var refreshToken =
+                new RefreshToken(
+                        UUID.randomUUID().toString(),
+                        "user",
+                        "rs:scope1",
+                        "clienId",
+                        Instant.now().getEpochSecond() - 10);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("refresh_token")
                         .scope("rs:scope1")
-                        .refreshToken(rt.serialize())
+                        .refreshToken(refreshToken.token)
                         .authenticatedClientId("clientId")
                         .build();
 
@@ -523,8 +424,6 @@ public class IssueTokenTest_RefreshToken {
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -541,16 +440,22 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        new InMemoryRefreshTokenStore(),
                         null,
                         clientStore,
                         jwks);
-        var rt = refreshTokenIssuer.issue("user", "unknown", "rs:scope1");
+        var refreshToken =
+                new RefreshToken(
+                        UUID.randomUUID().toString(),
+                        "user",
+                        "rs:scope1",
+                        "unknown",
+                        Instant.now().getEpochSecond() + 3600);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("refresh_token")
                         .scope("rs:scope1")
-                        .refreshToken(rt.serialize())
+                        .refreshToken(refreshToken.token)
                         .authenticatedClientId("clientId")
                         .build();
 

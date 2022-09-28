@@ -21,6 +21,7 @@ public class DynamicClientRegistrationEndpointHandler {
     @PostMapping("/client")
     public ResponseEntity<Map<String, Object>> register(
             @RequestBody Map<String, Object> requestBody) {
+
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth instanceof JwtAuthenticationToken) {
             // TODO test

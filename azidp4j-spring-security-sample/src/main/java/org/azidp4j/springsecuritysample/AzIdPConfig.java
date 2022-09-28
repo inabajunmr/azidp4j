@@ -11,6 +11,7 @@ import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.token.UserPasswordVerifier;
+import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,7 +27,7 @@ public class AzIdPConfig {
         var key = jwkSet.getKeys().get(0);
         var config =
                 new org.azidp4j.AzIdPConfig(
-                        "issuer", key.getKeyID(), key.getKeyID(), 3600, 600, 600, 604800, 3600);
+                        "issuer", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -44,6 +45,7 @@ public class AzIdPConfig {
                         config,
                         jwkSet,
                         clientStore,
+                        new InMemoryRefreshTokenStore(),
                         scope -> Set.of("rs.example.com"),
                         userPasswordVerifier);
         var clientRegistration =

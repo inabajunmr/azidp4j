@@ -18,7 +18,7 @@ import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
-import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
+import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
@@ -36,8 +36,6 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -61,7 +59,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        new InMemoryRefreshTokenStore(),
                         userPasswordVerifier,
                         clientStore,
                         jwks);
@@ -108,8 +106,6 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -133,7 +129,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        new InMemoryRefreshTokenStore(),
                         userPasswordVerifier,
                         clientStore,
                         jwks);
@@ -180,8 +176,6 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -205,7 +199,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        new InMemoryRefreshTokenStore(),
                         userPasswordVerifier,
                         clientStore,
                         jwks);
@@ -241,8 +235,6 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenIssuer =
-                new RefreshTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -266,7 +258,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        new InMemoryRefreshTokenStore(),
                         userPasswordVerifier,
                         clientStore,
                         jwks);

@@ -23,6 +23,7 @@ public class ConsentHandler {
     @GetMapping
     public String form(Model model, @RequestParam String scope, @RequestParam String clientId) {
         var scopes = scope.split(" ");
+
         model.addAttribute("clientId", clientId);
         model.addAttribute("scopes", scopes);
         return "consent";
@@ -34,6 +35,7 @@ public class ConsentHandler {
             HttpServletRequest req,
             @RequestParam String scope,
             @RequestParam String clientId) {
+
         consentStore.consent(
                 req.getUserPrincipal().getName(),
                 clientId,
