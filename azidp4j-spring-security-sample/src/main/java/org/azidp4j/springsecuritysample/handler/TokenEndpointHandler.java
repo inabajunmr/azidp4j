@@ -29,6 +29,7 @@ public class TokenEndpointHandler {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Map> tokenEndpoint(
             HttpServletRequest request, @RequestParam MultiValueMap<String, String> body) {
+
         var usernamePasswordAuthenticationToken = authenticationConverter.convert(request);
         var client = clientStore.find(usernamePasswordAuthenticationToken.getName());
         String authenticatedClientId = null;

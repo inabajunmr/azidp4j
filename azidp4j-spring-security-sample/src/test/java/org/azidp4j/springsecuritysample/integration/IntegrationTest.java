@@ -1,6 +1,7 @@
 package org.azidp4j.springsecuritysample.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.nimbusds.jose.JOSEException;
@@ -195,12 +196,10 @@ public class IntegrationTest {
         var jwks = JWKSet.load(new URL("http://localhost:8080/.well-known/jwks.json"));
         var parsedAccessToken = JWSObject.parse(accessToken);
         var parsedIdToken = JWSObject.parse(idToken);
-        var parsedRefreshToken = JWSObject.parse(refreshToken);
         var jwk = jwks.getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
         var verifier = new ECDSAVerifier((ECKey) jwk);
         assertTrue(parsedAccessToken.verify(verifier));
         assertTrue(parsedIdToken.verify(verifier));
-        assertTrue(parsedRefreshToken.verify(verifier));
 
         // token refresh
         MultiValueMap<String, String> tokenRequestForRefresh = new LinkedMultiValueMap<>();
@@ -223,10 +222,6 @@ public class IntegrationTest {
         assertTrue(
                 JWSObject.parse((String) tokenResponseForRefreshGrant.getBody().get("access_token"))
                         .verify(verifier));
-        assertTrue(
-                JWSObject.parse(
-                                (String)
-                                        tokenResponseForRefreshGrant.getBody().get("refresh_token"))
-                        .verify(verifier));
+        assertNotNull(tokenResponseForRefreshGrant.getBody().get("refresh_token"));
     }
 }

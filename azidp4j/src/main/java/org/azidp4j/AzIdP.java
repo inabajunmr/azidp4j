@@ -8,7 +8,7 @@ import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
-import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
+import org.azidp4j.token.refreshtoken.RefreshTokenStore;
 
 public class AzIdP {
 
@@ -25,10 +25,10 @@ public class AzIdP {
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
+            RefreshTokenStore refreshTokenStore,
             ScopeAudienceMapper scopeAudienceMapper) {
         var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
-        var refreshTokenIssuer = new RefreshTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         this.authorize =
                 new Authorize(
                         clientStore,
@@ -42,7 +42,7 @@ public class AzIdP {
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        refreshTokenStore,
                         null,
                         clientStore,
                         jwkSet);
@@ -53,11 +53,11 @@ public class AzIdP {
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
+            RefreshTokenStore refreshTokenStore,
             ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier) {
         var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
-        var refreshTokenIssuer = new RefreshTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         this.authorize =
                 new Authorize(
                         clientStore,
@@ -71,7 +71,7 @@ public class AzIdP {
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        refreshTokenIssuer,
+                        refreshTokenStore,
                         userPasswordVerifier,
                         clientStore,
                         jwkSet);

@@ -25,6 +25,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenRequest;
+import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.Test;
 
 public class SimpleTest {
@@ -43,6 +44,7 @@ public class SimpleTest {
                                 "issuer", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600),
                         jwks,
                         new InMemoryClientStore(),
+                        new InMemoryRefreshTokenStore(),
                         new SampleScopeAudienceMapper());
 
         // client registration

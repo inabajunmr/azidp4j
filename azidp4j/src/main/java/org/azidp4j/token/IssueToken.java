@@ -1,17 +1,13 @@
 package org.azidp4j.token;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.crypto.ECDSAVerifier;
-import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.util.Base64URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.AuthorizationCodeStore;
 import org.azidp4j.client.ClientStore;
@@ -19,7 +15,8 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.scope.ScopeValidator;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
-import org.azidp4j.token.refreshtoken.RefreshTokenIssuer;
+import org.azidp4j.token.refreshtoken.RefreshToken;
+import org.azidp4j.token.refreshtoken.RefreshTokenStore;
 import org.azidp4j.util.MapUtil;
 
 public class IssueToken {
@@ -27,7 +24,7 @@ public class IssueToken {
     AuthorizationCodeStore authorizationCodeStore;
     AccessTokenIssuer accessTokenIssuer;
     IDTokenIssuer idTokenIssuer;
-    RefreshTokenIssuer refreshTokenIssuer;
+    RefreshTokenStore refreshTokenStore;
     AzIdPConfig config;
     UserPasswordVerifier userPasswordVerifier;
     ClientStore clientStore;
@@ -39,14 +36,14 @@ public class IssueToken {
             AuthorizationCodeStore authorizationCodeStore,
             AccessTokenIssuer accessTokenIssuer,
             IDTokenIssuer idTokenIssuer,
-            RefreshTokenIssuer refreshTokenIssuer,
+            RefreshTokenStore refreshTokenStore,
             UserPasswordVerifier userPasswordVerifier,
             ClientStore clientStore,
             JWKSet jwkSet) {
         this.authorizationCodeStore = authorizationCodeStore;
         this.accessTokenIssuer = accessTokenIssuer;
         this.idTokenIssuer = idTokenIssuer;
-        this.refreshTokenIssuer = refreshTokenIssuer;
+        this.refreshTokenStore = refreshTokenStore;
         this.config = azIdPConfig;
         this.userPasswordVerifier = userPasswordVerifier;
         this.clientStore = clientStore;
@@ -129,8 +126,13 @@ public class IssueToken {
                         accessTokenIssuer.issue(
                                 authorizationCode.sub, client.clientId, authorizationCode.scope);
                 var rt =
-                        refreshTokenIssuer.issue(
-                                authorizationCode.sub, client.clientId, authorizationCode.scope);
+                        new RefreshToken(
+                                UUID.randomUUID().toString(),
+                                authorizationCode.sub,
+                                authorizationCode.scope,
+                                authorizationCode.clientId,
+                                Instant.now().getEpochSecond() + config.refreshTokenExpirationSec);
+                refreshTokenStore.save(rt);
                 if (scopeValidator.contains(authorizationCode.scope, "openid")) {
                     // OIDC
                     var idToken =
@@ -150,7 +152,7 @@ public class IssueToken {
                                         "id_token",
                                         idToken.serialize(),
                                         "refresh_token",
-                                        rt.serialize(),
+                                        rt.token,
                                         "token_type",
                                         "bearer",
                                         "expires_in",
@@ -166,7 +168,7 @@ public class IssueToken {
                                     "id_token",
                                     idToken.serialize(),
                                     "refresh_token",
-                                    rt.serialize(),
+                                    rt.token,
                                     "token_type",
                                     "bearer",
                                     "expires_in",
@@ -184,7 +186,7 @@ public class IssueToken {
                                     "access_token",
                                     at.serialize(),
                                     "refresh_token",
-                                    rt.serialize(),
+                                    rt.token,
                                     "token_type",
                                     "bearer",
                                     "expires_in",
@@ -212,15 +214,20 @@ public class IssueToken {
                             accessTokenIssuer.issue(
                                     request.username, client.clientId, request.scope);
                     var rt =
-                            refreshTokenIssuer.issue(
-                                    request.username, client.clientId, request.scope);
+                            new RefreshToken(
+                                    UUID.randomUUID().toString(),
+                                    request.username,
+                                    request.scope,
+                                    client.clientId,
+                                    Instant.now().getEpochSecond()
+                                            + config.refreshTokenExpirationSec);
                     return new TokenResponse(
                             200,
                             MapUtil.nullRemovedMap(
                                     "access_token",
                                     at.serialize(),
                                     "refresh_token",
-                                    rt.serialize(),
+                                    rt.token,
                                     "token_type",
                                     "bearer",
                                     "expires_in",
@@ -256,53 +263,45 @@ public class IssueToken {
                                 request.scope));
             }
             case refresh_token -> {
-                try {
-                    var requestedRt = JWSObject.parse(request.refreshToken);
-                    var key = (ECKey) jwkSet.getKeyByKeyId(requestedRt.getHeader().getKeyID());
-                    var verifier = new ECDSAVerifier(key);
-                    if (!requestedRt.verify(verifier)) {
-                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                    }
-                    var parsedRt = requestedRt.getPayload().toJSONObject();
-                    if (!parsedRt.get("iss").equals(config.issuer)) {
-                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                    }
-                    if (!parsedRt.get("client_id").equals(client.clientId)) {
-                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                    }
-                    if ((long) parsedRt.get("exp") < Instant.now().getEpochSecond()) {
-                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                    }
-                    if (!scopeValidator.hasEnoughScope(
-                            request.scope, (String) parsedRt.get("scope"))) {
-                        return new TokenResponse(400, Map.of("error", "invalid_scope"));
-                    }
-                    var scope =
-                            request.scope != null ? request.scope : (String) parsedRt.get("scope");
-                    var at =
-                            accessTokenIssuer.issue(
-                                    (String) parsedRt.get("sub"), client.clientId, scope);
-                    var rt =
-                            refreshTokenIssuer.issue(
-                                    (String) parsedRt.get("sub"), client.clientId, scope);
-                    return new TokenResponse(
-                            200,
-                            MapUtil.nullRemovedMap(
-                                    "access_token",
-                                    at.serialize(),
-                                    "refresh_token",
-                                    rt.serialize(),
-                                    "token_type",
-                                    "bearer",
-                                    "expires_in",
-                                    config.accessTokenExpirationSec,
-                                    "scope",
-                                    scope));
-                } catch (ParseException | IllegalStateException e) {
+                if (request.refreshToken == null) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
-                } catch (JOSEException e) {
-                    throw new AssertionError("JWKs is something wrong.");
                 }
+                var rt = refreshTokenStore.consume(request.refreshToken);
+                if (rt == null) {
+                    return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                }
+                if (!rt.clientId.equals(client.clientId)) {
+                    return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                }
+                if (rt.expiresAtEpochSec < Instant.now().getEpochSecond()) {
+                    return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                }
+                if (!scopeValidator.hasEnoughScope(request.scope, rt.scope)) {
+                    return new TokenResponse(400, Map.of("error", "invalid_scope"));
+                }
+                var scope = request.scope != null ? request.scope : rt.scope;
+                var at = accessTokenIssuer.issue(rt.sub, client.clientId, scope);
+                var newRt =
+                        new RefreshToken(
+                                UUID.randomUUID().toString(),
+                                rt.sub,
+                                scope,
+                                rt.clientId,
+                                Instant.now().getEpochSecond() + config.refreshTokenExpirationSec);
+                refreshTokenStore.save(newRt);
+                return new TokenResponse(
+                        200,
+                        MapUtil.nullRemovedMap(
+                                "access_token",
+                                at.serialize(),
+                                "refresh_token",
+                                newRt.token,
+                                "token_type",
+                                "bearer",
+                                "expires_in",
+                                config.accessTokenExpirationSec,
+                                "scope",
+                                scope));
             }
             default -> {
                 throw new RuntimeException("unsupported grant type");
