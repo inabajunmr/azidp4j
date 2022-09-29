@@ -68,6 +68,7 @@ public class SampleAz {
         server.createContext("/authorize", new AuthorizationEndpointHandler(azIdP));
         server.createContext("/token", new TokenEndpointHandler(azIdP, clientStore));
         server.createContext("/jwks", new JWKsEndpointHandler(jwks));
+        server.createContext("/discovery", new DiscoveryHandler(azIdP));
         server.createContext("/client", new DynamicClientRegistrationHandler(azIdP))
                 .setAuthenticator(new JWSAccessTokenAuthenticator(jwks));
         server.createContext("/login", new LoginHandler());
