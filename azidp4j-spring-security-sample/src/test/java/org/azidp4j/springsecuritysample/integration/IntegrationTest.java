@@ -108,8 +108,8 @@ public class IntegrationTest {
 
         // post login
         MultiValueMap<String, String> loginBody = new LinkedMultiValueMap<>();
-        loginBody.add("username", "user");
-        loginBody.add("password", "password");
+        loginBody.add("username", "user1");
+        loginBody.add("password", "password1");
         loginBody.add("_csrf", csrf);
         var loginRequestEntity =
                 RequestEntity.post(

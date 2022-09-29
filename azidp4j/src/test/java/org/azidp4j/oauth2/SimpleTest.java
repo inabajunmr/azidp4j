@@ -41,7 +41,18 @@ public class SimpleTest {
         var sut =
                 new AzIdP(
                         new AzIdPConfig(
-                                "issuer", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600),
+                                "http://localhost:8080",
+                                "http://localhost:8080/authorize",
+                                "http://localhost:8080/token",
+                                "http://localhost:8080/.well-known/jwks.json",
+                                "http://localhost:8080/client",
+                                Set.of("openid", "scope1", "scope2", "default"),
+                                key.getKeyID(),
+                                key.getKeyID(),
+                                3600,
+                                600,
+                                604800,
+                                3600),
                         jwks,
                         new InMemoryClientStore(),
                         new InMemoryRefreshTokenStore(),

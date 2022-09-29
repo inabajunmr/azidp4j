@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.sun.net.httpserver.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,7 +32,14 @@ public class SampleAz {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         jwks = new JWKSet(key);
         var config =
-                new AzIdPConfig("issuer", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
+                new AzIdPConfig(
+                        "http://localhost:8080",
+                        "http://localhost:8080/authorize",
+                        "http://localhost:8080/token",
+                        "http://localhost:8080/jwks",
+                        "http://localhost:8080/client",
+                        Set.of("openid", "scope1", "scope2", "default"),
+                        key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
         clientStore = new InMemoryClientStore();
         var userPasswordVerifier =
                 new UserPasswordVerifier() {

@@ -40,7 +40,18 @@ class AuthorizeTest_None {
         var jwks = new JWKSet(key);
         var config =
                 new AzIdPConfig(
-                        "az.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
+                        "http://localhost:8080",
+                        "http://localhost:8080/authorize",
+                        "http://localhost:8080/token",
+                        "http://localhost:8080/.well-known/jwks.json",
+                        "http://localhost:8080/client",
+                        Set.of("openid", "scope1", "scope2", "default"),
+                        key.getKeyID(),
+                        key.getKeyID(),
+                        3600,
+                        600,
+                        604800,
+                        3600);
         var sut =
                 new Authorize(
                         clientStore,

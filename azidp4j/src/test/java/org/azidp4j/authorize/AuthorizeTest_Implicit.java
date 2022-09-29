@@ -81,7 +81,18 @@ class AuthorizeTest_Implicit {
         var jwks = new JWKSet(key);
         var config =
                 new AzIdPConfig(
-                        "az.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
+                        "http://localhost:8080",
+                        "http://localhost:8080/authorize",
+                        "http://localhost:8080/token",
+                        "http://localhost:8080/.well-known/jwks.json",
+                        "http://localhost:8080/client",
+                        Set.of("openid", "scope1", "scope2", "default"),
+                        key.getKeyID(),
+                        key.getKeyID(),
+                        3600,
+                        600,
+                        604800,
+                        3600);
         var sut =
                 new Authorize(
                         clientStore,
@@ -117,7 +128,7 @@ class AuthorizeTest_Implicit {
                 "http://rs.example.com",
                 "client1",
                 "rs:scope1",
-                "az.example.com",
+                "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond());
         assertEquals(fragmentMap.get("token_type"), "bearer");
@@ -142,7 +153,18 @@ class AuthorizeTest_Implicit {
         var jwks = new JWKSet(key);
         var config =
                 new AzIdPConfig(
-                        "az.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
+                        "http://localhost:8080",
+                        "http://localhost:8080/authorize",
+                        "http://localhost:8080/token",
+                        "http://localhost:8080/.well-known/jwks.json",
+                        "http://localhost:8080/client",
+                        Set.of("openid", "scope1", "scope2", "default"),
+                        key.getKeyID(),
+                        key.getKeyID(),
+                        3600,
+                        600,
+                        604800,
+                        3600);
         var sut =
                 new Authorize(
                         clientStore,
@@ -179,7 +201,7 @@ class AuthorizeTest_Implicit {
                 "http://rs.example.com",
                 "client1",
                 "rs:scope1",
-                "az.example.com",
+                "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond());
         assertEquals(fragmentMap.get("token_type"), "bearer");
@@ -204,7 +226,18 @@ class AuthorizeTest_Implicit {
         var jwks = new JWKSet(key);
         var config =
                 new AzIdPConfig(
-                        "az.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
+                        "http://localhost:8080",
+                        "http://localhost:8080/authorize",
+                        "http://localhost:8080/token",
+                        "http://localhost:8080/.well-known/jwks.json",
+                        "http://localhost:8080/client",
+                        Set.of("openid", "scope1", "scope2", "default"),
+                        key.getKeyID(),
+                        key.getKeyID(),
+                        3600,
+                        600,
+                        604800,
+                        3600);
         var sut =
                 new Authorize(
                         clientStore,
@@ -241,7 +274,7 @@ class AuthorizeTest_Implicit {
                 "http://rs.example.com",
                 "client1",
                 "openid rs:scope1",
-                "az.example.com",
+                "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond());
         assertEquals(fragmentMap.get("token_type"), "bearer");
@@ -251,7 +284,7 @@ class AuthorizeTest_Implicit {
                 key,
                 "username",
                 "client1",
-                "az.example.com",
+                "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
