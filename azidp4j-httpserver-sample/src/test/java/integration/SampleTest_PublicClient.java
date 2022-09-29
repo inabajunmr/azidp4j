@@ -1,7 +1,6 @@
-package org.azidp4j.sample;
+package integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
@@ -23,11 +22,14 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import httpserversample.SampleAz;
 import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.GrantType;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class SampleTest_ConfidentialClient {
+public class SampleTest_PublicClient {
     @Test
     void test() throws IOException, InterruptedException, ParseException, JOSEException {
         // setup authorization server
@@ -75,7 +77,10 @@ public class SampleTest_ConfidentialClient {
                         "response_types",
                         Set.of(ResponseType.code.name(), ResponseType.token.name()),
                         "scope",
-                        "scope1 scope2 openid");
+                        "scope1 scope2 openid",
+                        "token_endpoint_auth_method",
+                        // public client
+                        "none");
         var clientRegistrationRequest =
                 HttpRequest.newBuilder(URI.create("http://localhost:8080/client"))
                         .header("Authorization", "Bearer " + clientAccessToken)
@@ -88,7 +93,8 @@ public class SampleTest_ConfidentialClient {
                         clientRegistrationRequest, HttpResponse.BodyHandlers.ofString());
         var registeredClient = new ObjectMapper().readTree(clientRegistrationResponse.body());
         var clientId = registeredClient.get("client_id").asText();
-        var clientSecret = registeredClient.get("client_secret").asText();
+        Assertions.assertFalse(registeredClient.has("client_secret"));
+
         var authorizationRequestClient = HttpClient.newBuilder().build();
 
         // authorization code grant
@@ -99,7 +105,8 @@ public class SampleTest_ConfidentialClient {
                                     URI.create(
                                             "http://localhost:8080/authorize?response_type=code&client_id="
                                                     + clientId
-                                                    + "&redirect_uri=http://localhost:8080&scope=scope1%20openid&state=xyz&nonce=abc"))
+                                                    + "&redirect_uri=http://localhost:8080&scope=scope1%20openid&state=xyz&nonce=abc"
+                                                    + "&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256"))
                             .GET()
                             .header(
                                     "Cookie",
@@ -126,20 +133,11 @@ public class SampleTest_ConfidentialClient {
                                     HttpRequest.BodyPublishers.ofString(
                                             "grant_type=authorization_code&code="
                                                     + queryMap.get("code")
-                                                    + "&redirect_uri=http://localhost:8080&client_id="
+                                                    + "&code_verifier=dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk&redirect_uri=http://localhost:8080&client_id="
                                                     + clientId))
                             .setHeader(
                                     "Content-Type",
                                     "application/x-www-form-urlencoded; charset=utf-8")
-                            .setHeader(
-                                    "Authorization",
-                                    "Basic "
-                                            + Base64.getEncoder()
-                                                    .encodeToString(
-                                                            (clientId + ":" + clientSecret)
-                                                                    .getBytes(
-                                                                            StandardCharsets
-                                                                                    .UTF_8)))
                             .build();
             var tokenResponse = httpClient.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
 
@@ -152,18 +150,18 @@ public class SampleTest_ConfidentialClient {
             var parsedAccessToken = JWSObject.parse(accessToken.asText());
             var jwk = jwks.getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
             var verifier = new ECDSAVerifier((ECKey) jwk);
-            assertTrue(parsedAccessToken.verify(verifier));
+            Assertions.assertTrue(parsedAccessToken.verify(verifier));
 
             // claims
             var atPayload = parsedAccessToken.getPayload().toJSONObject();
-            assertEquals("user1", atPayload.get("sub"));
+            Assertions.assertEquals("user1", atPayload.get("sub"));
 
             // verify id token
             var idToken = tokenResponseJSON.get("id_token");
             var parsedIdToken = JWSObject.parse(idToken.asText());
-            assertTrue(parsedIdToken.verify(verifier));
+            Assertions.assertTrue(parsedIdToken.verify(verifier));
             var itPayload = parsedAccessToken.getPayload().toJSONObject();
-            assertEquals("user1", itPayload.get("sub"));
+            Assertions.assertEquals("user1", itPayload.get("sub"));
 
             // token refresh
             var refreshToken = tokenResponseJSON.get("refresh_token");
@@ -173,19 +171,12 @@ public class SampleTest_ConfidentialClient {
                             .POST(
                                     HttpRequest.BodyPublishers.ofString(
                                             "grant_type=refresh_token&refresh_token="
-                                                    + refreshToken.textValue()))
+                                                    + refreshToken.textValue()
+                                                    + "&client_id="
+                                                    + clientId))
                             .setHeader(
                                     "Content-Type",
                                     "application/x-www-form-urlencoded; charset=utf-8")
-                            .setHeader(
-                                    "Authorization",
-                                    "Basic "
-                                            + Base64.getEncoder()
-                                                    .encodeToString(
-                                                            (clientId + ":" + clientSecret)
-                                                                    .getBytes(
-                                                                            StandardCharsets
-                                                                                    .UTF_8)))
                             .build();
             var refreshTokenResponse =
                     httpClient.send(refreshTokenRequest, HttpResponse.BodyHandlers.ofString());
@@ -193,10 +184,10 @@ public class SampleTest_ConfidentialClient {
                     new ObjectMapper().readTree(refreshTokenResponse.body());
             var parsedRefreshedAccessToken =
                     JWSObject.parse(parsedRefreshTokenResponse.get("access_token").asText());
-            assertTrue(parsedRefreshedAccessToken.verify(verifier));
+            Assertions.assertTrue(parsedRefreshedAccessToken.verify(verifier));
 
             // claims
-            assertEquals(
+            Assertions.assertEquals(
                     "user1", parsedRefreshedAccessToken.getPayload().toJSONObject().get("sub"));
         }
 
@@ -246,19 +237,11 @@ public class SampleTest_ConfidentialClient {
                     HttpRequest.newBuilder(URI.create("http://localhost:8080/token"))
                             .POST(
                                     HttpRequest.BodyPublishers.ofString(
-                                            "grant_type=password&scope=scope1&username=user1&password=password1"))
+                                            "grant_type=password&scope=scope1&username=user1&password=password1&client_id="
+                                                    + clientId))
                             .setHeader(
                                     "Content-Type",
                                     "application/x-www-form-urlencoded; charset=utf-8")
-                            .setHeader(
-                                    "Authorization",
-                                    "Basic "
-                                            + Base64.getEncoder()
-                                                    .encodeToString(
-                                                            (clientId + ":" + clientSecret)
-                                                                    .getBytes(
-                                                                            StandardCharsets
-                                                                                    .UTF_8)))
                             .build();
             var resourceOwnerPasswordCredentialResponse =
                     httpClient.send(

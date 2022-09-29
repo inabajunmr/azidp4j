@@ -1,4 +1,4 @@
-package org.azidp4j.sample;
+package httpserversample;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
@@ -9,13 +9,13 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import httpserversample.handler.*;
 import org.azidp4j.AzIdP;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
-import org.azidp4j.sample.authenticator.JWSAccessTokenAuthenticator;
-import org.azidp4j.sample.handler.*;
-import org.azidp4j.scope.SampleScopeAudienceMapper;
+import httpserversample.authenticator.JWSAccessTokenAuthenticator;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 

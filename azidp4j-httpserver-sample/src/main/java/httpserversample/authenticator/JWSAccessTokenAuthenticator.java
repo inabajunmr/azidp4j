@@ -1,4 +1,4 @@
-package org.azidp4j.sample.authenticator;
+package httpserversample.authenticator;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;

@@ -1,8 +1,10 @@
-package org.azidp4j.sample;
+package httpserversample;
 
 import com.nimbusds.jose.JOSEException;
 import java.io.IOException;
 import java.util.Set;
+
+import httpserversample.SampleAz;
 import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.ClientRegistrationRequest;
 import org.azidp4j.client.GrantType;

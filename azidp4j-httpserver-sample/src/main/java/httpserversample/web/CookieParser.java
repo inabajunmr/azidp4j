@@ -1,4 +1,4 @@
-package org.azidp4j.sample.web;
+package httpserversample.web;
 
 import com.sun.net.httpserver.HttpExchange;
 import java.util.Arrays;

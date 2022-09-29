@@ -1,4 +1,4 @@
-package org.azidp4j.sample.handler;
+package httpserversample.handler;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import com.sun.net.httpserver.HttpExchange;

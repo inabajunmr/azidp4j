@@ -1,4 +1,4 @@
-package org.azidp4j.sample.handler;
+package httpserversample.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.azidp4j.sample.web.CookieParser;
+import httpserversample.web.CookieParser;
 
 public class ConsentHandler extends AzIdpHttpHandler {
 

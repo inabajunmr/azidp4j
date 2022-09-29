@@ -1,4 +1,4 @@
-package org.azidp4j.sample.handler;
+package httpserversample.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.AuthorizationRequest;
-import org.azidp4j.sample.web.CookieParser;
+import httpserversample.web.CookieParser;
 
 public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
 

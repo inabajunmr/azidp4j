@@ -1,4 +1,4 @@
-package org.azidp4j.sample.handler;
+package httpserversample.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.Authenticator;
@@ -8,9 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+
+import httpserversample.authenticator.ClientBasicAuthenticator;
 import org.azidp4j.AzIdP;
 import org.azidp4j.client.ClientStore;
-import org.azidp4j.sample.authenticator.ClientBasicAuthenticator;
 import org.azidp4j.token.TokenRequest;
 
 public class TokenEndpointHandler extends AzIdpHttpHandler {
