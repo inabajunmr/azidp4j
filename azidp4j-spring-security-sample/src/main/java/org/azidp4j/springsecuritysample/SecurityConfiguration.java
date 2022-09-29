@@ -28,7 +28,10 @@ public class SecurityConfiguration {
                         (authorize) ->
                                 authorize
                                         .mvcMatchers(
-                                                "/authorize", "/token", "/.well-known/jwks.json")
+                                                "/authorize",
+                                                "/token",
+                                                "/.well-known/jwks.json",
+                                                "/.well-known/openid-configuration")
                                         .permitAll()
                                         .mvcMatchers("/client")
                                         .hasAnyAuthority("SCOPE_client", "SCOPE_default")
