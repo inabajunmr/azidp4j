@@ -3,6 +3,7 @@ package org.azidp4j.discovery;
 import java.util.Map;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.authorize.CodeChallengeMethod;
 import org.azidp4j.util.MapUtil;
 
 public class Discovery {
@@ -55,7 +56,7 @@ public class Discovery {
                 // "request_object_encryption_alg_values_supported", null,
                 // "request_object_encryption_enc_values_supported", null,
                 "token_endpoint_auth_methods_supported",
-                Set.of("client_secret_basic")
+                Set.of("client_secret_basic"),
                 // "token_endpoint_auth_signing_alg_values_supported",  null,
                 // "display_values_supported", null,
                 // "claim_types_supported",  null,
@@ -69,6 +70,7 @@ public class Discovery {
                 // "require_request_uri_registration", null,
                 // "op_policy_uri", null,
                 // "op_tos_uri", null
-                );
+                "code_challenge_methods_supported",
+                Set.of(CodeChallengeMethod.PLAIN.name(), CodeChallengeMethod.S256.name()));
     }
 }
