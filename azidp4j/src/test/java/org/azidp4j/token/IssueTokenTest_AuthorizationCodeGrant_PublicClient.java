@@ -45,7 +45,18 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
 
     private final AzIdPConfig config =
             new AzIdPConfig(
-                    "as.example.com", key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
+                    "http://localhost:8080",
+                    "http://localhost:8080/authorize",
+                    "http://localhost:8080/token",
+                    "http://localhost:8080/.well-known/jwks.json",
+                    "http://localhost:8080/client",
+                    Set.of("openid", "scope1", "scope2", "default"),
+                    key.getKeyID(),
+                    key.getKeyID(),
+                    3600,
+                    600,
+                    604800,
+                    3600);
 
     @BeforeEach
     void init() {
@@ -109,7 +120,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 "http://rs.example.com",
                 "clientId",
                 "rs:scope1",
-                "as.example.com",
+                "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond());
         assertEquals(response.body.get("token_type"), "bearer");
@@ -155,7 +166,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 "http://rs.example.com",
                 "clientId",
                 "rs:scope1",
-                "as.example.com",
+                "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond());
         assertEquals(response.body.get("token_type"), "bearer");
@@ -201,7 +212,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 "http://rs.example.com",
                 "clientId",
                 "rs:scope1",
-                "as.example.com",
+                "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond());
         assertEquals(response.body.get("token_type"), "bearer");

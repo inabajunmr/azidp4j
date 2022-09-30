@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class MapUtil {
 
-    public static Map<String, String> nullRemovedMap(String... kv) {
+    public static Map<String, String> nullRemovedStringMap(String... kv) {
         if (kv.length % 2 != 0) {
             throw new AssertionError();
         }
