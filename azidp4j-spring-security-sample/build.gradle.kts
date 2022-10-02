@@ -28,7 +28,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("net.sourceforge.htmlunit:htmlunit:2.36.0")
-
 }
 
 tasks.getByName<Test>("test") {

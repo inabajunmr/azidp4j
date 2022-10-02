@@ -73,7 +73,7 @@ public class DynamicClientRegistration {
                         tokenEndpointAuthMethod);
         clientStore.save(client);
         return new ClientRegistrationResponse(
-                200,
+                201,
                 MapUtil.nullRemovedMap(
                         "client_id",
                         client.clientId,

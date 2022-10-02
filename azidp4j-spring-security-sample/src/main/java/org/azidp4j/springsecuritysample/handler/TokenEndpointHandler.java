@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.AzIdP;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.token.TokenRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class TokenEndpointHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenEndpointHandler.class);
 
     private final BasicAuthenticationConverter authenticationConverter =
             new BasicAuthenticationConverter();
@@ -29,7 +33,7 @@ public class TokenEndpointHandler {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Map> tokenEndpoint(
             HttpServletRequest request, @RequestParam MultiValueMap<String, String> body) {
-
+        LOGGER.info(TokenEndpointHandler.class.getName());
         var usernamePasswordAuthenticationToken = authenticationConverter.convert(request);
         var client = clientStore.find(usernamePasswordAuthenticationToken.getName());
         String authenticatedClientId = null;
