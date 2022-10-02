@@ -5,6 +5,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,6 +22,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
+    @Value("${endpoint}")
+    private String endpoint;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
@@ -30,11 +34,14 @@ public class SecurityConfiguration {
                                         .mvcMatchers(
                                                 "/authorize",
                                                 "/token",
+                                                "/client",
                                                 "/.well-known/jwks.json",
                                                 "/.well-known/openid-configuration")
                                         .permitAll()
-                                        .mvcMatchers("/client")
-                                        .hasAnyAuthority("SCOPE_client", "SCOPE_default")
+                                        //
+                                        // .mvcMatchers("/client")
+                                        //
+                                        // .hasAnyAuthority("SCOPE_client", "SCOPE_default")
                                         .anyRequest()
                                         .authenticated())
                 .httpBasic(withDefaults())
@@ -54,19 +61,19 @@ public class SecurityConfiguration {
                         .password("password1")
                         .roles("USER")
                         .build();
-        //        UserDetails user2 =
-        //                User.withDefaultPasswordEncoder()
-        //                        .username("user1")
-        //                        .password("password1")
-        //                        .roles("USER")
-        //                        .build();
-        //        UserDetails user3 =
-        //                User.withDefaultPasswordEncoder()
-        //                        .username("user1")
-        //                        .password("password1")
-        //                        .roles("USER")
-        //                        .build();
-        return new InMemoryUserDetailsManager(user1);
+        UserDetails user2 =
+                User.withDefaultPasswordEncoder()
+                        .username("user2")
+                        .password("password2")
+                        .roles("USER")
+                        .build();
+        UserDetails user3 =
+                User.withDefaultPasswordEncoder()
+                        .username("user3")
+                        .password("password3")
+                        .roles("USER")
+                        .build();
+        return new InMemoryUserDetailsManager(user1, user2, user3);
     }
 
     @Bean
@@ -74,7 +81,7 @@ public class SecurityConfiguration {
         DefaultJOSEObjectTypeVerifier<SecurityContext> verifier =
                 new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("at+jwt"));
         NimbusJwtDecoder decoder =
-                NimbusJwtDecoder.withJwkSetUri("http://localhost:8080/.well-known/jwks.json")
+                NimbusJwtDecoder.withJwkSetUri(endpoint + "/.well-known/jwks.json")
                         .jwsAlgorithm(SignatureAlgorithm.ES256)
                         .jwtProcessorCustomizer(
                                 (processor) -> processor.setJWSTypeVerifier(verifier))

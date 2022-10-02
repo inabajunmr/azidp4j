@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.AuthorizationRequest;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.savedrequest.SimpleSavedRequest;
 import org.springframework.stereotype.Controller;
@@ -19,6 +21,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Controller
 public class AuthorizationEndpointHandler {
 
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(AuthorizationEndpointHandler.class);
+
     @Autowired AzIdP azIdP;
 
     @Autowired InMemoryUserConsentStore inMemoryUserConsentStore;
@@ -29,6 +34,7 @@ public class AuthorizationEndpointHandler {
             HttpServletRequest req,
             HttpServletResponse resp)
             throws IOException {
+        LOGGER.info(AuthorizationEndpointHandler.class.getName());
         String authenticatedUserName = null;
         if (req.getUserPrincipal() != null) {
             authenticatedUserName = req.getUserPrincipal().getName();

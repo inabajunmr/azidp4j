@@ -34,7 +34,7 @@ class DynamicClientRegistrationTest {
         var response = registration.register(req);
 
         // verify
-        assertEquals(200, response.status);
+        assertEquals(201, response.status);
         assertEquals(
                 response.body.get("redirect_uris"),
                 Set.of(
@@ -58,7 +58,7 @@ class DynamicClientRegistrationTest {
         var response = registration.register(req);
 
         // verify
-        assertEquals(200, response.status);
+        assertEquals(201, response.status);
         assertEquals(response.body.get("redirect_uris"), Set.of());
         assertEquals(response.body.get("grant_types"), Set.of(GrantType.authorization_code.name()));
         assertEquals(response.body.get("response_types"), Set.of(ResponseType.code.name()));

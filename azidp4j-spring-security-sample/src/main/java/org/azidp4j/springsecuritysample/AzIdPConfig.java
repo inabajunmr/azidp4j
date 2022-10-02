@@ -13,6 +13,7 @@ import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.provisioning.UserDetailsManager;
@@ -22,16 +23,19 @@ public class AzIdPConfig {
 
     @Autowired UserDetailsManager userDetailsManager;
 
+    @Value("${endpoint}")
+    private String endpoint;
+
     @Bean
     public AzIdP azIdP(ClientStore clientStore, JWKSet jwkSet) throws JOSEException {
         var key = jwkSet.getKeys().get(0);
         var config =
                 new org.azidp4j.AzIdPConfig(
-                        "http://localhost:8080",
-                        "http://localhost:8080/authorize",
-                        "http://localhost:8080/token",
-                        "http://localhost:8080/.well-known/jwks.json",
-                        "http://localhost:8080/client",
+                        endpoint,
+                        endpoint + "/authorize",
+                        endpoint + "/token",
+                        endpoint + "/.well-known/jwks.json",
+                        endpoint + "/client",
                         Set.of("openid", "scope1", "scope2", "default"),
                         key.getKeyID(),
                         key.getKeyID(),
@@ -78,7 +82,8 @@ public class AzIdPConfig {
         var client = azIdp.registerClient(clientRegistration);
         System.out.println(client.body);
         System.out.println(
-                "http://localhost:8080/authorize?response_type=code&client_id="
+                endpoint
+                        + "/authorize?response_type=code&client_id="
                         + client.body.get("client_id")
                         + "&redirect_uri=http://client.example.com/callback1&scope=scope1");
         System.out.println(
@@ -88,7 +93,9 @@ public class AzIdPConfig {
                         + client.body.get("client_secret")
                         + " -d 'grant_type=authorization_code' -d"
                         + " 'redirect_uri=http://client.example.com/callback1' -d 'code=xxx'"
-                        + " http://localhost:8080/token");
+                        + " "
+                        + endpoint
+                        + "token");
         return azIdp;
     }
 
