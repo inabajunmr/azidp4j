@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.Fixtures;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
@@ -50,20 +51,7 @@ class AuthorizeTest_AuthorizationCode {
                     Set.of(),
                     "scope1 scope2",
                     TokenEndpointAuthMethod.client_secret_basic);
-    AzIdPConfig config =
-            new AzIdPConfig(
-                    "http://localhost:8080",
-                    "http://localhost:8080/authorize",
-                    "http://localhost:8080/token",
-                    "http://localhost:8080/.well-known/jwks.json",
-                    "http://localhost:8080/client",
-                    Set.of("openid", "scope1", "scope2", "default"),
-                    "kid",
-                    "kid",
-                    3600,
-                    600,
-                    604800,
-                    3600);
+    AzIdPConfig config = Fixtures.azIdPConfig("kid");
     Authorize sut =
             new Authorize(
                     clientStore,
@@ -119,20 +107,7 @@ class AuthorizeTest_AuthorizationCode {
                         "scope1 scope2",
                         TokenEndpointAuthMethod.client_secret_basic);
         clientStore.save(client);
-        var config =
-                new AzIdPConfig(
-                        "http://localhost:8080",
-                        "http://localhost:8080/authorize",
-                        "http://localhost:8080/token",
-                        "http://localhost:8080/.well-known/jwks.json",
-                        "http://localhost:8080/client",
-                        Set.of("openid", "scope1", "scope2", "default"),
-                        "kid",
-                        "kid",
-                        3600,
-                        600,
-                        604800,
-                        3600);
+        var config = Fixtures.azIdPConfig("kid");
         var sut =
                 new Authorize(
                         clientStore,
@@ -180,20 +155,7 @@ class AuthorizeTest_AuthorizationCode {
                         "scope1 scope2",
                         TokenEndpointAuthMethod.client_secret_basic);
         clientStore.save(client);
-        var config =
-                new AzIdPConfig(
-                        "http://localhost:8080",
-                        "http://localhost:8080/authorize",
-                        "http://localhost:8080/token",
-                        "http://localhost:8080/.well-known/jwks.json",
-                        "http://localhost:8080/client",
-                        Set.of("openid", "scope1", "scope2", "default"),
-                        "kid",
-                        "kid",
-                        3600,
-                        600,
-                        604800,
-                        3600);
+        var config = Fixtures.azIdPConfig("kid");
         var sut =
                 new Authorize(
                         clientStore,
@@ -242,20 +204,7 @@ class AuthorizeTest_AuthorizationCode {
                         "scope1 scope2",
                         TokenEndpointAuthMethod.client_secret_basic);
         clientStore.save(client);
-        var config =
-                new AzIdPConfig(
-                        "http://localhost:8080",
-                        "http://localhost:8080/authorize",
-                        "http://localhost:8080/token",
-                        "http://localhost:8080/.well-known/jwks.json",
-                        "http://localhost:8080/client",
-                        Set.of("openid", "scope1", "scope2", "default"),
-                        "kid",
-                        "kid",
-                        3600,
-                        600,
-                        604800,
-                        3600);
+        var config = Fixtures.azIdPConfig("kid");
         var sut =
                 new Authorize(
                         clientStore,

@@ -1,20 +1,24 @@
 package org.azidp4j.client;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.token.TokenEndpointAuthMethod;
+import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.util.MapUtil;
 
 public class DynamicClientRegistration {
 
+    private final AzIdPConfig config;
     private final ClientStore clientStore;
+    private final AccessTokenIssuer accessTokenIssuer;
 
-    public DynamicClientRegistration(ClientStore clientStore) {
+    public DynamicClientRegistration(
+            AzIdPConfig config, ClientStore clientStore, AccessTokenIssuer accessTokenIssuer) {
+        this.config = config;
         this.clientStore = clientStore;
+        this.accessTokenIssuer = accessTokenIssuer;
     }
 
     public ClientRegistrationResponse register(ClientRegistrationRequest request) {
@@ -72,6 +76,8 @@ public class DynamicClientRegistration {
                         request.scope,
                         tokenEndpointAuthMethod);
         clientStore.save(client);
+
+        var at = accessTokenIssuer.issue(client.clientId, client.clientId, "configure");
         return new ClientRegistrationResponse(
                 201,
                 MapUtil.nullRemovedMap(
@@ -79,6 +85,11 @@ public class DynamicClientRegistration {
                         client.clientId,
                         "client_secret",
                         client.clientSecret,
+                        "registration_access_token",
+                        at.serialize(),
+                        "registration_client_uri",
+                        config.clientConfigurationEndpointPattern.replace(
+                                "{CLIENT_ID}", client.clientId),
                         "redirect_uris",
                         client.redirectUris,
                         "grant_types",
@@ -89,5 +100,84 @@ public class DynamicClientRegistration {
                         client.scope,
                         "token_endpoint_auth_method",
                         client.tokenEndpointAuthMethod.name()));
+    }
+
+    public ClientRegistrationResponse configure(ClientConfigurationRequest request) {
+        var client = clientStore.find(request.clientId);
+        if (client == null) {
+            throw new AssertionError();
+        }
+        var grantTypes = client.grantTypes;
+        if (request.grantTypes != null) {
+            grantTypes = new HashSet<>();
+            for (String g : request.grantTypes) {
+                var grantType = GrantType.of(g);
+                if (grantType == null) {
+                    return new ClientRegistrationResponse(
+                            400, Map.of("error", "invalid_grant_type"));
+                }
+                grantTypes.add(grantType);
+            }
+        }
+        var scope = client.scope;
+        if (request.scope != null) {
+            scope = request.scope;
+        }
+        ;
+        var redirectUris = client.redirectUris;
+        if (request.redirectUris != null) {
+            redirectUris = request.redirectUris;
+        }
+        ;
+        var tokenEndpointAuthMethod = client.tokenEndpointAuthMethod;
+        if (request.tokenEndpointAuthMethod != null) {
+            var tam = TokenEndpointAuthMethod.of(request.tokenEndpointAuthMethod);
+            if (tam == null) {
+                return new ClientRegistrationResponse(
+                        400, Map.of("error", "invalid_token_endpoint_auth_method"));
+            }
+            tokenEndpointAuthMethod = tam;
+        }
+        ;
+        var responseTypes = client.responseTypes;
+        if (request.responseTypes != null) {
+            for (String r : request.responseTypes) {
+                var responseType = ResponseType.of(r);
+                if (responseType == null) {
+                    return new ClientRegistrationResponse(
+                            400, Map.of("error", "invalid_response_type"));
+                }
+                responseTypes.add(responseType);
+            }
+        }
+        ;
+
+        var updated =
+                new Client(
+                        client.clientId,
+                        client.clientSecret,
+                        redirectUris,
+                        grantTypes,
+                        responseTypes,
+                        scope,
+                        tokenEndpointAuthMethod);
+        clientStore.save(updated);
+        return new ClientRegistrationResponse(
+                200,
+                MapUtil.nullRemovedMap(
+                        "client_id",
+                        updated.clientId,
+                        "client_secret",
+                        updated.clientSecret,
+                        "redirect_uris",
+                        updated.redirectUris,
+                        "grant_types",
+                        updated.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
+                        "response_types",
+                        updated.responseTypes.stream().map(Enum::name).collect(Collectors.toSet()),
+                        "scope",
+                        updated.scope,
+                        "token_endpoint_auth_method",
+                        updated.tokenEndpointAuthMethod.name()));
     }
 }

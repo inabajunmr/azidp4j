@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
-import org.azidp4j.AzIdPConfig;
+import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.AuthorizationRequest;
 import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.ClientRegistrationRequest;
@@ -40,19 +40,7 @@ public class SimpleTest {
         var jwks = new JWKSet(key);
         var sut =
                 new AzIdP(
-                        new AzIdPConfig(
-                                "http://localhost:8080",
-                                "http://localhost:8080/authorize",
-                                "http://localhost:8080/token",
-                                "http://localhost:8080/.well-known/jwks.json",
-                                "http://localhost:8080/client",
-                                Set.of("openid", "scope1", "scope2", "default"),
-                                key.getKeyID(),
-                                key.getKeyID(),
-                                3600,
-                                600,
-                                604800,
-                                3600),
+                        Fixtures.azIdPConfig(key.getKeyID()),
                         jwks,
                         new InMemoryClientStore(),
                         new InMemoryRefreshTokenStore(),

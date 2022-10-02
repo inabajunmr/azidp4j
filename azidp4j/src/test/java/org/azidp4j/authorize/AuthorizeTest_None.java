@@ -45,6 +45,8 @@ class AuthorizeTest_None {
                         "http://localhost:8080/token",
                         "http://localhost:8080/.well-known/jwks.json",
                         "http://localhost:8080/client",
+                        "http://localhost:8080/client/{CLIENT_ID}",
+                        "http://localhost:8080/userinfo",
                         Set.of("openid", "scope1", "scope2", "default"),
                         key.getKeyID(),
                         key.getKeyID(),

@@ -10,7 +10,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
-import org.azidp4j.AzIdPConfig;
+import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.AuthorizationCode;
 import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.ResponseType;
@@ -45,20 +45,7 @@ public class IssueTokenTest {
                         null,
                         Instant.now().getEpochSecond() + 600);
         authorizationCodeStore.save(authorizationCode);
-        var config =
-                new AzIdPConfig(
-                        "http://localhost:8080",
-                        "http://localhost:8080/authorize",
-                        "http://localhost:8080/token",
-                        "http://localhost:8080/.well-known/jwks.json",
-                        "http://localhost:8080/client",
-                        Set.of("openid", "scope1", "scope2", "default"),
-                        key.getKeyID(),
-                        key.getKeyID(),
-                        3600,
-                        600,
-                        604800,
-                        3600);
+        var config = Fixtures.azIdPConfig("kid");
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(

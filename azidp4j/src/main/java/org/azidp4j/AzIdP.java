@@ -22,6 +22,8 @@ public class AzIdP {
     DynamicClientRegistration clientRegistration;
     ClientRegistrationRequestParser clientRegistrationRequestParser =
             new ClientRegistrationRequestParser();
+    ClientConfigurationRequestParser clientConfigurationRequestParser =
+            new ClientConfigurationRequestParser();
 
     public AzIdP(
             AzIdPConfig azIdPConfig,
@@ -49,7 +51,8 @@ public class AzIdP {
                         null,
                         clientStore,
                         jwkSet);
-        this.clientRegistration = new DynamicClientRegistration(clientStore);
+        this.clientRegistration =
+                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenIssuer);
     }
 
     public AzIdP(
@@ -79,7 +82,8 @@ public class AzIdP {
                         userPasswordVerifier,
                         clientStore,
                         jwkSet);
-        this.clientRegistration = new DynamicClientRegistration(clientStore);
+        this.clientRegistration =
+                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenIssuer);
     }
 
     public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {
@@ -99,6 +103,15 @@ public class AzIdP {
 
     public ClientRegistrationResponse registerClient(ClientRegistrationRequest request) {
         return clientRegistration.register(request);
+    }
+
+    public ClientConfigurationRequest parseClientConfigurationRequest(
+            String clientId, Map<String, Object> parameters) {
+        return clientConfigurationRequestParser.parse(clientId, parameters);
+    }
+
+    public ClientRegistrationResponse configureRequest(ClientConfigurationRequest request) {
+        return clientRegistration.configure(request);
     }
 
     public Map<String, Object> discovery() {

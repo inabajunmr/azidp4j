@@ -1,13 +1,13 @@
 package org.azidp4j.client;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.azidp4j.token.TokenEndpointAuthMethod;
 
 public class InMemoryClientStore implements ClientStore {
 
-    private final Map<String, Client> STORE = new HashMap<>();
+    private final Map<String, Client> STORE = new ConcurrentHashMap<>();
 
     public InMemoryClientStore() {
         STORE.put(

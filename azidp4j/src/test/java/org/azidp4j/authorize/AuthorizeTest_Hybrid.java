@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.Fixtures;
 import org.azidp4j.IdTokenAssert;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.ClientStore;
@@ -41,20 +42,7 @@ class AuthorizeTest_Hybrid {
 
     ECKey key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
     JWKSet jwks = new JWKSet(key);
-    AzIdPConfig config =
-            new AzIdPConfig(
-                    "http://localhost:8080",
-                    "http://localhost:8080/authorize",
-                    "http://localhost:8080/token",
-                    "http://localhost:8080/.well-known/jwks.json",
-                    "http://localhost:8080/client",
-                    Set.of("openid", "scope1", "scope2", "default"),
-                    key.getKeyID(),
-                    key.getKeyID(),
-                    3600,
-                    600,
-                    604800,
-                    3600);
+    AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
     Authorize sut =
             new Authorize(
                     clientStore,

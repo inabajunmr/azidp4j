@@ -2,17 +2,28 @@ package org.azidp4j.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.util.Set;
+import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.token.TokenEndpointAuthMethod;
+import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.junit.jupiter.api.Test;
 
 class DynamicClientRegistrationTest {
 
     @Test
-    void success() {
+    void success() throws JOSEException {
         // setup
-        var registration = new DynamicClientRegistration(new InMemoryClientStore());
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var config = Fixtures.azIdPConfig(key.getKeyID());
+        var atIssuer = new AccessTokenIssuer(config, jwks, scope -> Set.of("rs"));
+        var registration =
+                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer);
         var req =
                 ClientRegistrationRequest.builder()
                         .redirectUris(
@@ -49,9 +60,14 @@ class DynamicClientRegistrationTest {
     }
 
     @Test
-    void success_Default() {
+    void success_Default() throws JOSEException {
         // setup
-        var registration = new DynamicClientRegistration(new InMemoryClientStore());
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(key);
+        var config = Fixtures.azIdPConfig(key.getKeyID());
+        var atIssuer = new AccessTokenIssuer(config, jwks, scope -> Set.of("rs"));
+        var registration =
+                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer);
         var req = ClientRegistrationRequest.builder().build();
 
         // exercise

@@ -9,8 +9,11 @@ public class AzIdPConfig {
     public final String tokenEndpoint;
     public final String jwksEndpoint;
     public final String clientRegistrationEndpoint;
-    public final Set<String> scopesSupported;
+    /** ex. http://localhost:8080/client/{CLIENT_ID} */
+    public final String clientConfigurationEndpointPattern;
 
+    public final String userInfoEndpoint;
+    public final Set<String> scopesSupported;
     public final String accessTokenKid;
     public final String idTokenKid;
     public final int authorizationCodeExpirationSec;
@@ -24,6 +27,8 @@ public class AzIdPConfig {
             String tokenEndpoint,
             String jwksEndpoint,
             String clientRegistrationEndpoint,
+            String clientConfigurationEndpointPattern,
+            String userInfoEndpoint,
             Set<String> scopesSupported,
             String accessTokenKid,
             String idTokenKid,
@@ -36,6 +41,8 @@ public class AzIdPConfig {
         this.tokenEndpoint = tokenEndpoint;
         this.jwksEndpoint = jwksEndpoint;
         this.clientRegistrationEndpoint = clientRegistrationEndpoint;
+        this.clientConfigurationEndpointPattern = clientConfigurationEndpointPattern;
+        this.userInfoEndpoint = userInfoEndpoint;
         this.scopesSupported = scopesSupported;
         this.accessTokenKid = accessTokenKid;
         this.idTokenKid = idTokenKid;

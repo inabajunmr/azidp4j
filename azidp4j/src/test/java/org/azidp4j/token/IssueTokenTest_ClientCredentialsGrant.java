@@ -10,7 +10,7 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
-import org.azidp4j.AzIdPConfig;
+import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
@@ -30,20 +30,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config =
-                new AzIdPConfig(
-                        "http://localhost:8080",
-                        "http://localhost:8080/authorize",
-                        "http://localhost:8080/token",
-                        "http://localhost:8080/.well-known/jwks.json",
-                        "http://localhost:8080/client",
-                        Set.of("openid", "scope1", "scope2", "default"),
-                        key.getKeyID(),
-                        key.getKeyID(),
-                        3600,
-                        600,
-                        604800,
-                        3600);
+        var config = Fixtures.azIdPConfig(key.getKeyID());
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -101,20 +88,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config =
-                new AzIdPConfig(
-                        "http://localhost:8080",
-                        "http://localhost:8080/authorize",
-                        "http://localhost:8080/token",
-                        "http://localhost:8080/.well-known/jwks.json",
-                        "http://localhost:8080/client",
-                        Set.of("openid", "scope1", "scope2", "default"),
-                        key.getKeyID(),
-                        key.getKeyID(),
-                        3600,
-                        600,
-                        604800,
-                        3600);
+        var config = Fixtures.azIdPConfig("kid");
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -160,20 +134,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config =
-                new AzIdPConfig(
-                        "http://localhost:8080",
-                        "http://localhost:8080/authorize",
-                        "http://localhost:8080/token",
-                        "http://localhost:8080/.well-known/jwks.json",
-                        "http://localhost:8080/client",
-                        Set.of("openid", "scope1", "scope2", "default"),
-                        key.getKeyID(),
-                        key.getKeyID(),
-                        3600,
-                        600,
-                        604800,
-                        3600);
+        var config = Fixtures.azIdPConfig("kid");
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -219,20 +180,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-        var config =
-                new AzIdPConfig(
-                        "http://localhost:8080",
-                        "http://localhost:8080/authorize",
-                        "http://localhost:8080/token",
-                        "http://localhost:8080/.well-known/jwks.json",
-                        "http://localhost:8080/client",
-                        Set.of("openid", "scope1", "scope2", "default"),
-                        key.getKeyID(),
-                        key.getKeyID(),
-                        3600,
-                        600,
-                        604800,
-                        3600);
+        var config = Fixtures.azIdPConfig("kid");
         var accessTokenIssuer =
                 new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
