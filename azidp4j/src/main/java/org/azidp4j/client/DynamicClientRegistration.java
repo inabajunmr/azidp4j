@@ -77,7 +77,9 @@ public class DynamicClientRegistration {
                         tokenEndpointAuthMethod);
         clientStore.save(client);
 
-        var at = accessTokenIssuer.issue(client.clientId, client.clientId, "configure");
+        var at =
+                accessTokenIssuer.issue(
+                        client.clientId, client.clientId, "configure", Set.of(config.issuer));
         return new ClientRegistrationResponse(
                 201,
                 MapUtil.nullRemovedMap(
@@ -123,12 +125,10 @@ public class DynamicClientRegistration {
         if (request.scope != null) {
             scope = request.scope;
         }
-        ;
         var redirectUris = client.redirectUris;
         if (request.redirectUris != null) {
             redirectUris = request.redirectUris;
         }
-        ;
         var tokenEndpointAuthMethod = client.tokenEndpointAuthMethod;
         if (request.tokenEndpointAuthMethod != null) {
             var tam = TokenEndpointAuthMethod.of(request.tokenEndpointAuthMethod);
@@ -138,7 +138,6 @@ public class DynamicClientRegistration {
             }
             tokenEndpointAuthMethod = tam;
         }
-        ;
         var responseTypes = client.responseTypes;
         if (request.responseTypes != null) {
             for (String r : request.responseTypes) {
@@ -150,7 +149,6 @@ public class DynamicClientRegistration {
                 responseTypes.add(responseType);
             }
         }
-        ;
 
         var updated =
                 new Client(

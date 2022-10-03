@@ -55,7 +55,7 @@ public class IntegrationTest {
 
         // client registration
         var redirectUri = "http://example.com";
-        var clientRegistrationRequest1 =
+        var clientRegistrationRequest =
                 Map.of(
                         "redirect_uris",
                         Set.of(redirectUri),
@@ -68,25 +68,25 @@ public class IntegrationTest {
                         Set.of(ResponseType.code.name(), ResponseType.token.name()),
                         "scope",
                         "scope1 scope2 openid");
-        var clientRegistrationEntity1 =
+        var clientRegistrationEntity =
                 RequestEntity.post("/client")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + defaultClientAccessToken)
-                        .body(clientRegistrationRequest1);
-        var clientRegistrationResponse1 =
+                        .body(clientRegistrationRequest);
+        var clientRegistrationResponse =
                 testRestTemplate.postForEntity(
-                        "http://localhost:8080/client", clientRegistrationEntity1, Map.class);
-        assertThat(clientRegistrationResponse1.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        var clientId = (String) clientRegistrationResponse1.getBody().get("client_id");
-        var clientSecret = (String) clientRegistrationResponse1.getBody().get("client_secret");
+                        "http://localhost:8080/client", clientRegistrationEntity, Map.class);
+        assertThat(clientRegistrationResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        var clientId = (String) clientRegistrationResponse.getBody().get("client_id");
+        var clientSecret = (String) clientRegistrationResponse.getBody().get("client_secret");
         var configurationToken =
-                (String) clientRegistrationResponse1.getBody().get("registration_access_token");
+                (String) clientRegistrationResponse.getBody().get("registration_access_token");
         var configurationUri =
-                (String) clientRegistrationResponse1.getBody().get("registration_client_uri");
+                (String) clientRegistrationResponse.getBody().get("registration_client_uri");
 
         // client configuration
-        var clientRegistrationRequest2 =
+        var clientConfigurationRequest =
                 Map.of(
                         "grant_types",
                         Set.of(
@@ -94,16 +94,16 @@ public class IntegrationTest {
                                 GrantType.implicit.name(),
                                 GrantType.password.name(),
                                 GrantType.refresh_token.name()));
-        var clientRegistrationEntity2 =
+        var clientConfigurationEntity =
                 RequestEntity.post(configurationUri)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + configurationToken)
-                        .body(clientRegistrationRequest2);
-        var clientRegistrationResponse2 =
+                        .body(clientConfigurationRequest);
+        var clientConfigurationResponse =
                 testRestTemplate.postForEntity(
-                        configurationUri, clientRegistrationEntity2, Map.class);
-        assertThat(clientRegistrationResponse2.getStatusCode()).isEqualTo(HttpStatus.OK);
+                        configurationUri, clientConfigurationEntity, Map.class);
+        assertThat(clientConfigurationResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         // authorization request
         var state = UUID.randomUUID().toString();
