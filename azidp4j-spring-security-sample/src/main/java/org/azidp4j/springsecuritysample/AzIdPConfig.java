@@ -36,6 +36,8 @@ public class AzIdPConfig {
                         endpoint + "/token",
                         endpoint + "/.well-known/jwks.json",
                         endpoint + "/client",
+                        endpoint + "/client/{CLIENT_ID}",
+                        endpoint + "/userinfo",
                         Set.of("openid", "scope1", "scope2", "default"),
                         key.getKeyID(),
                         key.getKeyID(),

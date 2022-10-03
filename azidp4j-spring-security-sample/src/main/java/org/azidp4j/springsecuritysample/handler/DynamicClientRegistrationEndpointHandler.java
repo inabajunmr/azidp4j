@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,15 +27,24 @@ public class DynamicClientRegistrationEndpointHandler {
     @PostMapping("/client")
     public ResponseEntity<Map<String, Object>> register(
             @RequestBody Map<String, Object> requestBody) {
-        LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName());
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        //        if (auth instanceof JwtAuthenticationToken) {
-        // TODO test
+        LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " register");
         var req = azIdP.parseClientRegistrationRequest(requestBody);
         var response = azIdP.registerClient(req);
         return ResponseEntity.status(response.status).body(response.body);
-        //        } else {
-        //            return ResponseEntity.status(401).build();
-        //        }
+    }
+
+    @PostMapping("/client/{client_id}")
+    public ResponseEntity<Map<String, Object>> configure(
+            @PathVariable("client_id") String clientId,
+            @RequestBody Map<String, Object> requestBody) {
+        LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " configure");
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth instanceof JwtAuthenticationToken && auth.getName().equals(clientId)) {
+            var req = azIdP.parseClientConfigurationRequest(auth.getName(), requestBody);
+            var response = azIdP.configureRequest(req);
+            return ResponseEntity.status(response.status).body(response.body);
+        } else {
+            return ResponseEntity.status(401).build();
+        }
     }
 }

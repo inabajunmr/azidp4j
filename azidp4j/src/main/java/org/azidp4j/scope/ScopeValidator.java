@@ -14,6 +14,9 @@ public class ScopeValidator {
         if (requestedScope == null) {
             return true;
         }
+        if (authorizedScope == null) {
+            return false;
+        }
         var requestedScopes = requestedScope.split(" ");
         var authorizedScopes =
                 Arrays.stream(authorizedScope.split(" ")).collect(Collectors.toSet());

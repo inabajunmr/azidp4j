@@ -63,8 +63,7 @@ public class IntegrationTest {
                         Set.of(
                                 GrantType.authorization_code.name(),
                                 GrantType.implicit.name(),
-                                GrantType.password.name(),
-                                GrantType.refresh_token.name()),
+                                GrantType.password.name()),
                         "response_types",
                         Set.of(ResponseType.code.name(), ResponseType.token.name()),
                         "scope",
@@ -78,9 +77,33 @@ public class IntegrationTest {
         var clientRegistrationResponse =
                 testRestTemplate.postForEntity(
                         "http://localhost:8080/client", clientRegistrationEntity, Map.class);
-        assertThat(clientRegistrationResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(clientRegistrationResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         var clientId = (String) clientRegistrationResponse.getBody().get("client_id");
         var clientSecret = (String) clientRegistrationResponse.getBody().get("client_secret");
+        var configurationToken =
+                (String) clientRegistrationResponse.getBody().get("registration_access_token");
+        var configurationUri =
+                (String) clientRegistrationResponse.getBody().get("registration_client_uri");
+
+        // client configuration
+        var clientConfigurationRequest =
+                Map.of(
+                        "grant_types",
+                        Set.of(
+                                GrantType.authorization_code.name(),
+                                GrantType.implicit.name(),
+                                GrantType.password.name(),
+                                GrantType.refresh_token.name()));
+        var clientConfigurationEntity =
+                RequestEntity.post(configurationUri)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + configurationToken)
+                        .body(clientConfigurationRequest);
+        var clientConfigurationResponse =
+                testRestTemplate.postForEntity(
+                        configurationUri, clientConfigurationEntity, Map.class);
+        assertThat(clientConfigurationResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         // authorization request
         var state = UUID.randomUUID().toString();
@@ -101,7 +124,9 @@ public class IntegrationTest {
                 authorizationResponseRedirectToLoginPage.getHeaders().get("Location").get(0);
 
         // redirect to login form
-        var login = testRestTemplate.getForEntity(redirectToLoginPageUri, String.class);
+        var login =
+                testRestTemplate.getForEntity(
+                        "http://localhost:8080" + redirectToLoginPageUri, String.class);
         var loginPage = Jsoup.parse(login.getBody());
         assertThat(loginPage.select("form").attr("action")).isEqualTo("/login");
         var csrf = loginPage.select("input[name='_csrf']").val();
@@ -113,27 +138,37 @@ public class IntegrationTest {
         loginBody.add("_csrf", csrf);
         var loginRequestEntity =
                 RequestEntity.post(
-                                authorizationResponseRedirectToLoginPage
-                                        .getHeaders()
-                                        .get("Location")
-                                        .get(0))
+                                "http://localhost:8080"
+                                        + authorizationResponseRedirectToLoginPage
+                                                .getHeaders()
+                                                .get("Location")
+                                                .get(0))
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .body(loginBody);
         var loginResponseEntity =
                 testRestTemplate.postForEntity(
-                        redirectToLoginPageUri, loginRequestEntity, String.class);
+                        "http://localhost:8080" + redirectToLoginPageUri,
+                        loginRequestEntity,
+                        String.class);
 
         // redirect to authorization request
         ResponseEntity<String> authorizationResponseRedirectToConsentPage =
                 testRestTemplate.exchange(
-                        RequestEntity.get(loginResponseEntity.getHeaders().get("Location").get(0))
+                        RequestEntity.get(
+                                        "http://localhost:8080"
+                                                + loginResponseEntity
+                                                        .getHeaders()
+                                                        .get("Location")
+                                                        .get(0))
                                 .build(),
                         String.class);
 
         // redirect to consent page
         var redirectToConsentPageUri =
                 authorizationResponseRedirectToConsentPage.getHeaders().get("Location").get(0);
-        var consent = testRestTemplate.getForEntity(redirectToConsentPageUri, String.class);
+        var consent =
+                testRestTemplate.getForEntity(
+                        "http://localhost:8080" + redirectToConsentPageUri, String.class);
         var consentPage = Jsoup.parse(consent.getBody());
         var csrf2 = consentPage.select("input[name='_csrf']").val();
 
@@ -146,17 +181,23 @@ public class IntegrationTest {
                         .body(consentBody);
         var consentResponseEntity =
                 testRestTemplate.postForEntity(
-                        authorizationResponseRedirectToConsentPage
-                                .getHeaders()
-                                .get("Location")
-                                .get(0),
+                        "http://localhost:8080"
+                                + authorizationResponseRedirectToConsentPage
+                                        .getHeaders()
+                                        .get("Location")
+                                        .get(0),
                         consentRequestEntity,
                         String.class);
 
         // redirect to authorization request
         ResponseEntity<String> authorizationResponse =
                 testRestTemplate.exchange(
-                        RequestEntity.get(consentResponseEntity.getHeaders().get("Location").get(0))
+                        RequestEntity.get(
+                                        "http://localhost:8080"
+                                                + consentResponseEntity
+                                                        .getHeaders()
+                                                        .get("Location")
+                                                        .get(0))
                                 .build(),
                         String.class);
         var authorizationResponseWithAuthorizationCode =
@@ -168,7 +209,7 @@ public class IntegrationTest {
                         .get("code")
                         .get(0);
 
-        // token request by default client
+        // token request by authorization code
         MultiValueMap<String, String> tokenRequestForAuthorizationCodeGrant =
                 new LinkedMultiValueMap<>();
         tokenRequestForAuthorizationCodeGrant.add("grant_type", "authorization_code");
@@ -200,6 +241,16 @@ public class IntegrationTest {
         var verifier = new ECDSAVerifier((ECKey) jwk);
         assertTrue(parsedAccessToken.verify(verifier));
         assertTrue(parsedIdToken.verify(verifier));
+
+        // userinfo endpoint
+        var userInfoRequest =
+                RequestEntity.get("http://localhost:8080/userinfo")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + accessToken)
+                        .build();
+        var userinfo = testRestTemplate.exchange(userInfoRequest, Map.class);
+        assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
 
         // token refresh
         MultiValueMap<String, String> tokenRequestForRefresh = new LinkedMultiValueMap<>();

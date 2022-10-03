@@ -22,7 +22,8 @@ public class Discovery {
                 config.authorizationEndpoint,
                 "token_endpoint",
                 config.tokenEndpoint,
-                // userinfo_endpoint
+                "userinfo_endpoint",
+                config.userInfoEndpoint,
                 "jwks_uri",
                 config.jwksEndpoint,
                 "registration_endpoint",
