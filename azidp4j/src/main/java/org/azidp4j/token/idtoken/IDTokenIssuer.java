@@ -1,6 +1,6 @@
 package org.azidp4j.token.idtoken;
 
-import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.JOSEObject;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.util.Base64URL;
 import java.security.MessageDigest;
@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.util.MapUtil;
 
@@ -24,13 +25,14 @@ public class IDTokenIssuer {
         this.jwsIssuer = new JWSIssuer(jwkSet);
     }
 
-    public JWSObject issue(
+    public JOSEObject issue(
             String sub,
             String clientId,
             Long authTime,
             String nonce,
             String accessToken,
-            String authorizationCode) {
+            String authorizationCode,
+            SigningAlgorithm alg) {
         var jti = UUID.randomUUID().toString();
         var atHash = accessToken != null ? calculateXHash(accessToken) : null;
         var cHash = authorizationCode != null ? calculateXHash(authorizationCode) : null;
@@ -58,7 +60,7 @@ public class IDTokenIssuer {
                         atHash,
                         "c_hash",
                         cHash);
-        return jwsIssuer.issue(config.idTokenKid, claims);
+        return jwsIssuer.issue(alg, claims);
     }
 
     private String calculateXHash(String token) {

@@ -2,6 +2,7 @@ package org.azidp4j.authorize;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -15,10 +16,7 @@ import java.util.stream.Collectors;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
 import org.azidp4j.IdTokenAssert;
-import org.azidp4j.client.Client;
-import org.azidp4j.client.ClientStore;
-import org.azidp4j.client.GrantType;
-import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
@@ -36,7 +34,8 @@ class AuthorizeTest_Implicit {
                     Set.of(GrantType.authorization_code),
                     Set.of(ResponseType.code),
                     "scope1 scope2 openid",
-                    TokenEndpointAuthMethod.client_secret_basic);
+                    TokenEndpointAuthMethod.client_secret_basic,
+                    Set.of(SigningAlgorithm.ES256));
     Client noGrantTypesClient =
             new Client(
                     "noGrantTypesClient",
@@ -45,7 +44,8 @@ class AuthorizeTest_Implicit {
                     Set.of(),
                     Set.of(ResponseType.code),
                     "scope1 scope2",
-                    TokenEndpointAuthMethod.client_secret_basic);
+                    TokenEndpointAuthMethod.client_secret_basic,
+                    Set.of(SigningAlgorithm.ES256));
 
     Client noResponseTypesClient =
             new Client(
@@ -55,7 +55,8 @@ class AuthorizeTest_Implicit {
                     Set.of(GrantType.authorization_code, GrantType.implicit),
                     Set.of(),
                     "scope1 scope2",
-                    TokenEndpointAuthMethod.client_secret_basic);
+                    TokenEndpointAuthMethod.client_secret_basic,
+                    Set.of(SigningAlgorithm.ES256));
 
     public AuthorizeTest_Implicit() {
         clientStore.save(client);
@@ -75,7 +76,8 @@ class AuthorizeTest_Implicit {
                         Set.of(GrantType.implicit),
                         Set.of(ResponseType.token),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic);
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256));
         clientStore.save(client);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
@@ -135,7 +137,8 @@ class AuthorizeTest_Implicit {
                         Set.of(GrantType.implicit),
                         Set.of(ResponseType.token),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic);
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256));
         clientStore.save(client);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
@@ -195,9 +198,14 @@ class AuthorizeTest_Implicit {
                         Set.of(GrantType.implicit),
                         Set.of(ResponseType.token, ResponseType.id_token),
                         "openid rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic);
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256));
         clientStore.save(client);
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var key =
+                new ECKeyGenerator(Curve.P_256)
+                        .keyID("123")
+                        .algorithm(new Algorithm("ES256"))
+                        .generate();
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var sut =

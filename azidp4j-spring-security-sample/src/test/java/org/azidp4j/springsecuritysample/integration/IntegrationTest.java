@@ -274,5 +274,14 @@ public class IntegrationTest {
                 JWSObject.parse((String) tokenResponseForRefreshGrant.getBody().get("access_token"))
                         .verify(verifier));
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("refresh_token"));
+
+        // delete client
+        var clientDeleteEntity =
+                RequestEntity.delete(configurationUri)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + configurationToken)
+                        .build();
+        var clientDeleteResponse = testRestTemplate.exchange(clientDeleteEntity, Map.class);
+        assertThat(clientDeleteResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }

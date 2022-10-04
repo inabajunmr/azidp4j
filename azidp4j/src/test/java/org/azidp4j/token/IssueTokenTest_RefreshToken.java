@@ -17,6 +17,7 @@ import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
@@ -46,7 +47,8 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(GrantType.refresh_token),
                         Set.of(),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var issueToken =
                 new IssueToken(
@@ -116,7 +118,8 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(GrantType.refresh_token),
                         Set.of(),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         var issueToken =
                 new IssueToken(
                         config,
@@ -188,7 +191,8 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(GrantType.refresh_token),
                         Set.of(),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.none));
+                        TokenEndpointAuthMethod.none,
+                        Set.of(SigningAlgorithm.ES256)));
         var issueToken =
                 new IssueToken(
                         config,
@@ -257,7 +261,8 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(GrantType.refresh_token),
                         Set.of(),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         var issueToken =
                 new IssueToken(
                         config,
@@ -314,7 +319,8 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(GrantType.refresh_token),
                         Set.of(),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         var issueToken =
                 new IssueToken(
                         config,
@@ -380,7 +386,8 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(GrantType.refresh_token),
                         Set.of(),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         var issueToken =
                 new IssueToken(
                         config,
@@ -450,7 +457,8 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(GrantType.refresh_token),
                         Set.of(),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         var issueToken =
                 new IssueToken(
                         config,

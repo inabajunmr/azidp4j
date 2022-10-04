@@ -2,6 +2,7 @@ package org.azidp4j.authorize;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
@@ -17,10 +18,7 @@ import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
 import org.azidp4j.IdTokenAssert;
-import org.azidp4j.client.Client;
-import org.azidp4j.client.ClientStore;
-import org.azidp4j.client.GrantType;
-import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
@@ -38,9 +36,14 @@ class AuthorizeTest_Hybrid {
                     Set.of(GrantType.authorization_code, GrantType.implicit),
                     Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token),
                     "rs:scope1 rs:scope2 openid",
-                    TokenEndpointAuthMethod.client_secret_basic);
+                    TokenEndpointAuthMethod.client_secret_basic,
+                    Set.of(SigningAlgorithm.ES256));
 
-    ECKey key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+    ECKey key =
+            new ECKeyGenerator(Curve.P_256)
+                    .keyID("123")
+                    .algorithm(new Algorithm("ES256"))
+                    .generate();
     JWKSet jwks = new JWKSet(key);
     AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
     Authorize sut =

@@ -1,5 +1,6 @@
 package org.azidp4j.client;
 
+import com.nimbusds.jose.jwk.JWKSet;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
@@ -13,12 +14,17 @@ public class DynamicClientRegistration {
     private final AzIdPConfig config;
     private final ClientStore clientStore;
     private final AccessTokenIssuer accessTokenIssuer;
+    private final JWKSet jwkSet;
 
     public DynamicClientRegistration(
-            AzIdPConfig config, ClientStore clientStore, AccessTokenIssuer accessTokenIssuer) {
+            AzIdPConfig config,
+            ClientStore clientStore,
+            AccessTokenIssuer accessTokenIssuer,
+            JWKSet jwkSet) {
         this.config = config;
         this.clientStore = clientStore;
         this.accessTokenIssuer = accessTokenIssuer;
+        this.jwkSet = jwkSet;
     }
 
     public ClientRegistrationResponse register(ClientRegistrationRequest request) {
@@ -64,6 +70,20 @@ public class DynamicClientRegistration {
             tokenEndpointAuthMethod = tam;
         }
 
+        var idTokenSignedResponseAlg = new HashSet<SigningAlgorithm>();
+        if (request.idTokenSignedResponseAlg == null) {
+            idTokenSignedResponseAlg.add(SigningAlgorithm.ES256);
+        } else {
+            for (String r : request.idTokenSignedResponseAlg) {
+                var alg = SigningAlgorithm.of(r);
+                if (alg == null) {
+                    return new ClientRegistrationResponse(
+                            400, Map.of("error", "invalid_response_type"));
+                }
+                idTokenSignedResponseAlg.add(alg);
+            }
+        }
+
         var client =
                 new Client(
                         UUID.randomUUID().toString(),
@@ -74,7 +94,8 @@ public class DynamicClientRegistration {
                         grantTypes,
                         responseTypes,
                         request.scope,
-                        tokenEndpointAuthMethod);
+                        tokenEndpointAuthMethod,
+                        idTokenSignedResponseAlg);
         clientStore.save(client);
 
         var at =
@@ -149,6 +170,17 @@ public class DynamicClientRegistration {
                 responseTypes.add(responseType);
             }
         }
+        var idTokenSignedResponseAlg = client.idTokenSignedResponseAlg;
+        if (request.idTokenSignedResponseAlg != null) {
+            for (String r : request.idTokenSignedResponseAlg) {
+                var alg = SigningAlgorithm.of(r);
+                if (alg == null) {
+                    return new ClientRegistrationResponse(
+                            400, Map.of("error", "invalid_response_type"));
+                }
+                idTokenSignedResponseAlg.add(alg);
+            }
+        }
 
         var updated =
                 new Client(
@@ -158,7 +190,8 @@ public class DynamicClientRegistration {
                         grantTypes,
                         responseTypes,
                         scope,
-                        tokenEndpointAuthMethod);
+                        tokenEndpointAuthMethod,
+                        idTokenSignedResponseAlg);
         clientStore.save(updated);
         return new ClientRegistrationResponse(
                 200,
@@ -177,5 +210,26 @@ public class DynamicClientRegistration {
                         updated.scope,
                         "token_endpoint_auth_method",
                         updated.tokenEndpointAuthMethod.name()));
+    }
+
+    public ClientDeleteResponse delete(String clientId) {
+        var client = clientStore.delete(clientId);
+        return new ClientDeleteResponse(
+                200,
+                MapUtil.nullRemovedMap(
+                        "client_id",
+                        client.clientId,
+                        "client_secret",
+                        client.clientSecret,
+                        "redirect_uris",
+                        client.redirectUris,
+                        "grant_types",
+                        client.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
+                        "response_types",
+                        client.responseTypes.stream().map(Enum::name).collect(Collectors.toSet()),
+                        "scope",
+                        client.scope,
+                        "token_endpoint_auth_method",
+                        client.tokenEndpointAuthMethod.name()));
     }
 }

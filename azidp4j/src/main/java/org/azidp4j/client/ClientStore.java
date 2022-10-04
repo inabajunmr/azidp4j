@@ -5,4 +5,6 @@ public interface ClientStore {
     void save(Client client);
 
     Client find(String clientId);
+
+    Client delete(String clientId);
 }

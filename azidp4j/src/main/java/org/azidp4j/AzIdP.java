@@ -52,7 +52,7 @@ public class AzIdP {
                         clientStore,
                         jwkSet);
         this.clientRegistration =
-                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenIssuer);
+                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenIssuer, jwkSet);
     }
 
     public AzIdP(
@@ -83,7 +83,7 @@ public class AzIdP {
                         clientStore,
                         jwkSet);
         this.clientRegistration =
-                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenIssuer);
+                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenIssuer, jwkSet);
     }
 
     public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {
@@ -112,6 +112,10 @@ public class AzIdP {
 
     public ClientRegistrationResponse configureRequest(ClientConfigurationRequest request) {
         return clientRegistration.configure(request);
+    }
+
+    public ClientDeleteResponse delete(String clientId) {
+        return clientRegistration.delete(clientId);
     }
 
     public Map<String, Object> discovery() {

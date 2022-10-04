@@ -19,6 +19,7 @@ import org.azidp4j.authorize.*;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
@@ -58,7 +59,8 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "openid rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.none));
+                        TokenEndpointAuthMethod.none,
+                        Set.of(SigningAlgorithm.ES256)));
         issueToken =
                 new IssueToken(
                         config,

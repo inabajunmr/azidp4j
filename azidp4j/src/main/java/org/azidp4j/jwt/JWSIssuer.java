@@ -2,9 +2,15 @@ package org.azidp4j.jwt;
 
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.ECDSASigner;
+import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
+import java.text.ParseException;
 import java.util.Map;
+import org.azidp4j.client.SigningAlgorithm;
 
 public class JWSIssuer {
 
@@ -15,7 +21,6 @@ public class JWSIssuer {
     }
 
     public JWSObject issue(String kid, String type, Map<String, Object> payload) {
-
         try {
             var jwk = jwkSet.getKeyByKeyId(kid);
             if (jwk instanceof ECKey) {
@@ -38,10 +43,19 @@ public class JWSIssuer {
         }
     }
 
-    public JWSObject issue(String kid, Map<String, Object> payload) {
-
+    public JOSEObject issue(SigningAlgorithm alg, Map<String, Object> payload) {
         try {
-            var jwk = jwkSet.getKeyByKeyId(kid);
+            if (alg == SigningAlgorithm.none) {
+                return new PlainJWT(JWTClaimsSet.parse(payload));
+            }
+            var key =
+                    jwkSet.getKeys().stream()
+                            .filter(jwk -> jwk.getAlgorithm().getName().equals(alg.name()))
+                            .findAny();
+            if (!key.isPresent()) {
+                throw new AssertionError();
+            }
+            var jwk = key.get();
             if (jwk instanceof ECKey) {
                 ECKey ecJWK = (ECKey) jwk;
                 JWSSigner signer = new ECDSASigner(ecJWK);
@@ -53,11 +67,22 @@ public class JWSIssuer {
                                 new Payload(payload));
                 jwsObject.sign(signer);
                 return jwsObject;
+            } else if (jwk instanceof RSAKey) {
+                RSAKey rsaJWK = (RSAKey) jwk;
+                JWSSigner signer = new RSASSASigner(rsaJWK);
+                JWSObject jwsObject =
+                        new JWSObject(
+                                new JWSHeader.Builder(JWSAlgorithm.RS256)
+                                        .keyID(rsaJWK.getKeyID())
+                                        .build(),
+                                new Payload(payload));
+                jwsObject.sign(signer);
+                return jwsObject;
             } else {
-                throw new RuntimeException("not supported key.");
+                throw new AssertionError("not supported key.");
             }
-        } catch (JOSEException e) {
-            throw new RuntimeException(e);
+        } catch (JOSEException | ParseException e) {
+            throw new AssertionError(e);
         }
     }
 }

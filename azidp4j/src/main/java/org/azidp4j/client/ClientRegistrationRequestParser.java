@@ -17,12 +17,16 @@ public class ClientRegistrationRequestParser {
                 parameters.containsKey("token_endpoint_auth_method")
                         ? parameters.get("token_endpoint_auth_method").toString()
                         : null;
+        var idTokenSignedResponseAlg =
+                valuesToStringSet(
+                        parameters.getOrDefault("id_token_signed_response_alg", Set.of()));
         return ClientRegistrationRequest.builder()
                 .redirectUris(redirectUris)
                 .grantTypes(grantTypes)
                 .responseTypes(responseTypes)
                 .scope(scope)
                 .tokenEndpointAuthMethod(tokenEndpointAuthMethod)
+                .idTokenSignedResponseAlg(idTokenSignedResponseAlg)
                 .build();
     }
 

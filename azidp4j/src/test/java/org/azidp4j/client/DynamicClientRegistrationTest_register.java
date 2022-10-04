@@ -26,7 +26,7 @@ class DynamicClientRegistrationTest_register {
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var atIssuer = new AccessTokenIssuer(config, jwks, scope -> Set.of("rs"));
         var registration =
-                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer);
+                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer, jwks);
         var req =
                 ClientRegistrationRequest.builder()
                         .redirectUris(
@@ -84,7 +84,7 @@ class DynamicClientRegistrationTest_register {
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var atIssuer = new AccessTokenIssuer(config, jwks, scope -> Set.of("rs"));
         var registration =
-                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer);
+                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer, jwks);
         var req = ClientRegistrationRequest.builder().build();
 
         // exercise

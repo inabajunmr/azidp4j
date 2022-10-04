@@ -15,6 +15,7 @@ import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
@@ -50,7 +51,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         Set.of(GrantType.password),
                         Set.of(),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         var issueToken =
                 new IssueToken(
                         config,
@@ -118,7 +120,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         Set.of(GrantType.password),
                         Set.of(),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.none));
+                        TokenEndpointAuthMethod.none,
+                        Set.of(SigningAlgorithm.ES256)));
         var issueToken =
                 new IssueToken(
                         config,
@@ -186,7 +189,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         Set.of(GrantType.password),
                         Set.of(),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         var issueToken =
                 new IssueToken(
                         config,
@@ -243,7 +247,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         Set.of(GrantType.password),
                         Set.of(),
                         "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         var issueToken =
                 new IssueToken(
                         config,

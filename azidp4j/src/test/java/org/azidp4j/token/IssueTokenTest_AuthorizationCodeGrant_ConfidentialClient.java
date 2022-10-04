@@ -2,6 +2,7 @@ package org.azidp4j.token;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
@@ -23,6 +24,7 @@ import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
@@ -36,7 +38,11 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
 
     {
         try {
-            key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+            key =
+                    new ECKeyGenerator(Curve.P_256)
+                            .keyID("123")
+                            .algorithm(new Algorithm("ES256"))
+                            .generate();
         } catch (JOSEException e) {
             throw new RuntimeException(e);
         }
@@ -62,7 +68,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "openid rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         clientStore.save(
                 new Client(
                         "other",
@@ -71,7 +78,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "openid rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         issueToken =
                 new IssueToken(
                         config,

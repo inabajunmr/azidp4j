@@ -21,7 +21,7 @@ class DynamicClientRegistrationTest_configure {
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var atIssuer = new AccessTokenIssuer(config, jwks, scope -> Set.of("rs"));
         var registration =
-                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer);
+                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer, jwks);
         var registrationResponse =
                 registration.register(ClientRegistrationRequest.builder().build());
         var configurationRequest =

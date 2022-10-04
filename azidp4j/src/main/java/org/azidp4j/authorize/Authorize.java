@@ -341,7 +341,8 @@ public class Authorize {
                                     authorizationRequest.authTime,
                                     authorizationRequest.nonce,
                                     accessToken,
-                                    authorizationCode)
+                                    authorizationCode,
+                                    client.primarySigningAlgorithm())
                             .serialize();
         }
 

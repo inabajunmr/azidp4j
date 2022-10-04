@@ -17,6 +17,7 @@ import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
@@ -55,7 +56,8 @@ public class IssueTokenTest {
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "scope1 scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         var issueToken =
                 new IssueToken(
                         config,

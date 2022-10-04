@@ -14,8 +14,8 @@ public class AzIdPConfig {
 
     public final String userInfoEndpoint;
     public final Set<String> scopesSupported;
-    public final String accessTokenKid;
-    public final String idTokenKid;
+    public final String accessTokenKid; // TODO should be algorithm
+    public final String idTokenKid; // TODO unused
     public final int authorizationCodeExpirationSec;
     public final int accessTokenExpirationSec;
     public final int idTokenExpirationSec;

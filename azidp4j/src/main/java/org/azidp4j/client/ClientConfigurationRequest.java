@@ -10,6 +10,7 @@ public class ClientConfigurationRequest {
     final Set<String> responseTypes;
     final String scope;
     final String tokenEndpointAuthMethod;
+    final Set<String> idTokenSignedResponseAlg;
 
     public static Builder builder() {
         return new Builder();
@@ -21,13 +22,15 @@ public class ClientConfigurationRequest {
             Set<String> grantTypes,
             Set<String> responseTypes,
             String scope,
-            String tokenEndpointAuthMethod) {
+            String tokenEndpointAuthMethod,
+            Set<String> idTokenSignedResponseAlg) {
         this.clientId = clientId;
         this.redirectUris = redirectUris;
         this.grantTypes = grantTypes;
         this.responseTypes = responseTypes;
         this.scope = scope;
         this.tokenEndpointAuthMethod = tokenEndpointAuthMethod;
+        this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
     }
 
     public static class Builder {
@@ -37,6 +40,7 @@ public class ClientConfigurationRequest {
         private Set<String> responseTypes;
         private String scope;
         private String tokenEndpointAuthMethod;
+        private Set<String> idTokenSignedResponseAlg;
 
         public Builder clientId(String clientId) {
             this.clientId = clientId;
@@ -68,6 +72,11 @@ public class ClientConfigurationRequest {
             return this;
         }
 
+        public Builder idTokenSignedResponseAlg(Set<String> idTokenSignedResponseAlg) {
+            this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
+            return this;
+        }
+
         public ClientConfigurationRequest build() {
             return new ClientConfigurationRequest(
                     clientId,
@@ -75,7 +84,8 @@ public class ClientConfigurationRequest {
                     grantTypes,
                     responseTypes,
                     scope,
-                    tokenEndpointAuthMethod);
+                    tokenEndpointAuthMethod,
+                    idTokenSignedResponseAlg);
         }
     }
 }

@@ -10,6 +10,8 @@ public class ClientRegistrationRequest {
     final String scope;
     final String tokenEndpointAuthMethod;
 
+    final Set<String> idTokenSignedResponseAlg;
+
     public static Builder builder() {
         return new Builder();
     }
@@ -19,12 +21,14 @@ public class ClientRegistrationRequest {
             Set<String> grantTypes,
             Set<String> responseTypes,
             String scope,
-            String tokenEndpointAuthMethod) {
+            String tokenEndpointAuthMethod,
+            Set<String> idTokenSignedResponseAlg) {
         this.redirectUris = redirectUris;
         this.grantTypes = grantTypes;
         this.responseTypes = responseTypes;
         this.scope = scope;
         this.tokenEndpointAuthMethod = tokenEndpointAuthMethod;
+        this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
     }
 
     public static class Builder {
@@ -33,6 +37,7 @@ public class ClientRegistrationRequest {
         private Set<String> responseTypes;
         private String scope;
         private String tokenEndpointAuthMethod;
+        private Set<String> idTokenSignedResponseAlg;
 
         public Builder redirectUris(Set<String> redirectUris) {
             this.redirectUris = redirectUris;
@@ -59,9 +64,19 @@ public class ClientRegistrationRequest {
             return this;
         }
 
+        public Builder idTokenSignedResponseAlg(Set<String> idTokenSignedResponseAlg) {
+            this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
+            return this;
+        }
+
         public ClientRegistrationRequest build() {
             return new ClientRegistrationRequest(
-                    redirectUris, grantTypes, responseTypes, scope, tokenEndpointAuthMethod);
+                    redirectUris,
+                    grantTypes,
+                    responseTypes,
+                    scope,
+                    tokenEndpointAuthMethod,
+                    idTokenSignedResponseAlg);
         }
     }
 }

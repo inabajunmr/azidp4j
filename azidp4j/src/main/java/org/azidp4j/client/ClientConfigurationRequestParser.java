@@ -26,6 +26,10 @@ public class ClientConfigurationRequestParser {
                 parameters.containsKey("token_endpoint_auth_method")
                         ? parameters.get("token_endpoint_auth_method").toString()
                         : null;
+        var idTokenSignedResponseAlg =
+                parameters.containsKey("id_token_signed_response_alg")
+                        ? valuesToStringSet(parameters.get("id_token_signed_response_alg"))
+                        : null;
         return ClientConfigurationRequest.builder()
                 .clientId(clientId)
                 .redirectUris(redirectUris)
@@ -33,6 +37,7 @@ public class ClientConfigurationRequestParser {
                 .responseTypes(responseTypes)
                 .scope(scope)
                 .tokenEndpointAuthMethod(tokenEndpointAuthMethod)
+                .idTokenSignedResponseAlg(idTokenSignedResponseAlg)
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package org.azidp4j.springsecuritysample.handler;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.azidp4j.AzIdP;
 import org.azidp4j.client.ClientStore;
@@ -9,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class DynamicClientRegistrationEndpointHandler {
@@ -28,7 +26,12 @@ public class DynamicClientRegistrationEndpointHandler {
     public ResponseEntity<Map<String, Object>> register(
             @RequestBody Map<String, Object> requestBody) {
         LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " register");
-        var req = azIdP.parseClientRegistrationRequest(requestBody);
+        var requestWithScope = requestBody;
+        if (!requestBody.containsKey("scope")) {
+            requestWithScope = new HashMap<>(requestBody);
+            requestWithScope.put("scope", "openid");
+        }
+        var req = azIdP.parseClientRegistrationRequest(requestWithScope);
         var response = azIdP.registerClient(req);
         return ResponseEntity.status(response.status).body(response.body);
     }
@@ -42,6 +45,18 @@ public class DynamicClientRegistrationEndpointHandler {
         if (auth instanceof JwtAuthenticationToken && auth.getName().equals(clientId)) {
             var req = azIdP.parseClientConfigurationRequest(auth.getName(), requestBody);
             var response = azIdP.configureRequest(req);
+            return ResponseEntity.status(response.status).body(response.body);
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+    }
+
+    @DeleteMapping("/client/{client_id}")
+    public ResponseEntity<Map<String, Object>> delete(@PathVariable("client_id") String clientId) {
+        LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " configure");
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth instanceof JwtAuthenticationToken && auth.getName().equals(clientId)) {
+            var response = azIdP.delete(auth.getName());
             return ResponseEntity.status(response.status).body(response.body);
         } else {
             return ResponseEntity.status(401).build();
