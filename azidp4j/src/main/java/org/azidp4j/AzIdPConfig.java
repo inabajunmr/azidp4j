@@ -14,8 +14,7 @@ public class AzIdPConfig {
 
     public final String userInfoEndpoint;
     public final Set<String> scopesSupported;
-    public final String accessTokenKid;
-    public final String idTokenKid;
+    public final String accessTokenKid; // TODO should be algorithm
     public final int authorizationCodeExpirationSec;
     public final int accessTokenExpirationSec;
     public final int idTokenExpirationSec;
@@ -31,7 +30,6 @@ public class AzIdPConfig {
             String userInfoEndpoint,
             Set<String> scopesSupported,
             String accessTokenKid,
-            String idTokenKid,
             int accessTokenExpirationSec,
             int authorizationCodeExpirationSec,
             int refreshTokenExpirationSec,
@@ -45,7 +43,6 @@ public class AzIdPConfig {
         this.userInfoEndpoint = userInfoEndpoint;
         this.scopesSupported = scopesSupported;
         this.accessTokenKid = accessTokenKid;
-        this.idTokenKid = idTokenKid;
         this.accessTokenExpirationSec = accessTokenExpirationSec;
         this.authorizationCodeExpirationSec = authorizationCodeExpirationSec;
         this.refreshTokenExpirationSec = refreshTokenExpirationSec;

@@ -10,10 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
-import org.azidp4j.client.Client;
-import org.azidp4j.client.ClientStore;
-import org.azidp4j.client.GrantType;
-import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
@@ -31,7 +28,8 @@ class AuthorizeTest_AuthorizationCode {
                     Set.of(GrantType.authorization_code),
                     Set.of(ResponseType.code),
                     "scope1 scope2 openid",
-                    TokenEndpointAuthMethod.client_secret_basic);
+                    TokenEndpointAuthMethod.client_secret_basic,
+                    Set.of(SigningAlgorithm.ES256));
     Client noGrantTypesClient =
             new Client(
                     "noGrantTypesClient",
@@ -40,7 +38,8 @@ class AuthorizeTest_AuthorizationCode {
                     Set.of(),
                     Set.of(ResponseType.code),
                     "scope1 scope2",
-                    TokenEndpointAuthMethod.client_secret_basic);
+                    TokenEndpointAuthMethod.client_secret_basic,
+                    Set.of(SigningAlgorithm.ES256));
 
     Client noResponseTypesClient =
             new Client(
@@ -50,7 +49,8 @@ class AuthorizeTest_AuthorizationCode {
                     Set.of(GrantType.authorization_code, GrantType.implicit),
                     Set.of(),
                     "scope1 scope2",
-                    TokenEndpointAuthMethod.client_secret_basic);
+                    TokenEndpointAuthMethod.client_secret_basic,
+                    Set.of(SigningAlgorithm.ES256));
     AzIdPConfig config = Fixtures.azIdPConfig("kid");
     Authorize sut =
             new Authorize(
@@ -105,7 +105,8 @@ class AuthorizeTest_AuthorizationCode {
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "scope1 scope2",
-                        TokenEndpointAuthMethod.client_secret_basic);
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256));
         clientStore.save(client);
         var config = Fixtures.azIdPConfig("kid");
         var sut =
@@ -153,7 +154,8 @@ class AuthorizeTest_AuthorizationCode {
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "scope1 scope2",
-                        TokenEndpointAuthMethod.client_secret_basic);
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256));
         clientStore.save(client);
         var config = Fixtures.azIdPConfig("kid");
         var sut =
@@ -202,7 +204,8 @@ class AuthorizeTest_AuthorizationCode {
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "scope1 scope2",
-                        TokenEndpointAuthMethod.client_secret_basic);
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256));
         clientStore.save(client);
         var config = Fixtures.azIdPConfig("kid");
         var sut =

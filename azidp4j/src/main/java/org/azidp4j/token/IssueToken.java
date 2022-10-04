@@ -142,7 +142,8 @@ public class IssueToken {
                                     authorizationCode.authTime,
                                     authorizationCode.nonce,
                                     at.serialize(),
-                                    null);
+                                    null,
+                                    client.primarySigningAlgorithm());
                     if (authorizationCode.state == null) {
                         return new TokenResponse(
                                 200,

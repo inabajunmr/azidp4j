@@ -2,14 +2,18 @@ package org.azidp4j.token;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import java.text.ParseException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AccessTokenAssert;
@@ -23,6 +27,7 @@ import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
@@ -32,23 +37,33 @@ import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
 
-    private final ECKey key;
+    private final ECKey es256Key;
+    private final RSAKey rs256Key;
 
     {
         try {
-            key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+            es256Key =
+                    new ECKeyGenerator(Curve.P_256)
+                            .keyID("123")
+                            .algorithm(new Algorithm("ES256"))
+                            .generate();
+            rs256Key =
+                    new RSAKeyGenerator(2048)
+                            .keyID("abc")
+                            .algorithm(new Algorithm("RS256"))
+                            .generate();
         } catch (JOSEException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private final JWKSet jwks = new JWKSet(key);
+    private final JWKSet jwks = new JWKSet(List.of(es256Key, rs256Key));
 
     private AuthorizationCodeStore authorizationCodeStore;
 
     private IssueToken issueToken;
 
-    private final AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
+    private final AzIdPConfig config = Fixtures.azIdPConfig(es256Key.getKeyID());
 
     @BeforeEach
     void init() {
@@ -56,13 +71,34 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
-                        "clientId",
+                        "ES256Client",
                         "secret",
                         null,
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "openid rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
+        clientStore.save(
+                new Client(
+                        "RS256Client",
+                        "secret",
+                        null,
+                        Set.of(GrantType.authorization_code),
+                        Set.of(ResponseType.code),
+                        "openid rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.RS256)));
+        clientStore.save(
+                new Client(
+                        "NoneClient",
+                        "secret",
+                        null,
+                        Set.of(GrantType.authorization_code),
+                        Set.of(ResponseType.code),
+                        "openid rs:scope1 rs:scope2",
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.none)));
         clientStore.save(
                 new Client(
                         "other",
@@ -71,7 +107,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         Set.of(GrantType.authorization_code),
                         Set.of(ResponseType.code),
                         "openid rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
         issueToken =
                 new IssueToken(
                         config,
@@ -94,7 +131,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         subject,
                         UUID.randomUUID().toString(),
                         "rs:scope1",
-                        "clientId",
+                        "ES256Client",
                         "http://example.com",
                         "xyz",
                         null,
@@ -106,7 +143,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("ES256Client")
                         .build();
 
         // exercise
@@ -116,10 +153,10 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
                 (String) response.body.get("access_token"),
-                key,
+                es256Key,
                 subject,
                 "http://rs.example.com",
-                "clientId",
+                "ES256Client",
                 "rs:scope1",
                 "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
@@ -130,7 +167,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
     }
 
     @Test
-    void success_oidcWithNonce() throws JOSEException, ParseException {
+    void success_oidcWithNonceES256() throws JOSEException, ParseException {
 
         // setup
         var subject = UUID.randomUUID().toString();
@@ -139,7 +176,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         subject,
                         UUID.randomUUID().toString(),
                         "rs:scope1 openid",
-                        "clientId",
+                        "ES256Client",
                         "http://example.com",
                         "xyz",
                         Instant.now().getEpochSecond(),
@@ -153,7 +190,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("ES256Client")
                         .build();
 
         // exercise
@@ -163,10 +200,10 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
                 (String) response.body.get("access_token"),
-                key,
+                es256Key,
                 subject,
                 "http://rs.example.com",
-                "clientId",
+                "ES256Client",
                 "rs:scope1 openid",
                 "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
@@ -174,11 +211,11 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
-        IdTokenAssert.assertIdToken(
+        IdTokenAssert.assertIdTokenES256(
                 (String) response.body.get("id_token"),
-                key,
+                es256Key,
                 subject,
-                "clientId",
+                "ES256Client",
                 "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
@@ -189,7 +226,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
     }
 
     @Test
-    void success_oidcWithoutNonce() throws JOSEException, ParseException {
+    void success_oidcWithoutNonceES256() throws JOSEException, ParseException {
 
         // setup
         var subject = UUID.randomUUID().toString();
@@ -198,7 +235,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         subject,
                         UUID.randomUUID().toString(),
                         "rs:scope1 openid",
-                        "clientId",
+                        "ES256Client",
                         "http://example.com",
                         "xyz",
                         Instant.now().getEpochSecond(),
@@ -212,7 +249,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("ES256Client")
                         .build();
 
         // exercise
@@ -223,10 +260,10 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // access token
         AccessTokenAssert.assertAccessToken(
                 (String) response.body.get("access_token"),
-                key,
+                es256Key,
                 subject,
                 "http://rs.example.com",
-                "clientId",
+                "ES256Client",
                 "rs:scope1 openid",
                 "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
@@ -236,11 +273,133 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
-        IdTokenAssert.assertIdToken(
+        IdTokenAssert.assertIdTokenES256(
                 (String) response.body.get("id_token"),
-                key,
+                es256Key,
                 subject,
-                "clientId",
+                "ES256Client",
+                "http://localhost:8080",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond(),
+                Instant.now().getEpochSecond(),
+                null,
+                (String) response.body.get("access_token"),
+                null);
+    }
+
+    @Test
+    void success_oidcWithoutNonceRS256() throws JOSEException, ParseException {
+
+        // setup
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "rs:scope1 openid",
+                        "RS256Client",
+                        "http://example.com",
+                        "xyz",
+                        Instant.now().getEpochSecond(),
+                        null,
+                        null,
+                        null,
+                        Instant.now().getEpochSecond() + 600);
+        authorizationCodeStore.save(authorizationCode);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .code(authorizationCode.code)
+                        .grantType("authorization_code")
+                        .redirectUri("http://example.com")
+                        .authenticatedClientId("RS256Client")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 200);
+        // access token
+        AccessTokenAssert.assertAccessToken(
+                (String) response.body.get("access_token"),
+                es256Key,
+                subject,
+                "http://rs.example.com",
+                "RS256Client",
+                "rs:scope1 openid",
+                "http://localhost:8080",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
+        assertEquals(response.body.get("token_type"), "bearer");
+        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("token_type"), "bearer");
+        assertEquals(response.body.get("expires_in"), 3600);
+        assertTrue(response.body.containsKey("refresh_token"));
+        IdTokenAssert.assertIdTokenRS256(
+                (String) response.body.get("id_token"),
+                rs256Key,
+                subject,
+                "RS256Client",
+                "http://localhost:8080",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond(),
+                Instant.now().getEpochSecond(),
+                null,
+                (String) response.body.get("access_token"),
+                null);
+    }
+
+    @Test
+    void success_oidcWithoutNonceNone() throws JOSEException, ParseException {
+        // setup
+        var subject = UUID.randomUUID().toString();
+        var authorizationCode =
+                new AuthorizationCode(
+                        subject,
+                        UUID.randomUUID().toString(),
+                        "rs:scope1 openid",
+                        "NoneClient",
+                        "http://example.com",
+                        "xyz",
+                        Instant.now().getEpochSecond(),
+                        null,
+                        null,
+                        null,
+                        Instant.now().getEpochSecond() + 600);
+        authorizationCodeStore.save(authorizationCode);
+        var tokenRequest =
+                InternalTokenRequest.builder()
+                        .code(authorizationCode.code)
+                        .grantType("authorization_code")
+                        .redirectUri("http://example.com")
+                        .authenticatedClientId("NoneClient")
+                        .build();
+
+        // exercise
+        var response = issueToken.issue(tokenRequest);
+
+        // verify
+        assertEquals(response.status, 200);
+        // access token
+        AccessTokenAssert.assertAccessToken(
+                (String) response.body.get("access_token"),
+                es256Key,
+                subject,
+                "http://rs.example.com",
+                "NoneClient",
+                "rs:scope1 openid",
+                "http://localhost:8080",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond());
+        assertEquals(response.body.get("token_type"), "bearer");
+        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("token_type"), "bearer");
+        assertEquals(response.body.get("expires_in"), 3600);
+        assertTrue(response.body.containsKey("refresh_token"));
+        IdTokenAssert.assertIdTokenNone(
+                (String) response.body.get("id_token"),
+                subject,
+                "NoneClient",
                 "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
@@ -259,7 +418,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         subject,
                         UUID.randomUUID().toString(),
                         "notauthorized",
-                        "clientId",
+                        "ES256Client",
                         "http://example.com",
                         "xyz",
                         null,
@@ -271,7 +430,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("ES256Client")
                         .build();
 
         // exercise
@@ -292,7 +451,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         subject,
                         UUID.randomUUID().toString(),
                         "rs:scope1",
-                        "clientId",
+                        "ES256Client",
                         "http://example.com",
                         "xyz",
                         null,
@@ -304,7 +463,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("ES256Client")
                         .build();
 
         // exercise
@@ -328,7 +487,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         subject,
                         UUID.randomUUID().toString(),
                         "rs:scope1",
-                        "clientId",
+                        "ES256Client",
                         "http://example.com",
                         "xyz",
                         null,
@@ -359,7 +518,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         subject,
                         UUID.randomUUID().toString(),
                         "rs:scope1 openid",
-                        "clientId",
+                        "ES256Client",
                         "http://example.com",
                         "xyz",
                         Instant.now().getEpochSecond(),
@@ -373,7 +532,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("ES256Client")
                         .build();
 
         // exercise
@@ -393,7 +552,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         subject,
                         UUID.randomUUID().toString(),
                         "rs:scope1",
-                        "clientId",
+                        "ES256Client",
                         "http://example.com",
                         "xyz",
                         null,
@@ -405,7 +564,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://invalid.example.com")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("ES256Client")
                         .build();
 
         // exercise
@@ -426,7 +585,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         subject,
                         UUID.randomUUID().toString(),
                         "rs:scope1",
-                        "clientId",
+                        "ES256Client",
                         "http://example.com",
                         "xyz",
                         null,
@@ -438,7 +597,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .clientId("clientId")
+                        .clientId("ES256Client")
                         .build();
 
         // exercise

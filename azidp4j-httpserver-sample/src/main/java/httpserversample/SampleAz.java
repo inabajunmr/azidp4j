@@ -1,5 +1,6 @@
 package httpserversample;
 
+import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -29,7 +30,7 @@ public class SampleAz {
 
     public SampleAz() throws JOSEException {
 
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").algorithm(new Algorithm("ES256")).generate();
         jwks = new JWKSet(key);
         var config =
                 new AzIdPConfig(
@@ -41,7 +42,7 @@ public class SampleAz {
                         "http://localhost:8080/client/{CLIENT_ID}",
                         "http://localhost:8080/userinfo",
                         Set.of("openid", "scope1", "scope2", "default"),
-                        key.getKeyID(), key.getKeyID(), 3600, 600, 604800, 3600);
+                        key.getKeyID(), 3600, 600, 604800, 3600);
         clientStore = new InMemoryClientStore();
         var userPasswordVerifier =
                 new UserPasswordVerifier() {

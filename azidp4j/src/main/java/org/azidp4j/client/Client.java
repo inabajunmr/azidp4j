@@ -18,6 +18,8 @@ public class Client {
     public final String scope;
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final TokenEndpointAuthMethod tokenEndpointAuthMethod;
+    /** OAuth 2.0 Dynamic Client Registration Protocol */
+    public final Set<SigningAlgorithm> idTokenSignedResponseAlg;
 
     public Client(
             String clientId,
@@ -26,7 +28,8 @@ public class Client {
             Set<GrantType> grantTypes,
             Set<ResponseType> responseTypes,
             String scope,
-            TokenEndpointAuthMethod tokenEndpointAuthMethod) {
+            TokenEndpointAuthMethod tokenEndpointAuthMethod,
+            Set<SigningAlgorithm> idTokenSignedResponseAlg) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUris = redirectUris;
@@ -34,5 +37,15 @@ public class Client {
         this.responseTypes = responseTypes;
         this.scope = scope;
         this.tokenEndpointAuthMethod = tokenEndpointAuthMethod;
+        this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
+    }
+
+    public SigningAlgorithm primarySigningAlgorithm() {
+        if (idTokenSignedResponseAlg.contains(SigningAlgorithm.ES256)) {
+            return SigningAlgorithm.ES256;
+        } else if (idTokenSignedResponseAlg.contains(SigningAlgorithm.RS256)) {
+            return SigningAlgorithm.RS256;
+        }
+        return SigningAlgorithm.none;
     }
 }

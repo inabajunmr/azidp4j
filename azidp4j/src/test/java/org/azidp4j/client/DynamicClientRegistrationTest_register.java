@@ -26,7 +26,7 @@ class DynamicClientRegistrationTest_register {
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var atIssuer = new AccessTokenIssuer(config, jwks, scope -> Set.of("rs"));
         var registration =
-                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer);
+                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer, jwks);
         var req =
                 ClientRegistrationRequest.builder()
                         .redirectUris(
@@ -42,6 +42,7 @@ class DynamicClientRegistrationTest_register {
                         .scope("scope1 scope2")
                         .responseTypes(Set.of("code", "token", "id_token"))
                         .tokenEndpointAuthMethod("client_secret_basic")
+                        .idTokenSignedResponseAlg(Set.of("ES256", "RS256", "none"))
                         .build();
 
         // exercise
@@ -63,6 +64,9 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("registration_client_uri"),
                 "http://localhost:8080/client/" + response.body.get("client_id"));
+        assertEquals(
+                response.body.get("id_token_signed_response_alg"),
+                Set.of("ES256", "RS256", "none"));
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
                 (String) at,
@@ -84,7 +88,7 @@ class DynamicClientRegistrationTest_register {
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var atIssuer = new AccessTokenIssuer(config, jwks, scope -> Set.of("rs"));
         var registration =
-                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer);
+                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer, jwks);
         var req = ClientRegistrationRequest.builder().build();
 
         // exercise
@@ -102,6 +106,7 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("registration_client_uri"),
                 "http://localhost:8080/client/" + response.body.get("client_id"));
+        assertEquals(response.body.get("id_token_signed_response_alg"), Set.of("ES256"));
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
                 (String) at,

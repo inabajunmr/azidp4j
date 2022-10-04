@@ -19,7 +19,8 @@ public class InMemoryClientStore implements ClientStore {
                         Set.of(GrantType.client_credentials),
                         Set.of(),
                         "default",
-                        TokenEndpointAuthMethod.client_secret_basic));
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        Set.of(SigningAlgorithm.ES256)));
     }
 
     @Override
@@ -30,5 +31,10 @@ public class InMemoryClientStore implements ClientStore {
     @Override
     public Client find(String clientId) {
         return STORE.get(clientId);
+    }
+
+    @Override
+    public Client delete(String clientId) {
+        return STORE.remove(clientId);
     }
 }
