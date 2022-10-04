@@ -124,7 +124,7 @@ class AuthorizeTest_Hybrid {
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
-        IdTokenAssert.assertIdToken(
+        IdTokenAssert.assertIdTokenES256(
                 fragmentMap.get("id_token"),
                 key,
                 "username",
@@ -168,7 +168,7 @@ class AuthorizeTest_Hybrid {
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
-        IdTokenAssert.assertIdToken(
+        IdTokenAssert.assertIdTokenES256(
                 fragmentMap.get("id_token"),
                 key,
                 "username",
@@ -221,7 +221,7 @@ class AuthorizeTest_Hybrid {
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
-        IdTokenAssert.assertIdToken(
+        IdTokenAssert.assertIdTokenES256(
                 fragmentMap.get("id_token"),
                 key,
                 "username",

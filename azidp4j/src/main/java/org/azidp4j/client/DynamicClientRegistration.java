@@ -71,7 +71,8 @@ public class DynamicClientRegistration {
         }
 
         var idTokenSignedResponseAlg = new HashSet<SigningAlgorithm>();
-        if (request.idTokenSignedResponseAlg == null) {
+        if (request.idTokenSignedResponseAlg == null
+                || request.idTokenSignedResponseAlg.isEmpty()) {
             idTokenSignedResponseAlg.add(SigningAlgorithm.ES256);
         } else {
             for (String r : request.idTokenSignedResponseAlg) {
@@ -122,7 +123,11 @@ public class DynamicClientRegistration {
                         "scope",
                         client.scope,
                         "token_endpoint_auth_method",
-                        client.tokenEndpointAuthMethod.name()));
+                        client.tokenEndpointAuthMethod.name(),
+                        "id_token_signed_response_alg",
+                        client.idTokenSignedResponseAlg.stream()
+                                .map(Enum::name)
+                                .collect(Collectors.toSet())));
     }
 
     public ClientRegistrationResponse configure(ClientConfigurationRequest request) {
@@ -171,7 +176,8 @@ public class DynamicClientRegistration {
             }
         }
         var idTokenSignedResponseAlg = client.idTokenSignedResponseAlg;
-        if (request.idTokenSignedResponseAlg != null) {
+        if (request.idTokenSignedResponseAlg != null
+                && request.idTokenSignedResponseAlg.isEmpty()) {
             for (String r : request.idTokenSignedResponseAlg) {
                 var alg = SigningAlgorithm.of(r);
                 if (alg == null) {
@@ -209,7 +215,11 @@ public class DynamicClientRegistration {
                         "scope",
                         updated.scope,
                         "token_endpoint_auth_method",
-                        updated.tokenEndpointAuthMethod.name()));
+                        updated.tokenEndpointAuthMethod.name(),
+                        "id_token_signed_response_alg",
+                        client.idTokenSignedResponseAlg.stream()
+                                .map(Enum::name)
+                                .collect(Collectors.toSet())));
     }
 
     public ClientDeleteResponse delete(String clientId) {
