@@ -15,7 +15,6 @@ public class Fixtures {
                 "http://localhost:8080/userinfo",
                 Set.of("openid", "scope1", "scope2", "default"),
                 kid,
-                kid,
                 3600,
                 600,
                 604800,

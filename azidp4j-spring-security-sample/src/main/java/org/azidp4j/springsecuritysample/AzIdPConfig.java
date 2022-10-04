@@ -40,7 +40,6 @@ public class AzIdPConfig {
                         endpoint + "/userinfo",
                         Set.of("openid", "scope1", "scope2", "default"),
                         key.getKeyID(),
-                        key.getKeyID(),
                         3600,
                         600,
                         604800,
