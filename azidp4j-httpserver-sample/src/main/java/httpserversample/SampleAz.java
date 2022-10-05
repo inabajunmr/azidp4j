@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import httpserversample.authenticator.InnerAccessTokenAuthenticator;
 import httpserversample.handler.*;
 import org.azidp4j.AzIdP;
 import org.azidp4j.AzIdPConfig;
@@ -19,6 +20,8 @@ import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
 import httpserversample.authenticator.JWSAccessTokenAuthenticator;
 import org.azidp4j.token.UserPasswordVerifier;
+import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 
 public class SampleAz {
@@ -27,6 +30,7 @@ public class SampleAz {
     public AzIdP azIdP;
     private final JWKSet jwks;
     private final ClientStore clientStore;
+    private final AccessTokenStore accessTokenStore;
 
     public SampleAz() throws JOSEException {
 
@@ -56,11 +60,13 @@ public class SampleAz {
                         };
                     }
                 };
+        accessTokenStore = new InMemoryAccessTokenStore();
         azIdP =
                 new AzIdP(
                         config,
                         jwks,
                         clientStore,
+                        accessTokenStore,
                         new InMemoryRefreshTokenStore(),
                         new SampleScopeAudienceMapper(),
                         userPasswordVerifier);
@@ -73,7 +79,7 @@ public class SampleAz {
         server.createContext("/jwks", new JWKsEndpointHandler(jwks));
         server.createContext("/discovery", new DiscoveryHandler(azIdP));
         server.createContext("/client", new DynamicClientRegistrationHandler(azIdP))
-                .setAuthenticator(new JWSAccessTokenAuthenticator(jwks));
+                .setAuthenticator(new InnerAccessTokenAuthenticator(accessTokenStore));
         server.createContext("/login", new LoginHandler());
         server.createContext("/consent", new ConsentHandler());
         ExecutorService pool = Executors.newFixedThreadPool(1);

@@ -7,6 +7,8 @@ import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.azidp4j.springsecuritysample.user.UserInfo;
 import org.azidp4j.springsecuritysample.user.UserStore;
+import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -48,11 +51,22 @@ public class SecurityConfiguration {
                                         .authenticated())
                 .httpBasic(withDefaults())
                 .formLogin(withDefaults())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));
+                .oauth2ResourceServer()
+                .opaqueToken();
         http.httpBasic().disable();
         http.csrf().ignoringAntMatchers("/authorize", "/token", "/client");
         // @formatter:on
         return http.build();
+    }
+
+    @Bean
+    public AccessTokenStore accessTokenStore() {
+        return new InMemoryAccessTokenStore();
+    }
+
+    @Bean
+    public OpaqueTokenIntrospector introspector() {
+        return new InternalOpaqueTokenIntrospector(accessTokenStore());
     }
 
     @Bean

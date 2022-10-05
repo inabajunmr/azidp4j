@@ -1,29 +1,31 @@
 package org.azidp4j.client;
 
 import com.nimbusds.jose.jwk.JWKSet;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.token.TokenEndpointAuthMethod;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessToken;
 import org.azidp4j.util.MapUtil;
 
 public class DynamicClientRegistration {
 
     private final AzIdPConfig config;
     private final ClientStore clientStore;
-    private final AccessTokenIssuer accessTokenIssuer;
+    private final AccessTokenStore accessTokenStore;
     private final JWKSet jwkSet;
 
     public DynamicClientRegistration(
             AzIdPConfig config,
             ClientStore clientStore,
-            AccessTokenIssuer accessTokenIssuer,
+            AccessTokenStore accessTokenStore,
             JWKSet jwkSet) {
         this.config = config;
         this.clientStore = clientStore;
-        this.accessTokenIssuer = accessTokenIssuer;
+        this.accessTokenStore = accessTokenStore;
         this.jwkSet = jwkSet;
     }
 
@@ -98,10 +100,15 @@ public class DynamicClientRegistration {
                         tokenEndpointAuthMethod,
                         idTokenSignedResponseAlg);
         clientStore.save(client);
-
         var at =
-                accessTokenIssuer.issue(
-                        client.clientId, client.clientId, "configure", Set.of(config.issuer));
+                new InMemoryAccessToken(
+                        UUID.randomUUID().toString(),
+                        client.clientId,
+                        "configure",
+                        client.clientId,
+                        Set.of(config.issuer),
+                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec);
+        accessTokenStore.save(at);
         return new ClientRegistrationResponse(
                 201,
                 MapUtil.nullRemovedMap(
@@ -110,7 +117,7 @@ public class DynamicClientRegistration {
                         "client_secret",
                         client.clientSecret,
                         "registration_access_token",
-                        at.serialize(),
+                        at.getToken(),
                         "registration_client_uri",
                         config.clientConfigurationEndpointPattern.replace(
                                 "{CLIENT_ID}", client.clientId),

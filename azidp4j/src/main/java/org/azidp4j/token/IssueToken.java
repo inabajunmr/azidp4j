@@ -12,8 +12,10 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.AuthorizationCodeStore;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
+import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.scope.ScopeValidator;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessToken;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.azidp4j.token.refreshtoken.RefreshTokenStore;
@@ -22,7 +24,8 @@ import org.azidp4j.util.MapUtil;
 public class IssueToken {
 
     AuthorizationCodeStore authorizationCodeStore;
-    AccessTokenIssuer accessTokenIssuer;
+    AccessTokenStore accessTokenStore;
+    ScopeAudienceMapper scopeAudienceMapper;
     IDTokenIssuer idTokenIssuer;
     RefreshTokenStore refreshTokenStore;
     AzIdPConfig config;
@@ -34,16 +37,18 @@ public class IssueToken {
     public IssueToken(
             AzIdPConfig azIdPConfig,
             AuthorizationCodeStore authorizationCodeStore,
-            AccessTokenIssuer accessTokenIssuer,
+            AccessTokenStore accessTokenStore,
             IDTokenIssuer idTokenIssuer,
             RefreshTokenStore refreshTokenStore,
+            ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier,
             ClientStore clientStore,
             JWKSet jwkSet) {
         this.authorizationCodeStore = authorizationCodeStore;
-        this.accessTokenIssuer = accessTokenIssuer;
+        this.accessTokenStore = accessTokenStore;
         this.idTokenIssuer = idTokenIssuer;
         this.refreshTokenStore = refreshTokenStore;
+        this.scopeAudienceMapper = scopeAudienceMapper;
         this.config = azIdPConfig;
         this.userPasswordVerifier = userPasswordVerifier;
         this.clientStore = clientStore;
@@ -83,6 +88,8 @@ public class IssueToken {
             case authorization_code -> {
                 var authorizationCode = authorizationCodeStore.consume(request.code);
                 if (authorizationCode == null) {
+                    accessTokenStore.removeByAuthorizationCode(request.code);
+                    refreshTokenStore.removeByAuthorizationCode(request.code);
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
                 if (!authorizationCode.clientId.equals(client.clientId)) {
@@ -123,15 +130,22 @@ public class IssueToken {
                 }
 
                 var at =
-                        accessTokenIssuer.issue(
-                                authorizationCode.sub, client.clientId, authorizationCode.scope);
+                        new InMemoryAccessToken(
+                                UUID.randomUUID().toString(),
+                                authorizationCode.sub,
+                                authorizationCode.scope,
+                                authorizationCode.clientId,
+                                scopeAudienceMapper.map(authorizationCode.scope),
+                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                                authorizationCode.code);
+                accessTokenStore.save(at);
                 var rt =
                         new RefreshToken(
                                 UUID.randomUUID().toString(),
                                 authorizationCode.sub,
                                 authorizationCode.scope,
                                 authorizationCode.clientId,
-                                Instant.now().getEpochSecond() + config.refreshTokenExpirationSec);
+                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec);
                 refreshTokenStore.save(rt);
                 if (scopeValidator.contains(authorizationCode.scope, "openid")) {
                     // OIDC
@@ -141,7 +155,7 @@ public class IssueToken {
                                     client.clientId,
                                     authorizationCode.authTime,
                                     authorizationCode.nonce,
-                                    at.serialize(),
+                                    at.getToken(),
                                     null,
                                     client.primarySigningAlgorithm());
                     if (authorizationCode.state == null) {
@@ -149,7 +163,7 @@ public class IssueToken {
                                 200,
                                 MapUtil.nullRemovedMap(
                                         "access_token",
-                                        at.serialize(),
+                                        at.getToken(),
                                         "id_token",
                                         idToken.serialize(),
                                         "refresh_token",
@@ -165,7 +179,7 @@ public class IssueToken {
                             200,
                             MapUtil.nullRemovedMap(
                                     "access_token",
-                                    at.serialize(),
+                                    at.getToken(),
                                     "id_token",
                                     idToken.serialize(),
                                     "refresh_token",
@@ -185,7 +199,7 @@ public class IssueToken {
                             200,
                             MapUtil.nullRemovedMap(
                                     "access_token",
-                                    at.serialize(),
+                                    at.getToken(),
                                     "refresh_token",
                                     rt.token,
                                     "token_type",
@@ -212,8 +226,16 @@ public class IssueToken {
                 }
                 if (userPasswordVerifier.verify(request.username, request.password)) {
                     var at =
-                            accessTokenIssuer.issue(
-                                    request.username, client.clientId, request.scope);
+                            new InMemoryAccessToken(
+                                    UUID.randomUUID().toString(),
+                                    request.username,
+                                    request.scope,
+                                    client.clientId,
+                                    scopeAudienceMapper.map(request.scope),
+                                    Instant.now().getEpochSecond()
+                                            + config.accessTokenExpirationSec,
+                                    null);
+                    accessTokenStore.save(at);
                     var rt =
                             new RefreshToken(
                                     UUID.randomUUID().toString(),
@@ -226,7 +248,7 @@ public class IssueToken {
                             200,
                             MapUtil.nullRemovedMap(
                                     "access_token",
-                                    at.serialize(),
+                                    at.getToken(),
                                     "refresh_token",
                                     rt.token,
                                     "token_type",
@@ -250,12 +272,21 @@ public class IssueToken {
                 if (!scopeValidator.hasEnoughScope(request.scope, client)) {
                     return new TokenResponse(400, Map.of("error", "invalid_scope"));
                 }
-                var jws = accessTokenIssuer.issue(client.clientId, client.clientId, request.scope);
+                var at =
+                        new InMemoryAccessToken(
+                                UUID.randomUUID().toString(),
+                                client.clientId,
+                                request.scope,
+                                client.clientId,
+                                scopeAudienceMapper.map(request.scope),
+                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                                null);
+                accessTokenStore.save(at);
                 return new TokenResponse(
                         200,
                         MapUtil.nullRemovedMap(
                                 "access_token",
-                                jws.serialize(),
+                                at.getToken(),
                                 "token_type",
                                 "bearer",
                                 "expires_in",
@@ -281,20 +312,30 @@ public class IssueToken {
                     return new TokenResponse(400, Map.of("error", "invalid_scope"));
                 }
                 var scope = request.scope != null ? request.scope : rt.scope;
-                var at = accessTokenIssuer.issue(rt.sub, client.clientId, scope);
+                var at =
+                        new InMemoryAccessToken(
+                                UUID.randomUUID().toString(),
+                                rt.sub,
+                                scope,
+                                client.clientId,
+                                scopeAudienceMapper.map(scope),
+                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                                rt.authorizationCode);
+                accessTokenStore.save(at);
                 var newRt =
                         new RefreshToken(
                                 UUID.randomUUID().toString(),
                                 rt.sub,
                                 scope,
                                 rt.clientId,
-                                Instant.now().getEpochSecond() + config.refreshTokenExpirationSec);
+                                Instant.now().getEpochSecond() + config.refreshTokenExpirationSec,
+                                rt.authorizationCode);
                 refreshTokenStore.save(newRt);
                 return new TokenResponse(
                         200,
                         MapUtil.nullRemovedMap(
                                 "access_token",
-                                at.serialize(),
+                                at.getToken(),
                                 "refresh_token",
                                 newRt.token,
                                 "token_type",

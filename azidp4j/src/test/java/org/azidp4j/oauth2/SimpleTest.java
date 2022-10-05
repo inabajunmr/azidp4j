@@ -1,12 +1,9 @@
 package org.azidp4j.oauth2;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.net.URI;
@@ -25,6 +22,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenRequest;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.Test;
 
@@ -43,6 +41,7 @@ public class SimpleTest {
                         Fixtures.azIdPConfig(key.getKeyID()),
                         jwks,
                         new InMemoryClientStore(),
+                        new InMemoryAccessTokenStore(),
                         new InMemoryRefreshTokenStore(),
                         new SampleScopeAudienceMapper());
 
@@ -107,18 +106,8 @@ public class SimpleTest {
         var tokenResponse1 = sut.issueToken(tokenRequest1);
 
         // verify
-        var accessToken = tokenResponse1.body.get("access_token");
+        assertNotNull(tokenResponse1.body.get("access_token"));
         var refreshToken = tokenResponse1.body.get("refresh_token");
-
-        // verify signature
-        var parsedAccessToken1 = JWSObject.parse((String) accessToken);
-        var publicKey =
-                jwks.toPublicJWKSet().getKeyByKeyId(parsedAccessToken1.getHeader().getKeyID());
-        var jwsVerifier = new ECDSAVerifier((ECKey) publicKey);
-        assertTrue(parsedAccessToken1.verify(jwsVerifier));
-
-        // verify access token
-        assertEquals(parsedAccessToken1.getPayload().toJSONObject().get("sub"), "username");
 
         // token request
         var tokenRequestBody2 =
@@ -130,13 +119,6 @@ public class SimpleTest {
         var tokenResponse2 = sut.issueToken(tokenRequest2);
 
         // verify
-        var refreshedAccessToken = tokenResponse2.body.get("access_token");
-
-        // verify signature
-        var parsedAccessToken2 = JWSObject.parse((String) refreshedAccessToken);
-        assertTrue(parsedAccessToken2.verify(jwsVerifier));
-
-        // verify access token
-        assertEquals(parsedAccessToken2.getPayload().toJSONObject().get("sub"), "username");
+        assertNotNull(tokenResponse2.body.get("access_token"));
     }
 }

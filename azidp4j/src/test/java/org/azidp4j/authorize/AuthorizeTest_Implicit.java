@@ -21,7 +21,7 @@ import org.azidp4j.IdTokenAssert;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
 
@@ -85,12 +85,13 @@ class AuthorizeTest_Implicit {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
-
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        accessTokenStore,
+                        new SampleScopeAudienceMapper(),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
@@ -115,15 +116,12 @@ class AuthorizeTest_Implicit {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertNull(fragmentMap.get("state"));
         AccessTokenAssert.assertAccessToken(
-                fragmentMap.get("access_token"),
-                key,
+                accessTokenStore.find(fragmentMap.get("access_token")),
                 "username",
                 "http://rs.example.com",
                 "client1",
                 "rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
     }
@@ -146,11 +144,13 @@ class AuthorizeTest_Implicit {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        accessTokenStore,
+                        new SampleScopeAudienceMapper(),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
@@ -176,15 +176,12 @@ class AuthorizeTest_Implicit {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
-                fragmentMap.get("access_token"),
-                key,
+                accessTokenStore.find(fragmentMap.get("access_token")),
                 "username",
                 "http://rs.example.com",
                 "client1",
                 "rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
     }
@@ -211,11 +208,13 @@ class AuthorizeTest_Implicit {
                         .generate();
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        accessTokenStore,
+                        new SampleScopeAudienceMapper(),
                         new IDTokenIssuer(config, jwks),
                         config);
         var authorizationRequest =
@@ -241,15 +240,12 @@ class AuthorizeTest_Implicit {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
-                fragmentMap.get("access_token"),
-                key,
+                accessTokenStore.find(fragmentMap.get("access_token")),
                 "username",
                 "http://rs.example.com",
                 "client1",
                 "openid rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
         IdTokenAssert.assertIdTokenES256(
@@ -290,11 +286,13 @@ class AuthorizeTest_Implicit {
                 new RSAKeyGenerator(2048).keyID("123").algorithm(new Algorithm("RS256")).generate();
         var jwks = new JWKSet(List.of(ecKey, rsaKey));
         var config = Fixtures.azIdPConfig(ecKey.getKeyID());
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        accessTokenStore,
+                        new SampleScopeAudienceMapper(),
                         new IDTokenIssuer(config, jwks),
                         config);
         var authorizationRequest =
@@ -320,15 +318,12 @@ class AuthorizeTest_Implicit {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
-                fragmentMap.get("access_token"),
-                ecKey,
+                accessTokenStore.find(fragmentMap.get("access_token")),
                 "username",
                 "http://rs.example.com",
                 "client1",
                 "openid rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
         IdTokenAssert.assertIdTokenRS256(
@@ -367,11 +362,13 @@ class AuthorizeTest_Implicit {
                         .generate();
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        accessTokenStore,
+                        new SampleScopeAudienceMapper(),
                         new IDTokenIssuer(config, jwks),
                         config);
         var authorizationRequest =
@@ -397,15 +394,12 @@ class AuthorizeTest_Implicit {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
-                fragmentMap.get("access_token"),
-                key,
+                accessTokenStore.find(fragmentMap.get("access_token")),
                 "username",
                 "http://rs.example.com",
                 "client1",
                 "openid rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
         IdTokenAssert.assertIdTokenNone(

@@ -19,7 +19,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.Test;
@@ -62,9 +62,10 @@ public class IssueTokenTest {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        new InMemoryAccessTokenStore(),
                         new IDTokenIssuer(config, jwks),
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);

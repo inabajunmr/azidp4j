@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +22,7 @@ public class UserInfoEndpointHandler {
     @GetMapping("/userinfo")
     public ResponseEntity<Map<String, Object>> userinfo() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth instanceof JwtAuthenticationToken) {
+        if (auth instanceof BearerTokenAuthentication) {
             var scopes =
                     auth.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority)

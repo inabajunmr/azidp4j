@@ -13,7 +13,7 @@ import org.azidp4j.Fixtures;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +56,8 @@ class AuthorizeTest_AuthorizationCode {
             new Authorize(
                     clientStore,
                     new InMemoryAuthorizationCodeStore(),
-                    new AccessTokenIssuer(config, new JWKSet(), new SampleScopeAudienceMapper()),
+                    new InMemoryAccessTokenStore(),
+                    new SampleScopeAudienceMapper(),
                     new IDTokenIssuer(config, new JWKSet()),
                     config);
 
@@ -113,8 +114,8 @@ class AuthorizeTest_AuthorizationCode {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(
-                                config, new JWKSet(), new SampleScopeAudienceMapper()),
+                        new InMemoryAccessTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
@@ -162,8 +163,8 @@ class AuthorizeTest_AuthorizationCode {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(
-                                config, new JWKSet(), new SampleScopeAudienceMapper()),
+                        new InMemoryAccessTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
@@ -212,8 +213,8 @@ class AuthorizeTest_AuthorizationCode {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new AccessTokenIssuer(
-                                config, new JWKSet(), new SampleScopeAudienceMapper()),
+                        new InMemoryAccessTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =

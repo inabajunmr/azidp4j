@@ -17,7 +17,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.Test;
@@ -32,8 +32,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -50,9 +49,10 @@ class IssueTokenTest_ClientCredentialsGrant {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);
@@ -69,15 +69,12 @@ class IssueTokenTest_ClientCredentialsGrant {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 "clientId",
                 "http://rs.example.com",
                 "clientId",
                 "rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertFalse(response.body.containsKey("refresh_token"));
@@ -91,8 +88,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig("kid");
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenIssuer = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -112,6 +108,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                         accessTokenIssuer,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);
@@ -138,8 +135,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig("kid");
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenIssuer = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -159,6 +155,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                         accessTokenIssuer,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);
@@ -185,8 +182,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig("kid");
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenIssuer = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -206,6 +202,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                         accessTokenIssuer,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);

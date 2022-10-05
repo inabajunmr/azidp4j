@@ -17,7 +17,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.Test;
@@ -32,8 +32,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
@@ -57,9 +56,10 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         userPasswordVerifier,
                         clientStore,
                         jwks);
@@ -79,15 +79,12 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 "username",
                 "http://rs.example.com",
                 "clientId",
                 "rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
@@ -101,8 +98,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
@@ -126,9 +122,10 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         userPasswordVerifier,
                         clientStore,
                         jwks);
@@ -148,15 +145,12 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 "username",
                 "http://rs.example.com",
                 "clientId",
                 "rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
@@ -170,8 +164,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenIssuer = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
@@ -198,6 +191,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         accessTokenIssuer,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         userPasswordVerifier,
                         clientStore,
                         jwks);
@@ -228,8 +222,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenIssuer = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
@@ -256,6 +249,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         accessTokenIssuer,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         userPasswordVerifier,
                         clientStore,
                         jwks);
