@@ -13,6 +13,7 @@ import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -122,5 +123,10 @@ public class AzIdPConfig {
                         .algorithm(new Algorithm("ES256"))
                         .generate();
         return new JWKSet(key);
+    }
+
+    @Bean
+    public AccessTokenStore accessTokenStore() {
+        return new InMemoryAccessTokenStore();
     }
 }

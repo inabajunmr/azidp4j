@@ -343,7 +343,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
     }
 
     @Test
-    void success_oidcWithoutNonceNone() throws JOSEException, ParseException {
+    void success_oidcWithoutNonceNone() throws ParseException {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
@@ -461,11 +461,16 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
 
         // verify
         assertEquals(response.status, 200);
+        var at = response.body.get("access_token");
+        assertNotNull(accessTokenStore.find((String) at));
 
         // second time
         var response2 = issueToken.issue(tokenRequest);
-        assertEquals(response.status, 200);
+        assertEquals(response2.status, 400);
         assertEquals(response2.body.get("error"), "invalid_grant");
+
+        // using same code, access token will be revoked
+        assertNull(accessTokenStore.find((String) at));
     }
 
     @Test

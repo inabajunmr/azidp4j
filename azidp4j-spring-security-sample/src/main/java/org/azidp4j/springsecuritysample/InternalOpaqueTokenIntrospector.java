@@ -1,5 +1,6 @@
 package org.azidp4j.springsecuritysample;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,7 +25,9 @@ public class InternalOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
         if (at == null) {
             throw new BadOpaqueTokenException("Provided token isn't active");
         }
-        // TODO check expired or
+        if (at.getExpiresAtEpochSec() < Instant.now().getEpochSecond()) {
+            throw new BadOpaqueTokenException("Provided token is expired");
+        }
         return new OAuth2IntrospectionAuthenticatedPrincipal(
                 at.getSub(),
                 Map.of("test", "test"),

@@ -145,7 +145,7 @@ public class IssueToken {
                                 authorizationCode.sub,
                                 authorizationCode.scope,
                                 authorizationCode.clientId,
-                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec);
+                                Instant.now().getEpochSecond() + config.refreshTokenExpirationSec);
                 refreshTokenStore.save(rt);
                 if (scopeValidator.contains(authorizationCode.scope, "openid")) {
                     // OIDC
@@ -233,8 +233,7 @@ public class IssueToken {
                                     client.clientId,
                                     scopeAudienceMapper.map(request.scope),
                                     Instant.now().getEpochSecond()
-                                            + config.accessTokenExpirationSec,
-                                    null);
+                                            + config.accessTokenExpirationSec);
                     accessTokenStore.save(at);
                     var rt =
                             new RefreshToken(
@@ -279,8 +278,7 @@ public class IssueToken {
                                 request.scope,
                                 client.clientId,
                                 scopeAudienceMapper.map(request.scope),
-                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
-                                null);
+                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec);
                 accessTokenStore.save(at);
                 return new TokenResponse(
                         200,
@@ -345,9 +343,7 @@ public class IssueToken {
                                 "scope",
                                 scope));
             }
-            default -> {
-                throw new RuntimeException("unsupported grant type");
-            }
+            default -> throw new RuntimeException("unsupported grant type");
         }
     }
 }
