@@ -81,7 +81,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         Set.of(ResponseType.code),
                         "openid rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         clientStore.save(
                 new Client(
                         "RS256Client",
@@ -91,7 +91,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         Set.of(ResponseType.code),
                         "openid rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.RS256)));
+                        SigningAlgorithm.RS256));
         clientStore.save(
                 new Client(
                         "NoneClient",
@@ -101,7 +101,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         Set.of(ResponseType.code),
                         "openid rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.none)));
+                        SigningAlgorithm.none));
         clientStore.save(
                 new Client(
                         "other",
@@ -111,7 +111,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         Set.of(ResponseType.code),
                         "openid rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         accessTokenStore = new InMemoryAccessTokenStore();
         issueToken =
                 new IssueToken(

@@ -37,7 +37,7 @@ class AuthorizeTest_Implicit {
                     Set.of(ResponseType.code),
                     "scope1 scope2 openid",
                     TokenEndpointAuthMethod.client_secret_basic,
-                    Set.of(SigningAlgorithm.ES256));
+                    SigningAlgorithm.ES256);
 
     Client noGrantTypesClient =
             new Client(
@@ -48,7 +48,7 @@ class AuthorizeTest_Implicit {
                     Set.of(ResponseType.code),
                     "scope1 scope2",
                     TokenEndpointAuthMethod.client_secret_basic,
-                    Set.of(SigningAlgorithm.ES256));
+                    SigningAlgorithm.ES256);
 
     Client noResponseTypesClient =
             new Client(
@@ -59,7 +59,7 @@ class AuthorizeTest_Implicit {
                     Set.of(),
                     "scope1 scope2",
                     TokenEndpointAuthMethod.client_secret_basic,
-                    Set.of(SigningAlgorithm.ES256));
+                    SigningAlgorithm.ES256);
 
     public AuthorizeTest_Implicit() {
         clientStore.save(clientEs256);
@@ -80,7 +80,7 @@ class AuthorizeTest_Implicit {
                         Set.of(ResponseType.token),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256));
+                        SigningAlgorithm.ES256);
         clientStore.save(client);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
@@ -139,7 +139,7 @@ class AuthorizeTest_Implicit {
                         Set.of(ResponseType.token),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256));
+                        SigningAlgorithm.ES256);
         clientStore.save(client);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
@@ -199,7 +199,7 @@ class AuthorizeTest_Implicit {
                         Set.of(ResponseType.token, ResponseType.id_token),
                         "openid rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256));
+                        SigningAlgorithm.ES256);
         clientStore.save(client);
         var key =
                 new ECKeyGenerator(Curve.P_256)
@@ -275,7 +275,7 @@ class AuthorizeTest_Implicit {
                         Set.of(ResponseType.token, ResponseType.id_token),
                         "openid rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.RS256));
+                        SigningAlgorithm.RS256);
         clientStore.save(client);
         var ecKey =
                 new ECKeyGenerator(Curve.P_256)
@@ -353,7 +353,7 @@ class AuthorizeTest_Implicit {
                         Set.of(ResponseType.token, ResponseType.id_token),
                         "openid rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.none));
+                        SigningAlgorithm.none);
         clientStore.save(client);
         var key =
                 new ECKeyGenerator(Curve.P_256)

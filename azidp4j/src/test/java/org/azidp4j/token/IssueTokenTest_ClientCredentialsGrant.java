@@ -44,7 +44,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                         Set.of(),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         var issueToken =
                 new IssueToken(
                         config,
@@ -100,7 +100,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                         Set.of(),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         var issueToken =
                 new IssueToken(
                         config,
@@ -147,7 +147,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                         Set.of(),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         var issueToken =
                 new IssueToken(
                         config,
@@ -194,7 +194,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                         Set.of(),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.none,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         var issueToken =
                 new IssueToken(
                         config,

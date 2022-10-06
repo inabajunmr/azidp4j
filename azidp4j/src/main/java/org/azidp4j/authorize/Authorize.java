@@ -352,7 +352,7 @@ public class Authorize {
                                     authorizationRequest.nonce,
                                     accessToken,
                                     authorizationCode,
-                                    client.primarySigningAlgorithm())
+                                    client.idTokenSignedResponseAlg)
                             .serialize();
         }
 

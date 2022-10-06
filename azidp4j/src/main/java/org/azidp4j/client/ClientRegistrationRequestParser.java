@@ -18,8 +18,9 @@ public class ClientRegistrationRequestParser {
                         ? parameters.get("token_endpoint_auth_method").toString()
                         : null;
         var idTokenSignedResponseAlg =
-                valuesToStringSet(
-                        parameters.getOrDefault("id_token_signed_response_alg", Set.of()));
+                parameters.containsKey("id_token_signed_response_alg")
+                        ? parameters.get("id_token_signed_response_alg").toString()
+                        : null;
         return ClientRegistrationRequest.builder()
                 .redirectUris(redirectUris)
                 .grantTypes(grantTypes)

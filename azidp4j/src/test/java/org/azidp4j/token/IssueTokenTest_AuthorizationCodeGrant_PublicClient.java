@@ -63,7 +63,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         Set.of(ResponseType.code),
                         "openid rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.none,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         accessTokenStore = new InMemoryAccessTokenStore();
         issueToken =
                 new IssueToken(

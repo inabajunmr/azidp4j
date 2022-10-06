@@ -57,7 +57,7 @@ public class IssueTokenTest {
                         Set.of(ResponseType.code),
                         "scope1 scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         var issueToken =
                 new IssueToken(
                         config,

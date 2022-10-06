@@ -157,7 +157,7 @@ public class IssueToken {
                                     authorizationCode.nonce,
                                     at.getToken(),
                                     null,
-                                    client.primarySigningAlgorithm());
+                                    client.idTokenSignedResponseAlg);
                     if (authorizationCode.state == null) {
                         return new TokenResponse(
                                 200,

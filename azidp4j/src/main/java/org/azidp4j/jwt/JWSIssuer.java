@@ -6,9 +6,6 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.PlainJWT;
-import java.text.ParseException;
 import java.util.Map;
 import org.azidp4j.client.SigningAlgorithm;
 
@@ -45,8 +42,8 @@ public class JWSIssuer {
 
     public JOSEObject issue(SigningAlgorithm alg, Map<String, Object> payload) {
         try {
-            if (alg == SigningAlgorithm.none) {
-                return new PlainJWT(JWTClaimsSet.parse(payload));
+            if (alg == SigningAlgorithm.none) { // TODO test
+                return new PlainObject(new Payload(payload));
             }
             var key =
                     jwkSet.getKeys().stream()
@@ -81,7 +78,7 @@ public class JWSIssuer {
             } else {
                 throw new AssertionError("not supported key.");
             }
-        } catch (JOSEException | ParseException e) {
+        } catch (JOSEException e) {
             throw new AssertionError(e);
         }
     }
