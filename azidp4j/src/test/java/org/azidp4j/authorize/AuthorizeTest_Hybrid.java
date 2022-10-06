@@ -21,7 +21,8 @@ import org.azidp4j.IdTokenAssert;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
 
@@ -46,11 +47,13 @@ class AuthorizeTest_Hybrid {
                     .generate();
     JWKSet jwks = new JWKSet(key);
     AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
+    AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
     Authorize sut =
             new Authorize(
                     clientStore,
                     new InMemoryAuthorizationCodeStore(),
-                    new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                    accessTokenStore,
+                    new SampleScopeAudienceMapper(),
                     new IDTokenIssuer(config, jwks),
                     config);
 
@@ -84,15 +87,12 @@ class AuthorizeTest_Hybrid {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
-                fragmentMap.get("access_token"),
-                key,
+                accessTokenStore.find(fragmentMap.get("access_token")),
                 "username",
                 "http://rs.example.com",
                 "client1",
                 "rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
         assertNotNull(fragmentMap.get("code"));
@@ -181,15 +181,12 @@ class AuthorizeTest_Hybrid {
                 fragmentMap.get("access_token"),
                 null);
         AccessTokenAssert.assertAccessToken(
-                fragmentMap.get("access_token"),
-                key,
+                accessTokenStore.find(fragmentMap.get("access_token")),
                 "username",
                 "http://rs.example.com",
                 "client1",
                 "openid rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
         assertNull(fragmentMap.get("code"));
@@ -234,15 +231,12 @@ class AuthorizeTest_Hybrid {
                 fragmentMap.get("access_token"),
                 fragmentMap.get("id_token"));
         AccessTokenAssert.assertAccessToken(
-                fragmentMap.get("access_token"),
-                key,
+                accessTokenStore.find(fragmentMap.get("access_token")),
                 "username",
                 "http://rs.example.com",
                 "client1",
                 "openid rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
         assertNotNull(fragmentMap.get("code"));

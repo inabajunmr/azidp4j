@@ -235,11 +235,9 @@ public class IntegrationTest {
         var refreshToken =
                 (String) tokenResponseForAuthorizationCodeGrant.getBody().get("refresh_token");
         var jwks = JWKSet.load(new URL("http://localhost:8080/.well-known/jwks.json"));
-        var parsedAccessToken = JWSObject.parse(accessToken);
         var parsedIdToken = JWSObject.parse(idToken);
-        var jwk = jwks.getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
+        var jwk = jwks.getKeyByKeyId(parsedIdToken.getHeader().getKeyID());
         var verifier = new ECDSAVerifier((ECKey) jwk);
-        assertTrue(parsedAccessToken.verify(verifier));
         assertTrue(parsedIdToken.verify(verifier));
 
         // userinfo endpoint
@@ -270,9 +268,7 @@ public class IntegrationTest {
                                 tokenRequestForRefreshEntity,
                                 Map.class);
         assertThat(tokenResponseForRefreshGrant.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertTrue(
-                JWSObject.parse((String) tokenResponseForRefreshGrant.getBody().get("access_token"))
-                        .verify(verifier));
+        assertNotNull(tokenResponseForRefreshGrant.getBody().get("access_token"));
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("refresh_token"));
 
         // delete client

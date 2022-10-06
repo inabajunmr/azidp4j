@@ -29,7 +29,8 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.BeforeEach;
@@ -60,6 +61,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
     private final JWKSet jwks = new JWKSet(List.of(es256Key, rs256Key));
 
     private AuthorizationCodeStore authorizationCodeStore;
+
+    private AccessTokenStore accessTokenStore;
 
     private IssueToken issueToken;
 
@@ -109,13 +112,15 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "openid rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
                         Set.of(SigningAlgorithm.ES256)));
+        accessTokenStore = new InMemoryAccessTokenStore();
         issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        accessTokenStore,
                         new IDTokenIssuer(config, jwks),
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);
@@ -152,15 +157,12 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                es256Key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 subject,
                 "http://rs.example.com",
                 "ES256Client",
                 "rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
@@ -199,15 +201,12 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                es256Key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 subject,
                 "http://rs.example.com",
                 "ES256Client",
                 "rs:scope1 openid",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
@@ -259,15 +258,12 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                es256Key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 subject,
                 "http://rs.example.com",
                 "ES256Client",
                 "rs:scope1 openid",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -321,15 +317,12 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                es256Key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 subject,
                 "http://rs.example.com",
                 "RS256Client",
                 "rs:scope1 openid",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -350,7 +343,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
     }
 
     @Test
-    void success_oidcWithoutNonceNone() throws JOSEException, ParseException {
+    void success_oidcWithoutNonceNone() throws ParseException {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
@@ -382,15 +375,12 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                es256Key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 subject,
                 "http://rs.example.com",
                 "NoneClient",
                 "rs:scope1 openid",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -471,11 +461,16 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
 
         // verify
         assertEquals(response.status, 200);
+        var at = response.body.get("access_token");
+        assertNotNull(accessTokenStore.find((String) at));
 
         // second time
         var response2 = issueToken.issue(tokenRequest);
-        assertEquals(response.status, 200);
+        assertEquals(response2.status, 400);
         assertEquals(response2.body.get("error"), "invalid_grant");
+
+        // using same code, access token will be revoked
+        assertNull(accessTokenStore.find((String) at));
     }
 
     @Test

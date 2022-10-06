@@ -12,6 +12,8 @@ import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.token.UserPasswordVerifier;
+import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +30,8 @@ public class AzIdPConfig {
     private String endpoint;
 
     @Bean
-    public AzIdP azIdP(ClientStore clientStore, JWKSet jwkSet) throws JOSEException {
+    public AzIdP azIdP(ClientStore clientStore, JWKSet jwkSet, AccessTokenStore accessTokenStore)
+            throws JOSEException {
         var key = jwkSet.getKeys().get(0);
         var config =
                 new org.azidp4j.AzIdPConfig(
@@ -62,6 +65,7 @@ public class AzIdPConfig {
                         config,
                         jwkSet,
                         clientStore,
+                        accessTokenStore,
                         new InMemoryRefreshTokenStore(),
                         scope -> Set.of("rs.example.com"),
                         userPasswordVerifier);
@@ -119,5 +123,10 @@ public class AzIdPConfig {
                         .algorithm(new Algorithm("ES256"))
                         .generate();
         return new JWKSet(key);
+    }
+
+    @Bean
+    public AccessTokenStore accessTokenStore() {
+        return new InMemoryAccessTokenStore();
     }
 }

@@ -7,7 +7,7 @@ import org.azidp4j.client.*;
 import org.azidp4j.discovery.Discovery;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.AccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenStore;
 
@@ -29,61 +29,65 @@ public class AzIdP {
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
+            AccessTokenStore accessTokenStore,
             RefreshTokenStore refreshTokenStore,
             ScopeAudienceMapper scopeAudienceMapper) {
         this.discovery = new Discovery(azIdPConfig);
-        var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
         this.authorize =
                 new Authorize(
                         clientStore,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        accessTokenStore,
+                        scopeAudienceMapper,
                         idTokenIssuer,
                         azIdPConfig);
         this.issueToken =
                 new IssueToken(
                         azIdPConfig,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        accessTokenStore,
                         idTokenIssuer,
                         refreshTokenStore,
+                        scopeAudienceMapper,
                         null,
                         clientStore,
                         jwkSet);
         this.clientRegistration =
-                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenIssuer, jwkSet);
+                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenStore, jwkSet);
     }
 
     public AzIdP(
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
+            AccessTokenStore accessTokenStore,
             RefreshTokenStore refreshTokenStore,
             ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier) {
         this.discovery = new Discovery(azIdPConfig);
-        var accessTokenIssuer = new AccessTokenIssuer(azIdPConfig, jwkSet, scopeAudienceMapper);
         var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
         this.authorize =
                 new Authorize(
                         clientStore,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        accessTokenStore,
+                        scopeAudienceMapper,
                         idTokenIssuer,
                         azIdPConfig);
         this.issueToken =
                 new IssueToken(
                         azIdPConfig,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        accessTokenStore,
                         idTokenIssuer,
                         refreshTokenStore,
+                        scopeAudienceMapper,
                         userPasswordVerifier,
                         clientStore,
                         jwkSet);
         this.clientRegistration =
-                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenIssuer, jwkSet);
+                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenStore, jwkSet);
     }
 
     public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {

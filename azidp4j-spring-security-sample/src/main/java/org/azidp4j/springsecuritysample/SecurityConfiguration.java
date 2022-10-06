@@ -2,30 +2,22 @@ package org.azidp4j.springsecuritysample;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
-import com.nimbusds.jose.JOSEObjectType;
-import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
-import com.nimbusds.jose.proc.SecurityContext;
 import org.azidp4j.springsecuritysample.user.UserInfo;
 import org.azidp4j.springsecuritysample.user.UserStore;
-import org.springframework.beans.factory.annotation.Value;
+import org.azidp4j.token.accesstoken.AccessTokenStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-
-    @Value("${endpoint}")
-    private String endpoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,19 +32,21 @@ public class SecurityConfiguration {
                                                 "/.well-known/jwks.json",
                                                 "/.well-known/openid-configuration")
                                         .permitAll()
-                                        //
-                                        // .mvcMatchers("/client")
-                                        //
-                                        // .hasAnyAuthority("SCOPE_client", "SCOPE_default")
                                         .anyRequest()
                                         .authenticated())
                 .httpBasic(withDefaults())
                 .formLogin(withDefaults())
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));
+                .oauth2ResourceServer()
+                .opaqueToken();
         http.httpBasic().disable();
         http.csrf().ignoringAntMatchers("/authorize", "/token", "/client");
         // @formatter:on
         return http.build();
+    }
+
+    @Bean
+    public OpaqueTokenIntrospector introspector(AccessTokenStore accessTokenStore) {
+        return new InternalOpaqueTokenIntrospector(accessTokenStore);
     }
 
     @Bean
@@ -91,18 +85,5 @@ public class SecurityConfiguration {
     @Bean
     public UserStore userStore() {
         return new UserStore();
-    }
-
-    @Bean
-    JwtDecoder jwtDecoder() {
-        DefaultJOSEObjectTypeVerifier<SecurityContext> verifier =
-                new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("at+jwt"));
-        NimbusJwtDecoder decoder =
-                NimbusJwtDecoder.withJwkSetUri(endpoint + "/.well-known/jwks.json")
-                        .jwsAlgorithm(SignatureAlgorithm.ES256)
-                        .jwtProcessorCustomizer(
-                                (processor) -> processor.setJWSTypeVerifier(verifier))
-                        .build();
-        return decoder;
     }
 }

@@ -19,7 +19,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.azidp4j.token.refreshtoken.RefreshToken;
@@ -35,8 +35,7 @@ public class IssueTokenTest_RefreshToken {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -54,9 +53,10 @@ public class IssueTokenTest_RefreshToken {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);
@@ -83,15 +83,12 @@ public class IssueTokenTest_RefreshToken {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 "user",
                 "http://rs.example.com",
                 "clientId",
                 "rs:scope1 rs:scope2",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
@@ -105,8 +102,7 @@ public class IssueTokenTest_RefreshToken {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
@@ -124,9 +120,10 @@ public class IssueTokenTest_RefreshToken {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        accessTokenStore,
                         idTokenIssuer,
                         refreshTokenStore,
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);
@@ -153,15 +150,12 @@ public class IssueTokenTest_RefreshToken {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 "user",
                 "http://rs.example.com",
                 "clientId",
                 "rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
@@ -178,8 +172,7 @@ public class IssueTokenTest_RefreshToken {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
@@ -197,9 +190,10 @@ public class IssueTokenTest_RefreshToken {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        accessTokenStore,
                         idTokenIssuer,
                         refreshTokenStore,
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);
@@ -226,15 +220,12 @@ public class IssueTokenTest_RefreshToken {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 "user",
                 "http://rs.example.com",
                 "clientId",
                 "rs:scope1 rs:scope2",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
@@ -248,8 +239,7 @@ public class IssueTokenTest_RefreshToken {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig("kid");
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenIssuer = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
@@ -270,6 +260,7 @@ public class IssueTokenTest_RefreshToken {
                         accessTokenIssuer,
                         idTokenIssuer,
                         refreshTokenStore,
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);
@@ -307,8 +298,7 @@ public class IssueTokenTest_RefreshToken {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig("kid");
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenIssuer = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -328,6 +318,7 @@ public class IssueTokenTest_RefreshToken {
                         accessTokenIssuer,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);
@@ -372,8 +363,7 @@ public class IssueTokenTest_RefreshToken {
                         600,
                         -1,
                         604800);
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenIssuer = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
@@ -394,6 +384,7 @@ public class IssueTokenTest_RefreshToken {
                         accessTokenIssuer,
                         idTokenIssuer,
                         refreshTokenStore,
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);
@@ -402,8 +393,9 @@ public class IssueTokenTest_RefreshToken {
                         UUID.randomUUID().toString(),
                         "user",
                         "rs:scope1",
-                        "clienId",
+                        "clientId",
                         Instant.now().getEpochSecond() - 10);
+        refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("refresh_token")
@@ -443,8 +435,7 @@ public class IssueTokenTest_RefreshToken {
                         600,
                         3600,
                         604800);
-        var accessTokenIssuer =
-                new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper());
+        var accessTokenIssuer = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -457,13 +448,15 @@ public class IssueTokenTest_RefreshToken {
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
                         Set.of(SigningAlgorithm.ES256)));
+        var refreshTokenStore = new InMemoryRefreshTokenStore();
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
                         accessTokenIssuer,
                         idTokenIssuer,
-                        new InMemoryRefreshTokenStore(),
+                        refreshTokenStore,
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);
@@ -474,6 +467,7 @@ public class IssueTokenTest_RefreshToken {
                         "rs:scope1",
                         "unknown",
                         Instant.now().getEpochSecond() + 3600);
+        refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("refresh_token")

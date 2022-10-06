@@ -13,20 +13,21 @@ import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.token.TokenEndpointAuthMethod;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.junit.jupiter.api.Test;
 
 class DynamicClientRegistrationTest_register {
 
     @Test
-    void success() throws JOSEException, ParseException {
+    void success() throws JOSEException {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var atIssuer = new AccessTokenIssuer(config, jwks, scope -> Set.of("rs"));
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
-                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer, jwks);
+                new DynamicClientRegistration(
+                        config, new InMemoryClientStore(), accessTokenStore, jwks);
         var req =
                 ClientRegistrationRequest.builder()
                         .redirectUris(
@@ -69,15 +70,12 @@ class DynamicClientRegistrationTest_register {
                 Set.of("ES256", "RS256", "none"));
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
-                (String) at,
-                key,
+                accessTokenStore.find((String) at),
                 (String) response.body.get("client_id"),
                 config.issuer,
                 (String) response.body.get("client_id"),
                 "configure",
-                config.issuer,
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
     }
 
     @Test
@@ -86,9 +84,10 @@ class DynamicClientRegistrationTest_register {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var atIssuer = new AccessTokenIssuer(config, jwks, scope -> Set.of("rs"));
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
-                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer, jwks);
+                new DynamicClientRegistration(
+                        config, new InMemoryClientStore(), accessTokenStore, jwks);
         var req = ClientRegistrationRequest.builder().build();
 
         // exercise
@@ -109,14 +108,11 @@ class DynamicClientRegistrationTest_register {
         assertEquals(response.body.get("id_token_signed_response_alg"), Set.of("ES256"));
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
-                (String) at,
-                key,
+                accessTokenStore.find((String) at),
                 (String) response.body.get("client_id"),
                 config.issuer,
                 (String) response.body.get("client_id"),
                 "configure",
-                config.issuer,
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
     }
 }

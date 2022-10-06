@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,7 +42,7 @@ public class DynamicClientRegistrationEndpointHandler {
             @RequestBody Map<String, Object> requestBody) {
         LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " configure");
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth instanceof JwtAuthenticationToken && auth.getName().equals(clientId)) {
+        if (auth instanceof BearerTokenAuthentication && auth.getName().equals(clientId)) {
             var req = azIdP.parseClientConfigurationRequest(auth.getName(), requestBody);
             var response = azIdP.configureRequest(req);
             return ResponseEntity.status(response.status).body(response.body);
@@ -53,9 +53,9 @@ public class DynamicClientRegistrationEndpointHandler {
 
     @DeleteMapping("/client/{client_id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable("client_id") String clientId) {
-        LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " configure");
+        LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " delete");
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth instanceof JwtAuthenticationToken && auth.getName().equals(clientId)) {
+        if (auth instanceof BearerTokenAuthentication && auth.getName().equals(clientId)) {
             var response = azIdP.delete(auth.getName());
             return ResponseEntity.status(response.status).body(response.body);
         } else {

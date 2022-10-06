@@ -21,7 +21,8 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +44,8 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
 
     private AuthorizationCodeStore authorizationCodeStore;
 
+    private AccessTokenStore accessTokenStore;
+
     private IssueToken issueToken;
 
     private final AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
@@ -61,13 +64,15 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         "openid rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.none,
                         Set.of(SigningAlgorithm.ES256)));
+        accessTokenStore = new InMemoryAccessTokenStore();
         issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        new AccessTokenIssuer(config, jwks, new SampleScopeAudienceMapper()),
+                        accessTokenStore,
                         new IDTokenIssuer(config, jwks),
                         new InMemoryRefreshTokenStore(),
+                        new SampleScopeAudienceMapper(),
                         null,
                         clientStore,
                         jwks);
@@ -104,15 +109,12 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 subject,
                 "http://rs.example.com",
                 "clientId",
                 "rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
@@ -150,15 +152,12 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 subject,
                 "http://rs.example.com",
                 "clientId",
                 "rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));
@@ -196,15 +195,12 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                (String) response.body.get("access_token"),
-                key,
+                accessTokenStore.find((String) response.body.get("access_token")),
                 subject,
                 "http://rs.example.com",
                 "clientId",
                 "rs:scope1",
-                "http://localhost:8080",
-                Instant.now().getEpochSecond() + 3600,
-                Instant.now().getEpochSecond());
+                Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
         assertEquals(response.body.get("expires_in"), 3600);
         assertTrue(response.body.containsKey("refresh_token"));

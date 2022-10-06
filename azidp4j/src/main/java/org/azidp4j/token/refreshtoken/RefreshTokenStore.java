@@ -5,4 +5,6 @@ public interface RefreshTokenStore {
     void save(RefreshToken token);
 
     RefreshToken consume(String token);
+
+    RefreshToken removeByAuthorizationCode(String authorizationCode);
 }

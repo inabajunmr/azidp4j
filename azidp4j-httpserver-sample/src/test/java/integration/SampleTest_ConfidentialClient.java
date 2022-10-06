@@ -1,8 +1,5 @@
 package integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
@@ -29,6 +26,8 @@ import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.GrantType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SampleTest_ConfidentialClient {
     @Test
@@ -152,20 +151,15 @@ public class SampleTest_ConfidentialClient {
             System.out.println(tokenResponse.body());
             var tokenResponseJSON = new ObjectMapper().readTree(tokenResponse.body());
             var accessToken = tokenResponseJSON.get("access_token");
-            var parsedAccessToken = JWSObject.parse(accessToken.asText());
-            var jwk = jwks.getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
-            var verifier = new ECDSAVerifier((ECKey) jwk);
-            Assertions.assertTrue(parsedAccessToken.verify(verifier));
-
-            // claims
-            var atPayload = parsedAccessToken.getPayload().toJSONObject();
-            Assertions.assertEquals("user1", atPayload.get("sub"));
+            assertNotNull(accessToken.asText());
 
             // verify id token
             var idToken = tokenResponseJSON.get("id_token");
             var parsedIdToken = JWSObject.parse(idToken.asText());
+            var jwk = jwks.getKeyByKeyId(parsedIdToken.getHeader().getKeyID());
+            var verifier = new ECDSAVerifier((ECKey) jwk);
             Assertions.assertTrue(parsedIdToken.verify(verifier));
-            var itPayload = parsedAccessToken.getPayload().toJSONObject();
+            var itPayload = parsedIdToken.getPayload().toJSONObject();
             Assertions.assertEquals("user1", itPayload.get("sub"));
 
             // token refresh
@@ -194,13 +188,7 @@ public class SampleTest_ConfidentialClient {
                     httpClient.send(refreshTokenRequest, HttpResponse.BodyHandlers.ofString());
             var parsedRefreshTokenResponse =
                     new ObjectMapper().readTree(refreshTokenResponse.body());
-            var parsedRefreshedAccessToken =
-                    JWSObject.parse(parsedRefreshTokenResponse.get("access_token").asText());
-            Assertions.assertTrue(parsedRefreshedAccessToken.verify(verifier));
-
-            // claims
-            Assertions.assertEquals(
-                    "user1", parsedRefreshedAccessToken.getPayload().toJSONObject().get("sub"));
+            assertNotNull(parsedRefreshTokenResponse.get("access_token").asText());
         }
 
         // implicit grant
@@ -231,16 +219,7 @@ public class SampleTest_ConfidentialClient {
                             .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
             // verify token
             // signature
-            var jwks = JWKSet.load(new URL("http://localhost:8080/jwks"));
-            var accessToken = fragmentMap.get("access_token");
-            var parsedAccessToken = JWSObject.parse(accessToken);
-            var jwk = jwks.getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
-            var verifier = new ECDSAVerifier((ECKey) jwk);
-            assertTrue(parsedAccessToken.verify(verifier));
-
-            // claims
-            var payload = parsedAccessToken.getPayload().toJSONObject();
-            assertEquals("user1", payload.get("sub"));
+            assertNotNull(fragmentMap.get("access_token"));
         }
 
         // resource owner password credentials grant
@@ -273,16 +252,7 @@ public class SampleTest_ConfidentialClient {
                             .get("access_token")
                             .textValue();
             // verify token
-            // signature
-            var jwks = JWKSet.load(new URL("http://localhost:8080/jwks"));
-            var parsedAccessToken = JWSObject.parse(userAccessToken);
-            var jwk = jwks.getKeyByKeyId(parsedAccessToken.getHeader().getKeyID());
-            var verifier = new ECDSAVerifier((ECKey) jwk);
-            assertTrue(parsedAccessToken.verify(verifier));
-
-            // claims
-            var payload = parsedAccessToken.getPayload().toJSONObject();
-            assertEquals("user1", payload.get("sub"));
+            assertNotNull(userAccessToken);
         }
 
         // shutdown authorization server

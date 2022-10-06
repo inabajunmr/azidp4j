@@ -6,9 +6,8 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
-import java.util.Set;
 import org.azidp4j.Fixtures;
-import org.azidp4j.token.accesstoken.AccessTokenIssuer;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.junit.jupiter.api.Test;
 
 class DynamicClientRegistrationTest_configure {
@@ -19,9 +18,9 @@ class DynamicClientRegistrationTest_configure {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var atIssuer = new AccessTokenIssuer(config, jwks, scope -> Set.of("rs"));
         var registration =
-                new DynamicClientRegistration(config, new InMemoryClientStore(), atIssuer, jwks);
+                new DynamicClientRegistration(
+                        config, new InMemoryClientStore(), new InMemoryAccessTokenStore(), jwks);
         var registrationResponse =
                 registration.register(ClientRegistrationRequest.builder().build());
         var configurationRequest =
