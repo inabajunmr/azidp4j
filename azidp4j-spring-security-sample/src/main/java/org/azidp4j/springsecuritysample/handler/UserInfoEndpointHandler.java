@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,7 +19,7 @@ public class UserInfoEndpointHandler {
 
     @Autowired UserStore userStore;
 
-    @GetMapping("/userinfo")
+    @RequestMapping("/userinfo")
     public ResponseEntity<Map<String, Object>> userinfo() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth instanceof BearerTokenAuthentication) {
@@ -30,7 +30,13 @@ public class UserInfoEndpointHandler {
                             .collect(Collectors.toSet());
             if (scopes.contains("SCOPE_openid")) {
                 var username = auth.getName();
-                return ResponseEntity.status(200).body(userStore.find(username));
+                return ResponseEntity.status(200)
+                        .body(
+                                userStore.find(username).entrySet().stream()
+                                        .filter(v -> !v.getKey().equals("auth_time_sec"))
+                                        .collect(
+                                                Collectors.toMap(
+                                                        Map.Entry::getKey, Map.Entry::getValue)));
             } else {
                 return ResponseEntity.status(401).build();
             }
