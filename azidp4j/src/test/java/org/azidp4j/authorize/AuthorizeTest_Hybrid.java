@@ -38,7 +38,7 @@ class AuthorizeTest_Hybrid {
                     Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token),
                     "rs:scope1 rs:scope2 openid",
                     TokenEndpointAuthMethod.client_secret_basic,
-                    Set.of(SigningAlgorithm.ES256));
+                    SigningAlgorithm.ES256);
 
     ECKey key =
             new ECKeyGenerator(Curve.P_256)

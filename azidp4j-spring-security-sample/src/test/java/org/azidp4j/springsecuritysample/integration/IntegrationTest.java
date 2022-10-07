@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
-import com.nimbusds.jose.crypto.ECDSAVerifier;
-import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
@@ -67,7 +67,9 @@ public class IntegrationTest {
                         "response_types",
                         Set.of(ResponseType.code.name(), ResponseType.token.name()),
                         "scope",
-                        "scope1 scope2 openid");
+                        "scope1 scope2 openid",
+                        "id_token_signed_response_alg",
+                        "RS256");
         var clientRegistrationEntity =
                 RequestEntity.post("/client")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -237,7 +239,7 @@ public class IntegrationTest {
         var jwks = JWKSet.load(new URL("http://localhost:8080/.well-known/jwks.json"));
         var parsedIdToken = JWSObject.parse(idToken);
         var jwk = jwks.getKeyByKeyId(parsedIdToken.getHeader().getKeyID());
-        var verifier = new ECDSAVerifier((ECKey) jwk);
+        var verifier = new RSASSAVerifier((RSAKey) jwk);
         assertTrue(parsedIdToken.verify(verifier));
 
         // userinfo endpoint
@@ -278,6 +280,6 @@ public class IntegrationTest {
                         .header("Authorization", "Bearer " + configurationToken)
                         .build();
         var clientDeleteResponse = testRestTemplate.exchange(clientDeleteEntity, Map.class);
-        assertThat(clientDeleteResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(clientDeleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 }

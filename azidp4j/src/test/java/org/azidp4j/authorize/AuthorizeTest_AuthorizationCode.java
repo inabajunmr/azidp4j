@@ -29,7 +29,7 @@ class AuthorizeTest_AuthorizationCode {
                     Set.of(ResponseType.code),
                     "scope1 scope2 openid",
                     TokenEndpointAuthMethod.client_secret_basic,
-                    Set.of(SigningAlgorithm.ES256));
+                    SigningAlgorithm.ES256);
     Client noGrantTypesClient =
             new Client(
                     "noGrantTypesClient",
@@ -39,7 +39,7 @@ class AuthorizeTest_AuthorizationCode {
                     Set.of(ResponseType.code),
                     "scope1 scope2",
                     TokenEndpointAuthMethod.client_secret_basic,
-                    Set.of(SigningAlgorithm.ES256));
+                    SigningAlgorithm.ES256);
 
     Client noResponseTypesClient =
             new Client(
@@ -50,7 +50,7 @@ class AuthorizeTest_AuthorizationCode {
                     Set.of(),
                     "scope1 scope2",
                     TokenEndpointAuthMethod.client_secret_basic,
-                    Set.of(SigningAlgorithm.ES256));
+                    SigningAlgorithm.ES256);
     AzIdPConfig config = Fixtures.azIdPConfig("kid");
     Authorize sut =
             new Authorize(
@@ -107,7 +107,7 @@ class AuthorizeTest_AuthorizationCode {
                         Set.of(ResponseType.code),
                         "scope1 scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256));
+                        SigningAlgorithm.ES256);
         clientStore.save(client);
         var config = Fixtures.azIdPConfig("kid");
         var sut =
@@ -156,7 +156,7 @@ class AuthorizeTest_AuthorizationCode {
                         Set.of(ResponseType.code),
                         "scope1 scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256));
+                        SigningAlgorithm.ES256);
         clientStore.save(client);
         var config = Fixtures.azIdPConfig("kid");
         var sut =
@@ -206,7 +206,7 @@ class AuthorizeTest_AuthorizationCode {
                         Set.of(ResponseType.code),
                         "scope1 scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256));
+                        SigningAlgorithm.ES256);
         clientStore.save(client);
         var config = Fixtures.azIdPConfig("kid");
         var sut =

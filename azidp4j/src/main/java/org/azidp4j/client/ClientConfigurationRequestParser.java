@@ -28,7 +28,7 @@ public class ClientConfigurationRequestParser {
                         : null;
         var idTokenSignedResponseAlg =
                 parameters.containsKey("id_token_signed_response_alg")
-                        ? valuesToStringSet(parameters.get("id_token_signed_response_alg"))
+                        ? parameters.get("id_token_signed_response_alg").toString()
                         : null;
         return ClientConfigurationRequest.builder()
                 .clientId(clientId)

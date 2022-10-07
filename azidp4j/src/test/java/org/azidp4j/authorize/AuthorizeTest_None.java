@@ -36,7 +36,7 @@ class AuthorizeTest_None {
                         Set.of(ResponseType.none),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256));
+                        SigningAlgorithm.ES256);
         clientStore.save(client);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);

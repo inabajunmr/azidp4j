@@ -10,7 +10,7 @@ public class ClientConfigurationRequest {
     final Set<String> responseTypes;
     final String scope;
     final String tokenEndpointAuthMethod;
-    final Set<String> idTokenSignedResponseAlg;
+    final String idTokenSignedResponseAlg;
 
     public static Builder builder() {
         return new Builder();
@@ -23,7 +23,7 @@ public class ClientConfigurationRequest {
             Set<String> responseTypes,
             String scope,
             String tokenEndpointAuthMethod,
-            Set<String> idTokenSignedResponseAlg) {
+            String idTokenSignedResponseAlg) {
         this.clientId = clientId;
         this.redirectUris = redirectUris;
         this.grantTypes = grantTypes;
@@ -40,7 +40,7 @@ public class ClientConfigurationRequest {
         private Set<String> responseTypes;
         private String scope;
         private String tokenEndpointAuthMethod;
-        private Set<String> idTokenSignedResponseAlg;
+        private String idTokenSignedResponseAlg;
 
         public Builder clientId(String clientId) {
             this.clientId = clientId;
@@ -72,7 +72,7 @@ public class ClientConfigurationRequest {
             return this;
         }
 
-        public Builder idTokenSignedResponseAlg(Set<String> idTokenSignedResponseAlg) {
+        public Builder idTokenSignedResponseAlg(String idTokenSignedResponseAlg) {
             this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
             return this;
         }

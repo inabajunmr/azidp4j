@@ -72,18 +72,12 @@ public class DynamicClientRegistration {
             tokenEndpointAuthMethod = tam;
         }
 
-        var idTokenSignedResponseAlg = new HashSet<SigningAlgorithm>();
-        if (request.idTokenSignedResponseAlg == null
-                || request.idTokenSignedResponseAlg.isEmpty()) {
-            idTokenSignedResponseAlg.add(SigningAlgorithm.ES256);
-        } else {
-            for (String r : request.idTokenSignedResponseAlg) {
-                var alg = SigningAlgorithm.of(r);
-                if (alg == null) {
-                    return new ClientRegistrationResponse(
-                            400, Map.of("error", "invalid_response_type"));
-                }
-                idTokenSignedResponseAlg.add(alg);
+        var idTokenSignedResponseAlg = SigningAlgorithm.RS256;
+        if (request.idTokenSignedResponseAlg != null) {
+            idTokenSignedResponseAlg = SigningAlgorithm.of(request.idTokenSignedResponseAlg);
+            if (idTokenSignedResponseAlg == null) {
+                return new ClientRegistrationResponse(
+                        400, Map.of("error", "invalid_response_type"));
             }
         }
 
@@ -132,9 +126,7 @@ public class DynamicClientRegistration {
                         "token_endpoint_auth_method",
                         client.tokenEndpointAuthMethod.name(),
                         "id_token_signed_response_alg",
-                        client.idTokenSignedResponseAlg.stream()
-                                .map(Enum::name)
-                                .collect(Collectors.toSet())));
+                        client.idTokenSignedResponseAlg.name()));
     }
 
     public ClientRegistrationResponse configure(ClientConfigurationRequest request) {
@@ -183,15 +175,11 @@ public class DynamicClientRegistration {
             }
         }
         var idTokenSignedResponseAlg = client.idTokenSignedResponseAlg;
-        if (request.idTokenSignedResponseAlg != null
-                && request.idTokenSignedResponseAlg.isEmpty()) {
-            for (String r : request.idTokenSignedResponseAlg) {
-                var alg = SigningAlgorithm.of(r);
-                if (alg == null) {
-                    return new ClientRegistrationResponse(
-                            400, Map.of("error", "invalid_response_type"));
-                }
-                idTokenSignedResponseAlg.add(alg);
+        if (request.idTokenSignedResponseAlg != null) {
+            var alg = SigningAlgorithm.of(request.idTokenSignedResponseAlg);
+            if (alg == null) {
+                return new ClientRegistrationResponse(
+                        400, Map.of("error", "invalid_response_type"));
             }
         }
 
@@ -224,29 +212,11 @@ public class DynamicClientRegistration {
                         "token_endpoint_auth_method",
                         updated.tokenEndpointAuthMethod.name(),
                         "id_token_signed_response_alg",
-                        client.idTokenSignedResponseAlg.stream()
-                                .map(Enum::name)
-                                .collect(Collectors.toSet())));
+                        client.idTokenSignedResponseAlg.name()));
     }
 
     public ClientDeleteResponse delete(String clientId) {
         var client = clientStore.delete(clientId);
-        return new ClientDeleteResponse(
-                200,
-                MapUtil.nullRemovedMap(
-                        "client_id",
-                        client.clientId,
-                        "client_secret",
-                        client.clientSecret,
-                        "redirect_uris",
-                        client.redirectUris,
-                        "grant_types",
-                        client.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
-                        "response_types",
-                        client.responseTypes.stream().map(Enum::name).collect(Collectors.toSet()),
-                        "scope",
-                        client.scope,
-                        "token_endpoint_auth_method",
-                        client.tokenEndpointAuthMethod.name()));
+        return new ClientDeleteResponse(204, null);
     }
 }

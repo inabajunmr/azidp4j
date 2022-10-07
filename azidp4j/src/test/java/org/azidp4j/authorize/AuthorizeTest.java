@@ -25,7 +25,7 @@ class AuthorizeTest {
                     Set.of(ResponseType.code),
                     "scope1 scope2 openid",
                     TokenEndpointAuthMethod.client_secret_basic,
-                    Set.of(SigningAlgorithm.ES256));
+                    SigningAlgorithm.ES256);
     Client noGrantTypesClient =
             new Client(
                     "noGrantTypesClient",
@@ -35,7 +35,7 @@ class AuthorizeTest {
                     Set.of(ResponseType.code),
                     "scope1 scope2",
                     TokenEndpointAuthMethod.client_secret_basic,
-                    Set.of(SigningAlgorithm.ES256));
+                    SigningAlgorithm.ES256);
 
     Client noResponseTypesClient =
             new Client(
@@ -46,7 +46,7 @@ class AuthorizeTest {
                     Set.of(),
                     "scope1 scope2",
                     TokenEndpointAuthMethod.client_secret_basic,
-                    Set.of(SigningAlgorithm.ES256));
+                    SigningAlgorithm.ES256);
     AzIdPConfig config = Fixtures.azIdPConfig("kid");
     ;
     Authorize sut =

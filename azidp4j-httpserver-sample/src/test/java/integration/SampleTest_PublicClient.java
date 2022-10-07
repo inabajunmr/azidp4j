@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import java.io.IOException;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.nimbusds.jose.jwk.RSAKey;
 import httpserversample.SampleAz;
 import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.GrantType;
@@ -153,7 +155,7 @@ public class SampleTest_PublicClient {
             var idToken = tokenResponseJSON.get("id_token");
             var parsedIdToken = JWSObject.parse(idToken.asText());
             var jwk = jwks.getKeyByKeyId(parsedIdToken.getHeader().getKeyID());
-            var verifier = new ECDSAVerifier((ECKey) jwk);
+            var verifier = new RSASSAVerifier((RSAKey) jwk);
             Assertions.assertTrue(parsedIdToken.verify(verifier));
             var itPayload = parsedIdToken.getPayload().toJSONObject();
             Assertions.assertEquals("user1", itPayload.get("sub"));

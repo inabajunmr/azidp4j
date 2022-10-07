@@ -6,8 +6,10 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import java.text.ParseException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
@@ -21,9 +23,10 @@ class DynamicClientRegistrationTest_register {
     @Test
     void success() throws JOSEException {
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var config = Fixtures.azIdPConfig(key.getKeyID());
+        var rs256 = new RSAKeyGenerator(2048).keyID("abc").generate();
+        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(List.of(rs256, es256));
+        var config = Fixtures.azIdPConfig(es256.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
                 new DynamicClientRegistration(
@@ -43,7 +46,7 @@ class DynamicClientRegistrationTest_register {
                         .scope("scope1 scope2")
                         .responseTypes(Set.of("code", "token", "id_token"))
                         .tokenEndpointAuthMethod("client_secret_basic")
-                        .idTokenSignedResponseAlg(Set.of("ES256", "RS256", "none"))
+                        .idTokenSignedResponseAlg("RS256")
                         .build();
 
         // exercise
@@ -65,9 +68,7 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("registration_client_uri"),
                 "http://localhost:8080/client/" + response.body.get("client_id"));
-        assertEquals(
-                response.body.get("id_token_signed_response_alg"),
-                Set.of("ES256", "RS256", "none"));
+        assertEquals(response.body.get("id_token_signed_response_alg"), "RS256");
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
                 accessTokenStore.find((String) at),
@@ -81,9 +82,10 @@ class DynamicClientRegistrationTest_register {
     @Test
     void success_Default() throws JOSEException, ParseException {
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var config = Fixtures.azIdPConfig(key.getKeyID());
+        var rs256 = new RSAKeyGenerator(2048).keyID("abc").generate();
+        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var jwks = new JWKSet(List.of(rs256, es256));
+        var config = Fixtures.azIdPConfig(es256.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
                 new DynamicClientRegistration(
@@ -105,7 +107,7 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("registration_client_uri"),
                 "http://localhost:8080/client/" + response.body.get("client_id"));
-        assertEquals(response.body.get("id_token_signed_response_alg"), Set.of("ES256"));
+        assertEquals(response.body.get("id_token_signed_response_alg"), "RS256");
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
                 accessTokenStore.find((String) at),

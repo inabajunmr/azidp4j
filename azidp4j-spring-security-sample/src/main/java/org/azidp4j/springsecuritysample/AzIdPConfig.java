@@ -5,6 +5,8 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import java.util.List;
 import java.util.Set;
 import org.azidp4j.AzIdP;
 import org.azidp4j.client.ClientRegistrationRequest;
@@ -117,12 +119,14 @@ public class AzIdPConfig {
 
     @Bean
     public JWKSet jwkSet() throws JOSEException {
-        var key =
+        var es256 =
                 new ECKeyGenerator(Curve.P_256)
                         .keyID("123")
                         .algorithm(new Algorithm("ES256"))
                         .generate();
-        return new JWKSet(key);
+        var rs256 =
+                new RSAKeyGenerator(2048).keyID("abc").algorithm(new Algorithm("RS256")).generate();
+        return new JWKSet(List.of(es256, rs256));
     }
 
     @Bean

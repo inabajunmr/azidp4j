@@ -5,9 +5,11 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.sun.net.httpserver.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,8 +36,9 @@ public class SampleAz {
 
     public SampleAz() throws JOSEException {
 
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").algorithm(new Algorithm("ES256")).generate();
-        jwks = new JWKSet(key);
+        var rs256 = new RSAKeyGenerator(2048).keyID("abc").algorithm(new Algorithm("RS256")).generate();
+        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").algorithm(new Algorithm("ES256")).generate();
+        jwks = new JWKSet(List.of(rs256,es256));
         var config =
                 new AzIdPConfig(
                         "http://localhost:8080",
@@ -46,7 +49,7 @@ public class SampleAz {
                         "http://localhost:8080/client/{CLIENT_ID}",
                         "http://localhost:8080/userinfo",
                         Set.of("openid", "scope1", "scope2", "default"),
-                        key.getKeyID(), 3600, 600, 604800, 3600);
+                        es256.getKeyID(), 3600, 600, 604800, 3600);
         clientStore = new InMemoryClientStore();
         var userPasswordVerifier =
                 new UserPasswordVerifier() {

@@ -20,7 +20,7 @@ public class InMemoryClientStore implements ClientStore {
                         Set.of(),
                         "default",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
     }
 
     @Override

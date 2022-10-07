@@ -47,7 +47,7 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var issueToken =
                 new IssueToken(
@@ -115,7 +115,7 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         var issueToken =
                 new IssueToken(
                         config,
@@ -185,7 +185,7 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.none,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         var issueToken =
                 new IssueToken(
                         config,
@@ -252,7 +252,7 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         var issueToken =
                 new IssueToken(
                         config,
@@ -310,7 +310,7 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         var issueToken =
                 new IssueToken(
                         config,
@@ -376,7 +376,7 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         var issueToken =
                 new IssueToken(
                         config,
@@ -447,7 +447,7 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(),
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
-                        Set.of(SigningAlgorithm.ES256)));
+                        SigningAlgorithm.ES256));
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var issueToken =
                 new IssueToken(
