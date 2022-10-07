@@ -5,6 +5,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import org.azidp4j.springsecuritysample.user.UserInfo;
 import org.azidp4j.springsecuritysample.user.UserStore;
 import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +19,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
+
+    @Autowired BearerTokenBodyAuthenticationFilter bearerTokenBodyAuthenticationFilter;
+
+    @Autowired UserStore userStore;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,8 +44,9 @@ public class SecurityConfiguration {
                 .oauth2ResourceServer()
                 .opaqueToken();
         http.httpBasic().disable();
-        http.csrf().ignoringAntMatchers("/authorize", "/token", "/client");
+        http.csrf().ignoringAntMatchers("/authorize", "/token", "/client", "/userinfo");
         // @formatter:on
+
         return http.build();
     }
 
@@ -51,7 +57,6 @@ public class SecurityConfiguration {
 
     @Bean
     public InMemoryUserDetailsManager userDetailsService() {
-        var userStore = userStore();
         UserDetails user1 =
                 User.withDefaultPasswordEncoder()
                         .username("user1")
@@ -80,10 +85,5 @@ public class SecurityConfiguration {
         userInfo3.put("sub", user3.getUsername());
         userStore.save(userInfo3);
         return new InMemoryUserDetailsManager(user1, user2, user3);
-    }
-
-    @Bean
-    public UserStore userStore() {
-        return new UserStore();
     }
 }

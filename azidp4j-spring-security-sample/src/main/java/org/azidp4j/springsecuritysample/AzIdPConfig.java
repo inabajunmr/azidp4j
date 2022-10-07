@@ -11,11 +11,8 @@ import java.util.Set;
 import org.azidp4j.AzIdP;
 import org.azidp4j.client.ClientRegistrationRequest;
 import org.azidp4j.client.ClientStore;
-import org.azidp4j.client.InMemoryClientStore;
-import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenStore;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -108,16 +105,6 @@ public class AzIdPConfig {
     }
 
     @Bean
-    public ClientStore clientStore() {
-        return new InMemoryClientStore();
-    }
-
-    @Bean
-    public InMemoryUserConsentStore InMemoryUserConsentStore() {
-        return new InMemoryUserConsentStore();
-    }
-
-    @Bean
     public JWKSet jwkSet() throws JOSEException {
         var es256 =
                 new ECKeyGenerator(Curve.P_256)
@@ -127,10 +114,5 @@ public class AzIdPConfig {
         var rs256 =
                 new RSAKeyGenerator(2048).keyID("abc").algorithm(new Algorithm("RS256")).generate();
         return new JWKSet(List.of(es256, rs256));
-    }
-
-    @Bean
-    public AccessTokenStore accessTokenStore() {
-        return new InMemoryAccessTokenStore();
     }
 }

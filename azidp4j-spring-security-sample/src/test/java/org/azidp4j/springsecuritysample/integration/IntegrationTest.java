@@ -242,15 +242,43 @@ public class IntegrationTest {
         var verifier = new RSASSAVerifier((RSAKey) jwk);
         assertTrue(parsedIdToken.verify(verifier));
 
-        // userinfo endpoint
-        var userInfoRequest =
-                RequestEntity.get("http://localhost:8080/userinfo")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + accessToken)
-                        .build();
-        var userinfo = testRestTemplate.exchange(userInfoRequest, Map.class);
-        assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
+        // userinfo endpoint(get)
+        {
+            var userInfoRequest =
+                    RequestEntity.get("http://localhost:8080/userinfo")
+                            .accept(MediaType.APPLICATION_JSON)
+                            .header("Authorization", "Bearer " + accessToken)
+                            .build();
+            var userinfo = testRestTemplate.exchange(userInfoRequest, Map.class);
+            assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
+        }
+
+        // userinfo endpoint(post with header bearer token)
+        {
+            var userInfoRequest =
+                    RequestEntity.post("http://localhost:8080/userinfo")
+                            .accept(MediaType.APPLICATION_JSON)
+                            .header("Authorization", "Bearer " + accessToken)
+                            .build();
+            var userinfo = testRestTemplate.exchange(userInfoRequest, Map.class);
+            assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
+        }
+
+        // userinfo endpoint(post with body bearer token)
+        {
+            MultiValueMap<String, String> token = new LinkedMultiValueMap<>();
+            token.add("access_token", accessToken);
+            var userInfoRequest =
+                    RequestEntity.post("http://localhost:8080/userinfo")
+                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .body(token);
+            var userinfo = testRestTemplate.exchange(userInfoRequest, Map.class);
+            assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
+        }
 
         // token refresh
         MultiValueMap<String, String> tokenRequestForRefresh = new LinkedMultiValueMap<>();
