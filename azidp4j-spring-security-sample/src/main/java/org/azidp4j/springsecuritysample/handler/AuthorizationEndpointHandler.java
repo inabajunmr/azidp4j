@@ -1,13 +1,13 @@
 package org.azidp4j.springsecuritysample.handler;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.AuthorizationRequest;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
+import org.azidp4j.springsecuritysample.user.UserStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +28,8 @@ public class AuthorizationEndpointHandler {
 
     @Autowired InMemoryUserConsentStore inMemoryUserConsentStore;
 
+    @Autowired UserStore userStore;
+
     @GetMapping("/authorize")
     public String authorizationEndpoint(
             @RequestParam Map<String, String> params,
@@ -45,7 +47,9 @@ public class AuthorizationEndpointHandler {
         var authzReq =
                 new AuthorizationRequest(
                         authenticatedUserName,
-                        Instant.now().getEpochSecond(),
+                        authenticatedUserName != null
+                                ? (long) userStore.find(authenticatedUserName).get("auth_time_sec")
+                                : null,
                         consentedScopes,
                         params);
         var response = azIdP.authorize(authzReq);
