@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.AzIdP;
 import org.azidp4j.client.ClientStore;
+import org.azidp4j.token.TokenEndpointAuthMethod;
 import org.azidp4j.token.TokenRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,14 +35,35 @@ public class TokenEndpointHandler {
     public ResponseEntity<Map> tokenEndpoint(
             HttpServletRequest request, @RequestParam MultiValueMap<String, String> body) {
         LOGGER.info(TokenEndpointHandler.class.getName());
-        var usernamePasswordAuthenticationToken = authenticationConverter.convert(request);
-        var client = clientStore.find(usernamePasswordAuthenticationToken.getName());
+
+        // attempt basic authentication
         String authenticatedClientId = null;
-        if (client != null
-                && client.clientSecret.equals(
-                        usernamePasswordAuthenticationToken.getCredentials())) {
-            authenticatedClientId = client.clientId;
+        {
+            var usernamePasswordAuthenticationToken = authenticationConverter.convert(request);
+            if (usernamePasswordAuthenticationToken != null) {
+                var client = clientStore.find(usernamePasswordAuthenticationToken.getName());
+                if (client != null
+                        && client.clientSecret.equals(
+                                usernamePasswordAuthenticationToken.getCredentials())
+                        && client.tokenEndpointAuthMethod
+                                == TokenEndpointAuthMethod.client_secret_basic) {
+                    authenticatedClientId = client.clientId;
+                }
+            }
         }
+
+        // attempt body authentication
+        if (authenticatedClientId == null && body.containsKey("client_id")) {
+            var clientId = body.get("client_id").get(0);
+            var client = clientStore.find(clientId);
+            if (client.tokenEndpointAuthMethod == TokenEndpointAuthMethod.client_secret_post
+                    && body.containsKey("client_secret")) {
+                if (client.clientSecret.equals(body.get("client_secret").get(0))) {
+                    authenticatedClientId = client.clientId;
+                }
+            }
+        }
+
         var response =
                 azIdP.issueToken(
                         new TokenRequest(
