@@ -16,7 +16,6 @@ public class DynamicClientRegistration {
     private final AzIdPConfig config;
     private final ClientStore clientStore;
     private final AccessTokenStore accessTokenStore;
-    private final JWKSet jwkSet;
 
     public DynamicClientRegistration(
             AzIdPConfig config,
@@ -26,7 +25,6 @@ public class DynamicClientRegistration {
         this.config = config;
         this.clientStore = clientStore;
         this.accessTokenStore = accessTokenStore;
-        this.jwkSet = jwkSet;
     }
 
     public ClientRegistrationResponse register(ClientRegistrationRequest request) {

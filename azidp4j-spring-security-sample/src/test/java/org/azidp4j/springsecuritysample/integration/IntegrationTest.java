@@ -69,7 +69,9 @@ public class IntegrationTest {
                         "scope",
                         "scope1 scope2 openid",
                         "id_token_signed_response_alg",
-                        "RS256");
+                        "RS256",
+                        "token_endpoint_auth_method",
+                        "client_secret_basic");
         var clientRegistrationEntity =
                 RequestEntity.post("/client")
                         .contentType(MediaType.APPLICATION_JSON)
