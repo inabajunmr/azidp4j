@@ -68,10 +68,9 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
             }
             return;
         }
-        authorizationResponse
-                .headers()
-                .forEach((key, value) -> httpExchange.getResponseHeaders().set(key, value));
-        httpExchange.sendResponseHeaders(authorizationResponse.status, 0);
+
+        httpExchange.getResponseHeaders().put("Location", List.of(authorizationResponse.redirect.redirectTo));
+        httpExchange.sendResponseHeaders(302, 0);
         httpExchange.close();
     }
 

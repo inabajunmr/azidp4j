@@ -136,11 +136,8 @@ public class AuthorizationEndpointHandler {
                 }
             }
         }
-        response.headers().forEach(resp::setHeader);
-        resp.setStatus(response.status);
-        resp.getWriter().close();
 
-        return null;
+        return "redirect:" + response.redirect.redirectTo;
     }
 }
 
