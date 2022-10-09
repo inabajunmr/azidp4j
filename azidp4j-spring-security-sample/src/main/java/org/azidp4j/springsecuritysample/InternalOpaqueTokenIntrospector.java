@@ -22,16 +22,16 @@ public class InternalOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
     @Override
     public OAuth2AuthenticatedPrincipal introspect(String token) {
         var at = accessTokenStore.find(token);
-        if (at == null) {
+        if (!at.isPresent()) {
             throw new BadOpaqueTokenException("Provided token isn't active");
         }
-        if (at.getExpiresAtEpochSec() < Instant.now().getEpochSecond()) {
+        if (at.get().getExpiresAtEpochSec() < Instant.now().getEpochSecond()) {
             throw new BadOpaqueTokenException("Provided token is expired");
         }
         return new OAuth2IntrospectionAuthenticatedPrincipal(
-                at.getSub(),
+                at.get().getSub(),
                 Map.of("test", "test"),
-                Arrays.stream(at.getScope().split(" "))
+                Arrays.stream(at.get().getScope().split(" "))
                         .map(s -> new SimpleGrantedAuthority("SCOPE_" + s))
                         .collect(Collectors.toSet()));
     }

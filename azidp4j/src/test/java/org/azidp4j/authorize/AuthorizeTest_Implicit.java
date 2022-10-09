@@ -116,7 +116,7 @@ class AuthorizeTest_Implicit {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertNull(fragmentMap.get("state"));
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find(fragmentMap.get("access_token")),
+                accessTokenStore.find(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "client1",
@@ -176,7 +176,7 @@ class AuthorizeTest_Implicit {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find(fragmentMap.get("access_token")),
+                accessTokenStore.find(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "client1",
@@ -240,7 +240,7 @@ class AuthorizeTest_Implicit {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find(fragmentMap.get("access_token")),
+                accessTokenStore.find(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "client1",
@@ -318,7 +318,7 @@ class AuthorizeTest_Implicit {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find(fragmentMap.get("access_token")),
+                accessTokenStore.find(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "client1",
@@ -394,7 +394,7 @@ class AuthorizeTest_Implicit {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find(fragmentMap.get("access_token")),
+                accessTokenStore.find(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "client1",

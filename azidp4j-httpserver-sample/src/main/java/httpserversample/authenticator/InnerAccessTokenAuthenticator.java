@@ -28,11 +28,13 @@ public class InnerAccessTokenAuthenticator extends Authenticator {
             return new Failure(403);
         }
         var token = accessTokenStore.find(authorization.replaceAll("^Bearer ", ""));
-        if(Arrays.stream(token.getScope().split(" ")).anyMatch(s -> s.equals("default"))){
-            return new Success(
-                    new HttpPrincipal(
-                            token.getSub(),
-                            "client registration"));
+        if(token.isPresent()) {
+            if(Arrays.stream(token.get().getScope().split(" ")).anyMatch(s -> s.equals("default"))){
+                return new Success(
+                        new HttpPrincipal(
+                                token.get().getSub(),
+                                "client registration"));
+            }
         }
         return new Failure(403);
     }

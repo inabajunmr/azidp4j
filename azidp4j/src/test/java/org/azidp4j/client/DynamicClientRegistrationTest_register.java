@@ -71,7 +71,7 @@ class DynamicClientRegistrationTest_register {
         assertEquals(response.body.get("id_token_signed_response_alg"), "RS256");
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) at),
+                accessTokenStore.find((String) at).get(),
                 (String) response.body.get("client_id"),
                 config.issuer,
                 (String) response.body.get("client_id"),
@@ -110,7 +110,7 @@ class DynamicClientRegistrationTest_register {
         assertEquals(response.body.get("id_token_signed_response_alg"), "RS256");
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) at),
+                accessTokenStore.find((String) at).get(),
                 (String) response.body.get("client_id"),
                 config.issuer,
                 (String) response.body.get("client_id"),

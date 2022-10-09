@@ -1,6 +1,7 @@
 package org.azidp4j.token.accesstoken;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryAccessTokenStore implements AccessTokenStore {
@@ -20,8 +21,8 @@ public class InMemoryAccessTokenStore implements AccessTokenStore {
     }
 
     @Override
-    public InMemoryAccessToken find(String token) {
-        return STORE.get(token);
+    public Optional<InMemoryAccessToken> find(String token) {
+        return Optional.ofNullable(STORE.get(token));
     }
 
     @Override

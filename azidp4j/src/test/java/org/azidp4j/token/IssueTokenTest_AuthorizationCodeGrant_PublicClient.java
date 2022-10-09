@@ -109,7 +109,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "clientId",
@@ -152,7 +152,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "clientId",
@@ -195,7 +195,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "clientId",
