@@ -26,17 +26,17 @@ public class InMemoryAccessTokenStore implements AccessTokenStore {
     }
 
     @Override
-    public synchronized InMemoryAccessToken remove(String token) {
+    public synchronized void remove(String token) {
         var at = STORE.remove(token);
         if (at.getAuthorizationCode() == null) {
-            return at;
+            return;
         }
-        return STORE_BY_AUTHORIZATION_CODE.remove(at.getAuthorizationCode());
+        STORE_BY_AUTHORIZATION_CODE.remove(at.getAuthorizationCode());
     }
 
     @Override
-    public synchronized InMemoryAccessToken removeByAuthorizationCode(String code) {
+    public synchronized void removeByAuthorizationCode(String code) {
         var at = STORE_BY_AUTHORIZATION_CODE.remove(code);
-        return STORE.remove(at.getToken());
+        STORE.remove(at.getToken());
     }
 }

@@ -8,7 +8,7 @@ public interface AccessTokenStore {
 
     Optional<InMemoryAccessToken> find(String token);
 
-    InMemoryAccessToken remove(String token);
+    void remove(String token);
 
-    InMemoryAccessToken removeByAuthorizationCode(String code);
+    void removeByAuthorizationCode(String code);
 }
