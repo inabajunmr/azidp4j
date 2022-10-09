@@ -13,6 +13,8 @@ import org.azidp4j.springsecuritysample.user.UserStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.savedrequest.SimpleSavedRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
@@ -55,6 +57,22 @@ public class AuthorizationEndpointHandler {
                         consentedScopes,
                         params);
         var response = azIdP.authorize(authzReq);
+        if (response.error != null) {
+            var session = req.getSession();
+            switch (response.error) {
+                case invalid_response_type -> session.setAttribute(
+                        WebAttributes.AUTHENTICATION_EXCEPTION,
+                        new InnerAuthenticationException(
+                                "RP send wrong authorization request. debug:"
+                                        + " no_response_type"));
+                default -> session.setAttribute(
+                        WebAttributes.AUTHENTICATION_EXCEPTION,
+                        new InnerAuthenticationException(
+                                "RP send wrong authorization request. debug: "
+                                        + response.error.name()));
+            }
+            return "redirect:/login?error";
+        }
         if (response.additionalPage != null) {
             switch (response.additionalPage) {
                 case login -> {
@@ -122,5 +140,12 @@ public class AuthorizationEndpointHandler {
         resp.getWriter().close();
 
         return null;
+    }
+}
+
+class InnerAuthenticationException extends AuthenticationException {
+
+    public InnerAuthenticationException(String msg) {
+        super(msg);
     }
 }
