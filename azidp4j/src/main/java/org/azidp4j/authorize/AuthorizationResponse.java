@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 public class AuthorizationResponse {
 
+    public final NextAction next;
+
     public final int status;
     private final Map<String, String> query;
     private final Map<String, String> fragment;
@@ -15,51 +17,37 @@ public class AuthorizationResponse {
     public final AdditionalPage additionalPage;
     public final AuthorizationErrorTypeWithoutRedirect error;
 
+    private AuthorizationResponse(
+            NextAction next,
+            int status,
+            Map<String, String> query,
+            Map<String, String> fragment,
+            URI redirectUri,
+            AdditionalPage additionalPage,
+            AuthorizationErrorTypeWithoutRedirect error) {
+        this.next = next;
+        this.status = status;
+        this.query = query;
+        this.fragment = fragment;
+        this.redirectUri = redirectUri;
+        this.additionalPage = additionalPage;
+        this.error = error;
+    }
+
+    public static AuthorizationResponse additionalPage(Prompt prompt, Display display) {
+        var page = new AdditionalPage(prompt, display);
+        return new AuthorizationResponse(
+                NextAction.additionalPage, 0, null, null, null, page, null);
+    }
+
     public AuthorizationResponse(AuthorizationErrorTypeWithoutRedirect error) {
+        this.next = NextAction.errorPage;
         this.status = 0;
         this.query = null;
         this.fragment = null;
         this.redirectUri = null;
         this.additionalPage = null;
         this.error = error;
-    }
-
-    public AuthorizationResponse(int status) {
-        this.status = status;
-        this.query = null;
-        this.fragment = null;
-        this.redirectUri = null;
-        this.additionalPage = null;
-        this.error = null;
-    }
-
-    public AuthorizationResponse(
-            int status, Map<String, String> parameters, ResponseMode responseMode) {
-        if (responseMode == null) {
-            throw new AssertionError();
-        }
-        this.additionalPage = null;
-        this.status = status;
-        this.redirectUri = null;
-        switch (responseMode) {
-            case query -> {
-                this.query =
-                        parameters.entrySet().stream()
-                                .filter(q -> q.getValue() != null)
-                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-                this.fragment = Map.of();
-                break;
-            }
-            case fragment -> {
-                this.query = Map.of();
-                this.fragment =
-                        parameters.entrySet().stream()
-                                .filter(f -> f.getValue() != null)
-                                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            }
-            default -> throw new AssertionError();
-        }
-        this.error = null;
     }
 
     public AuthorizationResponse(
@@ -70,6 +58,7 @@ public class AuthorizationResponse {
         if (responseMode == null) {
             throw new AssertionError();
         }
+        this.next = NextAction.redirect;
         this.additionalPage = null;
         this.status = status;
         switch (responseMode) {
@@ -95,6 +84,7 @@ public class AuthorizationResponse {
     }
 
     public AuthorizationResponse(AdditionalPage additionalPage) {
+        this.next = NextAction.additionalPage;
         this.status = 0;
         this.query = null;
         this.fragment = null;

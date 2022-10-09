@@ -56,7 +56,7 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
             throws IOException {
         var authorizationResponse = azIdp.authorize(authorizationRequest);
         if (authorizationResponse.additionalPage != null) {
-            switch (authorizationResponse.additionalPage) {
+            switch (authorizationResponse.additionalPage.prompt) {
                 case login:
                     {
                         redirectToLoginPage(httpExchange, authorizationRequest);

@@ -1,7 +1,11 @@
 package org.azidp4j.authorize;
 
-public enum AdditionalPage {
-    consent,
-    login,
-    select_account;
+public class AdditionalPage {
+    public final Prompt prompt;
+    public final Display display;
+
+    public AdditionalPage(Prompt prompt, Display display) {
+        this.prompt = prompt;
+        this.display = display;
+    }
 }

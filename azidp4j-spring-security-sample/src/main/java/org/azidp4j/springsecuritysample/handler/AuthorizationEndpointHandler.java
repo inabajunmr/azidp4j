@@ -74,7 +74,7 @@ public class AuthorizationEndpointHandler {
             return "redirect:/login?error";
         }
         if (response.additionalPage != null) {
-            switch (response.additionalPage) {
+            switch (response.additionalPage.prompt) {
                 case login -> {
                     var session = req.getSession();
                     var map = new LinkedMultiValueMap<String, String>();

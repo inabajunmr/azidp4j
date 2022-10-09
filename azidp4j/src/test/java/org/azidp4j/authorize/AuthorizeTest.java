@@ -82,7 +82,9 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.login, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.login, response.additionalPage.prompt);
+            assertEquals(null, response.additionalPage.display);
         }
         // no consented scope
         {
@@ -101,7 +103,9 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.consent, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.consent, response.additionalPage.prompt);
+            assertEquals(null, response.additionalPage.display);
         }
         // no enough scope consented
         {
@@ -120,7 +124,9 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.consent, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.consent, response.additionalPage.prompt);
+            assertEquals(null, response.additionalPage.display);
         }
         // prompt is login
         {
@@ -140,7 +146,9 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.login, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.login, response.additionalPage.prompt);
+            assertEquals(null, response.additionalPage.display);
         }
         // prompt is consent(authenticated)
         {
@@ -160,7 +168,9 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.consent, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.consent, response.additionalPage.prompt);
+            assertEquals(null, response.additionalPage.display);
         }
         // prompt is consent(not authenticated)
         {
@@ -179,7 +189,9 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.login, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.login, response.additionalPage.prompt);
+            assertEquals(null, response.additionalPage.display);
         }
         // prompt is login and consent
         {
@@ -199,7 +211,9 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.login, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.login, response.additionalPage.prompt);
+            assertEquals(null, response.additionalPage.display);
         }
     }
 }

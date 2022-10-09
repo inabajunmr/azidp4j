@@ -64,7 +64,7 @@ public class Authorize {
                     AuthorizationErrorTypeWithoutRedirect.client_id_required);
         }
         var clientOpt = clientStore.find(authorizationRequest.clientId);
-        if (!clientOpt.isPresent()) {
+        if (clientOpt.isEmpty()) {
             return new AuthorizationResponse(
                     AuthorizationErrorTypeWithoutRedirect.client_not_found);
         }
@@ -225,24 +225,24 @@ public class Authorize {
                 }
             }
             if (prompt.contains(Prompt.login)) {
-                return new AuthorizationResponse(AdditionalPage.login);
+                return AuthorizationResponse.additionalPage(Prompt.login, null);
             }
             if (prompt.contains(Prompt.consent)) {
                 if (authorizationRequest.authenticatedUserId == null) {
-                    return new AuthorizationResponse(AdditionalPage.login);
+                    return AuthorizationResponse.additionalPage(Prompt.login, null);
                 } else {
-                    return new AuthorizationResponse(AdditionalPage.consent);
+                    return AuthorizationResponse.additionalPage(Prompt.consent, null);
                 }
             }
             if (prompt.contains(Prompt.select_account)) {
-                return new AuthorizationResponse(AdditionalPage.select_account);
+                return AuthorizationResponse.additionalPage(Prompt.select_account, null);
             }
             if (authorizationRequest.authenticatedUserId == null) {
-                return new AuthorizationResponse(AdditionalPage.login);
+                return AuthorizationResponse.additionalPage(Prompt.login, null);
             }
             if (!authorizationRequest.consentedScope.containsAll(
                     Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
-                return new AuthorizationResponse(AdditionalPage.consent);
+                return AuthorizationResponse.additionalPage(Prompt.consent, null);
             }
         }
 
@@ -303,7 +303,7 @@ public class Authorize {
                                             authorizationRequest.state),
                                     responseMode);
                         } else {
-                            return new AuthorizationResponse(AdditionalPage.login);
+                            return AuthorizationResponse.additionalPage(Prompt.login, null);
                         }
                     }
                 } catch (NumberFormatException e) {
