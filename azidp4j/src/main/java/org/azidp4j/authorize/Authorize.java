@@ -282,7 +282,7 @@ public class Authorize {
             if (authorizationRequest.maxAge != null) {
                 try {
                     var maxAge = Integer.parseInt(authorizationRequest.maxAge);
-                    if (Instant.now().getEpochSecond() + maxAge < authorizationRequest.authTime) {
+                    if (Instant.now().getEpochSecond() > authorizationRequest.authTime + maxAge) {
                         if (prompt.contains(Prompt.none)) {
                             return new AuthorizationResponse(
                                     302,
