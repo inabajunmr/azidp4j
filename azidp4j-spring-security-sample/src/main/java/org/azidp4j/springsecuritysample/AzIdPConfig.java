@@ -6,6 +6,8 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import org.azidp4j.AzIdP;
@@ -80,7 +82,7 @@ public class AzIdPConfig {
                                         "implicit",
                                         "refresh_token",
                                         "client_credentials"))
-                        .scope("scope1 scope2 client")
+                        .scope("scope1 scope2 openid client")
                         .responseTypes(Set.of("code", "token", "id_token"))
                         .tokenEndpointAuthMethod("client_secret_basic")
                         .build();
@@ -90,7 +92,10 @@ public class AzIdPConfig {
                 endpoint
                         + "/authorize?response_type=code&client_id="
                         + client.body.get("client_id")
-                        + "&redirect_uri=http://client.example.com/callback1&scope=scope1");
+                        + "&redirect_uri="
+                        + URLEncoder.encode(
+                                "http://client.example.com/callback1", StandardCharsets.UTF_8)
+                        + "&scope=scope1");
         System.out.println(
                 "curl -X POST -u "
                         + client.body.get("client_id")
