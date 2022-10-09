@@ -15,6 +15,7 @@ public class AuthorizationRequestParser {
         String requestUri = req.queryParameters.get("request_uri");
         String registration = req.queryParameters.get("registration");
         String prompt = req.queryParameters.get("prompt");
+        String display = req.queryParameters.get("display");
         String codeChallenge = req.queryParameters.get("code_challenge");
         String codeChallengeMethod = req.queryParameters.get("code_challenge_method");
 
@@ -31,6 +32,7 @@ public class AuthorizationRequestParser {
                 .nonce(nonce)
                 .maxAge(maxAge)
                 .prompt(prompt)
+                .display(display)
                 .request(request)
                 .requestUri(requestUri)
                 .registration(registration)

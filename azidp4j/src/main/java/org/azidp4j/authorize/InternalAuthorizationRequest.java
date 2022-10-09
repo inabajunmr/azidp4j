@@ -41,6 +41,9 @@ public class InternalAuthorizationRequest {
     final String prompt;
 
     /** OpenID Connect Core 1.0 "authorization code flow" */
+    final String display;
+
+    /** OpenID Connect Core 1.0 "authorization code flow" */
     final String maxAge;
 
     /** OpenID Connect Core 1.0 "authorization code flow" */
@@ -90,6 +93,7 @@ public class InternalAuthorizationRequest {
             String nonce,
             String maxAge,
             String prompt,
+            String display,
             String request,
             String requestUri,
             String registration,
@@ -107,6 +111,7 @@ public class InternalAuthorizationRequest {
         this.nonce = nonce;
         this.maxAge = maxAge;
         this.prompt = prompt;
+        this.display = display;
         this.request = request;
         this.requestUri = requestUri;
         this.registration = registration;
@@ -128,6 +133,7 @@ public class InternalAuthorizationRequest {
         private String nonce;
         private String maxAge;
         private String prompt;
+        private String display;
         private String request;
         private String requestUri;
         private String registration;
@@ -196,6 +202,11 @@ public class InternalAuthorizationRequest {
             return this;
         }
 
+        public Builder display(String display) {
+            this.display = display;
+            return this;
+        }
+
         public Builder request(String request) {
             this.request = request;
             return this;
@@ -235,6 +246,7 @@ public class InternalAuthorizationRequest {
                     nonce,
                     maxAge,
                     prompt,
+                    display,
                     request,
                     requestUri,
                     registration,

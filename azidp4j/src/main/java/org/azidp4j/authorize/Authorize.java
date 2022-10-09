@@ -175,7 +175,12 @@ public class Authorize {
             }
         }
 
-        Set<Prompt> prompt = Prompt.parse(authorizationRequest.prompt);
+        var display = Display.of(authorizationRequest.display);
+        if (display == null) {
+            display = Display.page;
+        }
+
+        var prompt = Prompt.parse(authorizationRequest.prompt);
         if (prompt == null) {
             // prompt is invalid
             return AuthorizationResponse.redirect(
@@ -213,24 +218,24 @@ public class Authorize {
                 }
             }
             if (prompt.contains(Prompt.login)) {
-                return AuthorizationResponse.additionalPage(Prompt.login, null);
+                return AuthorizationResponse.additionalPage(Prompt.login, display);
             }
             if (prompt.contains(Prompt.consent)) {
                 if (authorizationRequest.authenticatedUserId == null) {
-                    return AuthorizationResponse.additionalPage(Prompt.login, null);
+                    return AuthorizationResponse.additionalPage(Prompt.login, display);
                 } else {
-                    return AuthorizationResponse.additionalPage(Prompt.consent, null);
+                    return AuthorizationResponse.additionalPage(Prompt.consent, display);
                 }
             }
             if (prompt.contains(Prompt.select_account)) {
-                return AuthorizationResponse.additionalPage(Prompt.select_account, null);
+                return AuthorizationResponse.additionalPage(Prompt.select_account, display);
             }
             if (authorizationRequest.authenticatedUserId == null) {
-                return AuthorizationResponse.additionalPage(Prompt.login, null);
+                return AuthorizationResponse.additionalPage(Prompt.login, display);
             }
             if (!authorizationRequest.consentedScope.containsAll(
                     Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
-                return AuthorizationResponse.additionalPage(Prompt.consent, null);
+                return AuthorizationResponse.additionalPage(Prompt.consent, display);
             }
         }
 
@@ -288,7 +293,7 @@ public class Authorize {
                                             authorizationRequest.state),
                                     responseMode);
                         } else {
-                            return AuthorizationResponse.additionalPage(Prompt.login, null);
+                            return AuthorizationResponse.additionalPage(Prompt.login, display);
                         }
                     }
                 } catch (NumberFormatException e) {
