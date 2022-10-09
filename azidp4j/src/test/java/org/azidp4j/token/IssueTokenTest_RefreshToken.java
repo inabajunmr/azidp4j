@@ -161,7 +161,8 @@ public class IssueTokenTest_RefreshToken {
         assertTrue(response.body.containsKey("refresh_token"));
 
         var newRefreshToken = response.body.get("refresh_token");
-        assertEquals(refreshTokenStore.consume(newRefreshToken.toString()).scope, "rs:scope1");
+        assertEquals(
+                refreshTokenStore.consume(newRefreshToken.toString()).get().scope, "rs:scope1");
     }
 
     @Test

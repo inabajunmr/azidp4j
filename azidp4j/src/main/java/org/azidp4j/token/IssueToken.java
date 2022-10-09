@@ -298,10 +298,11 @@ public class IssueToken {
                 if (request.refreshToken == null) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
-                var rt = refreshTokenStore.consume(request.refreshToken);
-                if (rt == null) {
+                var rtOpt = refreshTokenStore.consume(request.refreshToken);
+                if (!rtOpt.isPresent()) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
+                var rt = rtOpt.get();
                 if (!rt.clientId.equals(client.clientId)) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }

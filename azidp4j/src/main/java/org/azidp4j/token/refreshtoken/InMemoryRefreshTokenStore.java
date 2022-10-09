@@ -1,6 +1,7 @@
 package org.azidp4j.token.refreshtoken;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryRefreshTokenStore implements RefreshTokenStore {
@@ -18,23 +19,23 @@ public class InMemoryRefreshTokenStore implements RefreshTokenStore {
     }
 
     @Override
-    public synchronized RefreshToken consume(String token) {
+    public synchronized Optional<RefreshToken> consume(String token) {
         var rt = STORE.remove(token);
         if (rt == null) {
-            return null;
+            return Optional.empty();
         }
         if (rt.authorizationCode == null) {
-            return rt;
+            return Optional.of(rt);
         }
-        return STORE_BY_AUTHORIZATION_CODE.remove(rt.authorizationCode);
+        return Optional.ofNullable(STORE_BY_AUTHORIZATION_CODE.remove(rt.authorizationCode));
     }
 
     @Override
-    public synchronized RefreshToken removeByAuthorizationCode(String authorizationCode) {
+    public synchronized void removeByAuthorizationCode(String authorizationCode) {
         var rt = STORE_BY_AUTHORIZATION_CODE.remove(authorizationCode);
         if (rt == null) {
-            return null;
+            return;
         }
-        return STORE.remove(rt.token);
+        STORE.remove(rt.token);
     }
 }
