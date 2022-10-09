@@ -13,6 +13,16 @@ public class AuthorizationResponse {
     private final Map<String, String> fragment;
     private final URI redirectUri;
     public final AdditionalPage additionalPage;
+    public final AuthorizationErrorTypeWithoutRedirect error;
+
+    public AuthorizationResponse(AuthorizationErrorTypeWithoutRedirect error) {
+        this.status = 0;
+        this.query = null;
+        this.fragment = null;
+        this.redirectUri = null;
+        this.additionalPage = null;
+        this.error = error;
+    }
 
     public AuthorizationResponse(int status) {
         this.status = status;
@@ -20,6 +30,7 @@ public class AuthorizationResponse {
         this.fragment = null;
         this.redirectUri = null;
         this.additionalPage = null;
+        this.error = null;
     }
 
     public AuthorizationResponse(
@@ -48,6 +59,7 @@ public class AuthorizationResponse {
             }
             default -> throw new AssertionError();
         }
+        this.error = null;
     }
 
     public AuthorizationResponse(
@@ -79,6 +91,7 @@ public class AuthorizationResponse {
             default -> throw new AssertionError();
         }
         this.redirectUri = redirectUri;
+        this.error = null;
     }
 
     public AuthorizationResponse(AdditionalPage additionalPage) {
@@ -87,6 +100,7 @@ public class AuthorizationResponse {
         this.fragment = null;
         this.additionalPage = additionalPage;
         this.redirectUri = null;
+        this.error = null;
     }
 
     public Map<String, String> headers() {

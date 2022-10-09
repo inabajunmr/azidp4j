@@ -48,35 +48,42 @@ public class Authorize {
 
         var responseType = ResponseType.parse(authorizationRequest.responseType);
         if (responseType == null) {
-            return new AuthorizationResponse(400);
+            return new AuthorizationResponse(
+                    AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
         }
 
         var responseMode = ResponseMode.of(authorizationRequest.responseMode, responseType);
         if (responseMode == null) {
-            return new AuthorizationResponse(400);
+            return new AuthorizationResponse(
+                    AuthorizationErrorTypeWithoutRedirect.invalid_response_mode);
         }
 
         // validate client
         if (authorizationRequest.clientId == null) {
-            return new AuthorizationResponse(400);
+            return new AuthorizationResponse(
+                    AuthorizationErrorTypeWithoutRedirect.client_id_required);
         }
         var client = clientStore.find(authorizationRequest.clientId);
         if (client == null) {
-            return new AuthorizationResponse(400);
+            return new AuthorizationResponse(
+                    AuthorizationErrorTypeWithoutRedirect.client_not_found);
         }
 
         // validate redirect urls
         if (authorizationRequest.redirectUri == null) {
-            return new AuthorizationResponse(400);
+            return new AuthorizationResponse(
+                    AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri);
         }
         if (!client.redirectUris.contains(authorizationRequest.redirectUri)) {
-            return new AuthorizationResponse(400);
+            return new AuthorizationResponse(
+                    AuthorizationErrorTypeWithoutRedirect.redirect_uri_not_allowed);
         }
-        URI redirectUri = null;
+        URI redirectUri;
         try {
             redirectUri = URI.create(authorizationRequest.redirectUri);
         } catch (IllegalArgumentException e) {
-            return new AuthorizationResponse(400);
+            return new AuthorizationResponse(
+                    AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri);
         }
         if (authorizationRequest.request != null) {
             return new AuthorizationResponse(

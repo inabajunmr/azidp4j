@@ -78,7 +78,7 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.status, 400);
+        assertEquals(response.error, AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
     }
 
     @Test
@@ -93,7 +93,7 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.status, 400);
+        assertEquals(response.error, AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
     }
 
     @Test
@@ -107,7 +107,7 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.status, 400);
+        assertEquals(response.error, AuthorizationErrorTypeWithoutRedirect.client_id_required);
     }
 
     @Test
@@ -122,7 +122,7 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.status, 400);
+        assertEquals(response.error, AuthorizationErrorTypeWithoutRedirect.client_not_found);
     }
 
     @Test
@@ -137,7 +137,8 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.status, 400);
+        assertEquals(
+                response.error, AuthorizationErrorTypeWithoutRedirect.redirect_uri_not_allowed);
     }
 
     @Test
@@ -151,7 +152,7 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.status, 400);
+        assertEquals(response.error, AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri);
     }
 
     @Test
@@ -469,6 +470,6 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.status, 400);
+        assertEquals(response.error, AuthorizationErrorTypeWithoutRedirect.invalid_response_mode);
     }
 }
