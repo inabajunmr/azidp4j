@@ -41,14 +41,14 @@ public class BearerTokenBodyAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             var at = accessTokenStore.find(request.getParameterMap().get("access_token")[0]);
-            if (at == null) {
+            if (!at.isPresent()) {
                 filterChain.doFilter(request, response);
             } else {
                 var principal =
                         new OAuth2IntrospectionAuthenticatedPrincipal(
-                                at.getSub(),
+                                at.get().getSub(),
                                 Map.of("test", "test"),
-                                Arrays.stream(at.getScope().split(" "))
+                                Arrays.stream(at.get().getScope().split(" "))
                                         .map(s -> new SimpleGrantedAuthority("SCOPE_" + s))
                                         .collect(Collectors.toSet()));
                 filterChain.doFilter(request, response);
@@ -57,9 +57,9 @@ public class BearerTokenBodyAuthenticationFilter extends OncePerRequestFilter {
                                 principal,
                                 new OAuth2AccessToken(
                                         OAuth2AccessToken.TokenType.BEARER,
-                                        at.getToken(),
+                                        at.get().getToken(),
                                         null,
-                                        Instant.ofEpochSecond(at.getExpiresAtEpochSec())),
+                                        Instant.ofEpochSecond(at.get().getExpiresAtEpochSec())),
                                 principal.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 filterChain.doFilter(request, response);

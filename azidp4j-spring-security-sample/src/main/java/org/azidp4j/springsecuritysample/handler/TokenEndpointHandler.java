@@ -42,12 +42,13 @@ public class TokenEndpointHandler {
             var usernamePasswordAuthenticationToken = authenticationConverter.convert(request);
             if (usernamePasswordAuthenticationToken != null) {
                 var client = clientStore.find(usernamePasswordAuthenticationToken.getName());
-                if (client != null
-                        && client.clientSecret.equals(
-                                usernamePasswordAuthenticationToken.getCredentials())
-                        && client.tokenEndpointAuthMethod
+                if (client.isPresent()
+                        && client.get()
+                                .clientSecret
+                                .equals(usernamePasswordAuthenticationToken.getCredentials())
+                        && client.get().tokenEndpointAuthMethod
                                 == TokenEndpointAuthMethod.client_secret_basic) {
-                    authenticatedClientId = client.clientId;
+                    authenticatedClientId = client.get().clientId;
                 }
             }
         }
@@ -56,10 +57,12 @@ public class TokenEndpointHandler {
         if (authenticatedClientId == null && body.containsKey("client_id")) {
             var clientId = body.get("client_id").get(0);
             var client = clientStore.find(clientId);
-            if (client.tokenEndpointAuthMethod == TokenEndpointAuthMethod.client_secret_post
+            if (client.isPresent()
+                    && client.get().tokenEndpointAuthMethod
+                            == TokenEndpointAuthMethod.client_secret_post
                     && body.containsKey("client_secret")) {
-                if (client.clientSecret.equals(body.get("client_secret").get(0))) {
-                    authenticatedClientId = client.clientId;
+                if (client.get().clientSecret.equals(body.get("client_secret").get(0))) {
+                    authenticatedClientId = client.get().clientId;
                 }
             }
         }

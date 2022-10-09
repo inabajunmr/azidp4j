@@ -68,14 +68,15 @@ public class IssueToken {
                 && !Objects.equals(request.authenticatedClientId, request.clientId)) {
             return new TokenResponse(400, Map.of("error", "invalid_request"));
         }
-        var client =
+        var clientOpt =
                 clientStore.find(
                         request.clientId != null
                                 ? request.clientId
                                 : request.authenticatedClientId);
-        if (client == null) {
+        if (!clientOpt.isPresent()) {
             return new TokenResponse(400, Map.of("error", "unauthorized_client"));
         }
+        var client = clientOpt.get();
         if (client.tokenEndpointAuthMethod != TokenEndpointAuthMethod.none
                 && request.authenticatedClientId == null) {
             // client authentication required
@@ -86,12 +87,13 @@ public class IssueToken {
         }
         switch (grantType) {
             case authorization_code -> {
-                var authorizationCode = authorizationCodeStore.consume(request.code);
-                if (authorizationCode == null) {
+                var authorizationCodeOpt = authorizationCodeStore.consume(request.code);
+                if (!authorizationCodeOpt.isPresent()) {
                     accessTokenStore.removeByAuthorizationCode(request.code);
                     refreshTokenStore.removeByAuthorizationCode(request.code);
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
+                var authorizationCode = authorizationCodeOpt.get();
                 if (!authorizationCode.clientId.equals(client.clientId)) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
@@ -296,10 +298,11 @@ public class IssueToken {
                 if (request.refreshToken == null) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
-                var rt = refreshTokenStore.consume(request.refreshToken);
-                if (rt == null) {
+                var rtOpt = refreshTokenStore.consume(request.refreshToken);
+                if (!rtOpt.isPresent()) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
+                var rt = rtOpt.get();
                 if (!rt.clientId.equals(client.clientId)) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }

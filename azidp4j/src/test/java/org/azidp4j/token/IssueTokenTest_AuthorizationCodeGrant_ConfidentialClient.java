@@ -157,7 +157,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "ES256Client",
@@ -201,7 +201,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "ES256Client",
@@ -258,7 +258,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "ES256Client",
@@ -317,7 +317,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "RS256Client",
@@ -375,7 +375,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "NoneClient",
@@ -470,7 +470,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response2.body.get("error"), "invalid_grant");
 
         // using same code, access token will be revoked
-        assertNull(accessTokenStore.find((String) at));
+        assertFalse(accessTokenStore.find((String) at).isPresent());
     }
 
     @Test

@@ -69,7 +69,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "clientId",
                 "http://rs.example.com",
                 "clientId",

@@ -1,8 +1,10 @@
 package org.azidp4j.authorize;
 
+import java.util.Optional;
+
 public interface AuthorizationCodeStore {
 
     void save(AuthorizationCode code);
 
-    AuthorizationCode consume(String code);
+    Optional<AuthorizationCode> consume(String code);
 }

@@ -79,7 +79,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "clientId",
@@ -145,7 +145,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "clientId",

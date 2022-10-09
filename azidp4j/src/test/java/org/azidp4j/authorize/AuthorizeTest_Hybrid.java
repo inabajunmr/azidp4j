@@ -87,7 +87,7 @@ class AuthorizeTest_Hybrid {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find(fragmentMap.get("access_token")),
+                accessTokenStore.find(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "client1",
@@ -181,7 +181,7 @@ class AuthorizeTest_Hybrid {
                 fragmentMap.get("access_token"),
                 null);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find(fragmentMap.get("access_token")),
+                accessTokenStore.find(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "client1",
@@ -231,7 +231,7 @@ class AuthorizeTest_Hybrid {
                 fragmentMap.get("access_token"),
                 fragmentMap.get("id_token"));
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find(fragmentMap.get("access_token")),
+                accessTokenStore.find(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "client1",

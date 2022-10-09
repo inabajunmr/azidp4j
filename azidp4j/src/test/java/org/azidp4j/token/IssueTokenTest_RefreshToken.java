@@ -83,7 +83,7 @@ public class IssueTokenTest_RefreshToken {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "user",
                 "http://rs.example.com",
                 "clientId",
@@ -150,7 +150,7 @@ public class IssueTokenTest_RefreshToken {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "user",
                 "http://rs.example.com",
                 "clientId",
@@ -161,7 +161,8 @@ public class IssueTokenTest_RefreshToken {
         assertTrue(response.body.containsKey("refresh_token"));
 
         var newRefreshToken = response.body.get("refresh_token");
-        assertEquals(refreshTokenStore.consume(newRefreshToken.toString()).scope, "rs:scope1");
+        assertEquals(
+                refreshTokenStore.consume(newRefreshToken.toString()).get().scope, "rs:scope1");
     }
 
     @Test
@@ -220,7 +221,7 @@ public class IssueTokenTest_RefreshToken {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")),
+                accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "user",
                 "http://rs.example.com",
                 "clientId",

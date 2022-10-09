@@ -63,11 +63,13 @@ public class Authorize {
             return new AuthorizationResponse(
                     AuthorizationErrorTypeWithoutRedirect.client_id_required);
         }
-        var client = clientStore.find(authorizationRequest.clientId);
-        if (client == null) {
+        var clientOpt = clientStore.find(authorizationRequest.clientId);
+        if (!clientOpt.isPresent()) {
             return new AuthorizationResponse(
                     AuthorizationErrorTypeWithoutRedirect.client_not_found);
         }
+
+        var client = clientOpt.get();
 
         // validate redirect urls
         if (authorizationRequest.redirectUri == null) {

@@ -128,10 +128,7 @@ public class DynamicClientRegistration {
     }
 
     public ClientRegistrationResponse configure(ClientConfigurationRequest request) {
-        var client = clientStore.find(request.clientId);
-        if (client == null) {
-            throw new AssertionError();
-        }
+        var client = clientStore.find(request.clientId).orElseThrow(() -> new AssertionError());
         var grantTypes = client.grantTypes;
         if (request.grantTypes != null) {
             grantTypes = new HashSet<>();
@@ -214,7 +211,7 @@ public class DynamicClientRegistration {
     }
 
     public ClientDeleteResponse delete(String clientId) {
-        var client = clientStore.delete(clientId);
+        var client = clientStore.remove(clientId);
         return new ClientDeleteResponse(204, null);
     }
 }
