@@ -1,6 +1,8 @@
 package org.azidp4j.springsecuritysample.handler;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,7 +60,13 @@ public class AuthorizationEndpointHandler {
                 case login -> {
                     var session = req.getSession();
                     var map = new LinkedMultiValueMap<String, String>();
-                    authzReq.removePrompt("login").queryParameters().forEach(map::add);
+                    authzReq.removePrompt("login")
+                            .queryParameters()
+                            .forEach(
+                                    (k, v) ->
+                                            map.add(
+                                                    k,
+                                                    URLEncoder.encode(v, StandardCharsets.UTF_8)));
                     session.setAttribute(
                             "SPRING_SECURITY_SAVED_REQUEST",
                             new SimpleSavedRequest(
@@ -71,7 +79,13 @@ public class AuthorizationEndpointHandler {
                 case consent -> {
                     var session = req.getSession();
                     var map = new LinkedMultiValueMap<String, String>();
-                    authzReq.removePrompt("consent").queryParameters().forEach(map::add);
+                    authzReq.removePrompt("consent")
+                            .queryParameters()
+                            .forEach(
+                                    (k, v) ->
+                                            map.add(
+                                                    k,
+                                                    URLEncoder.encode(v, StandardCharsets.UTF_8)));
                     session.setAttribute(
                             "SPRING_SECURITY_SAVED_REQUEST",
                             new SimpleSavedRequest(
@@ -79,16 +93,22 @@ public class AuthorizationEndpointHandler {
                                             .queryParams(map)
                                             .build()
                                             .toUriString()));
-                    authzReq.removePrompt("consent").queryParameters().forEach(map::add);
                     UriComponentsBuilder.fromPath("/consent")
                             .queryParam("scope", authzReq.queryParameters().get("scope"))
                             .build();
                     return "redirect:"
                             + UriComponentsBuilder.fromPath("/consent")
                                     // TODO not good interface
-                                    .queryParam("scope", authzReq.queryParameters().get("scope"))
                                     .queryParam(
-                                            "clientId", authzReq.queryParameters().get("client_id"))
+                                            "scope",
+                                            URLEncoder.encode(
+                                                    authzReq.queryParameters().get("scope"),
+                                                    StandardCharsets.UTF_8))
+                                    .queryParam(
+                                            "clientId",
+                                            URLEncoder.encode(
+                                                    authzReq.queryParameters().get("client_id"),
+                                                    StandardCharsets.UTF_8))
                                     .build();
                 }
                 case select_account -> {

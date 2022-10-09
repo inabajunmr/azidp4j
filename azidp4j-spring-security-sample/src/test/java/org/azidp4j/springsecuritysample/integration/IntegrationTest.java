@@ -10,6 +10,7 @@ import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Map;
@@ -159,20 +160,23 @@ public class IntegrationTest {
         ResponseEntity<String> authorizationResponseRedirectToConsentPage =
                 testRestTemplate.exchange(
                         RequestEntity.get(
-                                        "http://localhost:8080"
-                                                + loginResponseEntity
-                                                        .getHeaders()
-                                                        .get("Location")
-                                                        .get(0))
+                                        URI.create(
+                                                "http://localhost:8080"
+                                                        + loginResponseEntity
+                                                                .getHeaders()
+                                                                .get("Location")
+                                                                .get(0)))
                                 .build(),
                         String.class);
 
         // redirect to consent page
         var redirectToConsentPageUri =
                 authorizationResponseRedirectToConsentPage.getHeaders().get("Location").get(0);
+
         var consent =
                 testRestTemplate.getForEntity(
-                        "http://localhost:8080" + redirectToConsentPageUri, String.class);
+                        URI.create("http://localhost:8080" + redirectToConsentPageUri),
+                        String.class);
         var consentPage = Jsoup.parse(consent.getBody());
         var csrf2 = consentPage.select("input[name='_csrf']").val();
 
@@ -185,11 +189,12 @@ public class IntegrationTest {
                         .body(consentBody);
         var consentResponseEntity =
                 testRestTemplate.postForEntity(
-                        "http://localhost:8080"
-                                + authorizationResponseRedirectToConsentPage
-                                        .getHeaders()
-                                        .get("Location")
-                                        .get(0),
+                        URI.create(
+                                "http://localhost:8080"
+                                        + authorizationResponseRedirectToConsentPage
+                                                .getHeaders()
+                                                .get("Location")
+                                                .get(0)),
                         consentRequestEntity,
                         String.class);
 
@@ -197,11 +202,12 @@ public class IntegrationTest {
         ResponseEntity<String> authorizationResponse =
                 testRestTemplate.exchange(
                         RequestEntity.get(
-                                        "http://localhost:8080"
-                                                + consentResponseEntity
-                                                        .getHeaders()
-                                                        .get("Location")
-                                                        .get(0))
+                                        URI.create(
+                                                "http://localhost:8080"
+                                                        + consentResponseEntity
+                                                                .getHeaders()
+                                                                .get("Location")
+                                                                .get(0)))
                                 .build(),
                         String.class);
         var authorizationResponseWithAuthorizationCode =
