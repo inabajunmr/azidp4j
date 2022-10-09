@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.AuthorizationRequest;
+import org.azidp4j.authorize.AuthorizationResponse;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.springsecuritysample.user.UserStore;
 import org.slf4j.Logger;
@@ -57,89 +58,100 @@ public class AuthorizationEndpointHandler {
                         consentedScopes,
                         params);
         var response = azIdP.authorize(authzReq);
-        if (response.error != null) {
-            var session = req.getSession();
-            switch (response.error) {
-                case invalid_response_type -> session.setAttribute(
-                        WebAttributes.AUTHENTICATION_EXCEPTION,
-                        new InnerAuthenticationException(
-                                "RP send wrong authorization request. debug:"
-                                        + " no_response_type"));
-                default -> session.setAttribute(
-                        WebAttributes.AUTHENTICATION_EXCEPTION,
-                        new InnerAuthenticationException(
-                                "RP send wrong authorization request. debug: "
-                                        + response.error.name()));
-            }
-            return "redirect:/login?error";
+        switch (response.next) {
+            case redirect:
+                {
+                    return "redirect:" + response.redirect.redirectTo;
+                }
+            case errorPage:
+                {
+                    return errorPage(req, response);
+                }
+            case additionalPage:
+                {
+                    return additionalPage(req, authzReq, response);
+                }
+            default:
+                {
+                    throw new AssertionError();
+                }
         }
-        if (response.additionalPage != null) {
-            switch (response.additionalPage) {
-                case login -> {
-                    var session = req.getSession();
-                    var map = new LinkedMultiValueMap<String, String>();
-                    authzReq.removePrompt("login")
-                            .queryParameters()
-                            .forEach(
-                                    (k, v) ->
-                                            map.add(
-                                                    k,
-                                                    URLEncoder.encode(v, StandardCharsets.UTF_8)));
-                    session.setAttribute(
-                            "SPRING_SECURITY_SAVED_REQUEST",
-                            new SimpleSavedRequest(
-                                    UriComponentsBuilder.fromPath("/authorize")
-                                            .queryParams(map)
-                                            .build()
-                                            .toUriString()));
-                    return "redirect:/login";
-                }
-                case consent -> {
-                    var session = req.getSession();
-                    var map = new LinkedMultiValueMap<String, String>();
-                    authzReq.removePrompt("consent")
-                            .queryParameters()
-                            .forEach(
-                                    (k, v) ->
-                                            map.add(
-                                                    k,
-                                                    URLEncoder.encode(v, StandardCharsets.UTF_8)));
-                    session.setAttribute(
-                            "SPRING_SECURITY_SAVED_REQUEST",
-                            new SimpleSavedRequest(
-                                    UriComponentsBuilder.fromPath("/authorize")
-                                            .queryParams(map)
-                                            .build()
-                                            .toUriString()));
-                    UriComponentsBuilder.fromPath("/consent")
-                            .queryParam("scope", authzReq.queryParameters().get("scope"))
-                            .build();
-                    return "redirect:"
-                            + UriComponentsBuilder.fromPath("/consent")
-                                    // TODO not good interface
-                                    .queryParam(
-                                            "scope",
-                                            URLEncoder.encode(
-                                                    authzReq.queryParameters().get("scope"),
-                                                    StandardCharsets.UTF_8))
-                                    .queryParam(
-                                            "clientId",
-                                            URLEncoder.encode(
-                                                    authzReq.queryParameters().get("client_id"),
-                                                    StandardCharsets.UTF_8))
-                                    .build();
-                }
-                case select_account -> {
-                    resp.sendError(400);
-                    return null;
-                }
-            }
-        }
-        response.headers().forEach(resp::setHeader);
-        resp.setStatus(response.status);
-        resp.getWriter().close();
+    }
 
-        return null;
+    private static String additionalPage(
+            HttpServletRequest req, AuthorizationRequest authzReq, AuthorizationResponse response) {
+        switch (response.additionalPage.prompt) {
+            case login -> {
+                var session = req.getSession();
+                var map = new LinkedMultiValueMap<String, String>();
+                authzReq.removePrompt("login")
+                        .queryParameters()
+                        .forEach(
+                                (k, v) -> map.add(k, URLEncoder.encode(v, StandardCharsets.UTF_8)));
+                session.setAttribute(
+                        "SPRING_SECURITY_SAVED_REQUEST",
+                        new SimpleSavedRequest(
+                                UriComponentsBuilder.fromPath("/authorize")
+                                        .queryParams(map)
+                                        .build()
+                                        .toUriString()));
+                return "redirect:/login";
+            }
+            case consent -> {
+                var session = req.getSession();
+                var map = new LinkedMultiValueMap<String, String>();
+                authzReq.removePrompt("consent")
+                        .queryParameters()
+                        .forEach(
+                                (k, v) -> map.add(k, URLEncoder.encode(v, StandardCharsets.UTF_8)));
+                session.setAttribute(
+                        "SPRING_SECURITY_SAVED_REQUEST",
+                        new SimpleSavedRequest(
+                                UriComponentsBuilder.fromPath("/authorize")
+                                        .queryParams(map)
+                                        .build()
+                                        .toUriString()));
+                UriComponentsBuilder.fromPath("/consent")
+                        .queryParam("scope", authzReq.queryParameters().get("scope"))
+                        .build();
+                return "redirect:"
+                        + UriComponentsBuilder.fromPath("/consent")
+                                // TODO not good interface
+                                .queryParam(
+                                        "scope",
+                                        URLEncoder.encode(
+                                                authzReq.queryParameters().get("scope"),
+                                                StandardCharsets.UTF_8))
+                                .queryParam(
+                                        "clientId",
+                                        URLEncoder.encode(
+                                                authzReq.queryParameters().get("client_id"),
+                                                StandardCharsets.UTF_8))
+                                .build();
+            }
+            case select_account -> {
+                throw new AssertionError();
+            }
+            default -> {
+                throw new AssertionError();
+            }
+        }
+    }
+
+    private static String errorPage(HttpServletRequest req, AuthorizationResponse response) {
+        var session = req.getSession();
+        switch (response.errorPage.errorType) {
+            case invalid_response_type -> session.setAttribute(
+                    WebAttributes.AUTHENTICATION_EXCEPTION,
+                    new InnerAuthenticationException(
+                            "RP send wrong authorization request. debug:" + " no_response_type"));
+            default -> session.setAttribute(
+                    WebAttributes.AUTHENTICATION_EXCEPTION,
+                    new InnerAuthenticationException(
+                            "RP send wrong authorization request. debug: "
+                                    + response.errorPage.errorType.name()));
+        }
+        return "redirect:/login?error";
     }
 }
 

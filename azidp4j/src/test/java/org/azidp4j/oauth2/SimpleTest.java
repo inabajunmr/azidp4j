@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.AuthorizationRequest;
+import org.azidp4j.authorize.NextAction;
 import org.azidp4j.authorize.ResponseType;
 import org.azidp4j.client.ClientRegistrationRequest;
 import org.azidp4j.client.GrantType;
@@ -84,9 +85,12 @@ public class SimpleTest {
         var authorizationResponse = sut.authorize(authorizationRequest);
 
         // verify
-        var location = authorizationResponse.headers().get("Location");
+        assertEquals(authorizationResponse.next, NextAction.redirect);
         var queryMap =
-                Arrays.stream(URI.create(location).getQuery().split("&"))
+                Arrays.stream(
+                                URI.create(authorizationResponse.redirect.redirectTo)
+                                        .getQuery()
+                                        .split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(queryMap.get("state"), "xyz");
 

@@ -48,24 +48,24 @@ public class Authorize {
 
         var responseType = ResponseType.parse(authorizationRequest.responseType);
         if (responseType == null) {
-            return new AuthorizationResponse(
+            return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
         }
 
         var responseMode = ResponseMode.of(authorizationRequest.responseMode, responseType);
         if (responseMode == null) {
-            return new AuthorizationResponse(
+            return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_mode);
         }
 
         // validate client
         if (authorizationRequest.clientId == null) {
-            return new AuthorizationResponse(
+            return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.client_id_required);
         }
         var clientOpt = clientStore.find(authorizationRequest.clientId);
-        if (!clientOpt.isPresent()) {
-            return new AuthorizationResponse(
+        if (clientOpt.isEmpty()) {
+            return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.client_not_found);
         }
 
@@ -73,31 +73,29 @@ public class Authorize {
 
         // validate redirect urls
         if (authorizationRequest.redirectUri == null) {
-            return new AuthorizationResponse(
+            return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri);
         }
         if (!client.redirectUris.contains(authorizationRequest.redirectUri)) {
-            return new AuthorizationResponse(
+            return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.redirect_uri_not_allowed);
         }
         URI redirectUri;
         try {
             redirectUri = URI.create(authorizationRequest.redirectUri);
         } catch (IllegalArgumentException e) {
-            return new AuthorizationResponse(
+            return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri);
         }
         if (authorizationRequest.request != null) {
-            return new AuthorizationResponse(
-                    302,
+            return AuthorizationResponse.redirect(
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error", "request_not_supported", "state", authorizationRequest.state),
                     responseMode);
         }
         if (authorizationRequest.requestUri != null) {
-            return new AuthorizationResponse(
-                    302,
+            return AuthorizationResponse.redirect(
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error",
@@ -107,8 +105,7 @@ public class Authorize {
                     responseMode);
         }
         if (authorizationRequest.registration != null) {
-            return new AuthorizationResponse(
-                    302,
+            return AuthorizationResponse.redirect(
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error",
@@ -123,8 +120,7 @@ public class Authorize {
             if (!client.grantTypes.contains(GrantType.authorization_code)) {
                 // if response type has code, need to allowed authorization_code
                 // https://www.rfc-editor.org/rfc/rfc7591.html#section-2.1
-                return new AuthorizationResponse(
-                        302,
+                return AuthorizationResponse.redirect(
                         redirectUri,
                         MapUtil.nullRemovedStringMap(
                                 "error",
@@ -139,8 +135,7 @@ public class Authorize {
                 || responseType.contains(ResponseType.id_token)) {
             // validate grant type and response type
             if (!client.grantTypes.contains(GrantType.implicit)) {
-                return new AuthorizationResponse(
-                        302,
+                return AuthorizationResponse.redirect(
                         redirectUri,
                         MapUtil.nullRemovedStringMap(
                                 "error",
@@ -153,8 +148,7 @@ public class Authorize {
 
         // validate scope
         if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
-            return new AuthorizationResponse(
-                    302,
+            return AuthorizationResponse.redirect(
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_scope", "state", authorizationRequest.state),
@@ -162,8 +156,7 @@ public class Authorize {
         }
         if (authorizationRequest.codeChallenge == null
                 && authorizationRequest.codeChallengeMethod != null) {
-            return new AuthorizationResponse(
-                    302,
+            return AuthorizationResponse.redirect(
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_request", "state", authorizationRequest.state),
@@ -174,8 +167,7 @@ public class Authorize {
         if (authorizationRequest.codeChallengeMethod != null) {
             codeChallengeMethod = CodeChallengeMethod.of(authorizationRequest.codeChallengeMethod);
             if (codeChallengeMethod == null) {
-                return new AuthorizationResponse(
-                        302,
+                return AuthorizationResponse.redirect(
                         redirectUri,
                         MapUtil.nullRemovedStringMap(
                                 "error", "invalid_request", "state", authorizationRequest.state),
@@ -183,11 +175,15 @@ public class Authorize {
             }
         }
 
-        Set<Prompt> prompt = Prompt.parse(authorizationRequest.prompt);
+        var display = Display.of(authorizationRequest.display);
+        if (display == null) {
+            display = Display.page;
+        }
+
+        var prompt = Prompt.parse(authorizationRequest.prompt);
         if (prompt == null) {
             // prompt is invalid
-            return new AuthorizationResponse(
-                    302,
+            return AuthorizationResponse.redirect(
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_request", "state", authorizationRequest.state),
@@ -195,8 +191,7 @@ public class Authorize {
         }
         if (prompt.contains(Prompt.none) && prompt.size() != 1) {
             // none with other prompt is invalid
-            return new AuthorizationResponse(
-                    302,
+            return AuthorizationResponse.redirect(
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_request", "state", authorizationRequest.state),
@@ -204,8 +199,7 @@ public class Authorize {
         } else {
             if (prompt.contains(Prompt.none)) {
                 if (authorizationRequest.authenticatedUserId == null) {
-                    return new AuthorizationResponse(
-                            302,
+                    return AuthorizationResponse.redirect(
                             redirectUri,
                             MapUtil.nullRemovedStringMap(
                                     "error", "login_required", "state", authorizationRequest.state),
@@ -213,8 +207,7 @@ public class Authorize {
                 }
                 if (!authorizationRequest.consentedScope.containsAll(
                         Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
-                    return new AuthorizationResponse(
-                            302,
+                    return AuthorizationResponse.redirect(
                             redirectUri,
                             MapUtil.nullRemovedStringMap(
                                     "error",
@@ -225,30 +218,29 @@ public class Authorize {
                 }
             }
             if (prompt.contains(Prompt.login)) {
-                return new AuthorizationResponse(AdditionalPage.login);
+                return AuthorizationResponse.additionalPage(Prompt.login, display);
             }
             if (prompt.contains(Prompt.consent)) {
                 if (authorizationRequest.authenticatedUserId == null) {
-                    return new AuthorizationResponse(AdditionalPage.login);
+                    return AuthorizationResponse.additionalPage(Prompt.login, display);
                 } else {
-                    return new AuthorizationResponse(AdditionalPage.consent);
+                    return AuthorizationResponse.additionalPage(Prompt.consent, display);
                 }
             }
             if (prompt.contains(Prompt.select_account)) {
-                return new AuthorizationResponse(AdditionalPage.select_account);
+                return AuthorizationResponse.additionalPage(Prompt.select_account, display);
             }
             if (authorizationRequest.authenticatedUserId == null) {
-                return new AuthorizationResponse(AdditionalPage.login);
+                return AuthorizationResponse.additionalPage(Prompt.login, display);
             }
             if (!authorizationRequest.consentedScope.containsAll(
                     Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
-                return new AuthorizationResponse(AdditionalPage.consent);
+                return AuthorizationResponse.additionalPage(Prompt.consent, display);
             }
         }
 
         if (!client.responseTypes.containsAll(responseType)) {
-            return new AuthorizationResponse(
-                    302,
+            return AuthorizationResponse.redirect(
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error",
@@ -259,8 +251,7 @@ public class Authorize {
         }
 
         if (responseType.contains(ResponseType.none)) {
-            return new AuthorizationResponse(
-                    302,
+            return AuthorizationResponse.redirect(
                     redirectUri,
                     MapUtil.nullRemovedStringMap("state", authorizationRequest.state),
                     responseMode);
@@ -293,8 +284,7 @@ public class Authorize {
                     var maxAge = Integer.parseInt(authorizationRequest.maxAge);
                     if (Instant.now().getEpochSecond() > authorizationRequest.authTime + maxAge) {
                         if (prompt.contains(Prompt.none)) {
-                            return new AuthorizationResponse(
-                                    302,
+                            return AuthorizationResponse.redirect(
                                     redirectUri,
                                     MapUtil.nullRemovedStringMap(
                                             "error",
@@ -303,12 +293,11 @@ public class Authorize {
                                             authorizationRequest.state),
                                     responseMode);
                         } else {
-                            return new AuthorizationResponse(AdditionalPage.login);
+                            return AuthorizationResponse.additionalPage(Prompt.login, display);
                         }
                     }
                 } catch (NumberFormatException e) {
-                    return new AuthorizationResponse(
-                            302,
+                    return AuthorizationResponse.redirect(
                             redirectUri,
                             MapUtil.nullRemovedStringMap(
                                     "error",
@@ -345,8 +334,7 @@ public class Authorize {
         if (responseType.contains(ResponseType.id_token)) {
             // validate scope
             if (!scopeValidator.contains(authorizationRequest.scope, "openid")) {
-                return new AuthorizationResponse(
-                        302,
+                return AuthorizationResponse.redirect(
                         redirectUri,
                         MapUtil.nullRemovedStringMap(
                                 "error", "invalid_scope", "state", authorizationRequest.state),
@@ -365,8 +353,7 @@ public class Authorize {
                             .serialize();
         }
 
-        return new AuthorizationResponse(
-                302,
+        return AuthorizationResponse.redirect(
                 redirectUri,
                 MapUtil.nullRemovedStringMap(
                         "access_token",

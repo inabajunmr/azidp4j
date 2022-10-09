@@ -48,7 +48,7 @@ class AuthorizeTest {
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
     AzIdPConfig config = Fixtures.azIdPConfig("kid");
-    ;
+
     Authorize sut =
             new Authorize(
                     clientStore,
@@ -82,7 +82,9 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.login, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.login, response.additionalPage.prompt);
+            assertEquals(Display.page, response.additionalPage.display);
         }
         // no consented scope
         {
@@ -101,7 +103,9 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.consent, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.consent, response.additionalPage.prompt);
+            assertEquals(Display.page, response.additionalPage.display);
         }
         // no enough scope consented
         {
@@ -120,9 +124,11 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.consent, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.consent, response.additionalPage.prompt);
+            assertEquals(Display.page, response.additionalPage.display);
         }
-        // prompt is login
+        // prompt is login(and no display)
         {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
@@ -140,7 +146,32 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.login, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.login, response.additionalPage.prompt);
+            assertEquals(Display.page, response.additionalPage.display);
+        }
+        // prompt is login(and display is popup)
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://rp1.example.com")
+                            .scope("scope1 scope2")
+                            .prompt("login")
+                            .display("popup")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of("scope1 scope2"))
+                            .state("xyz")
+                            .build();
+
+            // exercise
+            var response = sut.authorize(authorizationRequest);
+
+            // verify
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.login, response.additionalPage.prompt);
+            assertEquals(Display.popup, response.additionalPage.display);
         }
         // prompt is consent(authenticated)
         {
@@ -160,7 +191,9 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.consent, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.consent, response.additionalPage.prompt);
+            assertEquals(Display.page, response.additionalPage.display);
         }
         // prompt is consent(not authenticated)
         {
@@ -179,7 +212,9 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.login, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.login, response.additionalPage.prompt);
+            assertEquals(Display.page, response.additionalPage.display);
         }
         // prompt is login and consent
         {
@@ -199,7 +234,9 @@ class AuthorizeTest {
             var response = sut.authorize(authorizationRequest);
 
             // verify
-            assertEquals(AdditionalPage.login, response.additionalPage);
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.login, response.additionalPage.prompt);
+            assertEquals(Display.page, response.additionalPage.display);
         }
     }
 }

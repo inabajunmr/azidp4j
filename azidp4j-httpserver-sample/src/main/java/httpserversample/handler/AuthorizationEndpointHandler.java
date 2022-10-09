@@ -55,24 +55,31 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
             Map<String, String> queryMap)
             throws IOException {
         var authorizationResponse = azIdp.authorize(authorizationRequest);
-        if (authorizationResponse.additionalPage != null) {
-            switch (authorizationResponse.additionalPage) {
-                case login:
+        switch (authorizationResponse.next) {
+            case additionalPage -> {
+                switch (authorizationResponse.additionalPage.prompt) {
+                    case login:
                     {
                         redirectToLoginPage(httpExchange, authorizationRequest);
                     }
-                case consent:
+                    case consent:
                     {
                         redirectToConsentPage(httpExchange, authorizationRequest, queryMap);
                     }
+                }
+                return;
             }
-            return;
+            case redirect -> {
+                httpExchange.getResponseHeaders().put("Location", List.of(authorizationResponse.redirect.redirectTo));
+                httpExchange.sendResponseHeaders(302, 0);
+                httpExchange.close();
+            }
+            default -> {
+                httpExchange.sendResponseHeaders(400, 0);
+                httpExchange.close();
+            }
         }
-        authorizationResponse
-                .headers()
-                .forEach((key, value) -> httpExchange.getResponseHeaders().set(key, value));
-        httpExchange.sendResponseHeaders(authorizationResponse.status, 0);
-        httpExchange.close();
+
     }
 
     private void redirectToLoginPage(

@@ -109,8 +109,8 @@ class AuthorizeTest_Implicit {
         var response = sut.authorize(authorizationRequest);
 
         // verify
-        assertEquals(response.status, 302);
-        var location = response.headers().get("Location");
+        assertEquals(response.next, NextAction.redirect);
+        var location = response.redirect.redirectTo;
         var fragmentMap =
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
@@ -169,8 +169,8 @@ class AuthorizeTest_Implicit {
         var response = sut.authorize(authorizationRequest);
 
         // verify
-        assertEquals(response.status, 302);
-        var location = response.headers().get("Location");
+        assertEquals(response.next, NextAction.redirect);
+        var location = response.redirect.redirectTo;
         var fragmentMap =
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
@@ -233,8 +233,8 @@ class AuthorizeTest_Implicit {
         var response = sut.authorize(authorizationRequest);
 
         // verify
-        assertEquals(response.status, 302);
-        var location = response.headers().get("Location");
+        assertEquals(response.next, NextAction.redirect);
+        var location = response.redirect.redirectTo;
         var fragmentMap =
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
@@ -311,8 +311,8 @@ class AuthorizeTest_Implicit {
         var response = sut.authorize(authorizationRequest);
 
         // verify
-        assertEquals(response.status, 302);
-        var location = response.headers().get("Location");
+        assertEquals(response.next, NextAction.redirect);
+        var location = response.redirect.redirectTo;
         var fragmentMap =
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
@@ -387,8 +387,8 @@ class AuthorizeTest_Implicit {
         var response = sut.authorize(authorizationRequest);
 
         // verify
-        assertEquals(response.status, 302);
-        var location = response.headers().get("Location");
+        assertEquals(response.next, NextAction.redirect);
+        var location = response.redirect.redirectTo;
         var fragmentMap =
                 Arrays.stream(URI.create(location).getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
