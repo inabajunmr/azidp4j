@@ -1,4 +1,4 @@
-package org.azidp4j.authorize;
+package org.azidp4j.authorize.request;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ public class AuthorizationRequest {
     /** Time when the End-User authentication occurred (not authorization request parameter) */
     public final Long authTime;
     /** Authorization request query parameters. * */
-    protected final Map<String, String> queryParameters;
+    public final Map<String, String> queryParameters;
 
     public AuthorizationRequest(
             String authenticatedUserId, Long authTime, Map<String, String> queryParameters) {

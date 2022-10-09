@@ -1,4 +1,4 @@
-package org.azidp4j.authorize;
+package org.azidp4j.authorize.request;
 
 import java.util.Set;
 

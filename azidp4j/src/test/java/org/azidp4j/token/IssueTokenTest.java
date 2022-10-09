@@ -13,7 +13,7 @@ import java.util.UUID;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.AuthorizationCode;
 import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
-import org.azidp4j.authorize.ResponseType;
+import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;

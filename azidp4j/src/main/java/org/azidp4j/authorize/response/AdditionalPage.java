@@ -1,4 +1,7 @@
-package org.azidp4j.authorize;
+package org.azidp4j.authorize.response;
+
+import org.azidp4j.authorize.request.Display;
+import org.azidp4j.authorize.request.Prompt;
 
 public class AdditionalPage {
     public final Prompt prompt;

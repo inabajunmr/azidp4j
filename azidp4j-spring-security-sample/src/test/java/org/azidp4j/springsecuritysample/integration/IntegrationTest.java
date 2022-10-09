@@ -16,7 +16,7 @@ import java.text.ParseException;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import org.azidp4j.authorize.ResponseType;
+import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.GrantType;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;

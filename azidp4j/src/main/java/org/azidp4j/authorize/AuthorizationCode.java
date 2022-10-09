@@ -1,5 +1,7 @@
 package org.azidp4j.authorize;
 
+import org.azidp4j.authorize.request.CodeChallengeMethod;
+
 public class AuthorizationCode {
 
     /** user identifier */

@@ -16,6 +16,8 @@ import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.*;
+import org.azidp4j.authorize.request.CodeChallengeMethod;
+import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;

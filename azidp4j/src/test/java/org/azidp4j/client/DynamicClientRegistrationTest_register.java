@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
-import org.azidp4j.authorize.ResponseType;
+import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.token.TokenEndpointAuthMethod;
 import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.junit.jupiter.api.Test;

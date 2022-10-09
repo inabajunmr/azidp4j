@@ -1,4 +1,4 @@
-package org.azidp4j.authorize;
+package org.azidp4j.authorize.request;
 
 public enum Display {
     page,

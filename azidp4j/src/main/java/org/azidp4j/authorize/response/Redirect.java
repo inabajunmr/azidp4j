@@ -1,10 +1,11 @@
-package org.azidp4j.authorize;
+package org.azidp4j.authorize.response;
 
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.azidp4j.authorize.request.ResponseMode;
 
 public class Redirect {
 

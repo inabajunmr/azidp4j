@@ -3,6 +3,8 @@ package org.azidp4j.authorize;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Set;
+import org.azidp4j.authorize.request.ResponseMode;
+import org.azidp4j.authorize.request.ResponseType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;

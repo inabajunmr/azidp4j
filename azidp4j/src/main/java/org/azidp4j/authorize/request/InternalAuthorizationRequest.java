@@ -1,50 +1,47 @@
-package org.azidp4j.authorize;
+package org.azidp4j.authorize.request;
 
 import java.util.Set;
 
 public class InternalAuthorizationRequest {
 
     /** Authenticated user identifier (not authorization request parameter) */
-    final String authenticatedUserId;
+    public final String authenticatedUserId;
 
     /** User consented scope (not authorization request parameter) */
-    final Set<String> consentedScope;
+    public final Set<String> consentedScope;
 
     /** Time when the End-User authentication occurred (not authorization request parameter) */
-    final Long authTime;
+    public final Long authTime;
 
     /** rfc6749 "authorization code grant", "implicit grant" */
-    final String responseType;
+    public final String responseType;
 
     /** rfc6749 "authorization code grant", "implicit grant" */
-    final String clientId;
+    public final String clientId;
 
     /** rfc6749 "authorization code grant", "implicit grant" */
-    final String redirectUri;
+    public final String redirectUri;
 
     /** rfc6749 "authorization code grant", "implicit grant" */
-    final String scope;
+    public final String scope;
 
     /** rfc6749 "authorization code grant", "implicit grant" */
-    final String state;
+    public final String state;
 
     /** OAuth 2.0 Multiple Response Type Encoding Practices */
-    final String responseMode;
+    public final String responseMode;
 
     /** OpenID Connect Core 1.0 "authorization code flow", "implicit flow" */
-    final String nonce;
+    public final String nonce;
 
     /** OpenID Connect Core 1.0 "authorization code flow" */
-    // TODO   final String display;
+    public final String prompt;
 
     /** OpenID Connect Core 1.0 "authorization code flow" */
-    final String prompt;
+    public final String display;
 
     /** OpenID Connect Core 1.0 "authorization code flow" */
-    final String display;
-
-    /** OpenID Connect Core 1.0 "authorization code flow" */
-    final String maxAge;
+    public final String maxAge;
 
     /** OpenID Connect Core 1.0 "authorization code flow" */
     // TODO   final String urLocales;
@@ -59,22 +56,22 @@ public class InternalAuthorizationRequest {
     // TODO   final String acrValues;
 
     /** OpenID Connect Core 1.0 "6. Passing Request Parameters as JWTs" */
-    final String request;
+    public final String request;
 
     /** OpenID Connect Core 1.0 "6. Passing Request Parameters as JWTs" */
-    final String requestUri;
+    public final String requestUri;
 
     /**
      * OpenID Connect Core 1.0 "7.2.1. Providing Information with the "registration" Request
      * Parameter"
      */
-    final String registration;
+    public final String registration;
 
     /** Proof Key for Code Exchange by OAuth Public Clients */
-    final String codeChallenge;
+    public final String codeChallenge;
 
     /** Proof Key for Code Exchange by OAuth Public Clients */
-    final String codeChallengeMethod;
+    public final String codeChallengeMethod;
 
     public static Builder builder() {
         return new Builder();

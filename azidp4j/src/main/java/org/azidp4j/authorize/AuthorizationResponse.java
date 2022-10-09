@@ -2,6 +2,10 @@ package org.azidp4j.authorize;
 
 import java.net.URI;
 import java.util.Map;
+import org.azidp4j.authorize.request.Display;
+import org.azidp4j.authorize.request.Prompt;
+import org.azidp4j.authorize.request.ResponseMode;
+import org.azidp4j.authorize.response.*;
 
 public class AuthorizationResponse {
 

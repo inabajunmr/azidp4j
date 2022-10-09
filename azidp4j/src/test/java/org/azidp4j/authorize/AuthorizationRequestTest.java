@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Instant;
 import java.util.Map;
+import org.azidp4j.authorize.request.AuthorizationRequest;
 import org.junit.jupiter.api.Test;
 
 class AuthorizationRequestTest {
@@ -15,14 +16,14 @@ class AuthorizationRequestTest {
                         .removePrompt("login")
                         .queryParameters
                         .get("prompt"));
-        ;
+
         assertNull(
                 new AuthorizationRequest(
                                 "user", Instant.now().getEpochSecond(), Map.of("prompt", "login"))
                         .removePrompt("login")
                         .queryParameters
                         .get("prompt"));
-        ;
+
         assertEquals(
                 "consent",
                 new AuthorizationRequest(

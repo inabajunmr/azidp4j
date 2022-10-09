@@ -5,7 +5,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
-import org.azidp4j.authorize.ResponseType;
+import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.token.TokenEndpointAuthMethod;
 import org.azidp4j.token.accesstoken.AccessTokenStore;
 import org.azidp4j.token.accesstoken.InMemoryAccessToken;

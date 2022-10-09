@@ -3,6 +3,8 @@ package org.azidp4j;
 import com.nimbusds.jose.jwk.JWKSet;
 import java.util.Map;
 import org.azidp4j.authorize.*;
+import org.azidp4j.authorize.request.AuthorizationRequest;
+import org.azidp4j.authorize.request.AuthorizationRequestParser;
 import org.azidp4j.client.*;
 import org.azidp4j.discovery.Discovery;
 import org.azidp4j.scope.ScopeAudienceMapper;

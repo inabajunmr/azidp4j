@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
-import org.azidp4j.authorize.AuthorizationRequest;
+import org.azidp4j.authorize.request.AuthorizationRequest;
 import httpserversample.web.CookieParser;
 
 public class AuthorizationEndpointHandler extends AzIdpHttpHandler {

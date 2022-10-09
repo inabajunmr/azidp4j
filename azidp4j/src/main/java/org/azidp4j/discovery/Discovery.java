@@ -3,7 +3,7 @@ package org.azidp4j.discovery;
 import java.util.Map;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
-import org.azidp4j.authorize.CodeChallengeMethod;
+import org.azidp4j.authorize.request.CodeChallengeMethod;
 import org.azidp4j.util.MapUtil;
 
 public class Discovery {
