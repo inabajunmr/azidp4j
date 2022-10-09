@@ -1,6 +1,7 @@
 package org.azidp4j.authorize;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryAuthorizationCodeStore implements AuthorizationCodeStore {
@@ -13,7 +14,7 @@ public class InMemoryAuthorizationCodeStore implements AuthorizationCodeStore {
     }
 
     @Override
-    public AuthorizationCode consume(String code) {
-        return STORE.remove(code);
+    public Optional<AuthorizationCode> consume(String code) {
+        return Optional.ofNullable(STORE.remove(code));
     }
 }

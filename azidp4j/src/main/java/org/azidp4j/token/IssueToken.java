@@ -86,12 +86,13 @@ public class IssueToken {
         }
         switch (grantType) {
             case authorization_code -> {
-                var authorizationCode = authorizationCodeStore.consume(request.code);
-                if (authorizationCode == null) {
+                var authorizationCodeOpt = authorizationCodeStore.consume(request.code);
+                if (!authorizationCodeOpt.isPresent()) {
                     accessTokenStore.removeByAuthorizationCode(request.code);
                     refreshTokenStore.removeByAuthorizationCode(request.code);
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
+                var authorizationCode = authorizationCodeOpt.get();
                 if (!authorizationCode.clientId.equals(client.clientId)) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
