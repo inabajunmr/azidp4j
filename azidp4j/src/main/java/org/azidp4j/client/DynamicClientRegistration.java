@@ -99,7 +99,8 @@ public class DynamicClientRegistration {
                         "configure",
                         client.clientId,
                         Set.of(config.issuer),
-                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec);
+                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                        Instant.now().getEpochSecond());
         accessTokenStore.save(at);
         return new ClientRegistrationResponse(
                 201,

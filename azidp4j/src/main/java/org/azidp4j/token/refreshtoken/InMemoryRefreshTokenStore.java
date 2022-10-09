@@ -19,6 +19,11 @@ public class InMemoryRefreshTokenStore implements RefreshTokenStore {
     }
 
     @Override
+    public Optional<RefreshToken> find(String token) {
+        return Optional.ofNullable(STORE.remove(token));
+    }
+
+    @Override
     public synchronized Optional<RefreshToken> consume(String token) {
         var rt = STORE.remove(token);
         if (rt == null) {

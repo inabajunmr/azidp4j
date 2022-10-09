@@ -15,5 +15,9 @@ public interface AccessToken {
 
     long getExpiresAtEpochSec();
 
+    long getIssuedAtEpochSec();
+
     String getAuthorizationCode();
+
+    boolean expired();
 }

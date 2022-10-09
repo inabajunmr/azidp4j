@@ -66,7 +66,9 @@ public class IssueTokenTest_RefreshToken {
                         "user",
                         "rs:scope1 rs:scope2",
                         "clientId",
-                        Instant.now().getEpochSecond() + 3600);
+                        Set.of("scope"),
+                        Instant.now().getEpochSecond() + 3600,
+                        Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -133,7 +135,9 @@ public class IssueTokenTest_RefreshToken {
                         "user",
                         "rs:scope1 rs:scope2",
                         "clientId",
-                        Instant.now().getEpochSecond() + 3600);
+                        Set.of("rs"),
+                        Instant.now().getEpochSecond() + 3600,
+                        Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -204,7 +208,9 @@ public class IssueTokenTest_RefreshToken {
                         "user",
                         "rs:scope1 rs:scope2",
                         "clientId",
-                        Instant.now().getEpochSecond() + 3600);
+                        Set.of("rs"),
+                        Instant.now().getEpochSecond() + 3600,
+                        Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -271,7 +277,9 @@ public class IssueTokenTest_RefreshToken {
                         "user",
                         "rs:scope1",
                         "clientId",
-                        Instant.now().getEpochSecond() + 3600);
+                        Set.of("rs"),
+                        Instant.now().getEpochSecond() + 3600,
+                        Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -395,7 +403,9 @@ public class IssueTokenTest_RefreshToken {
                         "user",
                         "rs:scope1",
                         "clientId",
-                        Instant.now().getEpochSecond() - 10);
+                        Set.of("rs"),
+                        Instant.now().getEpochSecond() - 10,
+                        Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 InternalTokenRequest.builder()
@@ -467,7 +477,9 @@ public class IssueTokenTest_RefreshToken {
                         "user",
                         "rs:scope1",
                         "unknown",
-                        Instant.now().getEpochSecond() + 3600);
+                        Set.of("rs"),
+                        Instant.now().getEpochSecond() + 3600,
+                        Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 InternalTokenRequest.builder()

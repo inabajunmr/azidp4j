@@ -1,5 +1,6 @@
 package org.azidp4j.token.accesstoken;
 
+import java.time.Instant;
 import java.util.Set;
 
 public class InMemoryAccessToken implements AccessToken {
@@ -9,6 +10,7 @@ public class InMemoryAccessToken implements AccessToken {
     private final String clientId;
     private final Set<String> audience;
     private final long expiresAtEpochSec;
+    private final long issuedAtEpochSec;
     private final String authorizationCode;
 
     @Override
@@ -42,8 +44,18 @@ public class InMemoryAccessToken implements AccessToken {
     }
 
     @Override
+    public long getIssuedAtEpochSec() {
+        return issuedAtEpochSec;
+    }
+
+    @Override
     public String getAuthorizationCode() {
         return authorizationCode;
+    }
+
+    @Override
+    public boolean expired() {
+        return this.getExpiresAtEpochSec() > Instant.now().getEpochSecond();
     }
 
     public InMemoryAccessToken(
@@ -53,6 +65,7 @@ public class InMemoryAccessToken implements AccessToken {
             String clientId,
             Set<String> audience,
             long expiresAtEpochSec,
+            long issuedAtEpochSec,
             String authorizationCode) {
         this.token = token;
         this.sub = sub;
@@ -60,6 +73,7 @@ public class InMemoryAccessToken implements AccessToken {
         this.clientId = clientId;
         this.audience = audience;
         this.expiresAtEpochSec = expiresAtEpochSec;
+        this.issuedAtEpochSec = issuedAtEpochSec;
         this.authorizationCode = authorizationCode;
     }
 
@@ -69,7 +83,8 @@ public class InMemoryAccessToken implements AccessToken {
             String scope,
             String clientId,
             Set<String> audience,
-            long expiresAtEpochSec) {
-        this(token, sub, scope, clientId, audience, expiresAtEpochSec, null);
+            long expiresAtEpochSec,
+            long issuedAtEpochSec) {
+        this(token, sub, scope, clientId, audience, expiresAtEpochSec, issuedAtEpochSec, null);
     }
 }

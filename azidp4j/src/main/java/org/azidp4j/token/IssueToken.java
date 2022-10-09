@@ -139,6 +139,7 @@ public class IssueToken {
                                 authorizationCode.clientId,
                                 scopeAudienceMapper.map(authorizationCode.scope),
                                 Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                                Instant.now().getEpochSecond(),
                                 authorizationCode.code);
                 accessTokenStore.save(at);
                 var rt =
@@ -147,7 +148,9 @@ public class IssueToken {
                                 authorizationCode.sub,
                                 authorizationCode.scope,
                                 authorizationCode.clientId,
-                                Instant.now().getEpochSecond() + config.refreshTokenExpirationSec);
+                                scopeAudienceMapper.map(authorizationCode.scope),
+                                Instant.now().getEpochSecond() + config.refreshTokenExpirationSec,
+                                Instant.now().getEpochSecond());
                 refreshTokenStore.save(rt);
                 if (scopeValidator.contains(authorizationCode.scope, "openid")) {
                     // OIDC
@@ -235,7 +238,8 @@ public class IssueToken {
                                     client.clientId,
                                     scopeAudienceMapper.map(request.scope),
                                     Instant.now().getEpochSecond()
-                                            + config.accessTokenExpirationSec);
+                                            + config.accessTokenExpirationSec,
+                                    Instant.now().getEpochSecond());
                     accessTokenStore.save(at);
                     var rt =
                             new RefreshToken(
@@ -243,8 +247,10 @@ public class IssueToken {
                                     request.username,
                                     request.scope,
                                     client.clientId,
+                                    scopeAudienceMapper.map(request.scope),
                                     Instant.now().getEpochSecond()
-                                            + config.refreshTokenExpirationSec);
+                                            + config.refreshTokenExpirationSec,
+                                    Instant.now().getEpochSecond());
                     return new TokenResponse(
                             200,
                             MapUtil.nullRemovedMap(
@@ -280,7 +286,8 @@ public class IssueToken {
                                 request.scope,
                                 client.clientId,
                                 scopeAudienceMapper.map(request.scope),
-                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec);
+                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                                Instant.now().getEpochSecond());
                 accessTokenStore.save(at);
                 return new TokenResponse(
                         200,
@@ -321,6 +328,7 @@ public class IssueToken {
                                 client.clientId,
                                 scopeAudienceMapper.map(scope),
                                 Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                                Instant.now().getEpochSecond(),
                                 rt.authorizationCode);
                 accessTokenStore.save(at);
                 var newRt =
@@ -329,7 +337,9 @@ public class IssueToken {
                                 rt.sub,
                                 scope,
                                 rt.clientId,
+                                scopeAudienceMapper.map(scope),
                                 Instant.now().getEpochSecond() + config.refreshTokenExpirationSec,
+                                Instant.now().getEpochSecond(),
                                 rt.authorizationCode);
                 refreshTokenStore.save(newRt);
                 return new TokenResponse(
