@@ -15,7 +15,7 @@ public class AuthorizationResponse {
     private final Map<String, String> fragment;
     private final URI redirectUri;
     public final AdditionalPage additionalPage;
-    public final AuthorizationErrorTypeWithoutRedirect error;
+    public final ErrorPage errorPage;
 
     private AuthorizationResponse(
             NextAction next,
@@ -24,14 +24,14 @@ public class AuthorizationResponse {
             Map<String, String> fragment,
             URI redirectUri,
             AdditionalPage additionalPage,
-            AuthorizationErrorTypeWithoutRedirect error) {
+            ErrorPage errorPage) {
         this.next = next;
         this.status = status;
         this.query = query;
         this.fragment = fragment;
         this.redirectUri = redirectUri;
         this.additionalPage = additionalPage;
-        this.error = error;
+        this.errorPage = errorPage;
     }
 
     public static AuthorizationResponse additionalPage(Prompt prompt, Display display) {
@@ -40,14 +40,9 @@ public class AuthorizationResponse {
                 NextAction.additionalPage, 0, null, null, null, page, null);
     }
 
-    public AuthorizationResponse(AuthorizationErrorTypeWithoutRedirect error) {
-        this.next = NextAction.errorPage;
-        this.status = 0;
-        this.query = null;
-        this.fragment = null;
-        this.redirectUri = null;
-        this.additionalPage = null;
-        this.error = error;
+    public static AuthorizationResponse errorPage(AuthorizationErrorTypeWithoutRedirect error) {
+        return new AuthorizationResponse(
+                NextAction.errorPage, 0, null, null, null, null, new ErrorPage(error));
     }
 
     public AuthorizationResponse(
@@ -80,17 +75,7 @@ public class AuthorizationResponse {
             default -> throw new AssertionError();
         }
         this.redirectUri = redirectUri;
-        this.error = null;
-    }
-
-    public AuthorizationResponse(AdditionalPage additionalPage) {
-        this.next = NextAction.additionalPage;
-        this.status = 0;
-        this.query = null;
-        this.fragment = null;
-        this.additionalPage = additionalPage;
-        this.redirectUri = null;
-        this.error = null;
+        this.errorPage = null;
     }
 
     public Map<String, String> headers() {

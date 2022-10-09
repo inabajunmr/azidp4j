@@ -78,7 +78,10 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.error, AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
+        assertEquals(response.next, NextAction.errorPage);
+        assertEquals(
+                response.errorPage.errorType,
+                AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
     }
 
     @Test
@@ -93,7 +96,10 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.error, AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
+        assertEquals(response.next, NextAction.errorPage);
+        assertEquals(
+                response.errorPage.errorType,
+                AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
     }
 
     @Test
@@ -107,7 +113,10 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.error, AuthorizationErrorTypeWithoutRedirect.client_id_required);
+        assertEquals(response.next, NextAction.errorPage);
+        assertEquals(
+                response.errorPage.errorType,
+                AuthorizationErrorTypeWithoutRedirect.client_id_required);
     }
 
     @Test
@@ -122,7 +131,10 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.error, AuthorizationErrorTypeWithoutRedirect.client_not_found);
+        assertEquals(response.next, NextAction.errorPage);
+        assertEquals(
+                response.errorPage.errorType,
+                AuthorizationErrorTypeWithoutRedirect.client_not_found);
     }
 
     @Test
@@ -137,8 +149,10 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
+        assertEquals(response.next, NextAction.errorPage);
         assertEquals(
-                response.error, AuthorizationErrorTypeWithoutRedirect.redirect_uri_not_allowed);
+                response.errorPage.errorType,
+                AuthorizationErrorTypeWithoutRedirect.redirect_uri_not_allowed);
     }
 
     @Test
@@ -152,7 +166,10 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.error, AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri);
+        assertEquals(response.next, NextAction.errorPage);
+        assertEquals(
+                response.errorPage.errorType,
+                AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri);
     }
 
     @Test
@@ -470,6 +487,9 @@ class AuthorizeTest_validationError {
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
-        assertEquals(response.error, AuthorizationErrorTypeWithoutRedirect.invalid_response_mode);
+        assertEquals(response.next, NextAction.errorPage);
+        assertEquals(
+                response.errorPage.errorType,
+                AuthorizationErrorTypeWithoutRedirect.invalid_response_mode);
     }
 }

@@ -57,9 +57,10 @@ public class AuthorizationEndpointHandler {
                         consentedScopes,
                         params);
         var response = azIdP.authorize(authzReq);
-        if (response.error != null) {
+        // TODO switch nextAction
+        if (response.errorPage != null) {
             var session = req.getSession();
-            switch (response.error) {
+            switch (response.errorPage.errorType) {
                 case invalid_response_type -> session.setAttribute(
                         WebAttributes.AUTHENTICATION_EXCEPTION,
                         new InnerAuthenticationException(
@@ -69,7 +70,7 @@ public class AuthorizationEndpointHandler {
                         WebAttributes.AUTHENTICATION_EXCEPTION,
                         new InnerAuthenticationException(
                                 "RP send wrong authorization request. debug: "
-                                        + response.error.name()));
+                                        + response.errorPage.errorType.name()));
             }
             return "redirect:/login?error";
         }
