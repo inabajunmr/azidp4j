@@ -15,9 +15,9 @@ public class ClientBasicAuthenticator extends BasicAuthenticator {
     @Override
     public boolean checkCredentials(String clientId, String secret) {
         var client = clientStore.find(clientId);
-        if (client == null) {
+        if (!client.isPresent()) {
             return false;
         }
-        return client.clientSecret.equals(secret);
+        return client.get().clientSecret.equals(secret);
     }
 }

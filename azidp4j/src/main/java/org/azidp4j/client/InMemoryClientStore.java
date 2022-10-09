@@ -1,6 +1,7 @@
 package org.azidp4j.client;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import org.azidp4j.token.TokenEndpointAuthMethod;
@@ -29,12 +30,12 @@ public class InMemoryClientStore implements ClientStore {
     }
 
     @Override
-    public Client find(String clientId) {
-        return STORE.get(clientId);
+    public Optional<Client> find(String clientId) {
+        return Optional.ofNullable(STORE.get(clientId));
     }
 
     @Override
-    public Client delete(String clientId) {
-        return STORE.remove(clientId);
+    public Optional<Client> remove(String clientId) {
+        return Optional.ofNullable(STORE.remove(clientId));
     }
 }

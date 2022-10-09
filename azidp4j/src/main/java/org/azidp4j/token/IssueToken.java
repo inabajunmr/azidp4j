@@ -68,14 +68,15 @@ public class IssueToken {
                 && !Objects.equals(request.authenticatedClientId, request.clientId)) {
             return new TokenResponse(400, Map.of("error", "invalid_request"));
         }
-        var client =
+        var clientOpt =
                 clientStore.find(
                         request.clientId != null
                                 ? request.clientId
                                 : request.authenticatedClientId);
-        if (client == null) {
+        if (!clientOpt.isPresent()) {
             return new TokenResponse(400, Map.of("error", "unauthorized_client"));
         }
+        var client = clientOpt.get();
         if (client.tokenEndpointAuthMethod != TokenEndpointAuthMethod.none
                 && request.authenticatedClientId == null) {
             // client authentication required

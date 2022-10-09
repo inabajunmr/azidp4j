@@ -1,10 +1,12 @@
 package org.azidp4j.client;
 
+import java.util.Optional;
+
 public interface ClientStore {
 
     void save(Client client);
 
-    Client find(String clientId);
+    Optional<Client> find(String clientId);
 
-    Client delete(String clientId);
+    Optional<Client> remove(String clientId);
 }
