@@ -22,6 +22,7 @@ public class InMemoryAccessTokenStore implements AccessTokenStore {
 
     @Override
     public Optional<InMemoryAccessToken> find(String token) {
+        // TODO when token is null, return empty imediately
         return Optional.ofNullable(STORE.get(token));
     }
 

@@ -272,7 +272,8 @@ public class Authorize {
                             authorizationRequest.scope,
                             authorizationRequest.clientId,
                             scopeAudienceMapper.map(authorizationRequest.scope),
-                            Instant.now().getEpochSecond() + azIdPConfig.accessTokenExpirationSec);
+                            Instant.now().getEpochSecond() + azIdPConfig.accessTokenExpirationSec,
+                            Instant.now().getEpochSecond());
             accessTokenStore.save(at);
             accessToken = at.getToken();
             tokenType = "bearer";
