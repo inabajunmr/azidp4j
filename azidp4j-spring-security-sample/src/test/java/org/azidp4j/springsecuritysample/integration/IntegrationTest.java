@@ -1,8 +1,7 @@
 package org.azidp4j.springsecuritysample.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSObject;
@@ -249,6 +248,26 @@ public class IntegrationTest {
         var jwk = jwks.getKeyByKeyId(parsedIdToken.getHeader().getKeyID());
         var verifier = new RSASSAVerifier((RSAKey) jwk);
         assertTrue(parsedIdToken.verify(verifier));
+
+        // introspection
+        {
+            MultiValueMap<String, String> introspectionRequest = new LinkedMultiValueMap<>();
+            introspectionRequest.add("token", accessToken);
+            var introspectionRequestEntity =
+                    RequestEntity.post("/introspect")
+                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .body(introspectionRequest);
+            var introspectionResponse =
+                    testRestTemplate
+                            .withBasicAuth(clientId, clientSecret)
+                            .postForEntity(
+                                    "http://localhost:8080/introspect",
+                                    introspectionRequestEntity,
+                                    Map.class);
+            assertThat(introspectionResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertEquals(true, introspectionResponse.getBody().get("active"));
+        }
 
         // userinfo endpoint(get)
         {

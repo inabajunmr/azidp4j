@@ -1,11 +1,9 @@
 package org.azidp4j.springsecuritysample.handler;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.AuthorizationResponse;
 import org.azidp4j.authorize.request.AuthorizationRequest;
@@ -37,10 +35,7 @@ public class AuthorizationEndpointHandler {
 
     @GetMapping("/authorize")
     public String authorizationEndpoint(
-            @RequestParam Map<String, String> params,
-            HttpServletRequest req,
-            HttpServletResponse resp)
-            throws IOException {
+            @RequestParam Map<String, String> params, HttpServletRequest req) {
         LOGGER.info(AuthorizationEndpointHandler.class.getName());
         String authenticatedUserName = null;
         if (req.getUserPrincipal() != null) {

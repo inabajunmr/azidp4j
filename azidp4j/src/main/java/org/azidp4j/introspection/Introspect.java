@@ -26,7 +26,10 @@ public class Introspect {
     }
 
     public IntrospectionResponse introspect(InternalIntrospectionRequest request) {
-        if (request.tokenTypeHint.equals("refresh_token")) {
+        if (request.token == null) {
+            return new IntrospectionResponse(400, Map.of());
+        }
+        if (request.tokenTypeHint != null && request.tokenTypeHint.equals("refresh_token")) {
             var rtOpt = refreshTokenStore.find(request.token);
             if (rtOpt.isPresent()) {
                 return introspectRefreshToken(rtOpt.get());
@@ -38,7 +41,7 @@ public class Introspect {
             return introspectAccessToken(atOpt.get());
         }
 
-        if (request.tokenTypeHint.equals("refresh_token")) {
+        if (request.tokenTypeHint != null && request.tokenTypeHint.equals("refresh_token")) {
             return new IntrospectionResponse(200, Map.of("active", false));
         }
 

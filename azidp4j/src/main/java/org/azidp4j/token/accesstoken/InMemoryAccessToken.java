@@ -55,7 +55,7 @@ public class InMemoryAccessToken implements AccessToken {
 
     @Override
     public boolean expired() {
-        return this.getExpiresAtEpochSec() > Instant.now().getEpochSecond();
+        return this.getExpiresAtEpochSec() < Instant.now().getEpochSecond();
     }
 
     public InMemoryAccessToken(

@@ -7,6 +7,10 @@ import org.azidp4j.authorize.request.AuthorizationRequest;
 import org.azidp4j.authorize.request.AuthorizationRequestParser;
 import org.azidp4j.client.*;
 import org.azidp4j.discovery.Discovery;
+import org.azidp4j.introspection.Introspect;
+import org.azidp4j.introspection.IntrospectionRequest;
+import org.azidp4j.introspection.IntrospectionRequestParser;
+import org.azidp4j.introspection.IntrospectionResponse;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
 import org.azidp4j.token.accesstoken.AccessTokenStore;
@@ -22,6 +26,8 @@ public class AzIdP {
     IssueToken issueToken;
     TokenRequestParser tokenRequestParser = new TokenRequestParser();
     DynamicClientRegistration clientRegistration;
+    Introspect introspect;
+    IntrospectionRequestParser introspectionRequestParser = new IntrospectionRequestParser();
     ClientRegistrationRequestParser clientRegistrationRequestParser =
             new ClientRegistrationRequestParser();
     ClientConfigurationRequestParser clientConfigurationRequestParser =
@@ -57,6 +63,7 @@ public class AzIdP {
                         jwkSet);
         this.clientRegistration =
                 new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenStore, jwkSet);
+        this.introspect = new Introspect(accessTokenStore, refreshTokenStore, azIdPConfig);
     }
 
     public AzIdP(
@@ -90,6 +97,7 @@ public class AzIdP {
                         jwkSet);
         this.clientRegistration =
                 new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenStore, jwkSet);
+        this.introspect = new Introspect(accessTokenStore, refreshTokenStore, azIdPConfig);
     }
 
     public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {
@@ -122,6 +130,10 @@ public class AzIdP {
 
     public ClientDeleteResponse delete(String clientId) {
         return clientRegistration.delete(clientId);
+    }
+
+    public IntrospectionResponse introspect(IntrospectionRequest request) {
+        return introspect.introspect(introspectionRequestParser.parse(request));
     }
 
     public Map<String, Object> discovery() {

@@ -44,6 +44,6 @@ public class RefreshToken {
     }
 
     public boolean expired() {
-        return this.expiresAtEpochSec > Instant.now().getEpochSecond();
+        return this.expiresAtEpochSec < Instant.now().getEpochSecond();
     }
 }
