@@ -23,6 +23,7 @@ import org.azidp4j.client.InMemoryClientStore;
 import httpserversample.authenticator.JWSAccessTokenAuthenticator;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 
@@ -63,13 +64,15 @@ public class SampleAz {
                         };
                     }
                 };
+        var scopeAudienceMapper= new SampleScopeAudienceMapper();
         accessTokenStore = new InMemoryAccessTokenStore();
+        var accessTokenService = new InMemoryAccessTokenService(config,scopeAudienceMapper,accessTokenStore );
         azIdP =
                 new AzIdP(
                         config,
                         jwks,
                         clientStore,
-                        accessTokenStore,
+                        accessTokenService,
                         new InMemoryRefreshTokenStore(),
                         new SampleScopeAudienceMapper(),
                         userPasswordVerifier);
@@ -82,7 +85,7 @@ public class SampleAz {
         server.createContext("/jwks", new JWKsEndpointHandler(jwks));
         server.createContext("/discovery", new DiscoveryHandler(azIdP));
         server.createContext("/client", new DynamicClientRegistrationHandler(azIdP))
-                .setAuthenticator(new InnerAccessTokenAuthenticator(accessTokenStore));
+                .setAuthenticator(new InnerAccessTokenAuthenticator(accessTokenStore)); // TODO access token service
         server.createContext("/login", new LoginHandler());
         server.createContext("/consent", new ConsentHandler());
         ExecutorService pool = Executors.newFixedThreadPool(1);

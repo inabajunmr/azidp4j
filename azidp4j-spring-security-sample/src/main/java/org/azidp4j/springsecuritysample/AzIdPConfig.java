@@ -13,8 +13,10 @@ import java.util.Set;
 import org.azidp4j.AzIdP;
 import org.azidp4j.client.ClientRegistrationRequest;
 import org.azidp4j.client.ClientStore;
+import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,14 +63,16 @@ public class AzIdPConfig {
                         };
                     }
                 };
+        ScopeAudienceMapper scopeAudienceMapper = scope -> Set.of("rs.example.com");
         var azIdp =
                 new AzIdP(
                         config,
                         jwkSet,
                         clientStore,
-                        accessTokenStore,
+                        new InMemoryAccessTokenService(
+                                config, scopeAudienceMapper, accessTokenStore),
                         new InMemoryRefreshTokenStore(),
-                        scope -> Set.of("rs.example.com"),
+                        scopeAudienceMapper,
                         userPasswordVerifier);
         var clientRegistration =
                 ClientRegistrationRequest.builder()
