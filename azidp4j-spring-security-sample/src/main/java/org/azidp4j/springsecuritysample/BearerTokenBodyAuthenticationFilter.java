@@ -9,7 +9,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +23,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class BearerTokenBodyAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired AccessTokenStore accessTokenStore;
+    @Autowired AccessTokenService accessTokenService;
 
     @Override
     protected void doFilterInternal(
@@ -40,7 +40,8 @@ public class BearerTokenBodyAuthenticationFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
                 return;
             }
-            var at = accessTokenStore.find(request.getParameterMap().get("access_token")[0]);
+            var at =
+                    accessTokenService.introspect(request.getParameterMap().get("access_token")[0]);
             if (!at.isPresent()) {
                 filterChain.doFilter(request, response);
             } else {

@@ -21,9 +21,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class IntrospectTest {
 
-    AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
     RefreshTokenStore refreshTokenStore = new InMemoryRefreshTokenStore();
     AzIdPConfig config = Fixtures.azIdPConfig("test");
+    AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
     AccessTokenService accessTokenService =
             new InMemoryAccessTokenService(
                     config, new SampleScopeAudienceMapper(), accessTokenStore);
@@ -74,11 +74,12 @@ class IntrospectTest {
     @MethodSource("hints")
     void accessToken_expired() {
         // setup
+        Introspect sut = new Introspect(accessTokenService, refreshTokenStore, config);
         var at = saveTestAccessToken(Instant.now().getEpochSecond() + -1);
 
         // exercise
         var actual =
-                introspect.introspect(
+                sut.introspect(
                         InternalIntrospectionRequest.builder()
                                 .token(at.getToken())
                                 .tokenTypeHint(null)

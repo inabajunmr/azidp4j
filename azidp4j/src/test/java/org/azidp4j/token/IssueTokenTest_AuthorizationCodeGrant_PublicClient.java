@@ -23,7 +23,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
@@ -47,7 +47,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
 
     private AuthorizationCodeStore authorizationCodeStore;
 
-    private AccessTokenStore accessTokenStore;
+    private AccessTokenService accessTokenService;
 
     private IssueToken issueToken;
 
@@ -67,14 +67,15 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         "openid rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.none,
                         SigningAlgorithm.ES256));
-        accessTokenStore = new InMemoryAccessTokenStore();
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
+        accessTokenService =
+                new InMemoryAccessTokenService(
+                        config, scopeAudienceMapper, new InMemoryAccessTokenStore());
         issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        new InMemoryAccessTokenService(
-                                config, scopeAudienceMapper, accessTokenStore),
+                        accessTokenService,
                         new IDTokenIssuer(config, jwks),
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
@@ -113,7 +114,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")).get(),
+                accessTokenService.introspect((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "clientId",
@@ -156,7 +157,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")).get(),
+                accessTokenService.introspect((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "clientId",
@@ -199,7 +200,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")).get(),
+                accessTokenService.introspect((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "clientId",
