@@ -20,6 +20,7 @@ import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
@@ -62,8 +63,10 @@ class AuthorizeTest_None {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new InMemoryAccessTokenStore(),
-                        new SampleScopeAudienceMapper(),
+                        new InMemoryAccessTokenService(
+                                config,
+                                new SampleScopeAudienceMapper(),
+                                new InMemoryAccessTokenStore()),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =

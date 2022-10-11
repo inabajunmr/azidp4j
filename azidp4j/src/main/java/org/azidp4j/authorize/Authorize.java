@@ -8,10 +8,8 @@ import org.azidp4j.authorize.request.*;
 import org.azidp4j.authorize.response.AuthorizationErrorTypeWithoutRedirect;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
-import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.scope.ScopeValidator;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
-import org.azidp4j.token.accesstoken.InMemoryAccessToken;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.util.MapUtil;
 
@@ -21,9 +19,7 @@ public class Authorize {
 
     private final ClientStore clientStore;
 
-    private final AccessTokenStore accessTokenStore;
-
-    private final ScopeAudienceMapper scopeAudienceMapper;
+    private final AccessTokenService accessTokenService;
 
     private final IDTokenIssuer idTokenIssuer;
 
@@ -34,14 +30,12 @@ public class Authorize {
     public Authorize(
             ClientStore clientStore,
             AuthorizationCodeStore authorizationCodeStore,
-            AccessTokenStore accessTokenStore,
-            ScopeAudienceMapper scopeAudienceMapper,
+            AccessTokenService accessTokenService,
             IDTokenIssuer idTokenIssuer,
             AzIdPConfig azIdPConfig) {
         this.clientStore = clientStore;
         this.authorizationCodeStore = authorizationCodeStore;
-        this.accessTokenStore = accessTokenStore;
-        this.scopeAudienceMapper = scopeAudienceMapper;
+        this.accessTokenService = accessTokenService;
         this.idTokenIssuer = idTokenIssuer;
         this.azIdPConfig = azIdPConfig;
     }
@@ -266,15 +260,10 @@ public class Authorize {
         if (responseType.contains(ResponseType.token)) {
             // issue access token
             var at =
-                    new InMemoryAccessToken(
-                            UUID.randomUUID().toString(),
+                    accessTokenService.issue(
                             authorizationRequest.authenticatedUserId,
                             authorizationRequest.scope,
-                            authorizationRequest.clientId,
-                            scopeAudienceMapper.map(authorizationRequest.scope),
-                            Instant.now().getEpochSecond() + azIdPConfig.accessTokenExpirationSec,
-                            Instant.now().getEpochSecond());
-            accessTokenStore.save(at);
+                            authorizationRequest.clientId);
             accessToken = at.getToken();
             tokenType = "bearer";
             expiresIn = String.valueOf(azIdPConfig.accessTokenExpirationSec);

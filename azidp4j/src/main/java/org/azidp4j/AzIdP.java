@@ -13,6 +13,7 @@ import org.azidp4j.introspection.IntrospectionRequestParser;
 import org.azidp4j.introspection.IntrospectionResponse;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.AccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenStore;
@@ -37,6 +38,7 @@ public class AzIdP {
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
+            AccessTokenService accessTokenService,
             AccessTokenStore accessTokenStore,
             RefreshTokenStore refreshTokenStore,
             ScopeAudienceMapper scopeAudienceMapper) {
@@ -46,8 +48,7 @@ public class AzIdP {
                 new Authorize(
                         clientStore,
                         authorizationCodeStore,
-                        accessTokenStore,
-                        scopeAudienceMapper,
+                        accessTokenService,
                         idTokenIssuer,
                         azIdPConfig);
         this.issueToken =
@@ -70,6 +71,7 @@ public class AzIdP {
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
+            AccessTokenService accessTokenService,
             AccessTokenStore accessTokenStore,
             RefreshTokenStore refreshTokenStore,
             ScopeAudienceMapper scopeAudienceMapper,
@@ -80,8 +82,7 @@ public class AzIdP {
                 new Authorize(
                         clientStore,
                         authorizationCodeStore,
-                        accessTokenStore,
-                        scopeAudienceMapper,
+                        accessTokenService,
                         idTokenIssuer,
                         azIdPConfig);
         this.issueToken =

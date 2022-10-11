@@ -24,6 +24,7 @@ import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
@@ -93,8 +94,8 @@ class AuthorizeTest_Implicit {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        accessTokenStore,
-                        new SampleScopeAudienceMapper(),
+                        new InMemoryAccessTokenService(
+                                config, new SampleScopeAudienceMapper(), accessTokenStore),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
@@ -152,8 +153,8 @@ class AuthorizeTest_Implicit {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        accessTokenStore,
-                        new SampleScopeAudienceMapper(),
+                        new InMemoryAccessTokenService(
+                                config, new SampleScopeAudienceMapper(), accessTokenStore),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
@@ -216,8 +217,8 @@ class AuthorizeTest_Implicit {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        accessTokenStore,
-                        new SampleScopeAudienceMapper(),
+                        new InMemoryAccessTokenService(
+                                config, new SampleScopeAudienceMapper(), accessTokenStore),
                         new IDTokenIssuer(config, jwks),
                         config);
         var authorizationRequest =
@@ -294,8 +295,8 @@ class AuthorizeTest_Implicit {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        accessTokenStore,
-                        new SampleScopeAudienceMapper(),
+                        new InMemoryAccessTokenService(
+                                config, new SampleScopeAudienceMapper(), accessTokenStore),
                         new IDTokenIssuer(config, jwks),
                         config);
         var authorizationRequest =
@@ -370,8 +371,8 @@ class AuthorizeTest_Implicit {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        accessTokenStore,
-                        new SampleScopeAudienceMapper(),
+                        new InMemoryAccessTokenService(
+                                config, new SampleScopeAudienceMapper(), accessTokenStore),
                         new IDTokenIssuer(config, jwks),
                         config);
         var authorizationRequest =

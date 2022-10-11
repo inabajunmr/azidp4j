@@ -13,7 +13,9 @@ import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
@@ -53,13 +55,14 @@ class AuthorizeTest {
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
     AzIdPConfig config = Fixtures.azIdPConfig("kid");
+    ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
 
     Authorize sut =
             new Authorize(
                     clientStore,
                     new InMemoryAuthorizationCodeStore(),
-                    new InMemoryAccessTokenStore(),
-                    new SampleScopeAudienceMapper(),
+                    new InMemoryAccessTokenService(
+                            config, scopeAudienceMapper, new InMemoryAccessTokenStore()),
                     new IDTokenIssuer(config, new JWKSet()),
                     config);
 

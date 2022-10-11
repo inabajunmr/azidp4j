@@ -23,6 +23,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenRequest;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.Test;
@@ -37,14 +38,19 @@ public class SimpleTest {
     void test() throws JOSEException, ParseException {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
+        var config = Fixtures.azIdPConfig(key.getKeyID());
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var sut =
                 new AzIdP(
-                        Fixtures.azIdPConfig(key.getKeyID()),
+                        config,
                         jwks,
                         new InMemoryClientStore(),
+                        new InMemoryAccessTokenService(
+                                config, scopeAudienceMapper, accessTokenStore),
                         new InMemoryAccessTokenStore(),
                         new InMemoryRefreshTokenStore(),
-                        new SampleScopeAudienceMapper());
+                        scopeAudienceMapper);
 
         // client registration
         var clientRegistrationRequest =

@@ -25,6 +25,7 @@ import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
 import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
@@ -51,12 +52,13 @@ class AuthorizeTest_Hybrid {
     JWKSet jwks = new JWKSet(key);
     AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
     AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
+
     Authorize sut =
             new Authorize(
                     clientStore,
                     new InMemoryAuthorizationCodeStore(),
-                    accessTokenStore,
-                    new SampleScopeAudienceMapper(),
+                    new InMemoryAccessTokenService(
+                            config, new SampleScopeAudienceMapper(), accessTokenStore),
                     new IDTokenIssuer(config, jwks),
                     config);
 
