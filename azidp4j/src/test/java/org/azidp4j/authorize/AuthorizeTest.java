@@ -15,8 +15,8 @@ import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
 

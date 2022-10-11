@@ -7,8 +7,8 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import org.azidp4j.Fixtures;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.junit.jupiter.api.Test;
 
 class DynamicClientRegistrationTest_configure {

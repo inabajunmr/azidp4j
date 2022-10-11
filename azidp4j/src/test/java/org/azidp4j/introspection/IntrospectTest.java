@@ -11,6 +11,9 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.*;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessToken;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.azidp4j.token.refreshtoken.RefreshTokenStore;
@@ -23,7 +26,7 @@ class IntrospectTest {
 
     RefreshTokenStore refreshTokenStore = new InMemoryRefreshTokenStore();
     AzIdPConfig config = Fixtures.azIdPConfig("test");
-    AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
+    InMemoryAccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
     AccessTokenService accessTokenService =
             new InMemoryAccessTokenService(
                     config, new SampleScopeAudienceMapper(), accessTokenStore);

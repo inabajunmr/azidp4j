@@ -1,7 +1,8 @@
-package org.azidp4j.token.accesstoken;
+package org.azidp4j.token.accesstoken.inmemory;
 
 import java.time.Instant;
 import java.util.Set;
+import org.azidp4j.token.accesstoken.AccessToken;
 
 public class InMemoryAccessToken implements AccessToken {
     private final String token;

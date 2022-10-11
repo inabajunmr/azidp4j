@@ -1,4 +1,4 @@
-package org.azidp4j.token.accesstoken;
+package org.azidp4j.token.accesstoken.inmemory;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.scope.ScopeAudienceMapper;
+import org.azidp4j.token.accesstoken.AccessToken;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 
 public class InMemoryAccessTokenService implements AccessTokenService {
 
@@ -13,12 +15,12 @@ public class InMemoryAccessTokenService implements AccessTokenService {
 
     private final ScopeAudienceMapper scopeAudienceMapper;
 
-    private final AccessTokenStore accessTokenStore;
+    private final InMemoryAccessTokenStore accessTokenStore;
 
     public InMemoryAccessTokenService(
             AzIdPConfig config,
             ScopeAudienceMapper scopeAudienceMapper,
-            AccessTokenStore accessTokenStore) {
+            InMemoryAccessTokenStore accessTokenStore) {
         this.config = config;
         this.scopeAudienceMapper = scopeAudienceMapper;
         this.accessTokenStore = accessTokenStore;

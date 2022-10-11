@@ -1,10 +1,11 @@
-package org.azidp4j.token.accesstoken;
+package org.azidp4j.token.accesstoken.inmemory;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import org.azidp4j.token.accesstoken.AccessToken;
 
-public class InMemoryAccessTokenStore implements AccessTokenStore {
+public class InMemoryAccessTokenStore {
 
     /** Map<AccessTokenValue, AccessToken> */
     static Map<String, AccessToken> STORE = new ConcurrentHashMap<>();
@@ -12,7 +13,6 @@ public class InMemoryAccessTokenStore implements AccessTokenStore {
     /** Map<AuthorizationCode, AccessToken> */
     static Map<String, AccessToken> STORE_BY_AUTHORIZATION_CODE = new ConcurrentHashMap<>();
 
-    @Override
     public synchronized void save(AccessToken token) {
         STORE.put(token.getToken(), token);
         if (token.getAuthorizationCode() != null) {
@@ -20,13 +20,11 @@ public class InMemoryAccessTokenStore implements AccessTokenStore {
         }
     }
 
-    @Override
     public Optional<AccessToken> find(String token) {
         // TODO when token is null, return empty imediately
         return Optional.ofNullable(STORE.get(token));
     }
 
-    @Override
     public synchronized void remove(String token) {
         var at = STORE.remove(token);
         if (at.getAuthorizationCode() == null) {
@@ -35,7 +33,6 @@ public class InMemoryAccessTokenStore implements AccessTokenStore {
         STORE_BY_AUTHORIZATION_CODE.remove(at.getAuthorizationCode());
     }
 
-    @Override
     public synchronized void removeByAuthorizationCode(String code) {
         var at = STORE_BY_AUTHORIZATION_CODE.remove(code);
         STORE.remove(at.getToken());

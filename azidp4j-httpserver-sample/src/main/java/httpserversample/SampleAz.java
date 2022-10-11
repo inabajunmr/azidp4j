@@ -20,11 +20,10 @@ import org.azidp4j.AzIdP;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
-import httpserversample.authenticator.JWSAccessTokenAuthenticator;
 import org.azidp4j.token.UserPasswordVerifier;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
+import org.azidp4j.token.accesstoken.AccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 
 public class SampleAz {
@@ -33,7 +32,7 @@ public class SampleAz {
     public AzIdP azIdP;
     private final JWKSet jwks;
     private final ClientStore clientStore;
-    private final AccessTokenStore accessTokenStore;
+    private final AccessTokenService accessTokenService;
 
     public SampleAz() throws JOSEException {
 
@@ -65,8 +64,7 @@ public class SampleAz {
                     }
                 };
         var scopeAudienceMapper= new SampleScopeAudienceMapper();
-        accessTokenStore = new InMemoryAccessTokenStore();
-        var accessTokenService = new InMemoryAccessTokenService(config,scopeAudienceMapper,accessTokenStore );
+        accessTokenService = new InMemoryAccessTokenService(config,scopeAudienceMapper,new InMemoryAccessTokenStore() );
         azIdP =
                 new AzIdP(
                         config,
@@ -85,7 +83,7 @@ public class SampleAz {
         server.createContext("/jwks", new JWKsEndpointHandler(jwks));
         server.createContext("/discovery", new DiscoveryHandler(azIdP));
         server.createContext("/client", new DynamicClientRegistrationHandler(azIdP))
-                .setAuthenticator(new InnerAccessTokenAuthenticator(accessTokenStore)); // TODO access token service
+                .setAuthenticator(new InnerAccessTokenAuthenticator(accessTokenService));
         server.createContext("/login", new LoginHandler());
         server.createContext("/consent", new ConsentHandler());
         ExecutorService pool = Executors.newFixedThreadPool(1);

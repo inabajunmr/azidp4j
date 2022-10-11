@@ -6,8 +6,8 @@ import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.token.accesstoken.AccessTokenService;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
