@@ -60,7 +60,6 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
@@ -128,7 +127,6 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
@@ -196,7 +194,6 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
@@ -256,7 +253,6 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,

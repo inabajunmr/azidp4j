@@ -67,7 +67,6 @@ public class IssueTokenTest {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        new InMemoryAccessTokenStore(),
                         new IDTokenIssuer(config, jwks),
                         new InMemoryRefreshTokenStore(),
                         new SampleScopeAudienceMapper(),

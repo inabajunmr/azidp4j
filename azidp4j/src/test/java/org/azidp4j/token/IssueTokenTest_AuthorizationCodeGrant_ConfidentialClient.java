@@ -121,7 +121,6 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         new IDTokenIssuer(config, jwks),
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,

@@ -52,7 +52,6 @@ class IssueTokenTest_ClientCredentialsGrant {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
@@ -110,7 +109,6 @@ class IssueTokenTest_ClientCredentialsGrant {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
@@ -159,7 +157,6 @@ class IssueTokenTest_ClientCredentialsGrant {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
@@ -208,7 +205,6 @@ class IssueTokenTest_ClientCredentialsGrant {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,

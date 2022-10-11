@@ -7,13 +7,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InMemoryAccessTokenStore implements AccessTokenStore {
 
     /** Map<AccessTokenValue, AccessToken> */
-    static Map<String, InMemoryAccessToken> STORE = new ConcurrentHashMap<>();
+    static Map<String, AccessToken> STORE = new ConcurrentHashMap<>();
 
     /** Map<AuthorizationCode, AccessToken> */
-    static Map<String, InMemoryAccessToken> STORE_BY_AUTHORIZATION_CODE = new ConcurrentHashMap<>();
+    static Map<String, AccessToken> STORE_BY_AUTHORIZATION_CODE = new ConcurrentHashMap<>();
 
     @Override
-    public synchronized void save(InMemoryAccessToken token) {
+    public synchronized void save(AccessToken token) {
         STORE.put(token.getToken(), token);
         if (token.getAuthorizationCode() != null) {
             STORE_BY_AUTHORIZATION_CODE.put(token.getAuthorizationCode(), token);
@@ -21,7 +21,7 @@ public class InMemoryAccessTokenStore implements AccessTokenStore {
     }
 
     @Override
-    public Optional<InMemoryAccessToken> find(String token) {
+    public Optional<AccessToken> find(String token) {
         // TODO when token is null, return empty imediately
         return Optional.ofNullable(STORE.get(token));
     }

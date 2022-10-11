@@ -57,7 +57,6 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
@@ -128,7 +127,6 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         refreshTokenStore,
                         scopeAudienceMapper,
@@ -203,7 +201,6 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         refreshTokenStore,
                         scopeAudienceMapper,
@@ -274,7 +271,6 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         refreshTokenStore,
                         scopeAudienceMapper,
@@ -336,7 +332,6 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
@@ -404,7 +399,6 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         refreshTokenStore,
                         scopeAudienceMapper,
@@ -480,7 +474,6 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         idTokenIssuer,
                         refreshTokenStore,
                         scopeAudienceMapper,

@@ -4,9 +4,9 @@ import java.util.Optional;
 
 public interface AccessTokenStore {
 
-    void save(InMemoryAccessToken token);
+    void save(AccessToken token);
 
-    Optional<InMemoryAccessToken> find(String token);
+    Optional<AccessToken> find(String token);
 
     void remove(String token);
 

@@ -14,7 +14,6 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.scope.ScopeValidator;
 import org.azidp4j.token.accesstoken.AccessTokenService;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.azidp4j.token.refreshtoken.RefreshTokenStore;
@@ -23,7 +22,6 @@ import org.azidp4j.util.MapUtil;
 public class IssueToken {
 
     private final AuthorizationCodeStore authorizationCodeStore;
-    private final AccessTokenStore accessTokenStore;
     private final AccessTokenService accessTokenService;
     private final ScopeAudienceMapper scopeAudienceMapper;
     private final IDTokenIssuer idTokenIssuer;
@@ -37,7 +35,6 @@ public class IssueToken {
             AzIdPConfig azIdPConfig,
             AuthorizationCodeStore authorizationCodeStore,
             AccessTokenService accessTokenService,
-            AccessTokenStore accessTokenStore,
             IDTokenIssuer idTokenIssuer,
             RefreshTokenStore refreshTokenStore,
             ScopeAudienceMapper scopeAudienceMapper,
@@ -45,7 +42,6 @@ public class IssueToken {
             ClientStore clientStore) {
         this.authorizationCodeStore = authorizationCodeStore;
         this.accessTokenService = accessTokenService;
-        this.accessTokenStore = accessTokenStore;
         this.idTokenIssuer = idTokenIssuer;
         this.refreshTokenStore = refreshTokenStore;
         this.scopeAudienceMapper = scopeAudienceMapper;
@@ -88,7 +84,7 @@ public class IssueToken {
             case authorization_code -> {
                 var authorizationCodeOpt = authorizationCodeStore.consume(request.code);
                 if (!authorizationCodeOpt.isPresent()) {
-                    accessTokenStore.removeByAuthorizationCode(request.code);
+                    accessTokenService.revokeByAuthorizationCode(request.code);
                     refreshTokenStore.removeByAuthorizationCode(request.code);
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }

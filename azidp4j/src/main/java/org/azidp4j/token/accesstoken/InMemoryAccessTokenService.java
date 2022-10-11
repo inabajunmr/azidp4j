@@ -72,12 +72,16 @@ public class InMemoryAccessTokenService implements AccessTokenService {
 
     @Override
     public Optional<AccessToken> introspect(String token) {
-        return Optional.empty();
+        return accessTokenStore.find(token);
     }
 
     @Override
-    public void revoke(String token) {}
+    public void revoke(String token) {
+        accessTokenStore.remove(token);
+    }
 
     @Override
-    public void revokeByAuthorizationCode(String authorizationCode) {}
+    public void revokeByAuthorizationCode(String authorizationCode) {
+        accessTokenStore.removeByAuthorizationCode(authorizationCode);
+    }
 }

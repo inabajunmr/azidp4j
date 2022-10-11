@@ -48,7 +48,6 @@ public class SimpleTest {
                         new InMemoryClientStore(),
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        new InMemoryAccessTokenStore(),
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper);
 

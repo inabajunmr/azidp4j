@@ -9,10 +9,8 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
-import org.azidp4j.token.accesstoken.AccessToken;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
-import org.azidp4j.token.accesstoken.InMemoryAccessToken;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
+import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.token.accesstoken.*;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.azidp4j.token.refreshtoken.RefreshTokenStore;
@@ -26,7 +24,10 @@ class IntrospectTest {
     AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
     RefreshTokenStore refreshTokenStore = new InMemoryRefreshTokenStore();
     AzIdPConfig config = Fixtures.azIdPConfig("test");
-    Introspect introspect = new Introspect(accessTokenStore, refreshTokenStore, config);
+    AccessTokenService accessTokenService =
+            new InMemoryAccessTokenService(
+                    config, new SampleScopeAudienceMapper(), accessTokenStore);
+    Introspect introspect = new Introspect(accessTokenService, refreshTokenStore, config);
 
     static Stream<Arguments> hints() {
         return Stream.of(

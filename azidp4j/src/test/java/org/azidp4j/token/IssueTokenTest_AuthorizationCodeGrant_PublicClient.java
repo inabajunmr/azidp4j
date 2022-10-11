@@ -75,7 +75,6 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(
                                 config, scopeAudienceMapper, accessTokenStore),
-                        accessTokenStore,
                         new IDTokenIssuer(config, jwks),
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
