@@ -1,6 +1,5 @@
 package org.azidp4j.token;
 
-import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.util.Base64URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -14,8 +13,8 @@ import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.scope.ScopeValidator;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.AccessTokenStore;
-import org.azidp4j.token.accesstoken.InMemoryAccessToken;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.azidp4j.token.refreshtoken.RefreshTokenStore;
@@ -23,28 +22,29 @@ import org.azidp4j.util.MapUtil;
 
 public class IssueToken {
 
-    AuthorizationCodeStore authorizationCodeStore;
-    AccessTokenStore accessTokenStore;
-    ScopeAudienceMapper scopeAudienceMapper;
-    IDTokenIssuer idTokenIssuer;
-    RefreshTokenStore refreshTokenStore;
-    AzIdPConfig config;
-    UserPasswordVerifier userPasswordVerifier;
-    ClientStore clientStore;
-    ScopeValidator scopeValidator = new ScopeValidator();
-    JWKSet jwkSet;
+    private final AuthorizationCodeStore authorizationCodeStore;
+    private final AccessTokenStore accessTokenStore;
+    private final AccessTokenService accessTokenService;
+    private final ScopeAudienceMapper scopeAudienceMapper;
+    private final IDTokenIssuer idTokenIssuer;
+    private final RefreshTokenStore refreshTokenStore;
+    private final AzIdPConfig config;
+    private final UserPasswordVerifier userPasswordVerifier;
+    private final ClientStore clientStore;
+    private final ScopeValidator scopeValidator = new ScopeValidator();
 
     public IssueToken(
             AzIdPConfig azIdPConfig,
             AuthorizationCodeStore authorizationCodeStore,
+            AccessTokenService accessTokenService,
             AccessTokenStore accessTokenStore,
             IDTokenIssuer idTokenIssuer,
             RefreshTokenStore refreshTokenStore,
             ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier,
-            ClientStore clientStore,
-            JWKSet jwkSet) {
+            ClientStore clientStore) {
         this.authorizationCodeStore = authorizationCodeStore;
+        this.accessTokenService = accessTokenService;
         this.accessTokenStore = accessTokenStore;
         this.idTokenIssuer = idTokenIssuer;
         this.refreshTokenStore = refreshTokenStore;
@@ -52,7 +52,6 @@ public class IssueToken {
         this.config = azIdPConfig;
         this.userPasswordVerifier = userPasswordVerifier;
         this.clientStore = clientStore;
-        this.jwkSet = jwkSet;
     }
 
     public TokenResponse issue(InternalTokenRequest request) {
@@ -132,16 +131,11 @@ public class IssueToken {
                 }
 
                 var at =
-                        new InMemoryAccessToken(
-                                UUID.randomUUID().toString(),
+                        accessTokenService.issue(
                                 authorizationCode.sub,
                                 authorizationCode.scope,
                                 authorizationCode.clientId,
-                                scopeAudienceMapper.map(authorizationCode.scope),
-                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
-                                Instant.now().getEpochSecond(),
                                 authorizationCode.code);
-                accessTokenStore.save(at);
                 var rt =
                         new RefreshToken(
                                 UUID.randomUUID().toString(),
@@ -231,16 +225,8 @@ public class IssueToken {
                 }
                 if (userPasswordVerifier.verify(request.username, request.password)) {
                     var at =
-                            new InMemoryAccessToken(
-                                    UUID.randomUUID().toString(),
-                                    request.username,
-                                    request.scope,
-                                    client.clientId,
-                                    scopeAudienceMapper.map(request.scope),
-                                    Instant.now().getEpochSecond()
-                                            + config.accessTokenExpirationSec,
-                                    Instant.now().getEpochSecond());
-                    accessTokenStore.save(at);
+                            accessTokenService.issue(
+                                    request.username, request.scope, client.clientId);
                     var rt =
                             new RefreshToken(
                                     UUID.randomUUID().toString(),
@@ -279,16 +265,7 @@ public class IssueToken {
                 if (!scopeValidator.hasEnoughScope(request.scope, client)) {
                     return new TokenResponse(400, Map.of("error", "invalid_scope"));
                 }
-                var at =
-                        new InMemoryAccessToken(
-                                UUID.randomUUID().toString(),
-                                client.clientId,
-                                request.scope,
-                                client.clientId,
-                                scopeAudienceMapper.map(request.scope),
-                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
-                                Instant.now().getEpochSecond());
-                accessTokenStore.save(at);
+                var at = accessTokenService.issue(client.clientId, request.scope, client.clientId);
                 return new TokenResponse(
                         200,
                         MapUtil.nullRemovedMap(
@@ -321,16 +298,8 @@ public class IssueToken {
                 }
                 var scope = request.scope != null ? request.scope : rt.scope;
                 var at =
-                        new InMemoryAccessToken(
-                                UUID.randomUUID().toString(),
-                                rt.sub,
-                                scope,
-                                client.clientId,
-                                scopeAudienceMapper.map(scope),
-                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
-                                Instant.now().getEpochSecond(),
-                                rt.authorizationCode);
-                accessTokenStore.save(at);
+                        accessTokenService.issue(
+                                rt.sub, scope, client.clientId, rt.authorizationCode);
                 var newRt =
                         new RefreshToken(
                                 UUID.randomUUID().toString(),

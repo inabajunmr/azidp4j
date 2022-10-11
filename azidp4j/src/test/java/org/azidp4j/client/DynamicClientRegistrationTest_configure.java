@@ -4,9 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import org.azidp4j.Fixtures;
+import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.junit.jupiter.api.Test;
 
@@ -16,11 +17,15 @@ class DynamicClientRegistrationTest_configure {
     void success() throws JOSEException {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var registration =
                 new DynamicClientRegistration(
-                        config, new InMemoryClientStore(), new InMemoryAccessTokenStore(), jwks);
+                        config,
+                        new InMemoryClientStore(),
+                        new InMemoryAccessTokenService(
+                                config,
+                                new SampleScopeAudienceMapper(),
+                                new InMemoryAccessTokenStore()));
         var registrationResponse =
                 registration.register(ClientRegistrationRequest.builder().build());
         var configurationRequest =

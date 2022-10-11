@@ -2,6 +2,7 @@ package org.azidp4j.token.accesstoken;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.scope.ScopeAudienceMapper;
@@ -32,6 +33,37 @@ public class InMemoryAccessTokenService implements AccessTokenService {
                         scope,
                         clientId,
                         scopeAudienceMapper.map(scope),
+                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                        Instant.now().getEpochSecond());
+        accessTokenStore.save(at);
+        return at;
+    }
+
+    @Override
+    public AccessToken issue(String sub, String scope, String clientId, String authorizationCode) {
+        var at =
+                new InMemoryAccessToken(
+                        UUID.randomUUID().toString(),
+                        sub,
+                        scope,
+                        clientId,
+                        scopeAudienceMapper.map(scope),
+                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                        Instant.now().getEpochSecond(),
+                        authorizationCode);
+        accessTokenStore.save(at);
+        return at;
+    }
+
+    @Override
+    public AccessToken issue(String sub, String scope, String clientId, Set<String> audience) {
+        var at =
+                new InMemoryAccessToken(
+                        UUID.randomUUID().toString(),
+                        sub,
+                        scope,
+                        clientId,
+                        audience,
                         Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
                         Instant.now().getEpochSecond());
         accessTokenStore.save(at);

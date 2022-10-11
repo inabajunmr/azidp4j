@@ -24,6 +24,7 @@ import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
@@ -67,17 +68,19 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         TokenEndpointAuthMethod.none,
                         SigningAlgorithm.ES256));
         accessTokenStore = new InMemoryAccessTokenStore();
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
+                        new InMemoryAccessTokenService(
+                                config, scopeAudienceMapper, accessTokenStore),
                         accessTokenStore,
                         new IDTokenIssuer(config, jwks),
                         new InMemoryRefreshTokenStore(),
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         null,
-                        clientStore,
-                        jwks);
+                        clientStore);
     }
 
     @Test

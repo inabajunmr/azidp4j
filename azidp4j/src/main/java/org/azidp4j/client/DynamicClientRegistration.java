@@ -1,30 +1,24 @@
 package org.azidp4j.client;
 
-import com.nimbusds.jose.jwk.JWKSet;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.token.TokenEndpointAuthMethod;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
-import org.azidp4j.token.accesstoken.InMemoryAccessToken;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.util.MapUtil;
 
 public class DynamicClientRegistration {
 
     private final AzIdPConfig config;
     private final ClientStore clientStore;
-    private final AccessTokenStore accessTokenStore;
+    private final AccessTokenService accessTokenService;
 
     public DynamicClientRegistration(
-            AzIdPConfig config,
-            ClientStore clientStore,
-            AccessTokenStore accessTokenStore,
-            JWKSet jwkSet) {
+            AzIdPConfig config, ClientStore clientStore, AccessTokenService accessTokenService) {
         this.config = config;
         this.clientStore = clientStore;
-        this.accessTokenStore = accessTokenStore;
+        this.accessTokenService = accessTokenService;
     }
 
     public ClientRegistrationResponse register(ClientRegistrationRequest request) {
@@ -93,15 +87,8 @@ public class DynamicClientRegistration {
                         idTokenSignedResponseAlg);
         clientStore.save(client);
         var at =
-                new InMemoryAccessToken(
-                        UUID.randomUUID().toString(),
-                        client.clientId,
-                        "configure",
-                        client.clientId,
-                        Set.of(config.issuer),
-                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
-                        Instant.now().getEpochSecond());
-        accessTokenStore.save(at);
+                accessTokenService.issue(
+                        client.clientId, "configure", client.clientId, Set.of(config.issuer));
         return new ClientRegistrationResponse(
                 201,
                 MapUtil.nullRemovedMap(

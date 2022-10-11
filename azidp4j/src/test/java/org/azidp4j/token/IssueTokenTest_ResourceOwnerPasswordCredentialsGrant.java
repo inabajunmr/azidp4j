@@ -17,6 +17,7 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.token.accesstoken.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
@@ -52,17 +53,19 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
+                        new InMemoryAccessTokenService(
+                                config, scopeAudienceMapper, accessTokenStore),
                         accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         userPasswordVerifier,
-                        clientStore,
-                        jwks);
+                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("password")
@@ -118,17 +121,19 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.none,
                         SigningAlgorithm.ES256));
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
+                        new InMemoryAccessTokenService(
+                                config, scopeAudienceMapper, accessTokenStore),
                         accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         userPasswordVerifier,
-                        clientStore,
-                        jwks);
+                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("password")
@@ -164,7 +169,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenIssuer = new InMemoryAccessTokenStore();
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
@@ -184,17 +189,19 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        new InMemoryAccessTokenService(
+                                config, scopeAudienceMapper, accessTokenStore),
+                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         userPasswordVerifier,
-                        clientStore,
-                        jwks);
+                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("password")
@@ -222,7 +229,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenIssuer = new InMemoryAccessTokenStore();
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
@@ -242,17 +249,19 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
-        var issueToken =
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
+        var issueToken = // TODO 初期化をまとめられるか？
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        new InMemoryAccessTokenService(
+                                config, scopeAudienceMapper, accessTokenStore),
+                        accessTokenStore,
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         userPasswordVerifier,
-                        clientStore,
-                        jwks);
+                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("password")

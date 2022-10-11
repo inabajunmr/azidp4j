@@ -55,15 +55,15 @@ public class AzIdP {
                 new IssueToken(
                         azIdPConfig,
                         authorizationCodeStore,
+                        accessTokenService,
                         accessTokenStore,
                         idTokenIssuer,
                         refreshTokenStore,
                         scopeAudienceMapper,
                         null,
-                        clientStore,
-                        jwkSet);
+                        clientStore);
         this.clientRegistration =
-                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenStore, jwkSet);
+                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenService);
         this.introspect = new Introspect(accessTokenStore, refreshTokenStore, azIdPConfig);
     }
 
@@ -89,15 +89,15 @@ public class AzIdP {
                 new IssueToken(
                         azIdPConfig,
                         authorizationCodeStore,
+                        accessTokenService,
                         accessTokenStore,
                         idTokenIssuer,
                         refreshTokenStore,
                         scopeAudienceMapper,
                         userPasswordVerifier,
-                        clientStore,
-                        jwkSet);
+                        clientStore);
         this.clientRegistration =
-                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenStore, jwkSet);
+                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenService);
         this.introspect = new Introspect(accessTokenStore, refreshTokenStore, azIdPConfig);
     }
 
