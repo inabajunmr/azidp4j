@@ -62,8 +62,8 @@ class AuthorizeTest_AuthorizationCode {
             new Authorize(
                     clientStore,
                     new InMemoryAuthorizationCodeStore(),
-                    new InMemoryAccessTokenService(
-                            config, scopeAudienceMapper, new InMemoryAccessTokenStore()),
+                    scopeAudienceMapper,
+                    new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                     new IDTokenIssuer(config, new JWKSet()),
                     config);
 
@@ -121,8 +121,8 @@ class AuthorizeTest_AuthorizationCode {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new InMemoryAccessTokenService(
-                                config, scopeAudienceMapper, new InMemoryAccessTokenStore()),
+                        scopeAudienceMapper,
+                        new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
@@ -171,8 +171,8 @@ class AuthorizeTest_AuthorizationCode {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new InMemoryAccessTokenService(
-                                config, scopeAudienceMapper, new InMemoryAccessTokenStore()),
+                        scopeAudienceMapper,
+                        new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
@@ -221,8 +221,8 @@ class AuthorizeTest_AuthorizationCode {
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new InMemoryAccessTokenService(
-                                config, scopeAudienceMapper, new InMemoryAccessTokenStore()),
+                        scopeAudienceMapper,
+                        new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =

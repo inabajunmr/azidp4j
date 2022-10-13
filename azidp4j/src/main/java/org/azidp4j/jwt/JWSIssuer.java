@@ -20,6 +20,9 @@ public class JWSIssuer {
     public JWSObject issue(String kid, String type, Map<String, Object> payload) {
         try {
             var jwk = jwkSet.getKeyByKeyId(kid);
+            if (jwk == null) {
+                throw new AssertionError();
+            }
             if (jwk instanceof ECKey) {
                 ECKey ecJWK = (ECKey) jwk;
                 JWSSigner signer = new ECDSASigner(ecJWK);
@@ -27,6 +30,18 @@ public class JWSIssuer {
                         new JWSObject(
                                 new JWSHeader.Builder(JWSAlgorithm.ES256)
                                         .keyID(ecJWK.getKeyID())
+                                        .type(new JOSEObjectType(type))
+                                        .build(),
+                                new Payload(payload));
+                jwsObject.sign(signer);
+                return jwsObject;
+            } else if (jwk instanceof RSAKey) {
+                RSAKey rsaJWK = (RSAKey) jwk;
+                JWSSigner signer = new RSASSASigner(rsaJWK);
+                JWSObject jwsObject =
+                        new JWSObject(
+                                new JWSHeader.Builder(JWSAlgorithm.RS256)
+                                        .keyID(rsaJWK.getKeyID())
                                         .type(new JOSEObjectType(type))
                                         .build(),
                                 new Payload(payload));

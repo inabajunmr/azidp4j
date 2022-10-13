@@ -9,9 +9,8 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
-import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.*;
-import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessToken;
+import org.azidp4j.token.accesstoken.AccessToken;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
@@ -27,9 +26,7 @@ class IntrospectTest {
     RefreshTokenStore refreshTokenStore = new InMemoryRefreshTokenStore();
     AzIdPConfig config = Fixtures.azIdPConfig("test");
     InMemoryAccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
-    AccessTokenService accessTokenService =
-            new InMemoryAccessTokenService(
-                    config, new SampleScopeAudienceMapper(), accessTokenStore);
+    AccessTokenService accessTokenService = new InMemoryAccessTokenService(accessTokenStore);
     Introspect introspect = new Introspect(accessTokenService, refreshTokenStore, config);
 
     static Stream<Arguments> hints() {
@@ -144,7 +141,7 @@ class IntrospectTest {
 
     private AccessToken saveTestAccessToken(long exp) {
         var at =
-                new InMemoryAccessToken(
+                new AccessToken(
                         UUID.randomUUID().toString(),
                         "sub",
                         "scope1 scope2",

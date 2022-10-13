@@ -61,8 +61,8 @@ class AuthorizeTest {
             new Authorize(
                     clientStore,
                     new InMemoryAuthorizationCodeStore(),
-                    new InMemoryAccessTokenService(
-                            config, scopeAudienceMapper, new InMemoryAccessTokenStore()),
+                    scopeAudienceMapper,
+                    new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                     new IDTokenIssuer(config, new JWKSet()),
                     config);
 

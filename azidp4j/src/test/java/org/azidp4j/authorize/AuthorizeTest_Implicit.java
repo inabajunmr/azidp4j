@@ -89,13 +89,14 @@ class AuthorizeTest_Implicit {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new InMemoryAccessTokenService(
-                                config, new SampleScopeAudienceMapper(), accessTokenStore),
+                        scopeAudienceMapper,
+                        new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
@@ -149,12 +150,13 @@ class AuthorizeTest_Implicit {
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new InMemoryAccessTokenService(
-                                config, new SampleScopeAudienceMapper(), accessTokenStore),
+                        scopeAudienceMapper,
+                        new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =
@@ -213,12 +215,13 @@ class AuthorizeTest_Implicit {
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new InMemoryAccessTokenService(
-                                config, new SampleScopeAudienceMapper(), accessTokenStore),
+                        scopeAudienceMapper,
+                        new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, jwks),
                         config);
         var authorizationRequest =
@@ -291,12 +294,13 @@ class AuthorizeTest_Implicit {
         var jwks = new JWKSet(List.of(ecKey, rsaKey));
         var config = Fixtures.azIdPConfig(ecKey.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new InMemoryAccessTokenService(
-                                config, new SampleScopeAudienceMapper(), accessTokenStore),
+                        scopeAudienceMapper,
+                        new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, jwks),
                         config);
         var authorizationRequest =
@@ -367,12 +371,13 @@ class AuthorizeTest_Implicit {
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new InMemoryAccessTokenService(
-                                config, new SampleScopeAudienceMapper(), accessTokenStore),
+                        scopeAudienceMapper,
+                        new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, jwks),
                         config);
         var authorizationRequest =

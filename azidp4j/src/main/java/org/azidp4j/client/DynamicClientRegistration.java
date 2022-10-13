@@ -1,5 +1,6 @@
 package org.azidp4j.client;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
@@ -88,7 +89,13 @@ public class DynamicClientRegistration {
         clientStore.save(client);
         var at =
                 accessTokenService.issue(
-                        client.clientId, "configure", client.clientId, Set.of(config.issuer));
+                        client.clientId,
+                        "configure",
+                        client.clientId,
+                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                        Instant.now().getEpochSecond(),
+                        Set.of(config.issuer),
+                        null);
         return new ClientRegistrationResponse(
                 201,
                 MapUtil.nullRemovedMap(

@@ -59,14 +59,13 @@ class AuthorizeTest_None {
                         600,
                         604800,
                         3600);
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeStore(),
-                        new InMemoryAccessTokenService(
-                                config,
-                                new SampleScopeAudienceMapper(),
-                                new InMemoryAccessTokenStore()),
+                        scopeAudienceMapper,
+                        new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                         new IDTokenIssuer(config, new JWKSet()),
                         config);
         var authorizationRequest =

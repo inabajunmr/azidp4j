@@ -14,7 +14,6 @@ import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.request.ResponseType;
-import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
@@ -33,8 +32,7 @@ class DynamicClientRegistrationTest_register {
                 new DynamicClientRegistration(
                         config,
                         new InMemoryClientStore(),
-                        new InMemoryAccessTokenService(
-                                config, new SampleScopeAudienceMapper(), accessTokenStore));
+                        new InMemoryAccessTokenService(accessTokenStore));
         var req =
                 ClientRegistrationRequest.builder()
                         .redirectUris(
@@ -95,8 +93,7 @@ class DynamicClientRegistrationTest_register {
                 new DynamicClientRegistration(
                         config,
                         new InMemoryClientStore(),
-                        new InMemoryAccessTokenService(
-                                config, new SampleScopeAudienceMapper(), accessTokenStore));
+                        new InMemoryAccessTokenService(accessTokenStore));
         var req = ClientRegistrationRequest.builder().build();
 
         // exercise

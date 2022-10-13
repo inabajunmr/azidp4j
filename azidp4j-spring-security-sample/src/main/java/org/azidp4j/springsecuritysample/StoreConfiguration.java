@@ -1,6 +1,5 @@
 package org.azidp4j.springsecuritysample;
 
-import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
@@ -16,8 +15,7 @@ public class StoreConfiguration {
 
     @Bean
     public AccessTokenService accessTokenService(AzIdPConfig config) {
-        return new InMemoryAccessTokenService(
-                config, scope -> Set.of("rs.example.com"), new InMemoryAccessTokenStore());
+        return new InMemoryAccessTokenService(new InMemoryAccessTokenStore());
     }
 
     @Bean

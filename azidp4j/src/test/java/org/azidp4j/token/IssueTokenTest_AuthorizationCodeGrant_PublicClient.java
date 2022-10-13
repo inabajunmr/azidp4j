@@ -68,9 +68,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         TokenEndpointAuthMethod.none,
                         SigningAlgorithm.ES256));
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        accessTokenService =
-                new InMemoryAccessTokenService(
-                        config, scopeAudienceMapper, new InMemoryAccessTokenStore());
+        accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore());
         issueToken =
                 new IssueToken(
                         config,

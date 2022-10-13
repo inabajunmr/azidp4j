@@ -46,6 +46,7 @@ public class AzIdP {
                 new Authorize(
                         clientStore,
                         authorizationCodeStore,
+                        scopeAudienceMapper,
                         accessTokenService,
                         idTokenIssuer,
                         azIdPConfig);
@@ -78,6 +79,7 @@ public class AzIdP {
                 new Authorize(
                         clientStore,
                         authorizationCodeStore,
+                        scopeAudienceMapper,
                         accessTokenService,
                         idTokenIssuer,
                         azIdPConfig);

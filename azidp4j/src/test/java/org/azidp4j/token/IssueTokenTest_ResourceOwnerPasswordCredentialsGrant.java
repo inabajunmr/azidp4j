@@ -58,8 +58,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        new InMemoryAccessTokenService(
-                                config, scopeAudienceMapper, accessTokenStore),
+                        new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
@@ -125,8 +124,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        new InMemoryAccessTokenService(
-                                config, scopeAudienceMapper, accessTokenStore),
+                        new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
@@ -192,8 +190,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        new InMemoryAccessTokenService(
-                                config, scopeAudienceMapper, accessTokenStore),
+                        new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,
@@ -251,8 +248,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        new InMemoryAccessTokenService(
-                                config, scopeAudienceMapper, accessTokenStore),
+                        new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper,

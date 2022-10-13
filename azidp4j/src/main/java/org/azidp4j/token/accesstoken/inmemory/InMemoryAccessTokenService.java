@@ -1,73 +1,38 @@
 package org.azidp4j.token.accesstoken.inmemory;
 
-import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import org.azidp4j.AzIdPConfig;
-import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessToken;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 
 public class InMemoryAccessTokenService implements AccessTokenService {
 
-    private final AzIdPConfig config;
-
-    private final ScopeAudienceMapper scopeAudienceMapper;
-
     private final InMemoryAccessTokenStore accessTokenStore;
 
-    public InMemoryAccessTokenService(
-            AzIdPConfig config,
-            ScopeAudienceMapper scopeAudienceMapper,
-            InMemoryAccessTokenStore accessTokenStore) {
-        this.config = config;
-        this.scopeAudienceMapper = scopeAudienceMapper;
+    public InMemoryAccessTokenService(InMemoryAccessTokenStore accessTokenStore) {
         this.accessTokenStore = accessTokenStore;
     }
 
     @Override
-    public AccessToken issue(String sub, String scope, String clientId) {
+    public AccessToken issue(
+            String sub,
+            String scope,
+            String clientId,
+            Long exp,
+            Long iat,
+            Set<String> audience,
+            String authorizationCode) {
         var at =
-                new InMemoryAccessToken(
-                        UUID.randomUUID().toString(),
-                        sub,
-                        scope,
-                        clientId,
-                        scopeAudienceMapper.map(scope),
-                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
-                        Instant.now().getEpochSecond());
-        accessTokenStore.save(at);
-        return at;
-    }
-
-    @Override
-    public AccessToken issue(String sub, String scope, String clientId, String authorizationCode) {
-        var at =
-                new InMemoryAccessToken(
-                        UUID.randomUUID().toString(),
-                        sub,
-                        scope,
-                        clientId,
-                        scopeAudienceMapper.map(scope),
-                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
-                        Instant.now().getEpochSecond(),
-                        authorizationCode);
-        accessTokenStore.save(at);
-        return at;
-    }
-
-    @Override
-    public AccessToken issue(String sub, String scope, String clientId, Set<String> audience) {
-        var at =
-                new InMemoryAccessToken(
+                new AccessToken(
                         UUID.randomUUID().toString(),
                         sub,
                         scope,
                         clientId,
                         audience,
-                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
-                        Instant.now().getEpochSecond());
+                        exp,
+                        iat,
+                        authorizationCode);
         accessTokenStore.save(at);
         return at;
     }

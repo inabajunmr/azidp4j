@@ -114,9 +114,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        accessTokenService =
-                new InMemoryAccessTokenService(
-                        config, scopeAudienceMapper, new InMemoryAccessTokenStore());
+        accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore());
         issueToken =
                 new IssueToken(
                         config,

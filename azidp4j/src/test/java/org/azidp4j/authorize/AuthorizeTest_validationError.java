@@ -16,6 +16,7 @@ import org.azidp4j.authorize.response.AuthorizationErrorTypeWithoutRedirect;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
@@ -57,14 +58,13 @@ class AuthorizeTest_validationError {
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
     AzIdPConfig config = Fixtures.azIdPConfig("kid");
+    ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
     Authorize sut =
             new Authorize(
                     clientStore,
                     new InMemoryAuthorizationCodeStore(),
-                    new InMemoryAccessTokenService(
-                            config,
-                            new SampleScopeAudienceMapper(),
-                            new InMemoryAccessTokenStore()),
+                    scopeAudienceMapper,
+                    new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                     new IDTokenIssuer(config, new JWKSet()),
                     config);
 

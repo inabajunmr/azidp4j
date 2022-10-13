@@ -46,8 +46,7 @@ public class SimpleTest {
                         config,
                         jwks,
                         new InMemoryClientStore(),
-                        new InMemoryAccessTokenService(
-                                config, scopeAudienceMapper, accessTokenStore),
+                        new InMemoryAccessTokenService(accessTokenStore),
                         new InMemoryRefreshTokenStore(),
                         scopeAudienceMapper);
 

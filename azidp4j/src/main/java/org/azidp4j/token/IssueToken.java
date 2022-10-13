@@ -131,6 +131,9 @@ public class IssueToken {
                                 authorizationCode.sub,
                                 authorizationCode.scope,
                                 authorizationCode.clientId,
+                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                                Instant.now().getEpochSecond(),
+                                scopeAudienceMapper.map(authorizationCode.scope),
                                 authorizationCode.code);
                 var rt =
                         new RefreshToken(
@@ -222,7 +225,14 @@ public class IssueToken {
                 if (userPasswordVerifier.verify(request.username, request.password)) {
                     var at =
                             accessTokenService.issue(
-                                    request.username, request.scope, client.clientId);
+                                    request.username,
+                                    request.scope,
+                                    client.clientId,
+                                    Instant.now().getEpochSecond()
+                                            + config.accessTokenExpirationSec,
+                                    Instant.now().getEpochSecond(),
+                                    scopeAudienceMapper.map(request.scope),
+                                    null);
                     var rt =
                             new RefreshToken(
                                     UUID.randomUUID().toString(),
@@ -261,7 +271,15 @@ public class IssueToken {
                 if (!scopeValidator.hasEnoughScope(request.scope, client)) {
                     return new TokenResponse(400, Map.of("error", "invalid_scope"));
                 }
-                var at = accessTokenService.issue(client.clientId, request.scope, client.clientId);
+                var at =
+                        accessTokenService.issue(
+                                client.clientId,
+                                request.scope,
+                                client.clientId,
+                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                                Instant.now().getEpochSecond(),
+                                scopeAudienceMapper.map(request.scope),
+                                null);
                 return new TokenResponse(
                         200,
                         MapUtil.nullRemovedMap(
@@ -295,7 +313,13 @@ public class IssueToken {
                 var scope = request.scope != null ? request.scope : rt.scope;
                 var at =
                         accessTokenService.issue(
-                                rt.sub, scope, client.clientId, rt.authorizationCode);
+                                rt.sub,
+                                scope,
+                                client.clientId,
+                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                                Instant.now().getEpochSecond(),
+                                scopeAudienceMapper.map(scope),
+                                rt.authorizationCode);
                 var newRt =
                         new RefreshToken(
                                 UUID.randomUUID().toString(),

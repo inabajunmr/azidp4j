@@ -64,7 +64,7 @@ public class SampleAz {
                     }
                 };
         var scopeAudienceMapper= new SampleScopeAudienceMapper();
-        accessTokenService = new InMemoryAccessTokenService(config,scopeAudienceMapper,new InMemoryAccessTokenStore() );
+        accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore() );
         azIdP =
                 new AzIdP(
                         config,

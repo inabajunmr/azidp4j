@@ -5,11 +5,14 @@ import java.util.Set;
 
 public interface AccessTokenService {
 
-    AccessToken issue(String sub, String scope, String clientId);
-
-    AccessToken issue(String sub, String scope, String clientId, String authorizationCode);
-
-    AccessToken issue(String sub, String scope, String clientId, Set<String> audience);
+    AccessToken issue(
+            String sub,
+            String scope,
+            String clientId,
+            Long exp,
+            Long iat,
+            Set<String> audience,
+            String authorizationCode);
 
     Optional<AccessToken> introspect(String token);
 

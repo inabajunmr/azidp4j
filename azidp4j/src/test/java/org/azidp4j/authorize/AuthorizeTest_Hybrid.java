@@ -23,6 +23,7 @@ import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
@@ -51,14 +52,15 @@ class AuthorizeTest_Hybrid {
                     .generate();
     JWKSet jwks = new JWKSet(key);
     AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
+    ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
     AccessTokenService accessTokenService =
-            new InMemoryAccessTokenService(
-                    config, new SampleScopeAudienceMapper(), new InMemoryAccessTokenStore());
+            new InMemoryAccessTokenService(new InMemoryAccessTokenStore());
 
     Authorize sut =
             new Authorize(
                     clientStore,
                     new InMemoryAuthorizationCodeStore(),
+                    scopeAudienceMapper,
                     accessTokenService,
                     new IDTokenIssuer(config, jwks),
                     config);
