@@ -119,7 +119,6 @@ public class IntegrationTest {
                         .queryParam("scope", "scope1 openid")
                         .queryParam("state", state)
                         .build();
-
         var authorizationResponseRedirectToLoginPage =
                 testRestTemplate.getForEntity(authorizationRequest.toString(), String.class);
         assertThat(authorizationResponseRedirectToLoginPage.getStatusCode())
