@@ -6,7 +6,6 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
-import java.text.ParseException;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
@@ -22,14 +21,15 @@ import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
-import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.azidp4j.token.refreshtoken.RefreshToken;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.Test;
 
 public class IssueTokenTest_RefreshToken {
 
     @Test
-    void success() throws JOSEException, ParseException {
+    void success() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -57,7 +57,7 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
-                        new InMemoryRefreshTokenStore(),
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         null,
                         clientStore);
@@ -98,7 +98,7 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void success_scopeShrink() throws JOSEException, ParseException {
+    void success_scopeShrink() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -126,7 +126,7 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
-                        refreshTokenStore,
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         null,
                         clientStore);
@@ -171,7 +171,7 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void success_publicClient() throws JOSEException, ParseException {
+    void success_publicClient() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -199,7 +199,7 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
-                        refreshTokenStore,
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         null,
                         clientStore);
@@ -268,7 +268,7 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
-                        refreshTokenStore,
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         null,
                         clientStore);
@@ -328,7 +328,7 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
-                        new InMemoryRefreshTokenStore(),
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         null,
                         clientStore);
@@ -394,7 +394,7 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
-                        refreshTokenStore,
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         null,
                         clientStore);
@@ -468,7 +468,7 @@ public class IssueTokenTest_RefreshToken {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
-                        refreshTokenStore,
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         null,
                         clientStore);

@@ -7,7 +7,6 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.net.URI;
-import java.text.ParseException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
@@ -25,7 +24,8 @@ import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.TokenRequest;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
-import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.Test;
 
 public class SimpleTest {
@@ -35,7 +35,7 @@ public class SimpleTest {
      * request(using authorization code) 4. token request(using refresh token)
      */
     @Test
-    void test() throws JOSEException, ParseException {
+    void test() throws JOSEException {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
@@ -47,7 +47,7 @@ public class SimpleTest {
                         jwks,
                         new InMemoryClientStore(),
                         new InMemoryAccessTokenService(accessTokenStore),
-                        new InMemoryRefreshTokenStore(),
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper);
 
         // client registration

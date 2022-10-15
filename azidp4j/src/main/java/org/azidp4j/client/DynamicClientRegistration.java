@@ -123,7 +123,7 @@ public class DynamicClientRegistration {
     }
 
     public ClientRegistrationResponse configure(ClientConfigurationRequest request) {
-        var client = clientStore.find(request.clientId).orElseThrow(() -> new AssertionError());
+        var client = clientStore.find(request.clientId).orElseThrow(AssertionError::new);
         var grantTypes = client.grantTypes;
         if (request.grantTypes != null) {
             grantTypes = new HashSet<>();

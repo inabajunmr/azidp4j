@@ -21,7 +21,6 @@ public class ClientAuthenticator {
     public Optional<Client> authenticateClient(
             HttpServletRequest request, MultiValueMap<String, String> body) {
         // attempt basic authentication
-        String authenticatedClientId = null;
         {
             var usernamePasswordAuthenticationToken = authenticationConverter.convert(request);
             if (usernamePasswordAuthenticationToken != null) {
@@ -38,7 +37,7 @@ public class ClientAuthenticator {
         }
 
         // attempt body authentication
-        if (authenticatedClientId == null && body.containsKey("client_id")) {
+        if (body.containsKey("client_id")) {
             var clientId = body.get("client_id").get(0);
             var client = clientStore.find(clientId);
             if (client.isPresent()

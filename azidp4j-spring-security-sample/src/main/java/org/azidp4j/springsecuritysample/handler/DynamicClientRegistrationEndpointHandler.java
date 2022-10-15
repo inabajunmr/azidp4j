@@ -3,7 +3,6 @@ package org.azidp4j.springsecuritysample.handler;
 import java.util.HashMap;
 import java.util.Map;
 import org.azidp4j.AzIdP;
-import org.azidp4j.client.ClientStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,6 @@ public class DynamicClientRegistrationEndpointHandler {
             LoggerFactory.getLogger(DynamicClientRegistrationEndpointHandler.class);
 
     @Autowired AzIdP azIdP;
-
-    @Autowired ClientStore clientStore;
 
     @PostMapping("/client")
     public ResponseEntity<Map<String, Object>> register(

@@ -16,7 +16,8 @@ import org.azidp4j.client.ClientStore;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenService;
-import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -83,7 +84,7 @@ public class AzIdPConfiguration {
                         jwkSet,
                         clientStore,
                         accessTokenService,
-                        new InMemoryRefreshTokenStore(),
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         userPasswordVerifier);
         var clientRegistration =

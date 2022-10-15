@@ -18,17 +18,18 @@ import org.junit.jupiter.api.Test;
 
 class JwtAccessTokenServiceTest {
 
-    RSAKey rs256 =
+    final RSAKey rs256 =
             new RSAKeyGenerator(2048).keyID("abc").algorithm(new Algorithm("RS256")).generate();
-    ECKey es256 =
+    final ECKey es256 =
             new ECKeyGenerator(Curve.P_256)
                     .keyID("123")
                     .algorithm(new Algorithm("ES256"))
                     .generate();
-    JWKSet jwks = new JWKSet(List.of(rs256, es256));
-    JWSIssuer jwsIssuer = new JWSIssuer(jwks);
-    Supplier<String> kidSupplier = () -> "abc";
-    JwtAccessTokenService sut = new JwtAccessTokenService(jwks, jwsIssuer, "issuer", kidSupplier);
+    final JWKSet jwks = new JWKSet(List.of(rs256, es256));
+    final JWSIssuer jwsIssuer = new JWSIssuer(jwks);
+    final Supplier<String> kidSupplier = () -> "abc";
+    final JwtAccessTokenService sut =
+            new JwtAccessTokenService(jwks, jwsIssuer, "issuer", kidSupplier);
 
     JwtAccessTokenServiceTest() throws JOSEException {}
 

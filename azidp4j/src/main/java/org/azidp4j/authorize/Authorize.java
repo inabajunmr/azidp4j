@@ -163,7 +163,6 @@ public class Authorize {
                             "error", "invalid_request", "state", authorizationRequest.state),
                     responseMode);
         }
-        ;
         CodeChallengeMethod codeChallengeMethod = null;
         if (authorizationRequest.codeChallengeMethod != null) {
             codeChallengeMethod = CodeChallengeMethod.of(authorizationRequest.codeChallengeMethod);

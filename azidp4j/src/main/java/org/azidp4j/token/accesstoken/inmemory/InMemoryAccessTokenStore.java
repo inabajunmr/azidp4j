@@ -8,10 +8,10 @@ import org.azidp4j.token.accesstoken.AccessToken;
 public class InMemoryAccessTokenStore {
 
     /** Map<AccessTokenValue, AccessToken> */
-    static Map<String, AccessToken> STORE = new ConcurrentHashMap<>();
+    static final Map<String, AccessToken> STORE = new ConcurrentHashMap<>();
 
     /** Map<AuthorizationCode, AccessToken> */
-    static Map<String, AccessToken> STORE_BY_AUTHORIZATION_CODE = new ConcurrentHashMap<>();
+    static final Map<String, AccessToken> STORE_BY_AUTHORIZATION_CODE = new ConcurrentHashMap<>();
 
     public synchronized void save(AccessToken token) {
         STORE.put(token.getToken(), token);

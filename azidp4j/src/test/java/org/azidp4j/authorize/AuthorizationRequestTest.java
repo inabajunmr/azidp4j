@@ -33,6 +33,5 @@ class AuthorizationRequestTest {
                         .removePrompt("login")
                         .queryParameters
                         .get("prompt"));
-        ;
     }
 }

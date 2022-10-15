@@ -16,7 +16,7 @@ import org.azidp4j.scope.ScopeValidator;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshToken;
-import org.azidp4j.token.refreshtoken.RefreshTokenStore;
+import org.azidp4j.token.refreshtoken.RefreshTokenService;
 import org.azidp4j.util.MapUtil;
 
 public class IssueToken {
@@ -25,7 +25,7 @@ public class IssueToken {
     private final AccessTokenService accessTokenService;
     private final ScopeAudienceMapper scopeAudienceMapper;
     private final IDTokenIssuer idTokenIssuer;
-    private final RefreshTokenStore refreshTokenStore;
+    private final RefreshTokenService refreshTokenService;
     private final AzIdPConfig config;
     private final UserPasswordVerifier userPasswordVerifier;
     private final ClientStore clientStore;
@@ -36,14 +36,14 @@ public class IssueToken {
             AuthorizationCodeStore authorizationCodeStore,
             AccessTokenService accessTokenService,
             IDTokenIssuer idTokenIssuer,
-            RefreshTokenStore refreshTokenStore,
+            RefreshTokenService refreshTokenService,
             ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier,
             ClientStore clientStore) {
         this.authorizationCodeStore = authorizationCodeStore;
         this.accessTokenService = accessTokenService;
         this.idTokenIssuer = idTokenIssuer;
-        this.refreshTokenStore = refreshTokenStore;
+        this.refreshTokenService = refreshTokenService;
         this.scopeAudienceMapper = scopeAudienceMapper;
         this.config = azIdPConfig;
         this.userPasswordVerifier = userPasswordVerifier;
@@ -85,7 +85,7 @@ public class IssueToken {
                 var authorizationCodeOpt = authorizationCodeStore.consume(request.code);
                 if (!authorizationCodeOpt.isPresent()) {
                     accessTokenService.revokeByAuthorizationCode(request.code);
-                    refreshTokenStore.removeByAuthorizationCode(request.code);
+                    refreshTokenService.revokeByAuthorizationCode(request.code);
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
                 var authorizationCode = authorizationCodeOpt.get();
@@ -136,15 +136,14 @@ public class IssueToken {
                                 scopeAudienceMapper.map(authorizationCode.scope),
                                 authorizationCode.code);
                 var rt =
-                        new RefreshToken(
-                                UUID.randomUUID().toString(),
+                        refreshTokenService.issue(
                                 authorizationCode.sub,
                                 authorizationCode.scope,
                                 authorizationCode.clientId,
-                                scopeAudienceMapper.map(authorizationCode.scope),
                                 Instant.now().getEpochSecond() + config.refreshTokenExpirationSec,
-                                Instant.now().getEpochSecond());
-                refreshTokenStore.save(rt);
+                                Instant.now().getEpochSecond(),
+                                scopeAudienceMapper.map(authorizationCode.scope),
+                                authorizationCode.code);
                 if (scopeValidator.contains(authorizationCode.scope, "openid")) {
                     // OIDC
                     var idToken =
@@ -296,7 +295,7 @@ public class IssueToken {
                 if (request.refreshToken == null) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
-                var rtOpt = refreshTokenStore.consume(request.refreshToken);
+                var rtOpt = refreshTokenService.consume(request.refreshToken);
                 if (!rtOpt.isPresent()) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
@@ -321,16 +320,14 @@ public class IssueToken {
                                 scopeAudienceMapper.map(scope),
                                 rt.authorizationCode);
                 var newRt =
-                        new RefreshToken(
-                                UUID.randomUUID().toString(),
+                        refreshTokenService.issue(
                                 rt.sub,
                                 scope,
                                 rt.clientId,
-                                scopeAudienceMapper.map(scope),
                                 Instant.now().getEpochSecond() + config.refreshTokenExpirationSec,
                                 Instant.now().getEpochSecond(),
+                                scopeAudienceMapper.map(scope),
                                 rt.authorizationCode);
-                refreshTokenStore.save(newRt);
                 return new TokenResponse(
                         200,
                         MapUtil.nullRemovedMap(

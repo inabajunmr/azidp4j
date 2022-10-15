@@ -23,10 +23,9 @@ import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenService;
-import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
-import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
-import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
 
 public class SampleAz {
 
@@ -65,7 +64,7 @@ public class SampleAz {
                         };
                     }
                 };
-        accessTokenService = new JwtAccessTokenService(jwks, new JWSIssuer(jwks), config.issuer, () -> es256.getKeyID());
+        accessTokenService = new JwtAccessTokenService(jwks, new JWSIssuer(jwks), config.issuer, es256::getKeyID);
         // accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore() );
         azIdP =
                 new AzIdP(
@@ -73,12 +72,12 @@ public class SampleAz {
                         jwks,
                         clientStore,
                         accessTokenService,
-                        new InMemoryRefreshTokenStore(),
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         new SampleScopeAudienceMapper(),
                         userPasswordVerifier);
     }
 
-    public void start(int port) throws IOException, JOSEException {
+    public void start(int port) throws IOException {
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/authorize", new AuthorizationEndpointHandler(azIdP));
         server.createContext("/token", new TokenEndpointHandler(azIdP, clientStore));

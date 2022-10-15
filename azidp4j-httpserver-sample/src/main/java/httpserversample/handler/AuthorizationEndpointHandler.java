@@ -67,7 +67,6 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
                         redirectToConsentPage(httpExchange, authorizationRequest, queryMap);
                     }
                 }
-                return;
             }
             case redirect -> {
                 httpExchange.getResponseHeaders().put("Location", List.of(authorizationResponse.redirect.redirectTo));

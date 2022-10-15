@@ -35,8 +35,7 @@ public class JWSIssuer {
                                 new Payload(payload));
                 jwsObject.sign(signer);
                 return jwsObject;
-            } else if (jwk instanceof RSAKey) {
-                RSAKey rsaJWK = (RSAKey) jwk;
+            } else if (jwk instanceof RSAKey rsaJWK) {
                 JWSSigner signer = new RSASSASigner(rsaJWK);
                 JWSObject jwsObject =
                         new JWSObject(
@@ -68,8 +67,7 @@ public class JWSIssuer {
                 throw new AssertionError();
             }
             var jwk = key.get();
-            if (jwk instanceof ECKey) {
-                ECKey ecJWK = (ECKey) jwk;
+            if (jwk instanceof ECKey ecJWK) {
                 JWSSigner signer = new ECDSASigner(ecJWK);
                 JWSObject jwsObject =
                         new JWSObject(
@@ -79,8 +77,7 @@ public class JWSIssuer {
                                 new Payload(payload));
                 jwsObject.sign(signer);
                 return jwsObject;
-            } else if (jwk instanceof RSAKey) {
-                RSAKey rsaJWK = (RSAKey) jwk;
+            } else if (jwk instanceof RSAKey rsaJWK) {
                 JWSSigner signer = new RSASSASigner(rsaJWK);
                 JWSObject jwsObject =
                         new JWSObject(

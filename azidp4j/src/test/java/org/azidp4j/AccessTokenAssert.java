@@ -1,7 +1,6 @@
 package org.azidp4j;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.azidp4j.token.accesstoken.AccessToken;
 

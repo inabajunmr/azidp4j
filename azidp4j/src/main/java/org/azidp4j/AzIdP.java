@@ -15,22 +15,22 @@ import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
-import org.azidp4j.token.refreshtoken.RefreshTokenStore;
+import org.azidp4j.token.refreshtoken.RefreshTokenService;
 
 public class AzIdP {
 
-    Discovery discovery;
-    AuthorizationCodeStore authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-    Authorize authorize;
-    AuthorizationRequestParser authorizationRequestParser = new AuthorizationRequestParser();
-    IssueToken issueToken;
-    TokenRequestParser tokenRequestParser = new TokenRequestParser();
-    DynamicClientRegistration clientRegistration;
-    Introspect introspect;
-    IntrospectionRequestParser introspectionRequestParser = new IntrospectionRequestParser();
-    ClientRegistrationRequestParser clientRegistrationRequestParser =
+    final Discovery discovery;
+    final AuthorizationCodeStore authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+    final Authorize authorize;
+    final AuthorizationRequestParser authorizationRequestParser = new AuthorizationRequestParser();
+    final IssueToken issueToken;
+    final TokenRequestParser tokenRequestParser = new TokenRequestParser();
+    final DynamicClientRegistration clientRegistration;
+    final Introspect introspect;
+    final IntrospectionRequestParser introspectionRequestParser = new IntrospectionRequestParser();
+    final ClientRegistrationRequestParser clientRegistrationRequestParser =
             new ClientRegistrationRequestParser();
-    ClientConfigurationRequestParser clientConfigurationRequestParser =
+    final ClientConfigurationRequestParser clientConfigurationRequestParser =
             new ClientConfigurationRequestParser();
 
     public AzIdP(
@@ -38,7 +38,7 @@ public class AzIdP {
             JWKSet jwkSet,
             ClientStore clientStore,
             AccessTokenService accessTokenService,
-            RefreshTokenStore refreshTokenStore,
+            RefreshTokenService refreshTokenService,
             ScopeAudienceMapper scopeAudienceMapper) {
         this.discovery = new Discovery(azIdPConfig);
         var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
@@ -56,13 +56,13 @@ public class AzIdP {
                         authorizationCodeStore,
                         accessTokenService,
                         idTokenIssuer,
-                        refreshTokenStore,
+                        refreshTokenService,
                         scopeAudienceMapper,
                         null,
                         clientStore);
         this.clientRegistration =
                 new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenService);
-        this.introspect = new Introspect(accessTokenService, refreshTokenStore, azIdPConfig);
+        this.introspect = new Introspect(accessTokenService, refreshTokenService, azIdPConfig);
     }
 
     public AzIdP(
@@ -70,7 +70,7 @@ public class AzIdP {
             JWKSet jwkSet,
             ClientStore clientStore,
             AccessTokenService accessTokenService,
-            RefreshTokenStore refreshTokenStore,
+            RefreshTokenService refreshTokenService,
             ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier) {
         this.discovery = new Discovery(azIdPConfig);
@@ -89,13 +89,13 @@ public class AzIdP {
                         authorizationCodeStore,
                         accessTokenService,
                         idTokenIssuer,
-                        refreshTokenStore,
+                        refreshTokenService,
                         scopeAudienceMapper,
                         userPasswordVerifier,
                         clientStore);
         this.clientRegistration =
                 new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenService);
-        this.introspect = new Introspect(accessTokenService, refreshTokenStore, azIdPConfig);
+        this.introspect = new Introspect(accessTokenService, refreshTokenService, azIdPConfig);
     }
 
     public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {

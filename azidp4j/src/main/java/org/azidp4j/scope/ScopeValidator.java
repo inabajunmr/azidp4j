@@ -21,7 +21,7 @@ public class ScopeValidator {
         var authorizedScopes =
                 Arrays.stream(authorizedScope.split(" ")).collect(Collectors.toSet());
         return requestedScopes.length
-                == Arrays.stream(requestedScopes).filter(s -> authorizedScopes.contains(s)).count();
+                == Arrays.stream(requestedScopes).filter(authorizedScopes::contains).count();
     }
 
     public boolean contains(String requestedScope, String target) {

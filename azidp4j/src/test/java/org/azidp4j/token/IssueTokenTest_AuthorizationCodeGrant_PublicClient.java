@@ -8,7 +8,6 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
-import java.text.ParseException;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
@@ -27,7 +26,8 @@ import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
-import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -75,14 +75,14 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         authorizationCodeStore,
                         accessTokenService,
                         new IDTokenIssuer(config, jwks),
-                        new InMemoryRefreshTokenStore(),
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         null,
                         clientStore);
     }
 
     @Test
-    void success_oauth2() throws JOSEException, ParseException {
+    void success_oauth2() {
 
         // setup
         var subject = UUID.randomUUID().toString();
@@ -124,7 +124,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
     }
 
     @Test
-    void success_pkce_plain() throws JOSEException, ParseException {
+    void success_pkce_plain() {
 
         // setup
         var subject = UUID.randomUUID().toString();
@@ -167,7 +167,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
     }
 
     @Test
-    void success_pkce_s256() throws JOSEException, ParseException {
+    void success_pkce_s256() {
 
         // setup
         var subject = UUID.randomUUID().toString();
@@ -210,7 +210,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
     }
 
     @Test
-    void error_pkce_plain() throws JOSEException, ParseException {
+    void error_pkce_plain() {
 
         // setup
         var subject = UUID.randomUUID().toString();

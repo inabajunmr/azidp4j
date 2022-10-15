@@ -5,23 +5,23 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.token.accesstoken.AccessToken;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.refreshtoken.RefreshToken;
-import org.azidp4j.token.refreshtoken.RefreshTokenStore;
+import org.azidp4j.token.refreshtoken.RefreshTokenService;
 import org.azidp4j.util.MapUtil;
 
 public class Introspect {
 
     private final AccessTokenService accessTokenService;
 
-    private final RefreshTokenStore refreshTokenStore;
+    private final RefreshTokenService refreshTokenService;
 
     private final AzIdPConfig config;
 
     public Introspect(
             AccessTokenService accessTokenService,
-            RefreshTokenStore refreshTokenStore,
+            RefreshTokenService refreshTokenService,
             AzIdPConfig config) {
         this.accessTokenService = accessTokenService;
-        this.refreshTokenStore = refreshTokenStore;
+        this.refreshTokenService = refreshTokenService;
         this.config = config;
     }
 
@@ -30,7 +30,7 @@ public class Introspect {
             return new IntrospectionResponse(400, Map.of());
         }
         if (request.tokenTypeHint != null && request.tokenTypeHint.equals("refresh_token")) {
-            var rtOpt = refreshTokenStore.find(request.token);
+            var rtOpt = refreshTokenService.introspect(request.token);
             if (rtOpt.isPresent()) {
                 return introspectRefreshToken(rtOpt.get());
             }
@@ -45,12 +45,9 @@ public class Introspect {
             return new IntrospectionResponse(200, Map.of("active", false));
         }
 
-        var rtOpt = refreshTokenStore.find(request.token);
-        if (rtOpt.isPresent()) {
-            return introspectRefreshToken(rtOpt.get());
-        }
-
-        return new IntrospectionResponse(200, Map.of("active", false));
+        var rtOpt = refreshTokenService.introspect(request.token);
+        return rtOpt.map(this::introspectRefreshToken)
+                .orElseGet(() -> new IntrospectionResponse(200, Map.of("active", false)));
     }
 
     private IntrospectionResponse introspectAccessToken(AccessToken at) {

@@ -12,19 +12,17 @@ public class TokenRequestParser {
         var password = tokenRequest.bodyParameters.get("password");
         var refreshToken = tokenRequest.bodyParameters.get("refresh_token");
         var codeVerifier = tokenRequest.bodyParameters.get("code_verifier");
-        var internalTokenRequest =
-                InternalTokenRequest.builder()
-                        .code(code)
-                        .grantType(grantType)
-                        .redirectUri(redirectUri)
-                        .clientId(clientId)
-                        .authenticatedClientId(authenticatedClientId)
-                        .scope(scope)
-                        .username(username)
-                        .password(password)
-                        .refreshToken(refreshToken)
-                        .codeVerifier(codeVerifier)
-                        .build();
-        return internalTokenRequest;
+        return InternalTokenRequest.builder()
+                .code(code)
+                .grantType(grantType)
+                .redirectUri(redirectUri)
+                .clientId(clientId)
+                .authenticatedClientId(authenticatedClientId)
+                .scope(scope)
+                .username(username)
+                .password(password)
+                .refreshToken(refreshToken)
+                .codeVerifier(codeVerifier)
+                .build();
     }
 }
