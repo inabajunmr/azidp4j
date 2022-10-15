@@ -20,10 +20,12 @@ import org.azidp4j.AzIdP;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
+import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 
 public class SampleAz {
@@ -63,8 +65,8 @@ public class SampleAz {
                         };
                     }
                 };
-        var scopeAudienceMapper= new SampleScopeAudienceMapper();
-        accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore() );
+        accessTokenService = new JwtAccessTokenService(jwks, new JWSIssuer(jwks), config.issuer, () -> es256.getKeyID());
+        // accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore() );
         azIdP =
                 new AzIdP(
                         config,
