@@ -22,7 +22,8 @@ import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
-import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.Test;
 
 public class IssueTokenTest {
@@ -59,7 +60,6 @@ public class IssueTokenTest {
                         "scope1 scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var issueToken =
                 new IssueToken(
@@ -67,7 +67,7 @@ public class IssueTokenTest {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, jwks),
-                        new InMemoryRefreshTokenStore(),
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         new SampleScopeAudienceMapper(),
                         null,
                         clientStore);

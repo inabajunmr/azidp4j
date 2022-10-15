@@ -13,9 +13,9 @@ import org.azidp4j.token.accesstoken.*;
 import org.azidp4j.token.accesstoken.AccessToken;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
-import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.azidp4j.token.refreshtoken.RefreshToken;
-import org.azidp4j.token.refreshtoken.RefreshTokenStore;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -23,11 +23,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class IntrospectTest {
 
-    RefreshTokenStore refreshTokenStore = new InMemoryRefreshTokenStore();
+    InMemoryRefreshTokenStore inMemoryRefreshTokenStore = new InMemoryRefreshTokenStore();
     AzIdPConfig config = Fixtures.azIdPConfig("test");
     InMemoryAccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
     AccessTokenService accessTokenService = new InMemoryAccessTokenService(accessTokenStore);
-    Introspect introspect = new Introspect(accessTokenService, refreshTokenStore, config);
+    Introspect introspect =
+            new Introspect(
+                    accessTokenService,
+                    new InMemoryRefreshTokenService(inMemoryRefreshTokenStore),
+                    config);
 
     static Stream<Arguments> hints() {
         return Stream.of(
@@ -74,7 +78,11 @@ class IntrospectTest {
     @MethodSource("hints")
     void accessToken_expired() {
         // setup
-        Introspect sut = new Introspect(accessTokenService, refreshTokenStore, config);
+        Introspect sut =
+                new Introspect(
+                        accessTokenService,
+                        new InMemoryRefreshTokenService(inMemoryRefreshTokenStore),
+                        config);
         var at = saveTestAccessToken(Instant.now().getEpochSecond() + -1);
 
         // exercise
@@ -163,7 +171,7 @@ class IntrospectTest {
                         Set.of("aud"),
                         exp,
                         Instant.now().getEpochSecond());
-        refreshTokenStore.save(rt);
+        inMemoryRefreshTokenStore.save(rt);
         return rt;
     }
 

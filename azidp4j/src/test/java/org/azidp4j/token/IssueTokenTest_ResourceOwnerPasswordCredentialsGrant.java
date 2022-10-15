@@ -20,7 +20,8 @@ import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
-import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
@@ -60,7 +61,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
-                        new InMemoryRefreshTokenStore(),
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         userPasswordVerifier,
                         clientStore);
@@ -126,7 +127,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
-                        new InMemoryRefreshTokenStore(),
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         userPasswordVerifier,
                         clientStore);
@@ -192,7 +193,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
-                        new InMemoryRefreshTokenStore(),
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         userPasswordVerifier,
                         clientStore);
@@ -250,7 +251,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         authorizationCodeStore,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
-                        new InMemoryRefreshTokenStore(),
+                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         userPasswordVerifier,
                         clientStore);
