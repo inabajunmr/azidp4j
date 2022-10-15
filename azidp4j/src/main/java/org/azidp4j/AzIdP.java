@@ -13,7 +13,7 @@ import org.azidp4j.introspection.IntrospectionRequestParser;
 import org.azidp4j.introspection.IntrospectionResponse;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenStore;
 
@@ -37,7 +37,7 @@ public class AzIdP {
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
-            AccessTokenStore accessTokenStore,
+            AccessTokenService accessTokenService,
             RefreshTokenStore refreshTokenStore,
             ScopeAudienceMapper scopeAudienceMapper) {
         this.discovery = new Discovery(azIdPConfig);
@@ -46,31 +46,30 @@ public class AzIdP {
                 new Authorize(
                         clientStore,
                         authorizationCodeStore,
-                        accessTokenStore,
                         scopeAudienceMapper,
+                        accessTokenService,
                         idTokenIssuer,
                         azIdPConfig);
         this.issueToken =
                 new IssueToken(
                         azIdPConfig,
                         authorizationCodeStore,
-                        accessTokenStore,
+                        accessTokenService,
                         idTokenIssuer,
                         refreshTokenStore,
                         scopeAudienceMapper,
                         null,
-                        clientStore,
-                        jwkSet);
+                        clientStore);
         this.clientRegistration =
-                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenStore, jwkSet);
-        this.introspect = new Introspect(accessTokenStore, refreshTokenStore, azIdPConfig);
+                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenService);
+        this.introspect = new Introspect(accessTokenService, refreshTokenStore, azIdPConfig);
     }
 
     public AzIdP(
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
-            AccessTokenStore accessTokenStore,
+            AccessTokenService accessTokenService,
             RefreshTokenStore refreshTokenStore,
             ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier) {
@@ -80,24 +79,23 @@ public class AzIdP {
                 new Authorize(
                         clientStore,
                         authorizationCodeStore,
-                        accessTokenStore,
                         scopeAudienceMapper,
+                        accessTokenService,
                         idTokenIssuer,
                         azIdPConfig);
         this.issueToken =
                 new IssueToken(
                         azIdPConfig,
                         authorizationCodeStore,
-                        accessTokenStore,
+                        accessTokenService,
                         idTokenIssuer,
                         refreshTokenStore,
                         scopeAudienceMapper,
                         userPasswordVerifier,
-                        clientStore,
-                        jwkSet);
+                        clientStore);
         this.clientRegistration =
-                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenStore, jwkSet);
-        this.introspect = new Introspect(accessTokenStore, refreshTokenStore, azIdPConfig);
+                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenService);
+        this.introspect = new Introspect(accessTokenService, refreshTokenStore, azIdPConfig);
     }
 
     public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {

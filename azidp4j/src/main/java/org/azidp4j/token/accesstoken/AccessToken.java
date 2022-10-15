@@ -1,23 +1,81 @@
 package org.azidp4j.token.accesstoken;
 
+import java.time.Instant;
 import java.util.Set;
 
-public interface AccessToken {
-    String getToken();
+public class AccessToken {
+    private final String token;
+    private final String sub;
+    private final String scope;
+    private final String clientId;
+    private final Set<String> audience;
+    private final long expiresAtEpochSec;
+    private final long issuedAtEpochSec;
+    private final String authorizationCode;
 
-    String getSub();
+    public String getToken() {
+        return token;
+    }
 
-    String getScope();
+    public String getSub() {
+        return sub;
+    }
 
-    String getClientId();
+    public String getScope() {
+        return scope;
+    }
 
-    Set<String> getAudience();
+    public String getClientId() {
+        return clientId;
+    }
 
-    long getExpiresAtEpochSec();
+    public Set<String> getAudience() {
+        return audience;
+    }
 
-    long getIssuedAtEpochSec();
+    public long getExpiresAtEpochSec() {
+        return expiresAtEpochSec;
+    }
 
-    String getAuthorizationCode();
+    public long getIssuedAtEpochSec() {
+        return issuedAtEpochSec;
+    }
 
-    boolean expired();
+    public String getAuthorizationCode() {
+        return authorizationCode;
+    }
+
+    public boolean expired() {
+        return this.getExpiresAtEpochSec() < Instant.now().getEpochSecond();
+    }
+
+    public AccessToken(
+            String token,
+            String sub,
+            String scope,
+            String clientId,
+            Set<String> audience,
+            long expiresAtEpochSec,
+            long issuedAtEpochSec,
+            String authorizationCode) {
+        this.token = token;
+        this.sub = sub;
+        this.scope = scope;
+        this.clientId = clientId;
+        this.audience = audience;
+        this.expiresAtEpochSec = expiresAtEpochSec;
+        this.issuedAtEpochSec = issuedAtEpochSec;
+        this.authorizationCode = authorizationCode;
+    }
+
+    public AccessToken(
+            String token,
+            String sub,
+            String scope,
+            String clientId,
+            Set<String> audience,
+            long expiresAtEpochSec,
+            long issuedAtEpochSec) {
+        this(token, sub, scope, clientId, audience, expiresAtEpochSec, issuedAtEpochSec, null);
+    }
 }

@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
@@ -13,15 +13,15 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 
 public class InternalOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
-    private final AccessTokenStore accessTokenStore;
+    private final AccessTokenService accessTokenService;
 
-    public InternalOpaqueTokenIntrospector(AccessTokenStore accessTokenStore) {
-        this.accessTokenStore = accessTokenStore;
+    public InternalOpaqueTokenIntrospector(AccessTokenService accessTokenService) {
+        this.accessTokenService = accessTokenService;
     }
 
     @Override
     public OAuth2AuthenticatedPrincipal introspect(String token) {
-        var at = accessTokenStore.find(token);
+        var at = accessTokenService.introspect(token);
         if (!at.isPresent()) {
             throw new BadOpaqueTokenException("Provided token isn't active");
         }

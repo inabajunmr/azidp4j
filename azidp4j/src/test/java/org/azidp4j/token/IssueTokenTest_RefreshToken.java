@@ -19,7 +19,8 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.azidp4j.token.refreshtoken.RefreshToken;
@@ -49,17 +50,17 @@ public class IssueTokenTest_RefreshToken {
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
         var refreshTokenStore = new InMemoryRefreshTokenStore();
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenStore,
+                        new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         null,
-                        clientStore,
-                        jwks);
+                        clientStore);
         var refreshToken =
                 new RefreshToken(
                         UUID.randomUUID().toString(),
@@ -118,17 +119,17 @@ public class IssueTokenTest_RefreshToken {
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenStore,
+                        new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         refreshTokenStore,
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         null,
-                        clientStore,
-                        jwks);
+                        clientStore);
         var refreshToken =
                 new RefreshToken(
                         UUID.randomUUID().toString(),
@@ -191,17 +192,17 @@ public class IssueTokenTest_RefreshToken {
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.none,
                         SigningAlgorithm.ES256));
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenStore,
+                        new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         refreshTokenStore,
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         null,
-                        clientStore,
-                        jwks);
+                        clientStore);
         var refreshToken =
                 new RefreshToken(
                         UUID.randomUUID().toString(),
@@ -246,7 +247,7 @@ public class IssueTokenTest_RefreshToken {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig("kid");
-        var accessTokenIssuer = new InMemoryAccessTokenStore();
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
@@ -260,17 +261,17 @@ public class IssueTokenTest_RefreshToken {
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         refreshTokenStore,
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         null,
-                        clientStore,
-                        jwks);
+                        clientStore);
         var refreshToken =
                 new RefreshToken(
                         UUID.randomUUID().toString(),
@@ -307,7 +308,7 @@ public class IssueTokenTest_RefreshToken {
         var jwks = new JWKSet(key);
         var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
         var config = Fixtures.azIdPConfig("kid");
-        var accessTokenIssuer = new InMemoryAccessTokenStore();
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -320,17 +321,17 @@ public class IssueTokenTest_RefreshToken {
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenStore(),
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         null,
-                        clientStore,
-                        jwks);
+                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("refresh_token")
@@ -372,7 +373,7 @@ public class IssueTokenTest_RefreshToken {
                         600,
                         -1,
                         604800);
-        var accessTokenIssuer = new InMemoryAccessTokenStore();
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
@@ -386,17 +387,17 @@ public class IssueTokenTest_RefreshToken {
                         "rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         refreshTokenStore,
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         null,
-                        clientStore,
-                        jwks);
+                        clientStore);
         var refreshToken =
                 new RefreshToken(
                         UUID.randomUUID().toString(),
@@ -446,7 +447,7 @@ public class IssueTokenTest_RefreshToken {
                         600,
                         3600,
                         604800);
-        var accessTokenIssuer = new InMemoryAccessTokenStore();
+        var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -460,17 +461,17 @@ public class IssueTokenTest_RefreshToken {
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
         var refreshTokenStore = new InMemoryRefreshTokenStore();
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenIssuer,
+                        new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         refreshTokenStore,
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         null,
-                        clientStore,
-                        jwks);
+                        clientStore);
         var refreshToken =
                 new RefreshToken(
                         UUID.randomUUID().toString(),

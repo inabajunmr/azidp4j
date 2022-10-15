@@ -15,7 +15,8 @@ import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.token.TokenEndpointAuthMethod;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.junit.jupiter.api.Test;
 
 class DynamicClientRegistrationTest_register {
@@ -25,12 +26,13 @@ class DynamicClientRegistrationTest_register {
         // setup
         var rs256 = new RSAKeyGenerator(2048).keyID("abc").generate();
         var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(List.of(rs256, es256));
         var config = Fixtures.azIdPConfig(es256.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
                 new DynamicClientRegistration(
-                        config, new InMemoryClientStore(), accessTokenStore, jwks);
+                        config,
+                        new InMemoryClientStore(),
+                        new InMemoryAccessTokenService(accessTokenStore));
         var req =
                 ClientRegistrationRequest.builder()
                         .redirectUris(
@@ -89,7 +91,9 @@ class DynamicClientRegistrationTest_register {
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
                 new DynamicClientRegistration(
-                        config, new InMemoryClientStore(), accessTokenStore, jwks);
+                        config,
+                        new InMemoryClientStore(),
+                        new InMemoryAccessTokenService(accessTokenStore));
         var req = ClientRegistrationRequest.builder().build();
 
         // exercise

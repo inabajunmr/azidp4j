@@ -3,24 +3,24 @@ package org.azidp4j.introspection;
 import java.util.Map;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.token.accesstoken.AccessToken;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.azidp4j.token.refreshtoken.RefreshTokenStore;
 import org.azidp4j.util.MapUtil;
 
 public class Introspect {
 
-    private final AccessTokenStore accessTokenStore;
+    private final AccessTokenService accessTokenService;
 
     private final RefreshTokenStore refreshTokenStore;
 
     private final AzIdPConfig config;
 
     public Introspect(
-            AccessTokenStore accessTokenStore,
+            AccessTokenService accessTokenService,
             RefreshTokenStore refreshTokenStore,
             AzIdPConfig config) {
-        this.accessTokenStore = accessTokenStore;
+        this.accessTokenService = accessTokenService;
         this.refreshTokenStore = refreshTokenStore;
         this.config = config;
     }
@@ -36,7 +36,7 @@ public class Introspect {
             }
         }
 
-        var atOpt = accessTokenStore.find(request.token);
+        var atOpt = accessTokenService.introspect(request.token);
         if (atOpt.isPresent()) {
             return introspectAccessToken(atOpt.get());
         }

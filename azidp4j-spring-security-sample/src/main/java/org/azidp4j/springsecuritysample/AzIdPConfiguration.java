@@ -13,26 +13,41 @@ import java.util.Set;
 import org.azidp4j.AzIdP;
 import org.azidp4j.client.ClientRegistrationRequest;
 import org.azidp4j.client.ClientStore;
+import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.UserPasswordVerifier;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.provisioning.UserDetailsManager;
 
 @Configuration
-public class AzIdPConfig {
-
-    @Autowired UserDetailsManager userDetailsManager;
+public class AzIdPConfiguration {
 
     @Value("${endpoint}")
     private String endpoint;
 
     @Bean
-    public AzIdP azIdP(ClientStore clientStore, JWKSet jwkSet, AccessTokenStore accessTokenStore)
-            throws JOSEException {
+    public org.azidp4j.AzIdPConfig azIdPConfig(JWKSet jwkSet) {
+        return new org.azidp4j.AzIdPConfig(
+                endpoint,
+                endpoint + "/authorize",
+                endpoint + "/token",
+                endpoint + "/.well-known/jwks.json",
+                endpoint + "/client",
+                endpoint + "/client/{CLIENT_ID}",
+                endpoint + "/userinfo",
+                Set.of("openid", "scope1", "scope2", "default"),
+                jwkSet.getKeys().get(0).getKeyID(),
+                3600,
+                600,
+                604800,
+                3600);
+    }
+
+    @Bean
+    public AzIdP azIdP(
+            ClientStore clientStore, JWKSet jwkSet, AccessTokenService accessTokenService) {
         var key = jwkSet.getKeys().get(0);
         var config =
                 new org.azidp4j.AzIdPConfig(
@@ -61,14 +76,15 @@ public class AzIdPConfig {
                         };
                     }
                 };
+        ScopeAudienceMapper scopeAudienceMapper = scope -> Set.of("rs.example.com");
         var azIdp =
                 new AzIdP(
                         config,
                         jwkSet,
                         clientStore,
-                        accessTokenStore,
+                        accessTokenService,
                         new InMemoryRefreshTokenStore(),
-                        scope -> Set.of("rs.example.com"),
+                        scopeAudienceMapper,
                         userPasswordVerifier);
         var clientRegistration =
                 ClientRegistrationRequest.builder()

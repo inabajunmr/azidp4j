@@ -29,8 +29,9 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
+import org.azidp4j.token.accesstoken.AccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +63,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
 
     private AuthorizationCodeStore authorizationCodeStore;
 
-    private AccessTokenStore accessTokenStore;
+    private AccessTokenService accessTokenService;
 
     private IssueToken issueToken;
 
@@ -112,18 +113,18 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "openid rs:scope1 rs:scope2",
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
-        accessTokenStore = new InMemoryAccessTokenStore();
+        var scopeAudienceMapper = new SampleScopeAudienceMapper();
+        accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore());
         issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeStore,
-                        accessTokenStore,
+                        accessTokenService,
                         new IDTokenIssuer(config, jwks),
                         new InMemoryRefreshTokenStore(),
-                        new SampleScopeAudienceMapper(),
+                        scopeAudienceMapper,
                         null,
-                        clientStore,
-                        jwks);
+                        clientStore);
     }
 
     @Test
@@ -157,7 +158,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")).get(),
+                accessTokenService.introspect((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "ES256Client",
@@ -201,7 +202,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // verify
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")).get(),
+                accessTokenService.introspect((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "ES256Client",
@@ -258,7 +259,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")).get(),
+                accessTokenService.introspect((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "ES256Client",
@@ -317,7 +318,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")).get(),
+                accessTokenService.introspect((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "RS256Client",
@@ -375,7 +376,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response.status, 200);
         // access token
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find((String) response.body.get("access_token")).get(),
+                accessTokenService.introspect((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
                 "NoneClient",
@@ -462,7 +463,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // verify
         assertEquals(response.status, 200);
         var at = response.body.get("access_token");
-        assertNotNull(accessTokenStore.find((String) at));
+        assertNotNull(accessTokenService.introspect((String) at));
 
         // second time
         var response2 = issueToken.issue(tokenRequest);
@@ -470,7 +471,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         assertEquals(response2.body.get("error"), "invalid_grant");
 
         // using same code, access token will be revoked
-        assertFalse(accessTokenStore.find((String) at).isPresent());
+        assertFalse(accessTokenService.introspect((String) at).isPresent());
     }
 
     @Test

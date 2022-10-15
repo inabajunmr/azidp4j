@@ -4,7 +4,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import org.azidp4j.springsecuritysample.user.UserInfo;
 import org.azidp4j.springsecuritysample.user.UserStore;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -53,8 +53,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public OpaqueTokenIntrospector introspector(AccessTokenStore accessTokenStore) {
-        return new InternalOpaqueTokenIntrospector(accessTokenStore);
+    public OpaqueTokenIntrospector introspector(AccessTokenService accessTokenService) {
+        return new InternalOpaqueTokenIntrospector(accessTokenService);
     }
 
     @Bean

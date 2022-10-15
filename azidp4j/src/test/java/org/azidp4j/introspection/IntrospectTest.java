@@ -9,10 +9,10 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
+import org.azidp4j.token.accesstoken.*;
 import org.azidp4j.token.accesstoken.AccessToken;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
-import org.azidp4j.token.accesstoken.InMemoryAccessToken;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.InMemoryRefreshTokenStore;
 import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.azidp4j.token.refreshtoken.RefreshTokenStore;
@@ -23,10 +23,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class IntrospectTest {
 
-    AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
     RefreshTokenStore refreshTokenStore = new InMemoryRefreshTokenStore();
     AzIdPConfig config = Fixtures.azIdPConfig("test");
-    Introspect introspect = new Introspect(accessTokenStore, refreshTokenStore, config);
+    InMemoryAccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
+    AccessTokenService accessTokenService = new InMemoryAccessTokenService(accessTokenStore);
+    Introspect introspect = new Introspect(accessTokenService, refreshTokenStore, config);
 
     static Stream<Arguments> hints() {
         return Stream.of(
@@ -73,11 +74,12 @@ class IntrospectTest {
     @MethodSource("hints")
     void accessToken_expired() {
         // setup
+        Introspect sut = new Introspect(accessTokenService, refreshTokenStore, config);
         var at = saveTestAccessToken(Instant.now().getEpochSecond() + -1);
 
         // exercise
         var actual =
-                introspect.introspect(
+                sut.introspect(
                         InternalIntrospectionRequest.builder()
                                 .token(at.getToken())
                                 .tokenTypeHint(null)
@@ -139,7 +141,7 @@ class IntrospectTest {
 
     private AccessToken saveTestAccessToken(long exp) {
         var at =
-                new InMemoryAccessToken(
+                new AccessToken(
                         UUID.randomUUID().toString(),
                         "sub",
                         "scope1 scope2",

@@ -23,9 +23,11 @@ import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.TokenEndpointAuthMethod;
-import org.azidp4j.token.accesstoken.AccessTokenStore;
-import org.azidp4j.token.accesstoken.InMemoryAccessTokenStore;
+import org.azidp4j.token.accesstoken.AccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
+import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
 
@@ -50,13 +52,16 @@ class AuthorizeTest_Hybrid {
                     .generate();
     JWKSet jwks = new JWKSet(key);
     AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
-    AccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
+    ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
+    AccessTokenService accessTokenService =
+            new InMemoryAccessTokenService(new InMemoryAccessTokenStore());
+
     Authorize sut =
             new Authorize(
                     clientStore,
                     new InMemoryAuthorizationCodeStore(),
-                    accessTokenStore,
-                    new SampleScopeAudienceMapper(),
+                    scopeAudienceMapper,
+                    accessTokenService,
                     new IDTokenIssuer(config, jwks),
                     config);
 
@@ -90,7 +95,7 @@ class AuthorizeTest_Hybrid {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find(fragmentMap.get("access_token")).get(),
+                accessTokenService.introspect(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "client1",
@@ -184,7 +189,7 @@ class AuthorizeTest_Hybrid {
                 fragmentMap.get("access_token"),
                 null);
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find(fragmentMap.get("access_token")).get(),
+                accessTokenService.introspect(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "client1",
@@ -234,7 +239,7 @@ class AuthorizeTest_Hybrid {
                 fragmentMap.get("access_token"),
                 fragmentMap.get("id_token"));
         AccessTokenAssert.assertAccessToken(
-                accessTokenStore.find(fragmentMap.get("access_token")).get(),
+                accessTokenService.introspect(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
                 "client1",
