@@ -41,7 +41,7 @@ import org.springframework.web.util.UriComponentsBuilder;
             "endpoint=http://localhost:8082",
             "spring.main.allow-bean-definition-overriding=true"
         })
-public class IntegrationTest_InMemoryRefreshTokenService {
+public class IntegrationTest_InMemoryAccessTokenService {
 
     @TestConfiguration
     static class TokenServiceConfiguration {
