@@ -129,7 +129,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
     }
 
     @Test
-    void success_oauth2() throws JOSEException, ParseException {
+    void success_oauth2() {
 
         // setup
         var subject = UUID.randomUUID().toString();
@@ -402,7 +402,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
     }
 
     @Test
-    void clientHasNotEnoughScope() throws JOSEException {
+    void clientHasNotEnoughScope() {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
@@ -434,7 +434,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
     }
 
     @Test
-    void usingSameAuthorizationCode() throws JOSEException {
+    void usingSameAuthorizationCode() {
 
         // setup
         var subject = UUID.randomUUID().toString();
@@ -573,7 +573,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
     }
 
     @Test
-    void notAuthenticatedClient() throws ParseException, JOSEException {
+    void notAuthenticatedClient() {
 
         // setup
         var subject = UUID.randomUUID().toString();

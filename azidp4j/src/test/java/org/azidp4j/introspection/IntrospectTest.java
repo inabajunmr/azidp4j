@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
 import org.azidp4j.token.accesstoken.*;
-import org.azidp4j.token.accesstoken.AccessToken;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.RefreshToken;
@@ -23,11 +22,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class IntrospectTest {
 
-    InMemoryRefreshTokenStore inMemoryRefreshTokenStore = new InMemoryRefreshTokenStore();
-    AzIdPConfig config = Fixtures.azIdPConfig("test");
-    InMemoryAccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
-    AccessTokenService accessTokenService = new InMemoryAccessTokenService(accessTokenStore);
-    Introspect introspect =
+    final InMemoryRefreshTokenStore inMemoryRefreshTokenStore = new InMemoryRefreshTokenStore();
+    final AzIdPConfig config = Fixtures.azIdPConfig("test");
+    final InMemoryAccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
+    final AccessTokenService accessTokenService = new InMemoryAccessTokenService(accessTokenStore);
+    final Introspect introspect =
             new Introspect(
                     accessTokenService,
                     new InMemoryRefreshTokenService(inMemoryRefreshTokenStore),
@@ -83,7 +82,7 @@ class IntrospectTest {
                         accessTokenService,
                         new InMemoryRefreshTokenService(inMemoryRefreshTokenStore),
                         config);
-        var at = saveTestAccessToken(Instant.now().getEpochSecond() + -1);
+        var at = saveTestAccessToken(Instant.now().getEpochSecond() - 1);
 
         // exercise
         var actual =
@@ -122,7 +121,7 @@ class IntrospectTest {
     @MethodSource("hints")
     void refreshToken_expired() {
         // setup
-        var rt = saveTestRefreshToken(Instant.now().getEpochSecond() + -1);
+        var rt = saveTestRefreshToken(Instant.now().getEpochSecond() - 1);
 
         // exercise
         var actual =

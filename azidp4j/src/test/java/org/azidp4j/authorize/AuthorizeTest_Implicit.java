@@ -31,8 +31,8 @@ import org.junit.jupiter.api.Test;
 
 class AuthorizeTest_Implicit {
 
-    ClientStore clientStore = new InMemoryClientStore();
-    Client clientEs256 =
+    final ClientStore clientStore = new InMemoryClientStore();
+    final Client clientEs256 =
             new Client(
                     "client1",
                     "clientSecret",
@@ -43,7 +43,7 @@ class AuthorizeTest_Implicit {
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
 
-    Client noGrantTypesClient =
+    final Client noGrantTypesClient =
             new Client(
                     "noGrantTypesClient",
                     "clientSecret",
@@ -54,7 +54,7 @@ class AuthorizeTest_Implicit {
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
 
-    Client noResponseTypesClient =
+    final Client noResponseTypesClient =
             new Client(
                     "noResponseTypesClient",
                     "clientSecret",
@@ -72,7 +72,7 @@ class AuthorizeTest_Implicit {
     }
 
     @Test
-    void implicitGrant_withoutState() throws JOSEException, ParseException {
+    void implicitGrant_withoutState() throws JOSEException {
         // setup
         var clientStore = new InMemoryClientStore();
         var client =
@@ -132,7 +132,7 @@ class AuthorizeTest_Implicit {
     }
 
     @Test
-    void implicitGrant_withState() throws JOSEException, ParseException {
+    void implicitGrant_withState() throws JOSEException {
         // setup
         var clientStore = new InMemoryClientStore();
         var client =

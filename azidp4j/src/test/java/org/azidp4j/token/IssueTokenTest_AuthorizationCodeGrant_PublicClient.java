@@ -8,7 +8,6 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
-import java.text.ParseException;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
@@ -83,7 +82,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
     }
 
     @Test
-    void success_oauth2() throws JOSEException, ParseException {
+    void success_oauth2() {
 
         // setup
         var subject = UUID.randomUUID().toString();
@@ -125,7 +124,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
     }
 
     @Test
-    void success_pkce_plain() throws JOSEException, ParseException {
+    void success_pkce_plain() {
 
         // setup
         var subject = UUID.randomUUID().toString();
@@ -168,7 +167,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
     }
 
     @Test
-    void success_pkce_s256() throws JOSEException, ParseException {
+    void success_pkce_s256() {
 
         // setup
         var subject = UUID.randomUUID().toString();
@@ -211,7 +210,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
     }
 
     @Test
-    void error_pkce_plain() throws JOSEException, ParseException {
+    void error_pkce_plain() {
 
         // setup
         var subject = UUID.randomUUID().toString();

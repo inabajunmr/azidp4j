@@ -7,8 +7,8 @@ import org.azidp4j.token.refreshtoken.RefreshToken;
 
 public class InMemoryRefreshTokenStore {
 
-    private static Map<String, RefreshToken> STORE = new ConcurrentHashMap<>();
-    private static Map<String, RefreshToken> STORE_BY_AUTHORIZATION_CODE =
+    private static final Map<String, RefreshToken> STORE = new ConcurrentHashMap<>();
+    private static final Map<String, RefreshToken> STORE_BY_AUTHORIZATION_CODE =
             new ConcurrentHashMap<>();
 
     public synchronized void save(RefreshToken token) {

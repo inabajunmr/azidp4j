@@ -6,7 +6,6 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
-import java.text.ParseException;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
@@ -30,7 +29,7 @@ import org.junit.jupiter.api.Test;
 public class IssueTokenTest_RefreshToken {
 
     @Test
-    void success() throws JOSEException, ParseException {
+    void success() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -99,7 +98,7 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void success_scopeShrink() throws JOSEException, ParseException {
+    void success_scopeShrink() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -172,7 +171,7 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void success_publicClient() throws JOSEException, ParseException {
+    void success_publicClient() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();

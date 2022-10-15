@@ -6,7 +6,6 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
-import java.text.ParseException;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
@@ -29,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class IssueTokenTest {
 
     @Test
-    void validationError() throws JOSEException, ParseException {
+    void validationError() throws JOSEException {
 
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();

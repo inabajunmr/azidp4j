@@ -77,7 +77,7 @@ public class SampleAz {
                         userPasswordVerifier);
     }
 
-    public void start(int port) throws IOException, JOSEException {
+    public void start(int port) throws IOException {
         server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/authorize", new AuthorizationEndpointHandler(azIdP));
         server.createContext("/token", new TokenEndpointHandler(azIdP, clientStore));

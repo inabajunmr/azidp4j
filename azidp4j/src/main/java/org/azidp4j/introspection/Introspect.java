@@ -46,11 +46,8 @@ public class Introspect {
         }
 
         var rtOpt = refreshTokenService.introspect(request.token);
-        if (rtOpt.isPresent()) {
-            return introspectRefreshToken(rtOpt.get());
-        }
-
-        return new IntrospectionResponse(200, Map.of("active", false));
+        return rtOpt.map(this::introspectRefreshToken)
+                .orElseGet(() -> new IntrospectionResponse(200, Map.of("active", false)));
     }
 
     private IntrospectionResponse introspectAccessToken(AccessToken at) {

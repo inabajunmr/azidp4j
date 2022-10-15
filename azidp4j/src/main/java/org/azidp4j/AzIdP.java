@@ -19,18 +19,18 @@ import org.azidp4j.token.refreshtoken.RefreshTokenService;
 
 public class AzIdP {
 
-    Discovery discovery;
-    AuthorizationCodeStore authorizationCodeStore = new InMemoryAuthorizationCodeStore();
-    Authorize authorize;
-    AuthorizationRequestParser authorizationRequestParser = new AuthorizationRequestParser();
-    IssueToken issueToken;
-    TokenRequestParser tokenRequestParser = new TokenRequestParser();
-    DynamicClientRegistration clientRegistration;
-    Introspect introspect;
-    IntrospectionRequestParser introspectionRequestParser = new IntrospectionRequestParser();
-    ClientRegistrationRequestParser clientRegistrationRequestParser =
+    final Discovery discovery;
+    final AuthorizationCodeStore authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+    final Authorize authorize;
+    final AuthorizationRequestParser authorizationRequestParser = new AuthorizationRequestParser();
+    final IssueToken issueToken;
+    final TokenRequestParser tokenRequestParser = new TokenRequestParser();
+    final DynamicClientRegistration clientRegistration;
+    final Introspect introspect;
+    final IntrospectionRequestParser introspectionRequestParser = new IntrospectionRequestParser();
+    final ClientRegistrationRequestParser clientRegistrationRequestParser =
             new ClientRegistrationRequestParser();
-    ClientConfigurationRequestParser clientConfigurationRequestParser =
+    final ClientConfigurationRequestParser clientConfigurationRequestParser =
             new ClientConfigurationRequestParser();
 
     public AzIdP(

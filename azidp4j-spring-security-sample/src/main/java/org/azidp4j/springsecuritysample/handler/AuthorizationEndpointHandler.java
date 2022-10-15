@@ -54,22 +54,16 @@ public class AuthorizationEndpointHandler {
                         params);
         var response = azIdP.authorize(authzReq);
         switch (response.next) {
-            case redirect:
-                {
-                    return "redirect:" + response.redirect.redirectTo;
-                }
-            case errorPage:
-                {
-                    return errorPage(req, response);
-                }
-            case additionalPage:
-                {
-                    return additionalPage(req, authzReq, response);
-                }
-            default:
-                {
-                    throw new AssertionError();
-                }
+            case redirect -> {
+                return "redirect:" + response.redirect.redirectTo;
+            }
+            case errorPage -> {
+                return errorPage(req, response);
+            }
+            case additionalPage -> {
+                return additionalPage(req, authzReq, response);
+            }
+            default -> throw new AssertionError();
         }
     }
 
@@ -124,12 +118,8 @@ public class AuthorizationEndpointHandler {
                                                 StandardCharsets.UTF_8))
                                 .build();
             }
-            case select_account -> {
-                throw new AssertionError();
-            }
-            default -> {
-                throw new AssertionError();
-            }
+            case select_account -> throw new AssertionError();
+            default -> throw new AssertionError();
         }
     }
 

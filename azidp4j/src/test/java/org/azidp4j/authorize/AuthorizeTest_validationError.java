@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 
 class AuthorizeTest_validationError {
 
-    ClientStore clientStore = new InMemoryClientStore();
-    Client client =
+    final ClientStore clientStore = new InMemoryClientStore();
+    final Client client =
             new Client(
                     "client1",
                     "clientSecret",
@@ -36,7 +36,7 @@ class AuthorizeTest_validationError {
                     "scope1 scope2 openid",
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
-    Client noGrantTypesClient =
+    final Client noGrantTypesClient =
             new Client(
                     "noGrantTypesClient",
                     "clientSecret",
@@ -47,7 +47,7 @@ class AuthorizeTest_validationError {
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
 
-    Client noResponseTypesClient =
+    final Client noResponseTypesClient =
             new Client(
                     "noResponseTypesClient",
                     "clientSecret",
@@ -57,9 +57,9 @@ class AuthorizeTest_validationError {
                     "scope1 scope2",
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
-    AzIdPConfig config = Fixtures.azIdPConfig("kid");
-    ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
-    Authorize sut =
+    final AzIdPConfig config = Fixtures.azIdPConfig("kid");
+    final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
+    final Authorize sut =
             new Authorize(
                     clientStore,
                     new InMemoryAuthorizationCodeStore(),

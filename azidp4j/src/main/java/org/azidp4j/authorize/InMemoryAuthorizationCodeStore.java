@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryAuthorizationCodeStore implements AuthorizationCodeStore {
 
-    private static Map<String, AuthorizationCode> STORE = new ConcurrentHashMap<>();
+    private static final Map<String, AuthorizationCode> STORE = new ConcurrentHashMap<>();
 
     @Override
     public void save(AuthorizationCode code) {

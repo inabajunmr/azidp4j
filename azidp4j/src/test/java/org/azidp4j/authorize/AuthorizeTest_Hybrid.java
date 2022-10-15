@@ -33,8 +33,8 @@ import org.junit.jupiter.api.Test;
 
 class AuthorizeTest_Hybrid {
 
-    ClientStore clientStore = new InMemoryClientStore();
-    Client client =
+    final ClientStore clientStore = new InMemoryClientStore();
+    final Client client =
             new Client(
                     "client1",
                     "clientSecret",
@@ -45,18 +45,18 @@ class AuthorizeTest_Hybrid {
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
 
-    ECKey key =
+    final ECKey key =
             new ECKeyGenerator(Curve.P_256)
                     .keyID("123")
                     .algorithm(new Algorithm("ES256"))
                     .generate();
-    JWKSet jwks = new JWKSet(key);
-    AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
-    ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
-    AccessTokenService accessTokenService =
+    final JWKSet jwks = new JWKSet(key);
+    final AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
+    final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
+    final AccessTokenService accessTokenService =
             new InMemoryAccessTokenService(new InMemoryAccessTokenStore());
 
-    Authorize sut =
+    final Authorize sut =
             new Authorize(
                     clientStore,
                     new InMemoryAuthorizationCodeStore(),
@@ -70,7 +70,7 @@ class AuthorizeTest_Hybrid {
     }
 
     @Test
-    void codeAndToken() throws JOSEException, ParseException {
+    void codeAndToken() {
         // setup
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()

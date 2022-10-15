@@ -4,12 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import java.text.ParseException;
 import java.time.Instant;
-import java.util.List;
 import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
@@ -24,7 +21,6 @@ class DynamicClientRegistrationTest_register {
     @Test
     void success() throws JOSEException {
         // setup
-        var rs256 = new RSAKeyGenerator(2048).keyID("abc").generate();
         var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var config = Fixtures.azIdPConfig(es256.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
@@ -82,11 +78,10 @@ class DynamicClientRegistrationTest_register {
     }
 
     @Test
-    void success_Default() throws JOSEException, ParseException {
+    void success_Default() throws JOSEException {
         // setup
         var rs256 = new RSAKeyGenerator(2048).keyID("abc").generate();
         var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(List.of(rs256, es256));
         var config = Fixtures.azIdPConfig(es256.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
