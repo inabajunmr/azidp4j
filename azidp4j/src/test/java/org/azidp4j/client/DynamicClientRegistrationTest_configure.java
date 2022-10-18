@@ -6,6 +6,8 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import org.azidp4j.Fixtures;
+import org.azidp4j.client.request.ClientConfigurationRequest;
+import org.azidp4j.client.request.ClientRegistrationRequest;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.junit.jupiter.api.Test;

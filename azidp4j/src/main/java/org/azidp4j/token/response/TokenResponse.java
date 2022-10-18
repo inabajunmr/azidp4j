@@ -1,4 +1,4 @@
-package org.azidp4j.token;
+package org.azidp4j.token.response;
 
 import java.util.Map;
 

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import httpserversample.authenticator.ClientBasicAuthenticator;
 import org.azidp4j.AzIdP;
 import org.azidp4j.client.ClientStore;
-import org.azidp4j.token.TokenRequest;
+import org.azidp4j.token.request.TokenRequest;
 
 public class TokenEndpointHandler extends AzIdpHttpHandler {
 

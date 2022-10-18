@@ -5,7 +5,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.request.ResponseType;
-import org.azidp4j.token.TokenEndpointAuthMethod;
+import org.azidp4j.client.request.ClientConfigurationRequest;
+import org.azidp4j.client.request.ClientRegistrationRequest;
+import org.azidp4j.client.response.ClientDeleteResponse;
+import org.azidp4j.client.response.ClientRegistrationResponse;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.util.MapUtil;
 

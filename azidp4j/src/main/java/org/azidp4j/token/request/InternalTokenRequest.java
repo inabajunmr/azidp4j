@@ -1,43 +1,43 @@
-package org.azidp4j.token;
+package org.azidp4j.token.request;
 
 public class InternalTokenRequest {
 
     /** rfc6749 "authorization code grant" */
-    final String code;
+    public final String code;
 
     /**
      * rfc6749 "authorization code grant", "resource owner password credential grant", "client
      * credentials grant", "refresh"
      */
-    final String grantType;
+    public final String grantType;
 
     /** rfc6749 "authorization code grant" */
-    final String redirectUri;
+    public final String redirectUri;
 
     /**
      * authenticated(ex. via basic authentication) client id.
      *
      * <p>for authorization code
      */
-    final String authenticatedClientId;
+    public final String authenticatedClientId;
 
     /** rfc6749 "authorization code grant" */
-    final String clientId;
+    public final String clientId;
 
     /** rfc6749 "resource owner password credential grant", "client credentials grant", "refresh" */
-    final String scope;
+    public final String scope;
 
     /** rfc6749 "resource owner password credential grant" */
-    final String username;
+    public final String username;
 
     /** rfc6749 "resource owner password credential grant" */
-    final String password;
+    public final String password;
 
     /** rfc6749 "refresh" */
-    final String refreshToken;
+    public final String refreshToken;
 
     /** Proof Key for Code Exchange by OAuth Public Clients */
-    final String codeVerifier;
+    public final String codeVerifier;
 
     private InternalTokenRequest(
             String code,

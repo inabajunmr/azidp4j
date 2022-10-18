@@ -5,17 +5,27 @@ import java.util.Map;
 import org.azidp4j.authorize.*;
 import org.azidp4j.authorize.request.AuthorizationRequest;
 import org.azidp4j.authorize.request.AuthorizationRequestParser;
+import org.azidp4j.authorize.response.AuthorizationResponse;
 import org.azidp4j.client.*;
+import org.azidp4j.client.request.ClientConfigurationRequest;
+import org.azidp4j.client.request.ClientConfigurationRequestParser;
+import org.azidp4j.client.request.ClientRegistrationRequest;
+import org.azidp4j.client.request.ClientRegistrationRequestParser;
+import org.azidp4j.client.response.ClientDeleteResponse;
+import org.azidp4j.client.response.ClientRegistrationResponse;
 import org.azidp4j.discovery.Discovery;
 import org.azidp4j.introspection.Introspect;
-import org.azidp4j.introspection.IntrospectionRequest;
-import org.azidp4j.introspection.IntrospectionRequestParser;
-import org.azidp4j.introspection.IntrospectionResponse;
+import org.azidp4j.introspection.request.IntrospectionRequest;
+import org.azidp4j.introspection.request.IntrospectionRequestParser;
+import org.azidp4j.introspection.response.IntrospectionResponse;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
+import org.azidp4j.token.request.TokenRequest;
+import org.azidp4j.token.request.TokenRequestParser;
+import org.azidp4j.token.response.TokenResponse;
 
 public class AzIdP {
 

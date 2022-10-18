@@ -4,7 +4,7 @@ import com.nimbusds.jose.JOSEException;
 import java.util.Set;
 
 import org.azidp4j.authorize.request.ResponseType;
-import org.azidp4j.client.ClientRegistrationRequest;
+import org.azidp4j.client.request.ClientRegistrationRequest;
 import org.azidp4j.client.GrantType;
 
 public class SampleAzRunner {

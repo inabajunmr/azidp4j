@@ -70,7 +70,6 @@ public class JwtRefreshTokenService implements RefreshTokenService {
 
     @Override
     public Optional<RefreshToken> introspect(String token) {
-        System.out.print("introspect");
         try {
             var jws = JWSObject.parse(token);
 
@@ -108,7 +107,7 @@ public class JwtRefreshTokenService implements RefreshTokenService {
                     payload.containsKey("client_id") ? (String) payload.get("client_id") : null;
             var aud =
                     payload.containsKey("aud")
-                            ? ((List<String>) payload.get("aud"))
+                            ? ((List<String>) payload.get("aud")) // TODO check type before cast
                                     .stream().collect(Collectors.toSet())
                             : null;
             var authorizationCode =
@@ -127,8 +126,6 @@ public class JwtRefreshTokenService implements RefreshTokenService {
 
     @Override
     public Optional<RefreshToken> consume(String token) {
-        System.out.print("consume");
-
         // JWT implementation doesn't support revoke so the refresh token is always reusable
         return this.introspect(token);
     }

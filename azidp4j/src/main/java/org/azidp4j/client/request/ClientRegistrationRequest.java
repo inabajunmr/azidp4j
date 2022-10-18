@@ -1,16 +1,16 @@
-package org.azidp4j.client;
+package org.azidp4j.client.request;
 
 import java.util.Set;
 
 public class ClientRegistrationRequest {
 
-    final Set<String> redirectUris;
-    final Set<String> grantTypes;
-    final Set<String> responseTypes;
-    final String scope;
-    final String tokenEndpointAuthMethod;
+    public final Set<String> redirectUris;
+    public final Set<String> grantTypes;
+    public final Set<String> responseTypes;
+    public final String scope;
+    public final String tokenEndpointAuthMethod;
 
-    final String idTokenSignedResponseAlg;
+    public final String idTokenSignedResponseAlg;
 
     public static Builder builder() {
         return new Builder();

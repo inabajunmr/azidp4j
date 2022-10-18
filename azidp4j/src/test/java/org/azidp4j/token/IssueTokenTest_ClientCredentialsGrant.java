@@ -11,16 +11,14 @@ import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
-import org.azidp4j.client.Client;
-import org.azidp4j.client.GrantType;
-import org.azidp4j.client.InMemoryClientStore;
-import org.azidp4j.client.SigningAlgorithm;
+import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
+import org.azidp4j.token.request.InternalTokenRequest;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ClientCredentialsGrant {

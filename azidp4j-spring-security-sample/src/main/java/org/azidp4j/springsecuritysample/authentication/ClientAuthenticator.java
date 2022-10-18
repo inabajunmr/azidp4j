@@ -4,7 +4,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.ClientStore;
-import org.azidp4j.token.TokenEndpointAuthMethod;
+import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.www.BasicAuthenticationConverter;
 import org.springframework.stereotype.Component;

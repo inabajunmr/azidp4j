@@ -1,4 +1,4 @@
-package org.azidp4j.token;
+package org.azidp4j.client;
 
 public enum TokenEndpointAuthMethod {
     client_secret_post,

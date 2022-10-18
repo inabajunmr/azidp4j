@@ -2,6 +2,8 @@ package org.azidp4j.introspection;
 
 import java.util.Map;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.introspection.request.InternalIntrospectionRequest;
+import org.azidp4j.introspection.response.IntrospectionResponse;
 import org.azidp4j.token.accesstoken.AccessToken;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.refreshtoken.RefreshToken;

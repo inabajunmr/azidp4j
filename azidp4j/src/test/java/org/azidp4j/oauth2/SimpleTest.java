@@ -17,15 +17,15 @@ import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.request.AuthorizationRequest;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
-import org.azidp4j.client.ClientRegistrationRequest;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.client.request.ClientRegistrationRequest;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.TokenRequest;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
+import org.azidp4j.token.request.TokenRequest;
 import org.junit.jupiter.api.Test;
 
 public class SimpleTest {

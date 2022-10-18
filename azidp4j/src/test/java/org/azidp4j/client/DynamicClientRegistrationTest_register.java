@@ -11,7 +11,7 @@ import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.request.ResponseType;
-import org.azidp4j.token.TokenEndpointAuthMethod;
+import org.azidp4j.client.request.ClientRegistrationRequest;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.junit.jupiter.api.Test;

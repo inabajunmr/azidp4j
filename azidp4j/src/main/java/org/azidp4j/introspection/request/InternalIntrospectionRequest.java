@@ -1,4 +1,4 @@
-package org.azidp4j.introspection;
+package org.azidp4j.introspection.request;
 
 public class InternalIntrospectionRequest {
 

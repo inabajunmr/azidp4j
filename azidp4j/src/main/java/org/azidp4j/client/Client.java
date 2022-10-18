@@ -2,7 +2,6 @@ package org.azidp4j.client;
 
 import java.util.Set;
 import org.azidp4j.authorize.request.ResponseType;
-import org.azidp4j.token.TokenEndpointAuthMethod;
 
 public class Client {
 

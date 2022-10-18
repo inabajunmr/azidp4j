@@ -1,4 +1,4 @@
-package org.azidp4j.client;
+package org.azidp4j.client.request;
 
 import java.util.Arrays;
 import java.util.Collection;

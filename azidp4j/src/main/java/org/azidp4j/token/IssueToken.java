@@ -11,12 +11,15 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.AuthorizationCodeStore;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
+import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.scope.ScopeValidator;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
+import org.azidp4j.token.request.InternalTokenRequest;
+import org.azidp4j.token.response.TokenResponse;
 import org.azidp4j.util.MapUtil;
 
 public class IssueToken {

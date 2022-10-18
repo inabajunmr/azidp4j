@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
+import org.azidp4j.introspection.request.InternalIntrospectionRequest;
 import org.azidp4j.token.accesstoken.*;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;

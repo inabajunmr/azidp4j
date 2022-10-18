@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.azidp4j.token.TokenEndpointAuthMethod;
 
 public class InMemoryClientStore implements ClientStore {
 

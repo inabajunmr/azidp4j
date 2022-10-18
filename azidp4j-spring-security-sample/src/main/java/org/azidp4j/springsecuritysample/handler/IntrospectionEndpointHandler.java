@@ -3,7 +3,7 @@ package org.azidp4j.springsecuritysample.handler;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.AzIdP;
-import org.azidp4j.introspection.IntrospectionRequest;
+import org.azidp4j.introspection.request.IntrospectionRequest;
 import org.azidp4j.springsecuritysample.authentication.ClientAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

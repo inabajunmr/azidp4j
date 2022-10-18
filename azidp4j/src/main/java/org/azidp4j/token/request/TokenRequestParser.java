@@ -1,4 +1,4 @@
-package org.azidp4j.token;
+package org.azidp4j.token.request;
 
 public class TokenRequestParser {
     public InternalTokenRequest parse(TokenRequest tokenRequest) {

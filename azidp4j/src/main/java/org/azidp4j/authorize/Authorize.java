@@ -6,6 +6,7 @@ import java.util.*;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.request.*;
 import org.azidp4j.authorize.response.AuthorizationErrorTypeWithoutRedirect;
+import org.azidp4j.authorize.response.AuthorizationResponse;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.scope.ScopeAudienceMapper;

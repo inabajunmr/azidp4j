@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import org.azidp4j.AzIdP;
-import org.azidp4j.client.ClientRegistrationRequest;
+import org.azidp4j.client.request.ClientRegistrationRequest;
 
 public class DynamicClientRegistrationHandler extends AzIdpHttpHandler {
 
