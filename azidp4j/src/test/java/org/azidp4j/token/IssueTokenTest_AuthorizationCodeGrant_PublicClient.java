@@ -14,7 +14,9 @@ import java.util.UUID;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
-import org.azidp4j.authorize.*;
+import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.CodeChallengeMethod;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
@@ -43,7 +45,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
 
     private final JWKSet jwks = new JWKSet(key);
 
-    private AuthorizationCodeStore authorizationCodeStore;
+    private AuthorizationCodeService authorizationCodeService;
 
     private AccessTokenService accessTokenService;
 
@@ -53,7 +55,8 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
 
     @BeforeEach
     void init() {
-        authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -70,7 +73,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         accessTokenService,
                         new IDTokenIssuer(config, jwks),
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
@@ -85,17 +88,17 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1",
                         "clientId",
                         "http://example.com",
                         "xyz",
                         null,
                         null,
+                        null,
+                        null,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -127,17 +130,17 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1",
                         "clientId",
                         "http://example.com",
                         "xyz",
+                        null,
+                        null,
                         "plain",
                         CodeChallengeMethod.PLAIN,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -170,17 +173,17 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1",
                         "clientId",
                         "http://example.com",
                         "xyz",
+                        null,
+                        null,
                         "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
                         CodeChallengeMethod.S256,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -213,17 +216,17 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1",
                         "clientId",
                         "http://example.com",
                         "xyz",
+                        null,
+                        null,
                         "plain",
                         CodeChallengeMethod.PLAIN,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)

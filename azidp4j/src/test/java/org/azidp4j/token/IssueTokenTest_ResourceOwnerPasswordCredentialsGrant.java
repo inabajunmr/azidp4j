@@ -10,7 +10,8 @@ import java.time.Instant;
 import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
-import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
@@ -29,7 +30,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -55,7 +57,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
@@ -95,7 +97,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -121,7 +124,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
@@ -161,7 +164,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -187,7 +191,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
@@ -219,7 +223,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -245,7 +250,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         var issueToken = // TODO 初期化をまとめられるか？
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),

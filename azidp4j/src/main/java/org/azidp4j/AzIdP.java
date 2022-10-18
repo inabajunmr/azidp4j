@@ -3,6 +3,7 @@ package org.azidp4j;
 import com.nimbusds.jose.jwk.JWKSet;
 import java.util.Map;
 import org.azidp4j.authorize.*;
+import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.AuthorizationRequest;
 import org.azidp4j.authorize.request.AuthorizationRequestParser;
 import org.azidp4j.authorize.response.AuthorizationResponse;
@@ -29,8 +30,7 @@ import org.azidp4j.token.response.TokenResponse;
 
 public class AzIdP {
 
-    final Discovery discovery;
-    final AuthorizationCodeStore authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+    private final Discovery discovery; // TODO private
     final Authorize authorize;
     final AuthorizationRequestParser authorizationRequestParser = new AuthorizationRequestParser();
     final IssueToken issueToken;
@@ -47,6 +47,7 @@ public class AzIdP {
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
+            AuthorizationCodeService authorizationCodeService,
             AccessTokenService accessTokenService,
             RefreshTokenService refreshTokenService,
             ScopeAudienceMapper scopeAudienceMapper) {
@@ -55,7 +56,7 @@ public class AzIdP {
         this.authorize =
                 new Authorize(
                         clientStore,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         scopeAudienceMapper,
                         accessTokenService,
                         idTokenIssuer,
@@ -63,7 +64,7 @@ public class AzIdP {
         this.issueToken =
                 new IssueToken(
                         azIdPConfig,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         accessTokenService,
                         idTokenIssuer,
                         refreshTokenService,
@@ -79,6 +80,7 @@ public class AzIdP {
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
+            AuthorizationCodeService authorizationCodeService,
             AccessTokenService accessTokenService,
             RefreshTokenService refreshTokenService,
             ScopeAudienceMapper scopeAudienceMapper,
@@ -88,7 +90,7 @@ public class AzIdP {
         this.authorize =
                 new Authorize(
                         clientStore,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         scopeAudienceMapper,
                         accessTokenService,
                         idTokenIssuer,
@@ -96,7 +98,7 @@ public class AzIdP {
         this.issueToken =
                 new IssueToken(
                         azIdPConfig,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         accessTokenService,
                         idTokenIssuer,
                         refreshTokenService,

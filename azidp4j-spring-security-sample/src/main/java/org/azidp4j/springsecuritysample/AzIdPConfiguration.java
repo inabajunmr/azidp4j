@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import org.azidp4j.AzIdP;
+import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.request.ClientRegistrationRequest;
 import org.azidp4j.scope.ScopeAudienceMapper;
@@ -49,6 +50,7 @@ public class AzIdPConfiguration {
     public AzIdP azIdP(
             ClientStore clientStore,
             JWKSet jwkSet,
+            AuthorizationCodeService authorizationCodeService,
             AccessTokenService accessTokenService,
             RefreshTokenService refreshTokenService) {
         var key = jwkSet.getKeys().get(0);
@@ -85,6 +87,7 @@ public class AzIdPConfiguration {
                         config,
                         jwkSet,
                         clientStore,
+                        authorizationCodeService,
                         accessTokenService,
                         refreshTokenService,
                         scopeAudienceMapper,

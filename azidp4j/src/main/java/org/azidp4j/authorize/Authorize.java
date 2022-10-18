@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.*;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.*;
 import org.azidp4j.authorize.response.AuthorizationErrorTypeWithoutRedirect;
 import org.azidp4j.authorize.response.AuthorizationResponse;
@@ -17,7 +18,7 @@ import org.azidp4j.util.MapUtil;
 
 public class Authorize {
 
-    private final AuthorizationCodeStore authorizationCodeStore;
+    private final AuthorizationCodeService authorizationCodeService;
 
     private final ScopeAudienceMapper scopeAudienceMapper;
 
@@ -33,13 +34,13 @@ public class Authorize {
 
     public Authorize(
             ClientStore clientStore,
-            AuthorizationCodeStore authorizationCodeStore,
+            AuthorizationCodeService authorizationCodeService,
             ScopeAudienceMapper scopeAudienceMapper,
             AccessTokenService accessTokenService,
             IDTokenIssuer idTokenIssuer,
             AzIdPConfig config) {
         this.clientStore = clientStore;
-        this.authorizationCodeStore = authorizationCodeStore;
+        this.authorizationCodeService = authorizationCodeService;
         this.scopeAudienceMapper = scopeAudienceMapper;
         this.accessTokenService = accessTokenService;
         this.idTokenIssuer = idTokenIssuer;
@@ -314,9 +315,8 @@ public class Authorize {
         if (responseType.contains(ResponseType.code)) {
             // issue authorization code
             var code =
-                    new AuthorizationCode(
+                    authorizationCodeService.issue(
                             authorizationRequest.authenticatedUserId,
-                            UUID.randomUUID().toString(),
                             authorizationRequest.scope,
                             authorizationRequest.clientId,
                             authorizationRequest.redirectUri,
@@ -326,7 +326,6 @@ public class Authorize {
                             authorizationRequest.codeChallenge,
                             codeChallengeMethod,
                             Instant.now().getEpochSecond() + config.authorizationCodeExpirationSec);
-            authorizationCodeStore.save(code);
             authorizationCode = code.code;
         }
 

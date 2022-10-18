@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdP;
 import org.azidp4j.Fixtures;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.AuthorizationRequest;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
@@ -46,6 +48,7 @@ public class SimpleTest {
                         config,
                         jwks,
                         new InMemoryClientStore(),
+                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         new InMemoryAccessTokenService(accessTokenStore),
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper);

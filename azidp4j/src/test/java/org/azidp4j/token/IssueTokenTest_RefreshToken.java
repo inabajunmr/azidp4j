@@ -12,7 +12,8 @@ import java.util.UUID;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
-import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
@@ -32,7 +33,8 @@ public class IssueTokenTest_RefreshToken {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -52,7 +54,7 @@ public class IssueTokenTest_RefreshToken {
         var issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
@@ -101,7 +103,8 @@ public class IssueTokenTest_RefreshToken {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -121,7 +124,7 @@ public class IssueTokenTest_RefreshToken {
         var issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
@@ -174,7 +177,8 @@ public class IssueTokenTest_RefreshToken {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig(key.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -194,7 +198,7 @@ public class IssueTokenTest_RefreshToken {
         var issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
@@ -243,7 +247,8 @@ public class IssueTokenTest_RefreshToken {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig("kid");
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -263,7 +268,7 @@ public class IssueTokenTest_RefreshToken {
         var issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
@@ -304,7 +309,8 @@ public class IssueTokenTest_RefreshToken {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig("kid");
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -323,7 +329,7 @@ public class IssueTokenTest_RefreshToken {
         var issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
@@ -354,7 +360,8 @@ public class IssueTokenTest_RefreshToken {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         // always issuing expired
         var config =
                 new AzIdPConfig(
@@ -389,7 +396,7 @@ public class IssueTokenTest_RefreshToken {
         var issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
@@ -428,7 +435,8 @@ public class IssueTokenTest_RefreshToken {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         // always issuing expired
         var config =
                 new AzIdPConfig(
@@ -463,7 +471,7 @@ public class IssueTokenTest_RefreshToken {
         var issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
                         idTokenIssuer,
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),

@@ -18,6 +18,8 @@ import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
 import org.azidp4j.IdTokenAssert;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
@@ -59,7 +61,7 @@ class AuthorizeTest_Hybrid {
     final Authorize sut =
             new Authorize(
                     clientStore,
-                    new InMemoryAuthorizationCodeStore(),
+                    new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                     scopeAudienceMapper,
                     accessTokenService,
                     new IDTokenIssuer(config, jwks),

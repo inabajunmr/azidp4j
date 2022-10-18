@@ -1,5 +1,8 @@
 package org.azidp4j.springsecuritysample;
 
+import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
@@ -14,6 +17,11 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class StoreConfiguration {
+
+    @Bean
+    public AuthorizationCodeService authorizationCodeService() {
+        return new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
+    }
 
     @Bean
     public RefreshTokenService refreshTokenService() {
