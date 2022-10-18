@@ -41,7 +41,6 @@ public class JwtRefreshTokenService implements RefreshTokenService {
             Long iat,
             Set<String> audience,
             String authorizationCode) {
-        System.out.print("issue");
         var jti = UUID.randomUUID().toString();
         Map<String, Object> claims =
                 MapUtil.nullRemovedMap(

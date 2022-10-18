@@ -10,8 +10,8 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.Fixtures;
-import org.azidp4j.authorize.AuthorizationCode;
-import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
@@ -31,20 +31,21 @@ public class IssueTokenTest {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
-        var authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        var authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "scope1",
                         "clientId",
                         "http://example.com",
                         "xyz",
                         null,
                         null,
+                        null,
+                        null,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var config = Fixtures.azIdPConfig("kid");
         var clientStore = new InMemoryClientStore();
         clientStore.save(
@@ -61,7 +62,7 @@ public class IssueTokenTest {
         var issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, jwks),
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),

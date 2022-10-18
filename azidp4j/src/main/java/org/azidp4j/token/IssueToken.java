@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
-import org.azidp4j.authorize.AuthorizationCodeStore;
+import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.TokenEndpointAuthMethod;
@@ -24,7 +24,7 @@ import org.azidp4j.util.MapUtil;
 
 public class IssueToken {
 
-    private final AuthorizationCodeStore authorizationCodeStore;
+    private final AuthorizationCodeService authorizationCodeService;
     private final AccessTokenService accessTokenService;
     private final ScopeAudienceMapper scopeAudienceMapper;
     private final IDTokenIssuer idTokenIssuer;
@@ -36,14 +36,14 @@ public class IssueToken {
 
     public IssueToken(
             AzIdPConfig azIdPConfig,
-            AuthorizationCodeStore authorizationCodeStore,
+            AuthorizationCodeService authorizationCodeService,
             AccessTokenService accessTokenService,
             IDTokenIssuer idTokenIssuer,
             RefreshTokenService refreshTokenService,
             ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier,
             ClientStore clientStore) {
-        this.authorizationCodeStore = authorizationCodeStore;
+        this.authorizationCodeService = authorizationCodeService;
         this.accessTokenService = accessTokenService;
         this.idTokenIssuer = idTokenIssuer;
         this.refreshTokenService = refreshTokenService;
@@ -85,7 +85,7 @@ public class IssueToken {
         }
         switch (grantType) {
             case authorization_code -> {
-                var authorizationCodeOpt = authorizationCodeStore.consume(request.code);
+                var authorizationCodeOpt = authorizationCodeService.consume(request.code);
                 if (!authorizationCodeOpt.isPresent()) {
                     accessTokenService.revokeByAuthorizationCode(request.code);
                     refreshTokenService.revokeByAuthorizationCode(request.code);

@@ -6,6 +6,8 @@ import com.nimbusds.jose.jwk.JWKSet;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.Display;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
 import org.azidp4j.authorize.request.Prompt;
@@ -60,7 +62,7 @@ class AuthorizeTest {
     final Authorize sut =
             new Authorize(
                     clientStore,
-                    new InMemoryAuthorizationCodeStore(),
+                    new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                     scopeAudienceMapper,
                     new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                     new IDTokenIssuer(config, new JWKSet()),

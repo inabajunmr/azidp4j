@@ -18,6 +18,8 @@ import httpserversample.authenticator.InnerAccessTokenAuthenticator;
 import httpserversample.handler.*;
 import org.azidp4j.AzIdP;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.jwt.JWSIssuer;
@@ -26,6 +28,7 @@ import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
+import org.azidp4j.token.refreshtoken.jwt.JwtRefreshTokenService;
 
 public class SampleAz {
 
@@ -66,13 +69,18 @@ public class SampleAz {
                 };
         accessTokenService = new JwtAccessTokenService(jwks, new JWSIssuer(jwks), config.issuer, es256::getKeyID);
         // accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore() );
+
+        var refreshTokenService = new JwtRefreshTokenService(jwks, new JWSIssuer(jwks), config.issuer, es256::getKeyID);
+        // var refreshTokenService = new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore());
+
         azIdP =
                 new AzIdP(
                         config,
                         jwks,
                         clientStore,
+                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         accessTokenService,
-                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
+                        refreshTokenService,
                         new SampleScopeAudienceMapper(),
                         userPasswordVerifier);
     }

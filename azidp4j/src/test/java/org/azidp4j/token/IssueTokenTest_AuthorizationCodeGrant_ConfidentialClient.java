@@ -20,9 +20,9 @@ import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
 import org.azidp4j.IdTokenAssert;
-import org.azidp4j.authorize.AuthorizationCode;
-import org.azidp4j.authorize.AuthorizationCodeStore;
-import org.azidp4j.authorize.InMemoryAuthorizationCodeStore;
+import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
@@ -60,7 +60,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
 
     private final JWKSet jwks = new JWKSet(List.of(es256Key, rs256Key));
 
-    private AuthorizationCodeStore authorizationCodeStore;
+    private AuthorizationCodeService authorizationCodeService;
 
     private AccessTokenService accessTokenService;
 
@@ -70,7 +70,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
 
     @BeforeEach
     void init() {
-        authorizationCodeStore = new InMemoryAuthorizationCodeStore();
+        authorizationCodeService =
+                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var clientStore = new InMemoryClientStore();
         clientStore.save(
                 new Client(
@@ -117,7 +118,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         issueToken =
                 new IssueToken(
                         config,
-                        authorizationCodeStore,
+                        authorizationCodeService,
                         accessTokenService,
                         new IDTokenIssuer(config, jwks),
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
@@ -132,17 +133,17 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1",
                         "ES256Client",
                         "http://example.com",
                         "xyz",
                         null,
                         null,
+                        null,
+                        null,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -174,9 +175,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1 openid",
                         "ES256Client",
                         "http://example.com",
@@ -186,7 +186,6 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         null,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -230,9 +229,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1 openid",
                         "ES256Client",
                         "http://example.com",
@@ -242,7 +240,6 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         null,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -289,9 +286,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1 openid",
                         "RS256Client",
                         "http://example.com",
@@ -301,7 +297,6 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         null,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -347,9 +342,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1 openid",
                         "NoneClient",
                         "http://example.com",
@@ -359,7 +353,6 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         null,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -404,17 +397,17 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "notauthorized",
                         "ES256Client",
                         "http://example.com",
                         "xyz",
                         null,
                         null,
+                        null,
+                        null,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -437,17 +430,17 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1",
                         "ES256Client",
                         "http://example.com",
                         "xyz",
                         null,
                         null,
+                        null,
+                        null,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -478,17 +471,17 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1",
                         "ES256Client",
                         "http://example.com",
                         "xyz",
                         null,
                         null,
+                        null,
+                        null,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -509,9 +502,8 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1 openid",
                         "ES256Client",
                         "http://example.com",
@@ -521,7 +513,6 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         null,
                         Instant.now().minus(Duration.ofSeconds(10)).getEpochSecond());
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -543,17 +534,17 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1",
                         "ES256Client",
                         "http://example.com",
                         "xyz",
                         null,
                         null,
+                        null,
+                        null,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)
@@ -576,17 +567,17 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         // setup
         var subject = UUID.randomUUID().toString();
         var authorizationCode =
-                new AuthorizationCode(
+                authorizationCodeService.issue(
                         subject,
-                        UUID.randomUUID().toString(),
                         "rs:scope1",
                         "ES256Client",
                         "http://example.com",
                         "xyz",
                         null,
                         null,
+                        null,
+                        null,
                         Instant.now().getEpochSecond() + 600);
-        authorizationCodeStore.save(authorizationCode);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .code(authorizationCode.code)

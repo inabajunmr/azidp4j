@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
 import org.azidp4j.IdTokenAssert;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
@@ -94,7 +96,7 @@ class AuthorizeTest_Implicit {
         var sut =
                 new Authorize(
                         clientStore,
-                        new InMemoryAuthorizationCodeStore(),
+                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, new JWKSet()),
@@ -154,7 +156,7 @@ class AuthorizeTest_Implicit {
         var sut =
                 new Authorize(
                         clientStore,
-                        new InMemoryAuthorizationCodeStore(),
+                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, new JWKSet()),
@@ -219,7 +221,7 @@ class AuthorizeTest_Implicit {
         var sut =
                 new Authorize(
                         clientStore,
-                        new InMemoryAuthorizationCodeStore(),
+                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, jwks),
@@ -298,7 +300,7 @@ class AuthorizeTest_Implicit {
         var sut =
                 new Authorize(
                         clientStore,
-                        new InMemoryAuthorizationCodeStore(),
+                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, jwks),
@@ -375,7 +377,7 @@ class AuthorizeTest_Implicit {
         var sut =
                 new Authorize(
                         clientStore,
-                        new InMemoryAuthorizationCodeStore(),
+                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, jwks),

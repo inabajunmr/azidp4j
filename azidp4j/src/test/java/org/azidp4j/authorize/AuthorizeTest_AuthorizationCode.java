@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
@@ -61,7 +63,7 @@ class AuthorizeTest_AuthorizationCode {
     final Authorize sut =
             new Authorize(
                     clientStore,
-                    new InMemoryAuthorizationCodeStore(),
+                    new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                     scopeAudienceMapper,
                     new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                     new IDTokenIssuer(config, new JWKSet()),
@@ -120,7 +122,7 @@ class AuthorizeTest_AuthorizationCode {
         var sut =
                 new Authorize(
                         clientStore,
-                        new InMemoryAuthorizationCodeStore(),
+                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                         new IDTokenIssuer(config, new JWKSet()),
@@ -170,7 +172,7 @@ class AuthorizeTest_AuthorizationCode {
         var sut =
                 new Authorize(
                         clientStore,
-                        new InMemoryAuthorizationCodeStore(),
+                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                         new IDTokenIssuer(config, new JWKSet()),
@@ -220,7 +222,7 @@ class AuthorizeTest_AuthorizationCode {
         var sut =
                 new Authorize(
                         clientStore,
-                        new InMemoryAuthorizationCodeStore(),
+                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                         new IDTokenIssuer(config, new JWKSet()),
