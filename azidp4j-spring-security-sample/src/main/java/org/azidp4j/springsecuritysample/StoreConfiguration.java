@@ -6,11 +6,19 @@ import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
+import org.azidp4j.token.refreshtoken.RefreshTokenService;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
+import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class StoreConfiguration {
+
+    @Bean
+    public RefreshTokenService refreshTokenService() {
+        return new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore());
+    }
 
     @Bean
     public AccessTokenService accessTokenService() {

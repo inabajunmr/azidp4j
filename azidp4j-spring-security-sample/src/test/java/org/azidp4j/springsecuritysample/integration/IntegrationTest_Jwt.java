@@ -21,6 +21,8 @@ import org.azidp4j.client.GrantType;
 import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
+import org.azidp4j.token.refreshtoken.RefreshTokenService;
+import org.azidp4j.token.refreshtoken.jwt.JwtRefreshTokenService;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +43,7 @@ import org.springframework.web.util.UriComponentsBuilder;
             "endpoint=http://localhost:8081",
             "spring.main.allow-bean-definition-overriding=true"
         })
-public class IntegrationTest_JwtAccessTokenService {
+public class IntegrationTest_Jwt {
 
     @TestConfiguration
     static class TokenServiceConfiguration {
@@ -51,6 +53,13 @@ public class IntegrationTest_JwtAccessTokenService {
         @Primary
         public AccessTokenService accessTokenService(AzIdPConfig config) {
             return new JwtAccessTokenService(
+                    jwkSet, new JWSIssuer(jwkSet), config.issuer, () -> "123");
+        }
+
+        @Bean
+        @Primary
+        public RefreshTokenService refreshTokenService(AzIdPConfig config) {
+            return new JwtRefreshTokenService(
                     jwkSet, new JWSIssuer(jwkSet), config.issuer, () -> "123");
         }
     }

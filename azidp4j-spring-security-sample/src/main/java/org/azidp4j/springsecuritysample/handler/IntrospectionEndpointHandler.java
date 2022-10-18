@@ -3,7 +3,6 @@ package org.azidp4j.springsecuritysample.handler;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.AzIdP;
-import org.azidp4j.client.ClientStore;
 import org.azidp4j.introspection.IntrospectionRequest;
 import org.azidp4j.springsecuritysample.authentication.ClientAuthenticator;
 import org.slf4j.Logger;
@@ -22,8 +21,6 @@ public class IntrospectionEndpointHandler {
 
     private static final Logger LOGGER =
             LoggerFactory.getLogger(IntrospectionEndpointHandler.class);
-
-    @Autowired ClientStore clientStore;
 
     @Autowired ClientAuthenticator clientAuthenticator;
 
