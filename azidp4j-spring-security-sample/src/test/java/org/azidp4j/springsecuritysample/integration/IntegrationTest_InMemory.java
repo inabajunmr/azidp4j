@@ -15,20 +15,12 @@ import java.text.ParseException;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.GrantType;
-import org.azidp4j.jwt.JWSIssuer;
-import org.azidp4j.token.accesstoken.AccessTokenService;
-import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -42,18 +34,6 @@ import org.springframework.web.util.UriComponentsBuilder;
             "spring.main.allow-bean-definition-overriding=true"
         })
 public class IntegrationTest_InMemory {
-
-    @TestConfiguration
-    static class TokenServiceConfiguration {
-        @Autowired JWKSet jwkSet;
-
-        @Bean
-        @Primary
-        public AccessTokenService accessTokenService(AzIdPConfig config) {
-            return new JwtAccessTokenService(
-                    jwkSet, new JWSIssuer(jwkSet), config.issuer, () -> "123");
-        }
-    }
 
     @Test
     void exampleTest() throws IOException, ParseException, JOSEException {

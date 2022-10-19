@@ -19,8 +19,8 @@ public class AuthorizationCode {
     public final long expiresAtEpochSec;
 
     public AuthorizationCode(
-            String sub,
             String code,
+            String sub,
             String scope,
             String clientId,
             String redirectUri,
@@ -30,37 +30,14 @@ public class AuthorizationCode {
             String codeChallenge,
             CodeChallengeMethod codeChallengeMethod,
             long expiresAtEpochSec) {
-        this.sub = sub;
         this.code = code;
+        this.sub = sub;
         this.scope = scope;
         this.clientId = clientId;
         this.redirectUri = redirectUri;
         this.state = state;
         this.authTime = authTime;
         this.nonce = nonce;
-        this.codeChallenge = codeChallenge;
-        this.codeChallengeMethod = codeChallengeMethod;
-        this.expiresAtEpochSec = expiresAtEpochSec;
-    }
-
-    public AuthorizationCode(
-            String sub,
-            String code,
-            String scope,
-            String clientId,
-            String redirectUri,
-            String state,
-            String codeChallenge,
-            CodeChallengeMethod codeChallengeMethod,
-            long expiresAtEpochSec) {
-        this.sub = sub;
-        this.code = code;
-        this.scope = scope;
-        this.clientId = clientId;
-        this.redirectUri = redirectUri;
-        this.state = state;
-        this.authTime = null;
-        this.nonce = null;
         this.codeChallenge = codeChallenge;
         this.codeChallengeMethod = codeChallengeMethod;
         this.expiresAtEpochSec = expiresAtEpochSec;
