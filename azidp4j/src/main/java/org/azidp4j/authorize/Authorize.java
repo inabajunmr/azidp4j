@@ -175,6 +175,8 @@ public class Authorize {
                                 "error", "invalid_request", "state", authorizationRequest.state),
                         responseMode);
             }
+        } else if (authorizationRequest.codeChallenge != null) {
+            codeChallengeMethod = CodeChallengeMethod.S256;
         }
 
         var display = Display.of(authorizationRequest.display);
