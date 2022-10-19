@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
+import org.azidp4j.authorize.authorizationcode.jwt.JwtAuthorizationCodeService;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.jwt.JWSIssuer;
@@ -60,6 +62,13 @@ public class IntegrationTest_Jwt {
         @Primary
         public RefreshTokenService refreshTokenService(AzIdPConfig config) {
             return new JwtRefreshTokenService(
+                    jwkSet, new JWSIssuer(jwkSet), config.issuer, () -> "123");
+        }
+
+        @Bean
+        @Primary
+        public AuthorizationCodeService authorizationCodeService(AzIdPConfig config) {
+            return new JwtAuthorizationCodeService(
                     jwkSet, new JWSIssuer(jwkSet), config.issuer, () -> "123");
         }
     }

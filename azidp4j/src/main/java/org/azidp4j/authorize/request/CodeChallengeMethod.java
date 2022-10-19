@@ -6,7 +6,7 @@ public enum CodeChallengeMethod {
 
     public static CodeChallengeMethod of(String codeChallengeMethod) {
         if (codeChallengeMethod == null) {
-            // default
+            // default // TODO?
             return S256;
         }
         return switch (codeChallengeMethod) {

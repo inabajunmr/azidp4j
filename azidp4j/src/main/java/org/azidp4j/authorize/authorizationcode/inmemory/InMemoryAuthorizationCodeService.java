@@ -28,8 +28,8 @@ public class InMemoryAuthorizationCodeService implements AuthorizationCodeServic
             Long exp) {
         var ac =
                 new AuthorizationCode(
-                        sub,
                         UUID.randomUUID().toString(),
+                        sub,
                         scope,
                         clientId,
                         redirectUri,
