@@ -36,7 +36,8 @@ public class SecurityConfiguration {
                                                 "/client",
                                                 "/.well-known/jwks.json",
                                                 "/.well-known/openid-configuration",
-                                                "/introspect")
+                                                "/introspect",
+                                                "/revoke")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated())
@@ -46,7 +47,8 @@ public class SecurityConfiguration {
                 .opaqueToken();
         http.httpBasic().disable();
         http.csrf()
-                .ignoringAntMatchers("/authorize", "/token", "/client", "/userinfo", "/introspect");
+                .ignoringAntMatchers(
+                        "/authorize", "/token", "/client", "/userinfo", "/introspect", "/revoke");
         // @formatter:on
 
         return http.build();

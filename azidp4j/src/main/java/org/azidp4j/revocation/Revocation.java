@@ -70,7 +70,7 @@ public class Revocation {
             return new RevocationResponse(200, Map.of());
         }
 
-        if (at.getClientId().equals(request.authenticatedClientId)) {
+        if (Objects.equals(at.getClientId(), request.authenticatedClientId)) {
             accessTokenService.revoke(request.token);
         }
         return new RevocationResponse(200, Map.of());
@@ -89,7 +89,7 @@ public class Revocation {
             return new RevocationResponse(200, Map.of());
         }
 
-        if (rt.clientId.equals(request.authenticatedClientId)) {
+        if (Objects.equals(rt.clientId, request.authenticatedClientId)) {
             refreshTokenService.revoke(request.token);
         }
         return new RevocationResponse(200, Map.of());

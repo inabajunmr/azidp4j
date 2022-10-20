@@ -15,20 +15,12 @@ import java.text.ParseException;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.GrantType;
-import org.azidp4j.jwt.JWSIssuer;
-import org.azidp4j.token.accesstoken.AccessTokenService;
-import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -42,18 +34,6 @@ import org.springframework.web.util.UriComponentsBuilder;
             "spring.main.allow-bean-definition-overriding=true"
         })
 public class IntegrationTest_InMemory {
-
-    @TestConfiguration
-    static class TokenServiceConfiguration {
-        @Autowired JWKSet jwkSet;
-
-        @Bean
-        @Primary
-        public AccessTokenService accessTokenService(AzIdPConfig config) {
-            return new JwtAccessTokenService(
-                    jwkSet, new JWSIssuer(jwkSet), config.issuer, () -> "123");
-        }
-    }
 
     @Test
     void exampleTest() throws IOException, ParseException, JOSEException {
@@ -343,6 +323,46 @@ public class IntegrationTest_InMemory {
         assertThat(tokenResponseForRefreshGrant.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("access_token"));
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("refresh_token"));
+
+        // revoke
+        {
+            MultiValueMap<String, String> revocationRequest = new LinkedMultiValueMap<>();
+            revocationRequest.add(
+                    "token", (String) tokenResponseForRefreshGrant.getBody().get("access_token"));
+            revocationRequest.add("token_type_hint", "access_token");
+            var revocationRequestEntity =
+                    RequestEntity.post("/revoke")
+                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .body(revocationRequest);
+            var revocationResponse =
+                    testRestTemplate
+                            .withBasicAuth(clientId, clientSecret)
+                            .postForEntity(
+                                    endpoint + "/revoke", revocationRequestEntity, Map.class);
+            assertThat(revocationResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        }
+
+        // introspection
+        {
+            MultiValueMap<String, String> introspectionRequest = new LinkedMultiValueMap<>();
+            introspectionRequest.add(
+                    "token", (String) tokenResponseForRefreshGrant.getBody().get("access_token"));
+            var introspectionRequestEntity =
+                    RequestEntity.post("/introspect")
+                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .body(introspectionRequest);
+            var introspectionResponse =
+                    testRestTemplate
+                            .withBasicAuth(clientId, clientSecret)
+                            .postForEntity(
+                                    endpoint + "/introspect",
+                                    introspectionRequestEntity,
+                                    Map.class);
+            assertThat(introspectionResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertEquals(false, introspectionResponse.getBody().get("active"));
+        }
 
         // delete client
         var clientDeleteEntity =
