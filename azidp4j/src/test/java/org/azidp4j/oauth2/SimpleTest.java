@@ -22,6 +22,8 @@ import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.request.ClientRegistrationRequest;
+import org.azidp4j.introspection.request.IntrospectionRequest;
+import org.azidp4j.revocation.request.RevocationRequest;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
@@ -130,6 +132,42 @@ public class SimpleTest {
         var tokenResponse2 = sut.issueToken(tokenRequest2);
 
         // verify
-        assertNotNull(tokenResponse2.body.get("access_token"));
+        var accessToken = (String) tokenResponse2.body.get("access_token");
+        assertNotNull(accessToken);
+
+        // introspection
+        var introspectionResponse1 =
+                sut.introspect(
+                        new IntrospectionRequest(
+                                Map.of("token", accessToken, "token_type_hint", "access_token")));
+
+        // verify
+        assertEquals(200, introspectionResponse1.status);
+        assertEquals(true, introspectionResponse1.body.get("active"));
+
+        // revocation
+        // exercise
+        var revocationResponse =
+                sut.revoke(
+                        new RevocationRequest(
+                                clientId,
+                                Map.of(
+                                        "token",
+                                        (String) tokenResponse2.body.get("access_token"),
+                                        "token_type_hint",
+                                        "access_token")));
+
+        // verify
+        assertEquals(200, revocationResponse.status);
+
+        // introspection
+        var introspectionResponse2 =
+                sut.introspect(
+                        new IntrospectionRequest(
+                                Map.of("token", accessToken, "token_type_hint", "access_token")));
+
+        // verify
+        assertEquals(200, introspectionResponse2.status);
+        assertEquals(false, introspectionResponse2.body.get("active"));
     }
 }
