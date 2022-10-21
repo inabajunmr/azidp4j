@@ -47,6 +47,10 @@ public class Authorize {
     }
 
     public AuthorizationResponse authorize(InternalAuthorizationRequest authorizationRequest) {
+        if (authorizationRequest.authenticatedUserId != null
+                && authorizationRequest.authTime == null) {
+            throw new AssertionError("When user is authenticated, must set authTime.");
+        }
         var responseType = ResponseType.parse(authorizationRequest.responseType);
         if (responseType == null) {
             return AuthorizationResponse.errorPage(
@@ -221,18 +225,42 @@ public class Authorize {
             if (prompt.contains(Prompt.login)) {
                 return AuthorizationResponse.additionalPage(Prompt.login, display);
             }
-            if (prompt.contains(Prompt.consent)) {
-                if (authorizationRequest.authenticatedUserId == null) {
-                    return AuthorizationResponse.additionalPage(Prompt.login, display);
-                } else {
-                    return AuthorizationResponse.additionalPage(Prompt.consent, display);
+            if (authorizationRequest.authenticatedUserId == null) {
+                return AuthorizationResponse.additionalPage(Prompt.login, display);
+            }
+            if (authorizationRequest.maxAge != null) {
+                try {
+                    var maxAge = Integer.parseInt(authorizationRequest.maxAge);
+                    if (Instant.now().getEpochSecond() > authorizationRequest.authTime + maxAge) {
+                        if (prompt.contains(Prompt.none)) {
+                            return AuthorizationResponse.redirect(
+                                    redirectUri,
+                                    MapUtil.nullRemovedStringMap(
+                                            "error",
+                                            "login_required",
+                                            "state",
+                                            authorizationRequest.state),
+                                    responseMode);
+                        } else {
+                            return AuthorizationResponse.additionalPage(Prompt.login, display);
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    return AuthorizationResponse.redirect(
+                            redirectUri,
+                            MapUtil.nullRemovedStringMap(
+                                    "error",
+                                    "invalid_request",
+                                    "state",
+                                    authorizationRequest.state),
+                            responseMode);
                 }
+            }
+            if (prompt.contains(Prompt.consent)) {
+                return AuthorizationResponse.additionalPage(Prompt.consent, display);
             }
             if (prompt.contains(Prompt.select_account)) {
                 return AuthorizationResponse.additionalPage(Prompt.select_account, display);
-            }
-            if (authorizationRequest.authenticatedUserId == null) {
-                return AuthorizationResponse.additionalPage(Prompt.login, display);
             }
             if (!authorizationRequest.allScopeConsented()) {
                 return AuthorizationResponse.additionalPage(Prompt.consent, display);
@@ -274,38 +302,6 @@ public class Authorize {
             accessToken = at.getToken();
             tokenType = "bearer";
             expiresIn = String.valueOf(config.accessTokenExpirationSec);
-        }
-
-        if (scopeValidator.contains(authorizationRequest.scope, "openid")) {
-            if (authorizationRequest.maxAge != null) {
-                try {
-                    var maxAge = Integer.parseInt(authorizationRequest.maxAge);
-                    // TODO auth time is always not null(add validate)
-                    if (Instant.now().getEpochSecond() > authorizationRequest.authTime + maxAge) {
-                        if (prompt.contains(Prompt.none)) {
-                            return AuthorizationResponse.redirect(
-                                    redirectUri,
-                                    MapUtil.nullRemovedStringMap(
-                                            "error",
-                                            "login_required",
-                                            "state",
-                                            authorizationRequest.state),
-                                    responseMode);
-                        } else {
-                            return AuthorizationResponse.additionalPage(Prompt.login, display);
-                        }
-                    }
-                } catch (NumberFormatException e) {
-                    return AuthorizationResponse.redirect(
-                            redirectUri,
-                            MapUtil.nullRemovedStringMap(
-                                    "error",
-                                    "invalid_request",
-                                    "state",
-                                    authorizationRequest.state),
-                            responseMode);
-                }
-            }
         }
 
         String authorizationCode = null;
