@@ -10,7 +10,6 @@ public class InMemoryUserConsentStore {
     private final Map<String, Map<String, Set<String>>> userConsentMap = new HashMap<>();
 
     public void consent(String username, String clientId, Set<String> scopes) {
-        // TODO scopes need to be modifiable
         if (userConsentMap.containsKey(username)
                 && userConsentMap.get(username).containsKey(clientId)) {
             userConsentMap.get(username).get(clientId).addAll(scopes);
