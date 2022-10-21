@@ -2,7 +2,6 @@ package org.azidp4j.authorize;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.*;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.*;
@@ -48,7 +47,6 @@ public class Authorize {
     }
 
     public AuthorizationResponse authorize(InternalAuthorizationRequest authorizationRequest) {
-
         var responseType = ResponseType.parse(authorizationRequest.responseType);
         if (responseType == null) {
             return AuthorizationResponse.errorPage(
@@ -209,7 +207,6 @@ public class Authorize {
                                     "error", "login_required", "state", authorizationRequest.state),
                             responseMode);
                 }
-                // TODO consented scope must not be null
                 if (!authorizationRequest.allScopeConsented()) {
                     return AuthorizationResponse.redirect(
                             redirectUri,

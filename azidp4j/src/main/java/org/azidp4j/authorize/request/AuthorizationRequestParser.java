@@ -1,5 +1,7 @@
 package org.azidp4j.authorize.request;
 
+import java.util.Set;
+
 public class AuthorizationRequestParser {
 
     public InternalAuthorizationRequest parse(AuthorizationRequest req) {
@@ -24,7 +26,7 @@ public class AuthorizationRequestParser {
 
         return InternalAuthorizationRequest.builder()
                 .authenticatedUserId(req.authenticatedUserId)
-                .consentedScope(req.consentedScope)
+                .consentedScope(req.consentedScope != null ? req.consentedScope : Set.of())
                 .authTime(req.authTime)
                 .responseType(responseType)
                 .clientId(clientId)
