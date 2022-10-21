@@ -324,6 +324,46 @@ public class IntegrationTest_InMemory {
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("access_token"));
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("refresh_token"));
 
+        // revoke
+        {
+            MultiValueMap<String, String> revocationRequest = new LinkedMultiValueMap<>();
+            revocationRequest.add(
+                    "token", (String) tokenResponseForRefreshGrant.getBody().get("access_token"));
+            revocationRequest.add("token_type_hint", "access_token");
+            var revocationRequestEntity =
+                    RequestEntity.post("/revoke")
+                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .body(revocationRequest);
+            var revocationResponse =
+                    testRestTemplate
+                            .withBasicAuth(clientId, clientSecret)
+                            .postForEntity(
+                                    endpoint + "/revoke", revocationRequestEntity, Map.class);
+            assertThat(revocationResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        }
+
+        // introspection
+        {
+            MultiValueMap<String, String> introspectionRequest = new LinkedMultiValueMap<>();
+            introspectionRequest.add(
+                    "token", (String) tokenResponseForRefreshGrant.getBody().get("access_token"));
+            var introspectionRequestEntity =
+                    RequestEntity.post("/introspect")
+                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .body(introspectionRequest);
+            var introspectionResponse =
+                    testRestTemplate
+                            .withBasicAuth(clientId, clientSecret)
+                            .postForEntity(
+                                    endpoint + "/introspect",
+                                    introspectionRequestEntity,
+                                    Map.class);
+            assertThat(introspectionResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertEquals(false, introspectionResponse.getBody().get("active"));
+        }
+
         // delete client
         var clientDeleteEntity =
                 RequestEntity.delete(configurationUri)

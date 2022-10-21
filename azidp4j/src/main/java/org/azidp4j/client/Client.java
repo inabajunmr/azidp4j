@@ -20,6 +20,10 @@ public class Client {
     /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final SigningAlgorithm idTokenSignedResponseAlg;
 
+    public boolean isConfidentialClient() {
+        return !tokenEndpointAuthMethod.equals(TokenEndpointAuthMethod.none);
+    }
+
     public Client(
             String clientId,
             String clientSecret,
