@@ -288,7 +288,9 @@ public class Authorize {
         String accessToken = null;
         String tokenType = null;
         String expiresIn = null;
+        String scope = null;
         if (responseType.contains(ResponseType.token)) {
+            scope = authorizationRequest.scope;
             // issue access token
             var at =
                     accessTokenService.issue(
@@ -359,7 +361,7 @@ public class Authorize {
                         "expires_in",
                         expiresIn,
                         "scope",
-                        authorizationRequest.scope,
+                        scope,
                         "state",
                         authorizationRequest.state),
                 responseMode);
