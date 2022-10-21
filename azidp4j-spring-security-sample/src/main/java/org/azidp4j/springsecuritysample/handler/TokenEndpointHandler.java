@@ -1,6 +1,5 @@
 package org.azidp4j.springsecuritysample.handler;
 
-import java.time.Instant;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.AzIdP;
@@ -68,11 +67,7 @@ public class TokenEndpointHandler {
         }
 
         var response =
-                azIdP.issueToken(
-                        new TokenRequest(
-                                authenticatedClientId,
-                                Instant.now().getEpochSecond(),
-                                body.toSingleValueMap()));
+                azIdP.issueToken(new TokenRequest(authenticatedClientId, body.toSingleValueMap()));
         return ResponseEntity.status(response.status).body(response.body);
     }
 }

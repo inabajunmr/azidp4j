@@ -38,7 +38,7 @@ public class TokenEndpointHandler extends AzIdpHttpHandler {
                         .map(kv -> kv.split("="))
                         .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
         var tokenRequest =
-                new TokenRequest(authenticatedClientId, Instant.now().getEpochSecond(), bodyMap);
+                new TokenRequest(authenticatedClientId, bodyMap);
         var tokenResponse = azIdp.issueToken(tokenRequest);
         var mapper = new ObjectMapper();
         var responseJSON = mapper.writeValueAsString(tokenResponse.body);
