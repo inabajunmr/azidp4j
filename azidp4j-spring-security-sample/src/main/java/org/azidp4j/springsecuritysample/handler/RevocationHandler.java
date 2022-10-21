@@ -34,7 +34,10 @@ public class RevocationHandler {
         LOGGER.info(RevocationHandler.class.getName());
 
         String authenticatedClientId = null;
-        var client = clientAuthenticator.authenticateClient(request, body);
+        var client =
+                clientAuthenticator.authenticateClient(
+                        request,
+                        body); // TODO should be filter like BearerTokenBodyAuthenticationFilter?
         if (client.isPresent()) {
             authenticatedClientId = client.get().clientId;
         }
