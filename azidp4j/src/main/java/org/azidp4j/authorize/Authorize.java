@@ -2,7 +2,6 @@ package org.azidp4j.authorize;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.*;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.*;
@@ -48,7 +47,10 @@ public class Authorize {
     }
 
     public AuthorizationResponse authorize(InternalAuthorizationRequest authorizationRequest) {
-
+        if (authorizationRequest.authenticatedUserId != null
+                && authorizationRequest.authTime == null) {
+            throw new AssertionError("When user is authenticated, must set authTime.");
+        }
         var responseType = ResponseType.parse(authorizationRequest.responseType);
         if (responseType == null) {
             return AuthorizationResponse.errorPage(
@@ -209,8 +211,7 @@ public class Authorize {
                                     "error", "login_required", "state", authorizationRequest.state),
                             responseMode);
                 }
-                if (!authorizationRequest.consentedScope.containsAll(
-                        Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
+                if (!authorizationRequest.allScopeConsented()) {
                     return AuthorizationResponse.redirect(
                             redirectUri,
                             MapUtil.nullRemovedStringMap(
@@ -224,65 +225,9 @@ public class Authorize {
             if (prompt.contains(Prompt.login)) {
                 return AuthorizationResponse.additionalPage(Prompt.login, display);
             }
-            if (prompt.contains(Prompt.consent)) {
-                if (authorizationRequest.authenticatedUserId == null) {
-                    return AuthorizationResponse.additionalPage(Prompt.login, display);
-                } else {
-                    return AuthorizationResponse.additionalPage(Prompt.consent, display);
-                }
-            }
-            if (prompt.contains(Prompt.select_account)) {
-                return AuthorizationResponse.additionalPage(Prompt.select_account, display);
-            }
             if (authorizationRequest.authenticatedUserId == null) {
                 return AuthorizationResponse.additionalPage(Prompt.login, display);
             }
-            if (!authorizationRequest.consentedScope.containsAll(
-                    Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
-                return AuthorizationResponse.additionalPage(Prompt.consent, display);
-            }
-        }
-
-        if (!client.responseTypes.containsAll(responseType)) {
-            return AuthorizationResponse.redirect(
-                    redirectUri,
-                    MapUtil.nullRemovedStringMap(
-                            "error",
-                            "unsupported_response_type",
-                            "state",
-                            authorizationRequest.state),
-                    responseMode);
-        }
-
-        if (responseType.contains(ResponseType.none)) {
-            return AuthorizationResponse.redirect(
-                    redirectUri,
-                    MapUtil.nullRemovedStringMap("state", authorizationRequest.state),
-                    responseMode);
-        }
-
-        String accessToken = null;
-        String tokenType = null;
-        String expiresIn = null;
-        String scope = null;
-        if (responseType.contains(ResponseType.token)) {
-            // issue access token
-            var at =
-                    accessTokenService.issue(
-                            authorizationRequest.authenticatedUserId,
-                            authorizationRequest.scope,
-                            authorizationRequest.clientId,
-                            Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
-                            Instant.now().getEpochSecond(),
-                            scopeAudienceMapper.map(authorizationRequest.scope),
-                            null);
-            accessToken = at.getToken();
-            tokenType = "bearer";
-            expiresIn = String.valueOf(config.accessTokenExpirationSec);
-            scope = authorizationRequest.scope;
-        }
-
-        if (scopeValidator.contains(authorizationRequest.scope, "openid")) {
             if (authorizationRequest.maxAge != null) {
                 try {
                     var maxAge = Integer.parseInt(authorizationRequest.maxAge);
@@ -311,6 +256,52 @@ public class Authorize {
                             responseMode);
                 }
             }
+            if (prompt.contains(Prompt.consent)) {
+                return AuthorizationResponse.additionalPage(Prompt.consent, display);
+            }
+            if (prompt.contains(Prompt.select_account)) {
+                return AuthorizationResponse.additionalPage(Prompt.select_account, display);
+            }
+            if (!authorizationRequest.allScopeConsented()) {
+                return AuthorizationResponse.additionalPage(Prompt.consent, display);
+            }
+        }
+
+        if (!client.responseTypes.containsAll(responseType)) {
+            return AuthorizationResponse.redirect(
+                    redirectUri,
+                    MapUtil.nullRemovedStringMap(
+                            "error",
+                            "unsupported_response_type",
+                            "state",
+                            authorizationRequest.state),
+                    responseMode);
+        }
+
+        if (responseType.contains(ResponseType.none)) {
+            return AuthorizationResponse.redirect(
+                    redirectUri,
+                    MapUtil.nullRemovedStringMap("state", authorizationRequest.state),
+                    responseMode);
+        }
+
+        String accessToken = null;
+        String tokenType = null;
+        String expiresIn = null;
+        if (responseType.contains(ResponseType.token)) {
+            // issue access token
+            var at =
+                    accessTokenService.issue(
+                            authorizationRequest.authenticatedUserId,
+                            authorizationRequest.scope,
+                            authorizationRequest.clientId,
+                            Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                            Instant.now().getEpochSecond(),
+                            scopeAudienceMapper.map(authorizationRequest.scope),
+                            null);
+            accessToken = at.getToken();
+            tokenType = "bearer";
+            expiresIn = String.valueOf(config.accessTokenExpirationSec);
         }
 
         String authorizationCode = null;
@@ -368,7 +359,7 @@ public class Authorize {
                         "expires_in",
                         expiresIn,
                         "scope",
-                        scope,
+                        authorizationRequest.scope,
                         "state",
                         authorizationRequest.state),
                 responseMode);

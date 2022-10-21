@@ -80,6 +80,7 @@ class AuthorizeTest_validationError {
     void responseTypeIsNull() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .clientId(client.clientId)
                         .redirectUri("http://rp1.example.com")
                         .scope("scope1")
@@ -97,6 +98,7 @@ class AuthorizeTest_validationError {
     void illegalResponseType() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .clientId(client.clientId)
                         .responseType("illegal")
                         .redirectUri("http://rp1.example.com")
@@ -115,6 +117,7 @@ class AuthorizeTest_validationError {
     void clientIdIsNull() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .redirectUri("http://rp1.example.com")
                         .scope("scope1")
@@ -132,6 +135,7 @@ class AuthorizeTest_validationError {
     void clientNotExist() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .clientId("unknown")
                         .redirectUri("http://rp1.example.com")
@@ -150,6 +154,7 @@ class AuthorizeTest_validationError {
     void unauthorizedRedirectUri() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .clientId(client.clientId)
                         .redirectUri("http://not.authorized.example.com")
@@ -168,6 +173,7 @@ class AuthorizeTest_validationError {
     void noRedirectUri() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .clientId(client.clientId)
                         .scope("scope1")
@@ -185,6 +191,7 @@ class AuthorizeTest_validationError {
     void scopeUnauthorizedForClient() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .clientId(client.clientId)
                         .redirectUri("http://rp1.example.com")
@@ -208,6 +215,7 @@ class AuthorizeTest_validationError {
     void grantTypeNotClientSupported() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .clientId(noGrantTypesClient.clientId)
                         .redirectUri("http://rp1.example.com")
@@ -231,6 +239,7 @@ class AuthorizeTest_validationError {
     void responseTypeNotSupportedClient_AuthorizationCodeGrant() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .clientId(noResponseTypesClient.clientId)
                         .redirectUri("http://rp1.example.com")
@@ -254,6 +263,7 @@ class AuthorizeTest_validationError {
     void responseTypeNotSupportedClient_ImplicitGrant() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .clientId(noResponseTypesClient.clientId)
                         .redirectUri("http://rp1.example.com")
@@ -277,6 +287,7 @@ class AuthorizeTest_validationError {
     void invalidMaxAge() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .clientId(client.clientId)
                         .redirectUri("http://rp1.example.com")
@@ -325,6 +336,7 @@ class AuthorizeTest_validationError {
     void promptIsNoneButUserConsented() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .clientId(client.clientId)
                         .redirectUri("http://rp1.example.com")
@@ -350,6 +362,7 @@ class AuthorizeTest_validationError {
     void promptIsNoneAndOther() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
+                        .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .clientId(client.clientId)
                         .redirectUri("http://rp1.example.com")

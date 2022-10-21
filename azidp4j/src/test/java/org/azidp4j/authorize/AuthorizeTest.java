@@ -3,6 +3,7 @@ package org.azidp4j.authorize;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.jwk.JWKSet;
+import java.time.Instant;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
@@ -100,6 +101,7 @@ class AuthorizeTest {
         {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
+                            .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
@@ -121,6 +123,7 @@ class AuthorizeTest {
         {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
+                            .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
@@ -142,6 +145,7 @@ class AuthorizeTest {
         {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
+                            .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
@@ -164,6 +168,7 @@ class AuthorizeTest {
         {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
+                            .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
@@ -187,6 +192,7 @@ class AuthorizeTest {
         {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
+                            .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
@@ -230,6 +236,7 @@ class AuthorizeTest {
         {
             var authorizationRequest =
                     InternalAuthorizationRequest.builder()
+                            .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")

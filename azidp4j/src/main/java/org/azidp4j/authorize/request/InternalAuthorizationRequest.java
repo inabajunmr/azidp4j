@@ -1,5 +1,6 @@
 package org.azidp4j.authorize.request;
 
+import java.util.Arrays;
 import java.util.Set;
 
 public class InternalAuthorizationRequest {
@@ -75,6 +76,14 @@ public class InternalAuthorizationRequest {
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    public boolean allScopeConsented() {
+        if (this.scope == null || this.scope.isEmpty()) {
+            return true;
+        }
+
+        return this.consentedScope.containsAll(Arrays.stream(this.scope.split(" ")).toList());
     }
 
     private InternalAuthorizationRequest(

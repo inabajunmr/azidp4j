@@ -1,5 +1,7 @@
 package org.azidp4j.authorize.request;
 
+import java.util.Set;
+
 public class AuthorizationRequestParser {
 
     public InternalAuthorizationRequest parse(AuthorizationRequest req) {
@@ -7,6 +9,9 @@ public class AuthorizationRequestParser {
         String clientId = req.queryParameters.get("client_id");
         String redirectUri = req.queryParameters.get("redirect_uri");
         String scope = req.queryParameters.get("scope");
+        if (scope != null && scope.isEmpty()) {
+            scope = null;
+        }
         String state = req.queryParameters.get("state");
         String responseMode = req.queryParameters.get("response_mode");
         String nonce = req.queryParameters.get("nonce");
@@ -21,7 +26,7 @@ public class AuthorizationRequestParser {
 
         return InternalAuthorizationRequest.builder()
                 .authenticatedUserId(req.authenticatedUserId)
-                .consentedScope(req.consentedScope)
+                .consentedScope(req.consentedScope != null ? req.consentedScope : Set.of())
                 .authTime(req.authTime)
                 .responseType(responseType)
                 .clientId(clientId)
