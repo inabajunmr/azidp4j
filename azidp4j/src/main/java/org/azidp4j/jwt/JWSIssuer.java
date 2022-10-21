@@ -56,7 +56,7 @@ public class JWSIssuer {
 
     public JOSEObject issue(SigningAlgorithm alg, Map<String, Object> payload) {
         try {
-            if (alg == SigningAlgorithm.none) { // TODO test
+            if (alg == SigningAlgorithm.none) {
                 return new PlainObject(new Payload(payload));
             }
             var key =

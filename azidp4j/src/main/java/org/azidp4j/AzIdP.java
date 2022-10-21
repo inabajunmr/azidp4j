@@ -34,7 +34,7 @@ import org.azidp4j.token.response.TokenResponse;
 
 public class AzIdP {
 
-    private final Discovery discovery; // TODO private
+    private final Discovery discovery;
     private final Authorize authorize;
     private final AuthorizationRequestParser authorizationRequestParser =
             new AuthorizationRequestParser();
