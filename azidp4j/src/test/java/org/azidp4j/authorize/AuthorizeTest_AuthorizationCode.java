@@ -153,6 +153,33 @@ class AuthorizeTest_AuthorizationCode {
     }
 
     @Test
+    void authorizationCodeGrant_withoutScope() {
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("code")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope(null)
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of())
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.next, NextAction.redirect);
+        var location = response.redirect.redirectTo;
+        var queryMap =
+                Arrays.stream(URI.create(location).getQuery().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertNull(queryMap.get("state"));
+        assertNotNull(queryMap.get("code"));
+    }
+
+    @Test
     void authorizationCodeGrant_withMaxAge() {
         // setup
         var clientStore = new InMemoryClientStore();

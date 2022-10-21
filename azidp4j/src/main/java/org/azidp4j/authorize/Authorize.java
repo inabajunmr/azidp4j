@@ -209,8 +209,8 @@ public class Authorize {
                                     "error", "login_required", "state", authorizationRequest.state),
                             responseMode);
                 }
-                if (!authorizationRequest.consentedScope.containsAll(
-                        Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
+                // TODO consented scope must not be null
+                if (!authorizationRequest.allScopeConsented()) {
                     return AuthorizationResponse.redirect(
                             redirectUri,
                             MapUtil.nullRemovedStringMap(
@@ -237,8 +237,7 @@ public class Authorize {
             if (authorizationRequest.authenticatedUserId == null) {
                 return AuthorizationResponse.additionalPage(Prompt.login, display);
             }
-            if (!authorizationRequest.consentedScope.containsAll(
-                    Arrays.stream(authorizationRequest.scope.split(" ")).toList())) {
+            if (!authorizationRequest.allScopeConsented()) {
                 return AuthorizationResponse.additionalPage(Prompt.consent, display);
             }
         }
@@ -264,7 +263,6 @@ public class Authorize {
         String accessToken = null;
         String tokenType = null;
         String expiresIn = null;
-        String scope = null;
         if (responseType.contains(ResponseType.token)) {
             // issue access token
             var at =
@@ -279,13 +277,13 @@ public class Authorize {
             accessToken = at.getToken();
             tokenType = "bearer";
             expiresIn = String.valueOf(config.accessTokenExpirationSec);
-            scope = authorizationRequest.scope;
         }
 
         if (scopeValidator.contains(authorizationRequest.scope, "openid")) {
             if (authorizationRequest.maxAge != null) {
                 try {
                     var maxAge = Integer.parseInt(authorizationRequest.maxAge);
+                    // TODO auth time is always not null(add validate)
                     if (Instant.now().getEpochSecond() > authorizationRequest.authTime + maxAge) {
                         if (prompt.contains(Prompt.none)) {
                             return AuthorizationResponse.redirect(
@@ -368,7 +366,7 @@ public class Authorize {
                         "expires_in",
                         expiresIn,
                         "scope",
-                        scope,
+                        authorizationRequest.scope,
                         "state",
                         authorizationRequest.state),
                 responseMode);

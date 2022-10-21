@@ -25,6 +25,9 @@ public class ScopeValidator {
     }
 
     public boolean contains(String requestedScope, String target) {
+        if (requestedScope == null) {
+            return false;
+        }
         var requestedScopes = requestedScope.split(" ");
         return Arrays.stream(requestedScopes).anyMatch(s -> s.equals(target));
     }

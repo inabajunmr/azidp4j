@@ -7,6 +7,9 @@ public class AuthorizationRequestParser {
         String clientId = req.queryParameters.get("client_id");
         String redirectUri = req.queryParameters.get("redirect_uri");
         String scope = req.queryParameters.get("scope");
+        if (scope != null && scope.isEmpty()) {
+            scope = null;
+        }
         String state = req.queryParameters.get("state");
         String responseMode = req.queryParameters.get("response_mode");
         String nonce = req.queryParameters.get("nonce");
