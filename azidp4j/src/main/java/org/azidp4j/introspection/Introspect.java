@@ -1,9 +1,11 @@
 package org.azidp4j.introspection;
 
 import java.util.Map;
+import java.util.Objects;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.introspection.request.InternalIntrospectionRequest;
 import org.azidp4j.introspection.response.IntrospectionResponse;
+import org.azidp4j.revocation.request.TokenTypeHint;
 import org.azidp4j.token.accesstoken.AccessToken;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.refreshtoken.RefreshToken;
@@ -31,7 +33,12 @@ public class Introspect {
         if (request.token == null) {
             return new IntrospectionResponse(400, Map.of());
         }
-        if (request.tokenTypeHint != null && request.tokenTypeHint.equals("refresh_token")) {
+        var hint = TokenTypeHint.of(request.tokenTypeHint);
+        if (hint == null) {
+            hint = TokenTypeHint.access_token;
+        }
+
+        if (Objects.equals(hint, TokenTypeHint.refresh_token)) {
             var rtOpt = refreshTokenService.introspect(request.token);
             if (rtOpt.isPresent()) {
                 return introspectRefreshToken(rtOpt.get());
@@ -43,7 +50,7 @@ public class Introspect {
             return introspectAccessToken(atOpt.get());
         }
 
-        if (request.tokenTypeHint != null && request.tokenTypeHint.equals("refresh_token")) {
+        if (Objects.equals(hint, TokenTypeHint.refresh_token)) {
             return new IntrospectionResponse(200, Map.of("active", false));
         }
 
