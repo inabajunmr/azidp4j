@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,20 +32,15 @@ public class RevocationHandler {
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Map> revoke(
-            HttpServletRequest request, @RequestParam MultiValueMap<String, String> body) {
+            HttpServletRequest request,
+            @RequestParam MultiValueMap<String, String> body,
+            Authentication authentication) {
         LOGGER.info(RevocationHandler.class.getName());
-
-        String authenticatedClientId = null;
-        var client =
-                clientAuthenticator.authenticateClient(
-                        request,
-                        body); // TODO should be filter like BearerTokenBodyAuthenticationFilter?
-        if (client.isPresent()) {
-            authenticatedClientId = client.get().clientId;
+        String clientId = null;
+        if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("CLIENT"))) {
+            clientId = authentication.getName();
         }
-
-        var response =
-                azIdP.revoke(new RevocationRequest(authenticatedClientId, body.toSingleValueMap()));
+        var response = azIdP.revoke(new RevocationRequest(clientId, body.toSingleValueMap()));
         return ResponseEntity.status(response.status).body(response.body);
     }
 }
