@@ -144,7 +144,7 @@ public class AzIdP {
         return clientConfigurationRequestParser.parse(clientId, parameters);
     }
 
-    public ClientRegistrationResponse configureRequest(ClientConfigurationRequest request) {
+    public ClientRegistrationResponse configureClient(ClientConfigurationRequest request) {
         return clientRegistration.configure(request);
     }
 

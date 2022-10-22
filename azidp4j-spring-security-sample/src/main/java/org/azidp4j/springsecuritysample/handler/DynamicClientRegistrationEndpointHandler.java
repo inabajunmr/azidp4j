@@ -41,7 +41,7 @@ public class DynamicClientRegistrationEndpointHandler {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth instanceof BearerTokenAuthentication && auth.getName().equals(clientId)) {
             var req = azIdP.parseClientConfigurationRequest(auth.getName(), requestBody);
-            var response = azIdP.configureRequest(req);
+            var response = azIdP.configureClient(req);
             return ResponseEntity.status(response.status).body(response.body);
         } else {
             return ResponseEntity.status(401).build();

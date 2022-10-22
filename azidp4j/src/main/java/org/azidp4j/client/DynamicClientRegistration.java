@@ -209,7 +209,7 @@ public class DynamicClientRegistration {
     }
 
     public ClientDeleteResponse delete(String clientId) {
-        var client = clientStore.remove(clientId);
+        clientStore.remove(clientId);
         return new ClientDeleteResponse(204, null);
     }
 }
