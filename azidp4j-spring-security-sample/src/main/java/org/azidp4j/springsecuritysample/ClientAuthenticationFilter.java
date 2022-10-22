@@ -12,7 +12,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
@@ -24,10 +23,7 @@ public class ClientAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        request.getParameterMap();
-        var a = new LinkedMultiValueMap<String, String>();
-        request.getParameterMap().forEach((k, v) -> a.add(k, v[0]));
-        var clientOpt = clientAuthenticator.authenticateClient(request, a);
+        var clientOpt = clientAuthenticator.authenticateClient(request);
         if (clientOpt.isPresent()) {
             var client = clientOpt.get();
             SecurityContextHolder.getContext()

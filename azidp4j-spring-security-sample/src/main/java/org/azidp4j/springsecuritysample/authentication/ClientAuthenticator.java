@@ -8,7 +8,6 @@ import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.www.BasicAuthenticationConverter;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MultiValueMap;
 
 @Component
 public class ClientAuthenticator {
@@ -18,8 +17,7 @@ public class ClientAuthenticator {
     private final BasicAuthenticationConverter authenticationConverter =
             new BasicAuthenticationConverter();
 
-    public Optional<Client> authenticateClient(
-            HttpServletRequest request, MultiValueMap<String, String> body) {
+    public Optional<Client> authenticateClient(HttpServletRequest request) {
         // attempt basic authentication
         {
             var usernamePasswordAuthenticationToken = authenticationConverter.convert(request);
@@ -37,14 +35,16 @@ public class ClientAuthenticator {
         }
 
         // attempt body authentication
-        if (body.containsKey("client_id")) {
-            var clientId = body.get("client_id").get(0);
+        if (request.getParameterMap().containsKey("client_id")) {
+            var clientId = request.getParameterMap().get("client_id")[0];
             var client = clientStore.find(clientId);
             if (client.isPresent()
                     && client.get().tokenEndpointAuthMethod
                             == TokenEndpointAuthMethod.client_secret_post
-                    && body.containsKey("client_secret")) {
-                if (client.get().clientSecret.equals(body.get("client_secret").get(0))) {
+                    && request.getParameterMap().containsKey("client_secret")) {
+                if (client.get()
+                        .clientSecret
+                        .equals(request.getParameterMap().get("client_secret")[0])) {
                     return client;
                 }
             }
