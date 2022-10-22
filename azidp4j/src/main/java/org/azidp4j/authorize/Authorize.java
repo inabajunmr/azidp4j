@@ -47,6 +47,10 @@ public class Authorize {
     }
 
     public AuthorizationResponse authorize(InternalAuthorizationRequest authorizationRequest) {
+        var scope =
+                authorizationRequest.scope != null && !authorizationRequest.scope.isEmpty()
+                        ? authorizationRequest.scope
+                        : String.join(" ", config.defaultScope);
         if (authorizationRequest.authenticatedUserId != null
                 && authorizationRequest.authTime == null) {
             throw new AssertionError("When user is authenticated, must set authTime.");
@@ -152,7 +156,7 @@ public class Authorize {
         }
 
         // validate scope
-        if (!scopeValidator.hasEnoughScope(authorizationRequest.scope, client)) {
+        if (!scopeValidator.hasEnoughScope(scope, client)) {
             return AuthorizationResponse.redirect(
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
@@ -288,18 +292,18 @@ public class Authorize {
         String accessToken = null;
         String tokenType = null;
         String expiresIn = null;
-        String scope = null;
+        String responseScope = null;
         if (responseType.contains(ResponseType.token)) {
-            scope = authorizationRequest.scope;
+            responseScope = scope;
             // issue access token
             var at =
                     accessTokenService.issue(
                             authorizationRequest.authenticatedUserId,
-                            authorizationRequest.scope,
+                            scope,
                             authorizationRequest.clientId,
                             Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
                             Instant.now().getEpochSecond(),
-                            scopeAudienceMapper.map(authorizationRequest.scope),
+                            scopeAudienceMapper.map(scope),
                             null);
             accessToken = at.getToken();
             tokenType = "bearer";
@@ -312,7 +316,7 @@ public class Authorize {
             var code =
                     authorizationCodeService.issue(
                             authorizationRequest.authenticatedUserId,
-                            authorizationRequest.scope,
+                            scope,
                             authorizationRequest.clientId,
                             authorizationRequest.redirectUri,
                             authorizationRequest.state,
@@ -327,7 +331,7 @@ public class Authorize {
         String idToken = null;
         if (responseType.contains(ResponseType.id_token)) {
             // validate scope
-            if (!scopeValidator.contains(authorizationRequest.scope, "openid")) {
+            if (!scopeValidator.contains(scope, "openid")) {
                 return AuthorizationResponse.redirect(
                         redirectUri,
                         MapUtil.nullRemovedStringMap(
@@ -361,7 +365,7 @@ public class Authorize {
                         "expires_in",
                         expiresIn,
                         "scope",
-                        scope,
+                        responseScope,
                         "state",
                         authorizationRequest.state),
                 responseMode);

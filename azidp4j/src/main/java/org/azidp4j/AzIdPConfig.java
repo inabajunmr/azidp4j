@@ -14,6 +14,7 @@ public class AzIdPConfig {
 
     public final String userInfoEndpoint;
     public final Set<String> scopesSupported;
+    public final Set<String> defaultScope;
     public final String accessTokenKid;
     public final int authorizationCodeExpirationSec;
     public final int accessTokenExpirationSec;
@@ -29,6 +30,7 @@ public class AzIdPConfig {
             String clientConfigurationEndpointPattern,
             String userInfoEndpoint,
             Set<String> scopesSupported,
+            Set<String> defaultScope,
             String accessTokenKid,
             int accessTokenExpirationSec,
             int authorizationCodeExpirationSec,
@@ -42,6 +44,7 @@ public class AzIdPConfig {
         this.clientConfigurationEndpointPattern = clientConfigurationEndpointPattern;
         this.userInfoEndpoint = userInfoEndpoint;
         this.scopesSupported = scopesSupported;
+        this.defaultScope = defaultScope;
         this.accessTokenKid = accessTokenKid;
         this.accessTokenExpirationSec = accessTokenExpirationSec;
         this.authorizationCodeExpirationSec = authorizationCodeExpirationSec;

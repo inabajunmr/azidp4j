@@ -163,7 +163,7 @@ class AuthorizeTest_AuthorizationCode {
                         .redirectUri("http://rp1.example.com")
                         .scope(null)
                         .authenticatedUserId("username")
-                        .consentedScope(Set.of())
+                        .consentedScope(Set.of("openid", "scope1"))
                         .build();
 
         // exercise

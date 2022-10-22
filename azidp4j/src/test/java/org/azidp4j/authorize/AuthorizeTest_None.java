@@ -56,6 +56,7 @@ class AuthorizeTest_None {
                         "http://localhost:8080/client/{CLIENT_ID}",
                         "http://localhost:8080/userinfo",
                         Set.of("openid", "scope1", "scope2", "default"),
+                        Set.of("openid", "scope1"),
                         key.getKeyID(),
                         3600,
                         600,
