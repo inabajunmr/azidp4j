@@ -24,8 +24,9 @@ public class AuthorizationResponse {
         this.redirect = redirect;
     }
 
-    public static AuthorizationResponse additionalPage(Prompt prompt, Display display) {
-        var page = new AdditionalPage(prompt, display);
+    public static AuthorizationResponse additionalPage(
+            Prompt prompt, Display display, String clientId, String scope) {
+        var page = new AdditionalPage(prompt, display, clientId, scope);
         return new AuthorizationResponse(NextAction.additionalPage, null, page, null);
     }
 

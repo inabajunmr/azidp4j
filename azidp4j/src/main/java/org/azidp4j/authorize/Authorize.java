@@ -227,10 +227,12 @@ public class Authorize {
                 }
             }
             if (prompt.contains(Prompt.login)) {
-                return AuthorizationResponse.additionalPage(Prompt.login, display);
+                return AuthorizationResponse.additionalPage(
+                        Prompt.login, display, client.clientId, scope);
             }
             if (authorizationRequest.authenticatedUserId == null) {
-                return AuthorizationResponse.additionalPage(Prompt.login, display);
+                return AuthorizationResponse.additionalPage(
+                        Prompt.login, display, client.clientId, scope);
             }
             if (authorizationRequest.maxAge != null) {
                 try {
@@ -246,7 +248,8 @@ public class Authorize {
                                             authorizationRequest.state),
                                     responseMode);
                         } else {
-                            return AuthorizationResponse.additionalPage(Prompt.login, display);
+                            return AuthorizationResponse.additionalPage(
+                                    Prompt.login, display, client.clientId, scope);
                         }
                     }
                 } catch (NumberFormatException e) {
@@ -261,13 +264,16 @@ public class Authorize {
                 }
             }
             if (prompt.contains(Prompt.consent)) {
-                return AuthorizationResponse.additionalPage(Prompt.consent, display);
+                return AuthorizationResponse.additionalPage(
+                        Prompt.consent, display, client.clientId, scope);
             }
             if (prompt.contains(Prompt.select_account)) {
-                return AuthorizationResponse.additionalPage(Prompt.select_account, display);
+                return AuthorizationResponse.additionalPage(
+                        Prompt.select_account, display, client.clientId, scope);
             }
             if (!authorizationRequest.allScopeConsented()) {
-                return AuthorizationResponse.additionalPage(Prompt.consent, display);
+                return AuthorizationResponse.additionalPage(
+                        Prompt.consent, display, client.clientId, scope);
             }
         }
 

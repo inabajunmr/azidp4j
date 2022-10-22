@@ -28,7 +28,6 @@ public class ConsentHandler {
     public String form(Model model, @RequestParam String scope, @RequestParam String clientId) {
         LOGGER.info(ConsentHandler.class.getName());
         var scopes = scope.split(" ");
-
         model.addAttribute("clientId", clientId);
         model.addAttribute("scopes", scopes);
         return "consent";

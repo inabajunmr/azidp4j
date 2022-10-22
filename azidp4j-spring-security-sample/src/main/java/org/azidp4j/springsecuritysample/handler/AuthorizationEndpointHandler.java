@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.request.AuthorizationRequest;
+import org.azidp4j.authorize.response.AdditionalPage;
 import org.azidp4j.authorize.response.AuthorizationResponse;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.springsecuritysample.user.UserStore;
@@ -61,15 +62,15 @@ public class AuthorizationEndpointHandler {
                 return errorPage(req, response);
             }
             case additionalPage -> {
-                return additionalPage(req, authzReq, response);
+                return additionalPage(req, authzReq, response.additionalPage);
             }
             default -> throw new AssertionError();
         }
     }
 
     private static String additionalPage(
-            HttpServletRequest req, AuthorizationRequest authzReq, AuthorizationResponse response) {
-        switch (response.additionalPage.prompt) {
+            HttpServletRequest req, AuthorizationRequest authzReq, AdditionalPage additionalPage) {
+        switch (additionalPage.prompt) {
             case login -> {
                 var session = req.getSession();
                 var map = new LinkedMultiValueMap<String, String>();
@@ -105,17 +106,14 @@ public class AuthorizationEndpointHandler {
                         .build();
                 return "redirect:"
                         + UriComponentsBuilder.fromPath("/consent")
-                                // TODO not good interface
                                 .queryParam(
                                         "scope",
                                         URLEncoder.encode(
-                                                authzReq.queryParameters().get("scope"),
-                                                StandardCharsets.UTF_8))
+                                                additionalPage.scope, StandardCharsets.UTF_8))
                                 .queryParam(
                                         "clientId",
                                         URLEncoder.encode(
-                                                authzReq.queryParameters().get("client_id"),
-                                                StandardCharsets.UTF_8))
+                                                additionalPage.clientId, StandardCharsets.UTF_8))
                                 .build();
             }
             case select_account -> throw new AssertionError();
