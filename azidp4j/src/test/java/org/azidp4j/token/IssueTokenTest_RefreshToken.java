@@ -39,16 +39,7 @@ public class IssueTokenTest_RefreshToken {
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.refresh_token),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
@@ -66,7 +57,7 @@ public class IssueTokenTest_RefreshToken {
                         UUID.randomUUID().toString(),
                         "user",
                         "rs:scope1 rs:scope2",
-                        "clientId",
+                        "confidential",
                         Set.of("scope"),
                         Instant.now().getEpochSecond() + 3600,
                         Instant.now().getEpochSecond());
@@ -76,7 +67,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1 rs:scope2")
                         .refreshToken(refreshToken.token)
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("confidential")
                         .build();
 
         // exercise
@@ -89,7 +80,7 @@ public class IssueTokenTest_RefreshToken {
                 accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "user",
                 "http://rs.example.com",
-                "clientId",
+                "confidential",
                 "rs:scope1 rs:scope2",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -110,16 +101,7 @@ public class IssueTokenTest_RefreshToken {
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.refresh_token),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -136,7 +118,7 @@ public class IssueTokenTest_RefreshToken {
                         UUID.randomUUID().toString(),
                         "user",
                         "rs:scope1 rs:scope2",
-                        "clientId",
+                        "confidential",
                         Set.of("rs"),
                         Instant.now().getEpochSecond() + 3600,
                         Instant.now().getEpochSecond());
@@ -146,7 +128,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1")
                         .refreshToken(refreshToken.token)
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("confidential")
                         .build();
 
         // exercise
@@ -159,7 +141,7 @@ public class IssueTokenTest_RefreshToken {
                 accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "user",
                 "http://rs.example.com",
-                "clientId",
+                "confidential",
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -184,16 +166,7 @@ public class IssueTokenTest_RefreshToken {
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.refresh_token),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.none,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.publicClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -210,7 +183,7 @@ public class IssueTokenTest_RefreshToken {
                         UUID.randomUUID().toString(),
                         "user",
                         "rs:scope1 rs:scope2",
-                        "clientId",
+                        "public",
                         Set.of("rs"),
                         Instant.now().getEpochSecond() + 3600,
                         Instant.now().getEpochSecond());
@@ -220,7 +193,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1 rs:scope2")
                         .refreshToken(refreshToken.token)
-                        .clientId("clientId")
+                        .clientId("public")
                         .build();
 
         // exercise
@@ -233,7 +206,7 @@ public class IssueTokenTest_RefreshToken {
                 accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "user",
                 "http://rs.example.com",
-                "clientId",
+                "public",
                 "rs:scope1 rs:scope2",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -254,16 +227,7 @@ public class IssueTokenTest_RefreshToken {
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.refresh_token),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -280,7 +244,7 @@ public class IssueTokenTest_RefreshToken {
                         UUID.randomUUID().toString(),
                         "user",
                         "rs:scope1",
-                        "clientId",
+                        "confidential",
                         Set.of("rs"),
                         Instant.now().getEpochSecond() + 3600,
                         Instant.now().getEpochSecond());
@@ -290,7 +254,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1 rs:scope2")
                         .refreshToken(refreshToken.token)
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("confidential")
                         .build();
 
         // exercise
@@ -315,16 +279,7 @@ public class IssueTokenTest_RefreshToken {
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.refresh_token),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -341,7 +296,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1 rs:scope2")
                         .refreshToken("invalid")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("confidential")
                         .build();
 
         // exercise
@@ -383,16 +338,7 @@ public class IssueTokenTest_RefreshToken {
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.refresh_token),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -409,7 +355,7 @@ public class IssueTokenTest_RefreshToken {
                         UUID.randomUUID().toString(),
                         "user",
                         "rs:scope1",
-                        "clientId",
+                        "confidential",
                         Set.of("rs"),
                         Instant.now().getEpochSecond() - 10,
                         Instant.now().getEpochSecond());
@@ -419,7 +365,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1")
                         .refreshToken(refreshToken.token)
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("confidential")
                         .build();
 
         // exercise
@@ -458,16 +404,7 @@ public class IssueTokenTest_RefreshToken {
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.refresh_token),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
@@ -495,7 +432,7 @@ public class IssueTokenTest_RefreshToken {
                         .grantType("refresh_token")
                         .scope("rs:scope1")
                         .refreshToken(refreshToken.token)
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("confidential")
                         .build();
 
         // exercise

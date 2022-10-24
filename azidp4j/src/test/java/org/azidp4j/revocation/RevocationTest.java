@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Stream;
-import org.azidp4j.authorize.request.ResponseType;
+import org.azidp4j.Fixtures;
 import org.azidp4j.client.*;
 import org.azidp4j.revocation.request.InternalRevocationRequest;
 import org.azidp4j.token.accesstoken.AccessTokenService;
@@ -27,26 +27,8 @@ class RevocationTest {
     ClientStore clientStore = new InMemoryClientStore();
 
     {
-        clientStore.save(
-                new Client(
-                        "confidential",
-                        "secret",
-                        null,
-                        Set.of(GrantType.authorization_code),
-                        Set.of(ResponseType.code),
-                        "scope1 scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
-        clientStore.save(
-                new Client(
-                        "public",
-                        "secret",
-                        null,
-                        Set.of(GrantType.authorization_code),
-                        Set.of(ResponseType.code),
-                        "scope1 scope2",
-                        TokenEndpointAuthMethod.none,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
+        clientStore.save(Fixtures.publicClient());
     }
 
     Revocation sut = new Revocation(accessTokenService, refreshTokenService, clientStore);

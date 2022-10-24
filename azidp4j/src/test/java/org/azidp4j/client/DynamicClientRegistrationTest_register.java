@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
@@ -14,6 +15,7 @@ import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.request.ClientRegistrationRequest;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
+import org.azidp4j.util.HumanReadable;
 import org.junit.jupiter.api.Test;
 
 class DynamicClientRegistrationTest_register {
@@ -43,6 +45,9 @@ class DynamicClientRegistrationTest_register {
                                         "client_credentials"))
                         .scope("scope1 scope2")
                         .responseTypes(Set.of("code", "token", "id_token"))
+                        .clientName(
+                                new HumanReadable<>(
+                                        "client_name", "client", Map.of("ja", "クライアント")))
                         .tokenEndpointAuthMethod("client_secret_basic")
                         .idTokenSignedResponseAlg("RS256")
                         .build();

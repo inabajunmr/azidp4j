@@ -84,9 +84,19 @@ public class DynamicClientRegistration {
                                 ? UUID.randomUUID().toString()
                                 : null,
                         request.redirectUris != null ? request.redirectUris : Set.of(),
-                        grantTypes,
                         responseTypes,
+                        grantTypes,
+                        request.clientName,
+                        request.clientUri,
+                        request.logoUri,
                         request.scope,
+                        request.contacts,
+                        request.tosUri,
+                        request.policyUri,
+                        request.jwksUri,
+                        request.jwks,
+                        request.softwareId,
+                        request.softwareVersion,
                         tokenEndpointAuthMethod,
                         idTokenSignedResponseAlg);
         clientStore.save(client);
@@ -176,14 +186,25 @@ public class DynamicClientRegistration {
             }
         }
 
+        // TODO
         var updated =
                 new Client(
                         client.clientId,
                         client.clientSecret,
                         redirectUris,
-                        grantTypes,
                         responseTypes,
+                        grantTypes,
+                        null,
+                        null,
+                        null,
                         scope,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
                         tokenEndpointAuthMethod,
                         idTokenSignedResponseAlg);
         clientStore.save(updated);

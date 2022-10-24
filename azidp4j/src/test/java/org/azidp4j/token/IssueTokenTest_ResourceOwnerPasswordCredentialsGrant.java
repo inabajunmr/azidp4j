@@ -7,7 +7,6 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.time.Instant;
-import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
@@ -43,16 +42,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                     }
                 };
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.password),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -69,7 +59,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         .grantType("password")
                         .username("username")
                         .password("password")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("confidential")
                         .scope("rs:scope1")
                         .build();
 
@@ -83,7 +73,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
-                "clientId",
+                "confidential",
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -110,16 +100,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                     }
                 };
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.password),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.none,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.publicClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -136,7 +117,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         .grantType("password")
                         .username("username")
                         .password("password")
-                        .clientId("clientId")
+                        .clientId("public")
                         .scope("rs:scope1")
                         .build();
 
@@ -150,7 +131,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
-                "clientId",
+                "public",
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -177,16 +158,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                     }
                 };
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.password),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -203,7 +175,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         .grantType("password")
                         .username("username")
                         .password("password")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("confidential")
                         .scope("rs:scope1")
                         .build();
 
@@ -236,16 +208,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                     }
                 };
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(GrantType.password),
-                        Set.of(),
-                        "rs:scope1 rs:scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken = // TODO 初期化をまとめられるか？
                 new IssueToken(
@@ -262,7 +225,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         .grantType("password")
                         .username("username")
                         .password("password")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("confidential")
                         .scope("unauthorized")
                         .build();
 

@@ -28,24 +28,25 @@ import org.junit.jupiter.api.Test;
 class AuthorizeTest_validationError {
 
     final ClientStore clientStore = new InMemoryClientStore();
-    final Client client =
-            new Client(
-                    "client1",
-                    "clientSecret",
-                    Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                    Set.of(GrantType.authorization_code, GrantType.implicit),
-                    Set.of(ResponseType.code, ResponseType.token),
-                    "scope1 scope2 openid",
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
+    final Client client = Fixtures.confidentialClient();
     final Client noGrantTypesClient =
             new Client(
                     "noGrantTypesClient",
                     "clientSecret",
                     Set.of("http://rp1.example.com"),
-                    Set.of(),
                     Set.of(ResponseType.code),
+                    Set.of(),
+                    null,
+                    null,
+                    null,
                     "scope1 scope2",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
 
@@ -54,9 +55,19 @@ class AuthorizeTest_validationError {
                     "noResponseTypesClient",
                     "clientSecret",
                     Set.of("http://rp1.example.com"),
-                    Set.of(GrantType.authorization_code, GrantType.implicit),
                     Set.of(),
+                    Set.of(GrantType.authorization_code, GrantType.implicit),
+                    null,
+                    null,
+                    null,
                     "scope1 scope2",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
     final AzIdPConfig config = Fixtures.azIdPConfig("kid");

@@ -32,9 +32,19 @@ class AuthorizeTest_AuthorizationCode {
                     "client1",
                     "clientSecret",
                     Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                    Set.of(GrantType.authorization_code),
                     Set.of(ResponseType.code),
+                    Set.of(GrantType.authorization_code),
+                    null,
+                    null,
+                    null,
                     "scope1 scope2 openid",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
     final Client noGrantTypesClient =
@@ -42,9 +52,19 @@ class AuthorizeTest_AuthorizationCode {
                     "noGrantTypesClient",
                     "clientSecret",
                     Set.of("http://rp1.example.com"),
-                    Set.of(),
                     Set.of(ResponseType.code),
+                    Set.of(),
+                    null,
+                    null,
+                    null,
                     "scope1 scope2",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
 
@@ -53,9 +73,19 @@ class AuthorizeTest_AuthorizationCode {
                     "noResponseTypesClient",
                     "clientSecret",
                     Set.of("http://rp1.example.com"),
-                    Set.of(GrantType.authorization_code, GrantType.implicit),
                     Set.of(),
+                    Set.of(GrantType.authorization_code, GrantType.implicit),
+                    null,
+                    null,
+                    null,
                     "scope1 scope2",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
     final AzIdPConfig config = Fixtures.azIdPConfig("kid");
@@ -106,16 +136,6 @@ class AuthorizeTest_AuthorizationCode {
     void authorizationCodeGrant_withState() {
         // setup
         var clientStore = new InMemoryClientStore();
-        var client =
-                new Client(
-                        "client1",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                        Set.of(GrantType.authorization_code),
-                        Set.of(ResponseType.code),
-                        "scope1 scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256);
         clientStore.save(client);
         var config = Fixtures.azIdPConfig("kid");
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
@@ -183,16 +203,6 @@ class AuthorizeTest_AuthorizationCode {
     void authorizationCodeGrant_withMaxAge() {
         // setup
         var clientStore = new InMemoryClientStore();
-        var client =
-                new Client(
-                        "client1",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com"),
-                        Set.of(GrantType.authorization_code),
-                        Set.of(ResponseType.code),
-                        "scope1 scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256);
         clientStore.save(client);
         var config = Fixtures.azIdPConfig("kid");
 
@@ -234,16 +244,6 @@ class AuthorizeTest_AuthorizationCode {
     void authorizationCodeGrant_fragment() {
         // setup
         var clientStore = new InMemoryClientStore();
-        var client =
-                new Client(
-                        "client1",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com"),
-                        Set.of(GrantType.authorization_code),
-                        Set.of(ResponseType.code),
-                        "scope1 scope2",
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256);
         clientStore.save(client);
         var config = Fixtures.azIdPConfig("kid");
         var sut =

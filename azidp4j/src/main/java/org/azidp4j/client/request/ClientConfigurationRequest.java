@@ -4,6 +4,8 @@ import java.util.Set;
 
 public class ClientConfigurationRequest {
 
+    // TODO add field or merge with registration
+
     public final String clientId;
     public final Set<String> redirectUris;
     public final Set<String> grantTypes;
