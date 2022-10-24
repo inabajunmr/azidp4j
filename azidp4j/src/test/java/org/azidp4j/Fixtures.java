@@ -37,6 +37,7 @@ public class Fixtures {
                         GrantType.authorization_code,
                         GrantType.implicit,
                         GrantType.password,
+                        GrantType.client_credentials, // TODO funny
                         GrantType.refresh_token),
                 null,
                 null,
@@ -63,6 +64,7 @@ public class Fixtures {
                         GrantType.authorization_code,
                         GrantType.implicit,
                         GrantType.password,
+                        GrantType.client_credentials,
                         GrantType.refresh_token),
                 null,
                 null,

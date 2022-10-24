@@ -7,7 +7,6 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.time.Instant;
-import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
@@ -36,26 +35,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(),
-                        Set.of(GrantType.client_credentials),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -70,7 +50,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("confidential")
                         .scope("rs:scope1")
                         .build();
 
@@ -81,9 +61,9 @@ class IssueTokenTest_ClientCredentialsGrant {
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
                 accessTokenStore.find((String) response.body.get("access_token")).get(),
-                "clientId",
+                "confidential",
                 "http://rs.example.com",
-                "clientId",
+                "confidential",
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -103,26 +83,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(),
-                        Set.of(GrantType.client_credentials),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -137,7 +98,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("confidential")
                         .scope("rs:unauthorized")
                         .build();
 
@@ -161,26 +122,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(),
-                        Set.of(GrantType.client_credentials),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.confidentialClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -195,7 +137,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")
-                        .clientId("clientId")
+                        .clientId("confidential")
                         .scope("rs:unauthorized")
                         .build();
 
@@ -219,26 +161,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(),
-                        Set.of(GrantType.client_credentials),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.none,
-                        SigningAlgorithm.ES256));
+        clientStore.save(Fixtures.publicClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -253,7 +176,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")
-                        .authenticatedClientId("clientId")
+                        .authenticatedClientId("public")
                         .scope("rs:scope1")
                         .build();
 

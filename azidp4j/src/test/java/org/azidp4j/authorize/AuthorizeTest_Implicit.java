@@ -39,12 +39,12 @@ class AuthorizeTest_Implicit {
                     "client1",
                     "clientSecret",
                     Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                    Set.of(ResponseType.code),
-                    Set.of(GrantType.authorization_code),
+                    Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token),
+                    Set.of(GrantType.authorization_code, GrantType.implicit),
                     null,
                     null,
                     null,
-                    "scope1 scope2 openid",
+                    "rs:scope1 rs:scope2 openid",
                     null,
                     null,
                     null,
@@ -54,6 +54,27 @@ class AuthorizeTest_Implicit {
                     null,
                     TokenEndpointAuthMethod.client_secret_basic,
                     SigningAlgorithm.ES256);
+
+    final Client clientRs256 =
+            new Client(
+                    "client1",
+                    "clientSecret",
+                    Set.of("http://rp1.example.com", "http://rp2.example.com"),
+                    Set.of(ResponseType.token, ResponseType.id_token),
+                    Set.of(GrantType.implicit),
+                    null,
+                    null,
+                    null,
+                    "openid rs:scope1 rs:scope2",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    TokenEndpointAuthMethod.client_secret_basic,
+                    SigningAlgorithm.RS256);
 
     final Client noGrantTypesClient =
             new Client(
@@ -107,27 +128,7 @@ class AuthorizeTest_Implicit {
     void implicitGrant_withoutState() throws JOSEException {
         // setup
         var clientStore = new InMemoryClientStore();
-        var client =
-                new Client(
-                        "client1",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                        Set.of(ResponseType.token),
-                        Set.of(GrantType.implicit),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256);
-        clientStore.save(client);
+        clientStore.save(clientEs256);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
@@ -144,7 +145,7 @@ class AuthorizeTest_Implicit {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("token")
-                        .clientId(client.clientId)
+                        .clientId(clientEs256.clientId)
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
@@ -166,7 +167,7 @@ class AuthorizeTest_Implicit {
                 accessTokenStore.find(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
-                "client1",
+                clientEs256.clientId,
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
@@ -177,27 +178,7 @@ class AuthorizeTest_Implicit {
     void implicitGrant_withState() throws JOSEException {
         // setup
         var clientStore = new InMemoryClientStore();
-        var client =
-                new Client(
-                        "client1",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                        Set.of(ResponseType.token),
-                        Set.of(GrantType.implicit),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256);
-        clientStore.save(client);
+        clientStore.save(clientEs256);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var config = Fixtures.azIdPConfig(key.getKeyID());
@@ -214,7 +195,7 @@ class AuthorizeTest_Implicit {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("token")
-                        .clientId(client.clientId)
+                        .clientId(clientEs256.clientId)
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
@@ -248,27 +229,7 @@ class AuthorizeTest_Implicit {
     void implicitGrant_oidc_es256_withState() throws JOSEException, ParseException {
         // setup
         var clientStore = new InMemoryClientStore();
-        var client =
-                new Client(
-                        "client1",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                        Set.of(ResponseType.token, ResponseType.id_token),
-                        Set.of(GrantType.implicit),
-                        null,
-                        null,
-                        null,
-                        "openid rs:scope1 rs:scope2",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256);
-        clientStore.save(client);
+        clientStore.save(clientEs256);
         var key =
                 new ECKeyGenerator(Curve.P_256)
                         .keyID("123")
@@ -289,7 +250,7 @@ class AuthorizeTest_Implicit {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("token id_token")
-                        .clientId(client.clientId)
+                        .clientId(clientEs256.clientId)
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
                         .scope("openid rs:scope1")
@@ -335,27 +296,7 @@ class AuthorizeTest_Implicit {
     void implicitGrant_oidc_rs256_withState() throws JOSEException, ParseException {
         // setup
         var clientStore = new InMemoryClientStore();
-        var client =
-                new Client(
-                        "client1",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                        Set.of(ResponseType.token, ResponseType.id_token),
-                        Set.of(GrantType.implicit),
-                        null,
-                        null,
-                        null,
-                        "openid rs:scope1 rs:scope2",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.RS256);
-        clientStore.save(client);
+        clientStore.save(clientRs256);
         var ecKey =
                 new ECKeyGenerator(Curve.P_256)
                         .keyID("123")
@@ -378,7 +319,7 @@ class AuthorizeTest_Implicit {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("token id_token")
-                        .clientId(client.clientId)
+                        .clientId(clientRs256.clientId)
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
                         .scope("openid rs:scope1")
