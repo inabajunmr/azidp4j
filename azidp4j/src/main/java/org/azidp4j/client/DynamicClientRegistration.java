@@ -186,7 +186,6 @@ public class DynamicClientRegistration {
             }
         }
 
-        // TODO
         var updated =
                 new Client(
                         client.clientId,
@@ -194,17 +193,19 @@ public class DynamicClientRegistration {
                         redirectUris,
                         responseTypes,
                         grantTypes,
-                        null,
-                        null,
-                        null,
+                        request.clientName != null ? request.clientName : client.clientName,
+                        request.clientUri != null ? request.clientUri : client.clientUri,
+                        request.logoUri != null ? request.logoUri : client.logoUri,
                         scope,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
+                        request.contacts != null ? request.contacts : client.contacts,
+                        request.tosUri != null ? request.tosUri : client.tosUri,
+                        request.policyUri != null ? request.policyUri : client.policyUri,
+                        request.jwksUri != null ? request.jwksUri : client.jwksUri,
+                        request.jwks != null ? request.jwks : client.jwks,
+                        request.softwareId != null ? request.softwareId : client.softwareId,
+                        request.softwareVersion != null
+                                ? request.softwareVersion
+                                : client.softwareVersion,
                         tokenEndpointAuthMethod,
                         idTokenSignedResponseAlg);
         clientStore.save(updated);
@@ -219,10 +220,30 @@ public class DynamicClientRegistration {
                         updated.redirectUris,
                         "grant_types",
                         updated.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
+                        "client_name",
+                        updated.clientName != null ? updated.clientName.toMap() : null,
+                        "client_uri",
+                        updated.clientUri,
+                        "logo_uri",
+                        updated.logoUri,
                         "response_types",
                         updated.responseTypes.stream().map(Enum::name).collect(Collectors.toSet()),
                         "scope",
                         updated.scope,
+                        "contacts",
+                        updated.contacts,
+                        "tos_uri",
+                        updated.tosUri,
+                        "policy_uri",
+                        updated.policyUri,
+                        "jwks_uri",
+                        updated.jwksUri,
+                        "jwks",
+                        updated.jwks,
+                        "software_id",
+                        updated.softwareId,
+                        "software_version",
+                        updated.softwareVersion,
                         "token_endpoint_auth_method",
                         updated.tokenEndpointAuthMethod.name(),
                         "id_token_signed_response_alg",

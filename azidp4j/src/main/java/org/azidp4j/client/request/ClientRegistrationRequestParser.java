@@ -1,12 +1,15 @@
 package org.azidp4j.client.request;
 
+import static org.azidp4j.client.request.RequestParser.*;
+
 import java.util.*;
-import java.util.stream.Collectors;
-import org.azidp4j.util.HumanReadable;
 
 public class ClientRegistrationRequestParser {
 
     public ClientRegistrationRequest parse(Map<String, Object> parameters) {
+
+        // TODO パラメーター未指定の場合、デフォルト（Set.of)の設定はパーサーじゃなくてドメインでやりたい
+
         var redirectUris = valuesToStringSet(parameters.getOrDefault("redirect_uris", Set.of()));
         var grantTypes = valuesToStringSet(parameters.getOrDefault("grant_types", Set.of()));
         var responseTypes = valuesToStringSet(parameters.getOrDefault("response_types", Set.of()));
@@ -41,46 +44,5 @@ public class ClientRegistrationRequestParser {
                 .tokenEndpointAuthMethod(tokenEndpointAuthMethod)
                 .idTokenSignedResponseAlg(idTokenSignedResponseAlg)
                 .build();
-    }
-
-    private Set<String> valuesToStringSet(Object values) {
-        if (values instanceof Collection) {
-            var onlyString =
-                    ((Collection<?>) values)
-                            .stream().filter(v -> v instanceof String).collect(Collectors.toSet());
-            return ((Set<String>) onlyString);
-        } else if (values instanceof String[]) {
-            return Arrays.stream((String[]) values).collect(Collectors.toSet());
-        }
-        return Set.of();
-    }
-
-    private List<String> valuesToStringList(Object values) {
-        if (values instanceof Collection) {
-            var onlyString =
-                    ((Collection<?>) values)
-                            .stream().filter(v -> v instanceof String).collect(Collectors.toList());
-            return ((List<String>) onlyString);
-        } else if (values instanceof String[]) {
-            return Arrays.stream((String[]) values).collect(Collectors.toList());
-        }
-        return List.of();
-    }
-
-    private HumanReadable<String> valuesToHumanReadable(
-            String key, Map<String, Object> parameters) {
-        var clientName = (String) parameters.get(key);
-        var map = new HashMap<String, String>();
-        parameters.keySet().stream()
-                .filter(k -> k.startsWith("client_name#"))
-                .forEach(
-                        k -> {
-                            map.put(k.substring(k.indexOf('#')), (String) parameters.get(k));
-                        });
-        return new HumanReadable<String>("client_name", clientName, map);
-    }
-
-    private String valueToString(String key, Map<String, Object> parameters) {
-        return parameters.containsKey(key) ? parameters.get(key).toString() : null;
     }
 }

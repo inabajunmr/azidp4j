@@ -44,4 +44,10 @@ public class HumanReadable<T> {
 
         return tags.get(tag);
     }
+
+    public Map<String, T> toMap() {
+        var merge = new HashMap<>(tags);
+        merge.put(key, defaultValue);
+        return merge;
+    }
 }
