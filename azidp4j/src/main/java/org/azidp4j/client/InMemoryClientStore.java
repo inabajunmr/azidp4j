@@ -41,11 +41,17 @@ public class InMemoryClientStore implements ClientStore {
 
     @Override
     public Optional<Client> find(String clientId) {
+        if (clientId == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(STORE.get(clientId));
     }
 
     @Override
     public Optional<Client> remove(String clientId) {
+        if (clientId == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(STORE.remove(clientId));
     }
 }

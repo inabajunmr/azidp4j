@@ -92,7 +92,7 @@ public class DynamicClientRegistration {
                         request.clientName,
                         request.clientUri,
                         request.logoUri,
-                        request.scope,
+                        request.scope, // TODO should be restricted by discovery supported_scopes?
                         request.contacts,
                         request.tosUri,
                         request.policyUri,
@@ -159,6 +159,9 @@ public class DynamicClientRegistration {
     }
 
     public ClientRegistrationResponse configure(ClientConfigurationRequest request) {
+        if (request.clientId == null) {
+            throw new AssertionError();
+        }
         var client = clientStore.find(request.clientId).orElseThrow(AssertionError::new);
         var grantTypes = client.grantTypes;
         if (request.grantTypes != null) {
@@ -207,10 +210,7 @@ public class DynamicClientRegistration {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_response_type"));
             }
-        }
-
-        if (request.jwks != null && request.jwksUri != null) {
-            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
+            idTokenSignedResponseAlg = alg;
         }
 
         var updated =
@@ -235,6 +235,9 @@ public class DynamicClientRegistration {
                                 : client.softwareVersion,
                         tokenEndpointAuthMethod,
                         idTokenSignedResponseAlg);
+        if (updated.jwks != null && updated.jwksUri != null) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
+        }
         clientStore.save(updated);
         return new ClientRegistrationResponse(
                 200,
@@ -260,9 +263,9 @@ public class DynamicClientRegistration {
                         "contacts",
                         updated.contacts,
                         "tos_uri",
-                        updated.tosUri,
+                        updated.tosUri != null ? updated.tosUri.toMap() : null,
                         "policy_uri",
-                        updated.policyUri,
+                        updated.policyUri != null ? updated.policyUri.toMap() : null,
                         "jwks_uri",
                         updated.jwksUri,
                         "jwks",
@@ -274,7 +277,7 @@ public class DynamicClientRegistration {
                         "token_endpoint_auth_method",
                         updated.tokenEndpointAuthMethod.name(),
                         "id_token_signed_response_alg",
-                        client.idTokenSignedResponseAlg.name()));
+                        updated.idTokenSignedResponseAlg.name()));
     }
 
     public ClientDeleteResponse delete(String clientId) {
