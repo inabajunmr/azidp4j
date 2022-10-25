@@ -46,7 +46,8 @@ public class HumanReadable<T> {
     }
 
     public Map<String, T> toMap() {
-        var merge = new HashMap<>(tags);
+        var merge = new HashMap<String, T>();
+        tags.entrySet().forEach((kv) -> merge.put(key + "#" + kv.getKey(), kv.getValue()));
         merge.put(key, defaultValue);
         return merge;
     }

@@ -26,7 +26,6 @@ public class DynamicClientRegistration {
     }
 
     public ClientRegistrationResponse register(ClientRegistrationRequest request) {
-
         Set<GrantType> grantTypes = new HashSet<>();
         if (request.grantTypes == null) {
             // default
@@ -75,6 +74,10 @@ public class DynamicClientRegistration {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_response_type"));
             }
+        }
+
+        if (request.jwks != null && request.jwksUri != null) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
         }
 
         var client =
@@ -127,8 +130,28 @@ public class DynamicClientRegistration {
                         client.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
                         "response_types",
                         client.responseTypes.stream().map(Enum::name).collect(Collectors.toSet()),
+                        "client_name",
+                        client.clientName != null ? client.clientName.toMap() : null,
+                        "client_uri",
+                        client.clientUri,
+                        "logo_uri",
+                        client.logoUri,
                         "scope",
                         client.scope,
+                        "contacts",
+                        client.contacts,
+                        "tos_uri",
+                        client.tosUri != null ? client.tosUri.toMap() : null,
+                        "policy_uri",
+                        client.policyUri != null ? client.policyUri.toMap() : null,
+                        "jwks_uri",
+                        client.jwksUri,
+                        "jwks",
+                        client.jwks,
+                        "software_id",
+                        client.softwareId,
+                        "software_version",
+                        client.softwareVersion,
                         "token_endpoint_auth_method",
                         client.tokenEndpointAuthMethod.name(),
                         "id_token_signed_response_alg",
@@ -184,6 +207,10 @@ public class DynamicClientRegistration {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_response_type"));
             }
+        }
+
+        if (request.jwks != null && request.jwksUri != null) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
         }
 
         var updated =

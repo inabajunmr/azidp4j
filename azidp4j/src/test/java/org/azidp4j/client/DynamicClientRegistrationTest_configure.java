@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class DynamicClientRegistrationTest_configure {
 
     @Test
-    void success() throws JOSEException {
+    void success_All() throws JOSEException {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var config = Fixtures.azIdPConfig(key.getKeyID());
@@ -39,4 +39,10 @@ class DynamicClientRegistrationTest_configure {
         assertEquals(200, response.status);
         assertEquals(response.body.get("scope"), "openid");
     }
+
+    @Test
+    void success_None() throws JOSEException {}
+
+    // TODO jwks_uri and jwks
+
 }
