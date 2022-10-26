@@ -26,7 +26,6 @@ public class DynamicClientRegistration {
     }
 
     public ClientRegistrationResponse register(ClientRegistrationRequest request) {
-
         Set<GrantType> grantTypes = new HashSet<>();
         if (request.grantTypes == null) {
             // default
@@ -77,6 +76,10 @@ public class DynamicClientRegistration {
             }
         }
 
+        if (request.jwks != null && request.jwksUri != null) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
+        }
+
         var client =
                 new Client(
                         UUID.randomUUID().toString(),
@@ -84,11 +87,25 @@ public class DynamicClientRegistration {
                                 ? UUID.randomUUID().toString()
                                 : null,
                         request.redirectUris != null ? request.redirectUris : Set.of(),
-                        grantTypes,
                         responseTypes,
-                        request.scope,
+                        grantTypes,
+                        request.clientName,
+                        request.clientUri,
+                        request.logoUri,
+                        request.scope, // TODO should be restricted by discovery supported_scopes?
+                        request.contacts,
+                        request.tosUri,
+                        request.policyUri,
+                        request.jwksUri,
+                        request.jwks,
+                        request.softwareId,
+                        request.softwareVersion,
                         tokenEndpointAuthMethod,
                         idTokenSignedResponseAlg);
+        var error = validateClient(client);
+        if (error != null) {
+            return error;
+        }
         clientStore.save(client);
         var at =
                 accessTokenService.issue(
@@ -117,8 +134,28 @@ public class DynamicClientRegistration {
                         client.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
                         "response_types",
                         client.responseTypes.stream().map(Enum::name).collect(Collectors.toSet()),
+                        "client_name",
+                        client.clientName != null ? client.clientName.toMap() : null,
+                        "client_uri",
+                        client.clientUri,
+                        "logo_uri",
+                        client.logoUri,
                         "scope",
                         client.scope,
+                        "contacts",
+                        client.contacts,
+                        "tos_uri",
+                        client.tosUri != null ? client.tosUri.toMap() : null,
+                        "policy_uri",
+                        client.policyUri != null ? client.policyUri.toMap() : null,
+                        "jwks_uri",
+                        client.jwksUri,
+                        "jwks",
+                        client.jwks,
+                        "software_id",
+                        client.softwareId,
+                        "software_version",
+                        client.softwareVersion,
                         "token_endpoint_auth_method",
                         client.tokenEndpointAuthMethod.name(),
                         "id_token_signed_response_alg",
@@ -126,6 +163,9 @@ public class DynamicClientRegistration {
     }
 
     public ClientRegistrationResponse configure(ClientConfigurationRequest request) {
+        if (request.clientId == null) {
+            throw new AssertionError();
+        }
         var client = clientStore.find(request.clientId).orElseThrow(AssertionError::new);
         var grantTypes = client.grantTypes;
         if (request.grantTypes != null) {
@@ -174,6 +214,7 @@ public class DynamicClientRegistration {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_response_type"));
             }
+            idTokenSignedResponseAlg = alg;
         }
 
         var updated =
@@ -181,11 +222,27 @@ public class DynamicClientRegistration {
                         client.clientId,
                         client.clientSecret,
                         redirectUris,
-                        grantTypes,
                         responseTypes,
+                        grantTypes,
+                        request.clientName != null ? request.clientName : client.clientName,
+                        request.clientUri != null ? request.clientUri : client.clientUri,
+                        request.logoUri != null ? request.logoUri : client.logoUri,
                         scope,
+                        request.contacts != null ? request.contacts : client.contacts,
+                        request.tosUri != null ? request.tosUri : client.tosUri,
+                        request.policyUri != null ? request.policyUri : client.policyUri,
+                        request.jwksUri != null ? request.jwksUri : client.jwksUri,
+                        request.jwks != null ? request.jwks : client.jwks,
+                        request.softwareId != null ? request.softwareId : client.softwareId,
+                        request.softwareVersion != null
+                                ? request.softwareVersion
+                                : client.softwareVersion,
                         tokenEndpointAuthMethod,
                         idTokenSignedResponseAlg);
+        var error = validateClient(updated);
+        if (error != null) {
+            return error;
+        }
         clientStore.save(updated);
         return new ClientRegistrationResponse(
                 200,
@@ -198,18 +255,49 @@ public class DynamicClientRegistration {
                         updated.redirectUris,
                         "grant_types",
                         updated.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
+                        "client_name",
+                        updated.clientName != null ? updated.clientName.toMap() : null,
+                        "client_uri",
+                        updated.clientUri,
+                        "logo_uri",
+                        updated.logoUri,
                         "response_types",
                         updated.responseTypes.stream().map(Enum::name).collect(Collectors.toSet()),
                         "scope",
                         updated.scope,
+                        "contacts",
+                        updated.contacts,
+                        "tos_uri",
+                        updated.tosUri != null ? updated.tosUri.toMap() : null,
+                        "policy_uri",
+                        updated.policyUri != null ? updated.policyUri.toMap() : null,
+                        "jwks_uri",
+                        updated.jwksUri,
+                        "jwks",
+                        updated.jwks,
+                        "software_id",
+                        updated.softwareId,
+                        "software_version",
+                        updated.softwareVersion,
                         "token_endpoint_auth_method",
                         updated.tokenEndpointAuthMethod.name(),
                         "id_token_signed_response_alg",
-                        client.idTokenSignedResponseAlg.name()));
+                        updated.idTokenSignedResponseAlg.name()));
     }
 
     public ClientDeleteResponse delete(String clientId) {
         clientStore.remove(clientId);
         return new ClientDeleteResponse(204, null);
+    }
+
+    private ClientRegistrationResponse validateClient(Client client) {
+        if (client.jwks != null && client.jwksUri != null) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
+        }
+        if (client.tokenEndpointAuthMethod == TokenEndpointAuthMethod.none
+                && client.grantTypes.contains(GrantType.client_credentials)) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
+        }
+        return null;
     }
 }

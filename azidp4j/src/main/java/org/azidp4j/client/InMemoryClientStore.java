@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.azidp4j.util.HumanReadable;
 
 public class InMemoryClientStore implements ClientStore {
 
@@ -16,9 +17,19 @@ public class InMemoryClientStore implements ClientStore {
                         "default",
                         "default",
                         Set.of(),
-                        Set.of(GrantType.client_credentials),
                         Set.of(),
+                        Set.of(GrantType.client_credentials),
+                        new HumanReadable<>("client_name", "default", null),
+                        null,
+                        null,
                         "default",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
                         TokenEndpointAuthMethod.client_secret_basic,
                         SigningAlgorithm.ES256));
     }
@@ -30,11 +41,17 @@ public class InMemoryClientStore implements ClientStore {
 
     @Override
     public Optional<Client> find(String clientId) {
+        if (clientId == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(STORE.get(clientId));
     }
 
     @Override
     public Optional<Client> remove(String clientId) {
+        if (clientId == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(STORE.remove(clientId));
     }
 }

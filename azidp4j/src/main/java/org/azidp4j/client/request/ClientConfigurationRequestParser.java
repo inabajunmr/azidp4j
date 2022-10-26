@@ -1,55 +1,49 @@
 package org.azidp4j.client.request;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import static org.azidp4j.client.request.RequestParser.*;
+
+import java.util.*;
 
 public class ClientConfigurationRequestParser {
 
     public ClientConfigurationRequest parse(String clientId, Map<String, Object> parameters) {
-        var redirectUris =
-                parameters.containsKey("redirect_uris")
-                        ? valuesToStringSet(parameters.get("redirect_uris"))
-                        : null;
-        var grantTypes =
-                parameters.containsKey("grant_types")
-                        ? valuesToStringSet(parameters.get("grant_types"))
-                        : null;
-        var responseTypes =
-                parameters.containsKey("response_types")
-                        ? valuesToStringSet(parameters.get("response_types"))
-                        : null;
-        var scope = parameters.containsKey("scope") ? parameters.get("scope").toString() : null;
-        var tokenEndpointAuthMethod =
-                parameters.containsKey("token_endpoint_auth_method")
-                        ? parameters.get("token_endpoint_auth_method").toString()
-                        : null;
-        var idTokenSignedResponseAlg =
-                parameters.containsKey("id_token_signed_response_alg")
-                        ? parameters.get("id_token_signed_response_alg").toString()
-                        : null;
+
+        // TODO type error is ignored but should be 400
+
+        var redirectUris = valuesToStringSet(parameters.get("redirect_uris"));
+        var grantTypes = valuesToStringSet(parameters.get("grant_types"));
+        var responseTypes = valuesToStringSet(parameters.get("response_types"));
+        var clientName = valuesToHumanReadable("client_name", parameters);
+        var clientUri = valueToString("client_uri", parameters);
+        var logoUri = valueToString("logo_uri", parameters);
+        var scope = valueToString("scope", parameters);
+        var contacts = valuesToStringList(parameters.get("contacts"));
+        var tosUri = valuesToHumanReadable("tos_uri", parameters);
+        var policyUri = valuesToHumanReadable("policy_uri", parameters);
+        var jwksUri = valueToString("jwks_uri", parameters);
+        var jwks = valueToString("jwks", parameters);
+        var softwareId = valueToString("software_id", parameters);
+        var softwareVersion = valueToString("software_version", parameters);
+        var tokenEndpointAuthMethod = valueToString("token_endpoint_auth_method", parameters);
+        var idTokenSignedResponseAlg = valueToString("id_token_signed_response_alg", parameters);
         return ClientConfigurationRequest.builder()
                 .clientId(clientId)
                 .redirectUris(redirectUris)
                 .grantTypes(grantTypes)
                 .responseTypes(responseTypes)
+                .clientName(clientName)
+                .clientUri(clientUri)
+                .logoUri(logoUri)
                 .scope(scope)
+                .contacts(contacts)
+                .tosUri(tosUri)
+                .policyUri(policyUri)
+                .jwksUri(jwksUri)
+                .jwks(jwks)
+                .softwareId(softwareId)
+                .softwareVersion(softwareVersion)
                 .tokenEndpointAuthMethod(tokenEndpointAuthMethod)
                 .idTokenSignedResponseAlg(idTokenSignedResponseAlg)
                 .build();
-    }
-
-    private Set<String> valuesToStringSet(Object values) {
-        if (values instanceof Collection) {
-            var onlyString =
-                    ((Collection<?>) values)
-                            .stream().filter(v -> v instanceof String).collect(Collectors.toSet());
-            return ((Set<String>) onlyString);
-        } else if (values instanceof String[]) {
-            return Arrays.stream((String[]) values).collect(Collectors.toSet());
-        }
-        return Set.of();
     }
 }
