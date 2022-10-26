@@ -43,7 +43,7 @@ public class RequestParser {
                 .filter(k -> k.startsWith(key + "#"))
                 .forEach(
                         k -> {
-                            map.put(k.substring(k.indexOf('#')), parameters.get(k).toString());
+                            map.put(k.substring(k.indexOf('#') + 1), parameters.get(k).toString());
                         });
         if (defaultValue == null && map.isEmpty()) {
             return null;

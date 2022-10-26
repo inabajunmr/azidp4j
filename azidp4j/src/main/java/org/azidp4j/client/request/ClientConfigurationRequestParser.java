@@ -8,6 +8,8 @@ public class ClientConfigurationRequestParser {
 
     public ClientConfigurationRequest parse(String clientId, Map<String, Object> parameters) {
 
+        // TODO type error is ignored but should be 400
+
         var redirectUris = valuesToStringSet(parameters.get("redirect_uris"));
         var grantTypes = valuesToStringSet(parameters.get("grant_types"));
         var responseTypes = valuesToStringSet(parameters.get("response_types"));
