@@ -40,7 +40,7 @@ public class RequestParser {
         var defaultValue = parameters.containsKey(key) ? (String) parameters.get(key) : null;
         var map = new HashMap<String, String>();
         parameters.keySet().stream()
-                .filter(k -> k.startsWith("client_name#"))
+                .filter(k -> k.startsWith(key + "#"))
                 .forEach(
                         k -> {
                             map.put(k.substring(k.indexOf('#')), parameters.get(k).toString());

@@ -45,9 +45,6 @@ public class ClientRegistrationRequest {
     /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final String jwksUri;
 
-    // TODO The "jwks_uri" and "jwks" parameters MUST NOT both
-    //      be present in the same request or response.
-
     /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final String jwks;
 

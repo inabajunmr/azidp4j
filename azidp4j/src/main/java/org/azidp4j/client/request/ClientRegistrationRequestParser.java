@@ -8,16 +8,14 @@ public class ClientRegistrationRequestParser {
 
     public ClientRegistrationRequest parse(Map<String, Object> parameters) {
 
-        // TODO パラメーター未指定の場合、デフォルト（Set.of)の設定はパーサーじゃなくてドメインでやりたい
-
-        var redirectUris = valuesToStringSet(parameters.getOrDefault("redirect_uris", Set.of()));
-        var grantTypes = valuesToStringSet(parameters.getOrDefault("grant_types", Set.of()));
-        var responseTypes = valuesToStringSet(parameters.getOrDefault("response_types", Set.of()));
+        var redirectUris = valuesToStringSet(parameters.get("redirect_uris"));
+        var grantTypes = valuesToStringSet(parameters.get("grant_types"));
+        var responseTypes = valuesToStringSet(parameters.get("response_types"));
         var clientName = valuesToHumanReadable("client_name", parameters);
         var clientUri = valueToString("client_uri", parameters);
         var logoUri = valueToString("logo_uri", parameters);
         var scope = valueToString("scope", parameters);
-        var contacts = valuesToStringList(parameters.getOrDefault("contacts", List.of()));
+        var contacts = valuesToStringList(parameters.get("contacts"));
         var tosUri = valuesToHumanReadable("tos_uri", parameters);
         var policyUri = valuesToHumanReadable("policy_uri", parameters);
         var jwksUri = valueToString("jwks_uri", parameters);
