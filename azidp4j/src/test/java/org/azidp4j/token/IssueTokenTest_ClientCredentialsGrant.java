@@ -148,43 +148,4 @@ class IssueTokenTest_ClientCredentialsGrant {
         assertEquals(response.status, 400);
         assertEquals(response.body.get("error"), "invalid_client");
     }
-
-    @Test
-    void publicClient() throws JOSEException {
-
-        // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeService =
-                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
-        var config = Fixtures.azIdPConfig("kid");
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.publicClient());
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeService,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        idTokenIssuer,
-                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
-                        scopeAudienceMapper,
-                        null,
-                        clientStore);
-        var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("client_credentials")
-                        .authenticatedClientId("public")
-                        .scope("rs:scope1")
-                        .build();
-
-        // exercise
-        var response = issueToken.issue(tokenRequest);
-
-        // verify
-        assertEquals(response.status, 400);
-        assertEquals(response.body.get("error"), "invalid_client");
-    }
 }

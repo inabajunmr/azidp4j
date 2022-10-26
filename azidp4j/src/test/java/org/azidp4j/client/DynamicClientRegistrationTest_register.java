@@ -226,7 +226,6 @@ class DynamicClientRegistrationTest_register {
     @Test
     void success_Default() throws JOSEException {
         // setup
-        var rs256 = new RSAKeyGenerator(2048).keyID("abc").generate();
         var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var config = Fixtures.azIdPConfig(es256.getKeyID());
         var accessTokenStore = new InMemoryAccessTokenStore();
@@ -279,6 +278,31 @@ class DynamicClientRegistrationTest_register {
                 ClientRegistrationRequest.builder()
                         .jwks("jwks")
                         .jwksUri("http://client.example.com/jwks")
+                        .build();
+
+        // exercise
+        var response = registration.register(req);
+
+        // verify
+        assertEquals(400, response.status);
+    }
+
+    @Test
+    void validationError_publicClientAndClientCredentials() throws JOSEException {
+
+        // setup
+        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var config = Fixtures.azIdPConfig(es256.getKeyID());
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        new InMemoryAccessTokenService(accessTokenStore));
+        var req =
+                ClientRegistrationRequest.builder()
+                        .grantTypes(Set.of("client_credentials"))
+                        .tokenEndpointAuthMethod("none")
                         .build();
 
         // exercise

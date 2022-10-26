@@ -102,6 +102,10 @@ public class DynamicClientRegistration {
                         request.softwareVersion,
                         tokenEndpointAuthMethod,
                         idTokenSignedResponseAlg);
+        var error = validateClient(client);
+        if (error != null) {
+            return error;
+        }
         clientStore.save(client);
         var at =
                 accessTokenService.issue(
@@ -235,8 +239,9 @@ public class DynamicClientRegistration {
                                 : client.softwareVersion,
                         tokenEndpointAuthMethod,
                         idTokenSignedResponseAlg);
-        if (updated.jwks != null && updated.jwksUri != null) {
-            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
+        var error = validateClient(updated);
+        if (error != null) {
+            return error;
         }
         clientStore.save(updated);
         return new ClientRegistrationResponse(
@@ -283,5 +288,16 @@ public class DynamicClientRegistration {
     public ClientDeleteResponse delete(String clientId) {
         clientStore.remove(clientId);
         return new ClientDeleteResponse(204, null);
+    }
+
+    private ClientRegistrationResponse validateClient(Client client) {
+        if (client.jwks != null && client.jwksUri != null) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
+        }
+        if (client.tokenEndpointAuthMethod == TokenEndpointAuthMethod.none
+                && client.grantTypes.contains(GrantType.client_credentials)) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
+        }
+        return null;
     }
 }

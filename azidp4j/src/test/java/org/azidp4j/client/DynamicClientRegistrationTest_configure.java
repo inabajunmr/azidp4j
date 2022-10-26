@@ -220,6 +220,32 @@ class DynamicClientRegistrationTest_configure {
         assertEquals(response.status, 400);
     }
 
+    @Test
+    void validationError_publicClientAndClientCredentials() throws JOSEException {
+
+        // setup
+        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var config = Fixtures.azIdPConfig(key.getKeyID());
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        new InMemoryAccessTokenService(new InMemoryAccessTokenStore()));
+        var registrationResponse = registration.register(registerAll());
+        var configurationRequest =
+                ClientConfigurationRequest.builder()
+                        .clientId(registrationResponse.body.get("client_id").toString())
+                        .grantTypes(Set.of("client_credentials"))
+                        .tokenEndpointAuthMethod("none")
+                        .build();
+
+        // exercise
+        var response = registration.configure(configurationRequest);
+
+        // verify
+        assertEquals(response.status, 400);
+    }
+
     private ClientRegistrationRequest registerAll() {
         return ClientRegistrationRequest.builder()
                 .redirectUris(
