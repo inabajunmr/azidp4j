@@ -7,46 +7,79 @@ import org.azidp4j.util.HumanReadable;
 public class ClientRegistrationRequest {
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
      */
     public final Set<String> redirectUris;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
      */
     public final Set<String> grantTypes;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
      */
     public final Set<String> responseTypes;
 
-    /** OAuth 2.0 Dynamic Client Registration Protocol */
+    /**
+     * OpenID Connect Dynamic Client Registration 1.0
+     */
+    public final String applicationType;
+
+    /**
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     */
     public final HumanReadable<String> clientName;
 
-    /** OAuth 2.0 Dynamic Client Registration Protocol */
+    /**
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     */
     public final String clientUri;
 
-    /** OAuth 2.0 Dynamic Client Registration Protocol */
+    /**
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     */
     public final String logoUri;
 
     /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final String scope;
 
-    /** OAuth 2.0 Dynamic Client Registration Protocol */
+    /**
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     */
     public final List<String> contacts;
 
-    /** OAuth 2.0 Dynamic Client Registration Protocol */
+    /**
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     */
     public final HumanReadable<String> tosUri;
 
-    /** OAuth 2.0 Dynamic Client Registration Protocol */
+    /**
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     */
     public final HumanReadable<String> policyUri;
 
-    /** OAuth 2.0 Dynamic Client Registration Protocol */
+    /**
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     */
     public final String jwksUri;
 
-    /** OAuth 2.0 Dynamic Client Registration Protocol */
+    /**
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     */
     public final String jwks;
+
+    /**
+     * OpenID Connect Dynamic Client Registration 1.0
+     */
+    // TODO supports with PPID
+    // public final String sectorIdentifierUri;
+
+    /**
+     * OpenID Connect Dynamic Client Registration 1.0
+     */
+    // TODO supports with PPID
+    // public final String subjectType;
 
     /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final String softwareId;
@@ -54,13 +87,51 @@ public class ClientRegistrationRequest {
     /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final String softwareVersion;
 
-    /**
-     * OAuth 2.0 Dynamic Client Registration Protocol OpenID Connect Dynamic Client Registration 1.0
-     */
     public final String tokenEndpointAuthMethod;
+
+    /**
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     */
+    public final String tokenEndpointAuthSigningAlg;
 
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final String idTokenSignedResponseAlg;
+
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    // TODO supports with encrypted id token
+    // public final String idTokenEncryptedResponseAlg;
+
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    // TODO supports with signed userinfo
+    // public final String userinfoSignedResponseAlg;
+    // userinfo_encrypted_response_alg
+    // userinfo_encrypted_response_enc
+
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    // TODO supports with signed request object
+    // request_object_signing_alg
+
+    // TODO supports with encrypted request object
+    // request_object_encryption_alg
+    // request_object_encryption_enc
+
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    // TODO support maxAge override
+    public final Long defaultMaxAge;
+
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    public final Boolean requireAuthTime;
+
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    // TODO supports with acr claim
+    // default_acr_values
+
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    public final String initiateLoginUri;
+
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    // TODO supports with request object
+    // public final String request_uris;
 
     public static Builder builder() {
         return new Builder();
