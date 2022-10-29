@@ -32,7 +32,7 @@ public class TokenEndpointHandler {
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Map> tokenEndpoint(
-            HttpServletRequest request, @RequestParam MultiValueMap<String, String> body) {
+            HttpServletRequest request, @RequestParam MultiValueMap<String, Object> body) {
         LOGGER.info(TokenEndpointHandler.class.getName());
 
         // attempt basic authentication
@@ -54,7 +54,7 @@ public class TokenEndpointHandler {
 
         // attempt body authentication
         if (authenticatedClientId == null && body.containsKey("client_id")) {
-            var clientId = body.get("client_id").get(0);
+            var clientId = body.get("client_id").get(0).toString();
             var client = clientStore.find(clientId);
             if (client.isPresent()
                     && client.get().tokenEndpointAuthMethod

@@ -1,17 +1,23 @@
 package org.azidp4j.token.request;
 
+import org.azidp4j.RequestParserUtil;
+
 public class TokenRequestParser {
     public InternalTokenRequest parse(TokenRequest tokenRequest) {
-        var code = tokenRequest.bodyParameters.get("code");
-        var grantType = tokenRequest.bodyParameters.get("grant_type");
-        var redirectUri = tokenRequest.bodyParameters.get("redirect_uri");
-        var scope = tokenRequest.bodyParameters.get("scope");
+
+        var code = RequestParserUtil.valueToString("code", tokenRequest.bodyParameters);
+        var grantType = RequestParserUtil.valueToString("grant_type", tokenRequest.bodyParameters);
+        var redirectUri =
+                RequestParserUtil.valueToString("redirect_uri", tokenRequest.bodyParameters);
+        var scope = RequestParserUtil.valueToString("scope", tokenRequest.bodyParameters);
         var authenticatedClientId = tokenRequest.authenticatedClientId;
-        var clientId = tokenRequest.bodyParameters.get("client_id");
-        var username = tokenRequest.bodyParameters.get("username");
-        var password = tokenRequest.bodyParameters.get("password");
-        var refreshToken = tokenRequest.bodyParameters.get("refresh_token");
-        var codeVerifier = tokenRequest.bodyParameters.get("code_verifier");
+        var clientId = RequestParserUtil.valueToString("client_id", tokenRequest.bodyParameters);
+        var username = RequestParserUtil.valueToString("username", tokenRequest.bodyParameters);
+        var password = RequestParserUtil.valueToString("password", tokenRequest.bodyParameters);
+        var refreshToken =
+                RequestParserUtil.valueToString("refresh_token", tokenRequest.bodyParameters);
+        var codeVerifier =
+                RequestParserUtil.valueToString("code_verifier", tokenRequest.bodyParameters);
         return InternalTokenRequest.builder()
                 .code(code)
                 .grantType(grantType)

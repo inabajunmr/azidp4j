@@ -6,9 +6,9 @@ public class TokenRequest {
     /** Authenticated client identifier (not token request parameter) */
     protected final String authenticatedClientId;
     /** Token request body parameters. * */
-    protected final Map<String, String> bodyParameters; // TODO <String, Object?>
+    protected final Map<String, Object> bodyParameters;
 
-    public TokenRequest(String authenticatedClientId, Map<String, String> bodyParameters) {
+    public TokenRequest(String authenticatedClientId, Map<String, Object> bodyParameters) {
         this.authenticatedClientId = authenticatedClientId;
         this.bodyParameters = bodyParameters;
     }

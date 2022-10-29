@@ -1,4 +1,4 @@
-package org.azidp4j.client.request;
+package org.azidp4j;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -6,7 +6,7 @@ import org.azidp4j.util.HumanReadable;
 
 public class RequestParserUtil {
 
-    static Set<String> valuesToStringSet(Object values) {
+    public static Set<String> valuesToStringSet(Object values) {
         if (values == null) {
             return null;
         }
@@ -21,7 +21,7 @@ public class RequestParserUtil {
         return Set.of();
     }
 
-    static List<String> valuesToStringList(Object values) {
+    public static List<String> valuesToStringList(Object values) {
         if (values == null) {
             return null;
         }
@@ -36,7 +36,8 @@ public class RequestParserUtil {
         return List.of();
     }
 
-    static HumanReadable<String> valuesToHumanReadable(String key, Map<String, Object> parameters) {
+    public static HumanReadable<String> valuesToHumanReadable(
+            String key, Map<String, Object> parameters) {
         var defaultValue = parameters.containsKey(key) ? (String) parameters.get(key) : null;
         var map = new HashMap<String, String>();
         parameters.keySet().stream()
@@ -51,7 +52,7 @@ public class RequestParserUtil {
         return new HumanReadable<>("client_name", defaultValue, map);
     }
 
-    static String valueToString(String key, Map<String, Object> parameters) {
+    public static String valueToString(String key, Map<String, Object> parameters) {
         return parameters.containsKey(key) ? parameters.get(key).toString() : null;
     }
 }

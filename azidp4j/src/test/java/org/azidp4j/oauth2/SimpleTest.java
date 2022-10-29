@@ -107,7 +107,7 @@ public class SimpleTest {
         var tokenRequestBody1 =
                 Map.of(
                         "code",
-                        queryMap.get("code"),
+                        (Object) queryMap.get("code"),
                         "redirect_uri",
                         redirectUri,
                         "grant_type",
@@ -123,7 +123,7 @@ public class SimpleTest {
 
         // token request
         var tokenRequestBody2 =
-                Map.of("refresh_token", (String) refreshToken, "grant_type", "refresh_token");
+                Map.of("refresh_token", refreshToken, "grant_type", "refresh_token");
         var tokenRequest2 = new TokenRequest(clientId, tokenRequestBody2);
 
         // exercise

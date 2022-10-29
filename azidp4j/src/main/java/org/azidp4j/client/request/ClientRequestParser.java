@@ -1,6 +1,6 @@
 package org.azidp4j.client.request;
 
-import static org.azidp4j.client.request.RequestParserUtil.*;
+import static org.azidp4j.RequestParserUtil.*;
 
 import java.util.*;
 
