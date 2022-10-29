@@ -234,9 +234,12 @@ public class Authorize {
                 return AuthorizationResponse.additionalPage(
                         Prompt.login, display, client.clientId, scope);
             }
-            if (authorizationRequest.maxAge != null) {
+            if (authorizationRequest.maxAge != null || client.defaultMaxAge != null) {
                 try {
-                    var maxAge = Integer.parseInt(authorizationRequest.maxAge);
+                    var maxAge =
+                            authorizationRequest.maxAge != null
+                                    ? Long.parseLong(authorizationRequest.maxAge)
+                                    : client.defaultMaxAge;
                     if (Instant.now().getEpochSecond() > authorizationRequest.authTime + maxAge) {
                         if (prompt.contains(Prompt.none)) {
                             return AuthorizationResponse.redirect(
