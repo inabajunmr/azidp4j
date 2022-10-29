@@ -157,7 +157,7 @@ public class DynamicClientRegistration {
                         "response_types",
                         client.responseTypes.stream().map(Enum::name).collect(Collectors.toSet()),
                         "application_type",
-                        client.applicationType,
+                        client.applicationType.name().toLowerCase(),
                         "client_name",
                         client.clientName != null ? client.clientName.toMap() : null,
                         "client_uri",
@@ -182,7 +182,7 @@ public class DynamicClientRegistration {
                         client.softwareVersion,
                         "token_endpoint_auth_method",
                         client.tokenEndpointAuthMethod.name(),
-                        "tokenEndpointAuthSigningAlg",
+                        "token_endpoint_auth_signing_alg",
                         client.tokenEndpointAuthSigningAlg != null
                                 ? client.tokenEndpointAuthSigningAlg.name()
                                 : null,
@@ -224,8 +224,8 @@ public class DynamicClientRegistration {
 
         var applicationType = ApplicationType.WEB;
         if (request.applicationType != null) {
-            var type = ApplicationType.of(request.applicationType);
-            if (type == null) {
+            applicationType = ApplicationType.of(request.applicationType);
+            if (applicationType == null) {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_client_metadata"));
             }
@@ -241,7 +241,7 @@ public class DynamicClientRegistration {
             tokenEndpointAuthMethod = tam;
         }
 
-        SigningAlgorithm tokenEndpointAuthSigningAlg = null;
+        SigningAlgorithm tokenEndpointAuthSigningAlg = client.tokenEndpointAuthSigningAlg;
         if (request.tokenEndpointAuthSigningAlg != null) {
             tokenEndpointAuthSigningAlg = SigningAlgorithm.of(request.tokenEndpointAuthSigningAlg);
             if (tokenEndpointAuthSigningAlg == null) {
@@ -271,6 +271,7 @@ public class DynamicClientRegistration {
             idTokenSignedResponseAlg = alg;
         }
 
+        // TODO 指定された値だけ更新？全部更新？
         var updated =
                 new Client(
                         client.clientId,
@@ -295,11 +296,15 @@ public class DynamicClientRegistration {
                         tokenEndpointAuthMethod,
                         tokenEndpointAuthSigningAlg,
                         idTokenSignedResponseAlg,
-                        request.defaultMaxAge,
+                        request.defaultMaxAge != null
+                                ? request.defaultMaxAge
+                                : client.defaultMaxAge,
                         request.requireAuthTime != null
                                 ? request.requireAuthTime
-                                : false, // TODO apply to ID Token issuing?
-                        request.initiateLoginUri);
+                                : client.requireAuthTime, // TODO apply to ID Token issuing?
+                        request.initiateLoginUri != null
+                                ? request.initiateLoginUri
+                                : client.initiateLoginUri);
         var error = validateClient(updated);
         if (error != null) {
             return error;
@@ -316,6 +321,8 @@ public class DynamicClientRegistration {
                         updated.redirectUris,
                         "grant_types",
                         updated.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
+                        "application_type",
+                        updated.applicationType.name().toLowerCase(),
                         "client_name",
                         updated.clientName != null ? updated.clientName.toMap() : null,
                         "client_uri",
@@ -342,8 +349,18 @@ public class DynamicClientRegistration {
                         updated.softwareVersion,
                         "token_endpoint_auth_method",
                         updated.tokenEndpointAuthMethod.name(),
+                        "token_endpoint_auth_signing_alg",
+                        updated.tokenEndpointAuthSigningAlg != null
+                                ? updated.tokenEndpointAuthSigningAlg.name()
+                                : null,
                         "id_token_signed_response_alg",
-                        updated.idTokenSignedResponseAlg.name()));
+                        updated.idTokenSignedResponseAlg.name(),
+                        "default_max_age",
+                        updated.defaultMaxAge,
+                        "require_auth_time",
+                        updated.requireAuthTime,
+                        "initiate_login_uri",
+                        updated.initiateLoginUri));
     }
 
     public ClientDeleteResponse delete(String clientId) {

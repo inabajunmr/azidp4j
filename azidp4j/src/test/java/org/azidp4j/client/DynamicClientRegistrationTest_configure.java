@@ -34,8 +34,9 @@ class DynamicClientRegistrationTest_configure {
                         .clientId(registrationResponse.body.get("client_id").toString())
                         .redirectUris(
                                 Set.of(
-                                        "https://client.example.com/callback1/new",
-                                        "https://client.example.com/callback2/new"))
+                                        "app://client.example.com/callback1/new",
+                                        "app://client.example.com/callback2/new"))
+                        .applicationType("native")
                         .grantTypes(
                                 Set.of(
                                         "authorization_code",
@@ -75,7 +76,11 @@ class DynamicClientRegistrationTest_configure {
                         .softwareId("azidp/new")
                         .softwareVersion("1.0.1")
                         .tokenEndpointAuthMethod("client_secret_post")
+                        .tokenEndpointAuthSigningAlg("ES256")
                         .idTokenSignedResponseAlg("ES256")
+                        .defaultMaxAge(50L)
+                        .requireAuthTime(false)
+                        .initiateLoginUri("https://example.com/new")
                         .build();
 
         // exercise
@@ -87,8 +92,8 @@ class DynamicClientRegistrationTest_configure {
         assertEquals(
                 response.body.get("redirect_uris"),
                 Set.of(
-                        "https://client.example.com/callback1/new",
-                        "https://client.example.com/callback2/new"));
+                        "app://client.example.com/callback1/new",
+                        "app://client.example.com/callback2/new"));
         assertEquals(
                 response.body.get("grant_types"),
                 Set.of(
@@ -97,6 +102,7 @@ class DynamicClientRegistrationTest_configure {
                         "refresh_token",
                         "client_credentials",
                         "password"));
+        assertEquals(response.body.get("application_type"), "native");
         assertEquals(
                 response.body.get("response_types"), Set.of("code", "token", "id_token", "none"));
         assertEquals(
@@ -134,7 +140,10 @@ class DynamicClientRegistrationTest_configure {
         assertEquals(response.body.get("software_id"), "azidp/new");
         assertEquals(response.body.get("software_version"), "1.0.1");
         assertEquals(response.body.get("token_endpoint_auth_method"), "client_secret_post");
-        assertEquals(response.body.get("id_token_signed_response_alg"), "ES256");
+        assertEquals(response.body.get("token_endpoint_auth_signing_alg"), "ES256");
+        assertEquals(response.body.get("default_max_age"), 50L);
+        assertEquals(response.body.get("require_auth_time"), false);
+        assertEquals(response.body.get("initiate_login_uri"), "https://example.com/new");
     }
 
     @Test
@@ -168,6 +177,7 @@ class DynamicClientRegistrationTest_configure {
         assertEquals(
                 response.body.get("grant_types"),
                 Set.of("authorization_code", "implicit", "refresh_token", "client_credentials"));
+        assertEquals(response.body.get("application_type"), "web");
         assertEquals(response.body.get("response_types"), Set.of("code", "token", "id_token"));
         assertEquals(
                 response.body.get("client_name"),
@@ -194,7 +204,11 @@ class DynamicClientRegistrationTest_configure {
         assertEquals(response.body.get("software_id"), "azidp");
         assertEquals(response.body.get("software_version"), "1.0.0");
         assertEquals(response.body.get("token_endpoint_auth_method"), "client_secret_basic");
+        assertEquals(response.body.get("token_endpoint_auth_signing_alg"), "RS256");
         assertEquals(response.body.get("id_token_signed_response_alg"), "RS256");
+        assertEquals(response.body.get("default_max_age"), 100L);
+        assertEquals(response.body.get("require_auth_time"), true);
+        assertEquals(response.body.get("initiate_login_uri"), "https://example.com");
     }
 
     @Test
@@ -258,6 +272,7 @@ class DynamicClientRegistrationTest_configure {
                                 "implicit",
                                 "refresh_token",
                                 "client_credentials"))
+                .applicationType("web")
                 .responseTypes(Set.of("code", "token", "id_token"))
                 .clientName(new HumanReadable<>("client_name", "client", Map.of("ja", "クライアント")))
                 .clientUri("http://client.example.com")
@@ -278,7 +293,11 @@ class DynamicClientRegistrationTest_configure {
                 .softwareId("azidp")
                 .softwareVersion("1.0.0")
                 .tokenEndpointAuthMethod("client_secret_basic")
+                .tokenEndpointAuthSigningAlg("RS256")
                 .idTokenSignedResponseAlg("RS256")
+                .defaultMaxAge(100L)
+                .requireAuthTime(true)
+                .initiateLoginUri("https://example.com")
                 .build();
     }
 }

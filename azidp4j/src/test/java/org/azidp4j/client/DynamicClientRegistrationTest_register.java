@@ -44,6 +44,7 @@ class DynamicClientRegistrationTest_register {
                                         "implicit",
                                         "refresh_token",
                                         "client_credentials"))
+                        .applicationType("web")
                         .responseTypes(Set.of("code", "token", "id_token"))
                         .clientName(
                                 new HumanReadable<>(
@@ -66,7 +67,11 @@ class DynamicClientRegistrationTest_register {
                         .softwareId("azidp")
                         .softwareVersion("1.0.0")
                         .tokenEndpointAuthMethod("client_secret_basic")
+                        .tokenEndpointAuthSigningAlg("RS256")
                         .idTokenSignedResponseAlg("RS256")
+                        .defaultMaxAge(100L)
+                        .requireAuthTime(true)
+                        .initiateLoginUri("https://example.com")
                         .build();
 
         // exercise
@@ -82,6 +87,7 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("grant_types"),
                 Set.of("authorization_code", "implicit", "refresh_token", "client_credentials"));
+        assertEquals(response.body.get("application_type"), "web");
         assertEquals(response.body.get("response_types"), Set.of("code", "token", "id_token"));
         assertEquals(
                 response.body.get("client_name"),
@@ -111,7 +117,11 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("registration_client_uri"),
                 "http://localhost:8080/client/" + response.body.get("client_id"));
+        assertEquals(response.body.get("token_endpoint_auth_signing_alg"), "RS256");
         assertEquals(response.body.get("id_token_signed_response_alg"), "RS256");
+        assertEquals(response.body.get("default_max_age"), 100L);
+        assertEquals(response.body.get("require_auth_time"), true);
+        assertEquals(response.body.get("initiate_login_uri"), "https://example.com");
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
                 accessTokenStore.find((String) at).get(),
@@ -145,6 +155,7 @@ class DynamicClientRegistrationTest_register {
                                         "implicit",
                                         "refresh_token",
                                         "client_credentials"))
+                        .applicationType("web")
                         .responseTypes(Set.of("code", "token", "id_token"))
                         .clientName(
                                 new HumanReadable<>(
@@ -167,7 +178,11 @@ class DynamicClientRegistrationTest_register {
                         .softwareId("azidp")
                         .softwareVersion("1.0.0")
                         .tokenEndpointAuthMethod("client_secret_basic")
+                        .tokenEndpointAuthSigningAlg("RS256")
                         .idTokenSignedResponseAlg("RS256")
+                        .defaultMaxAge(100L)
+                        .requireAuthTime(true)
+                        .initiateLoginUri("https://example.com")
                         .build();
 
         // exercise
@@ -212,7 +227,11 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("registration_client_uri"),
                 "http://localhost:8080/client/" + response.body.get("client_id"));
+        assertEquals(response.body.get("token_endpoint_auth_signing_alg"), "RS256");
         assertEquals(response.body.get("id_token_signed_response_alg"), "RS256");
+        assertEquals(response.body.get("default_max_age"), 100L);
+        assertEquals(response.body.get("require_auth_time"), true);
+        assertEquals(response.body.get("initiate_login_uri"), "https://example.com");
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
                 accessTokenStore.find((String) at).get(),
@@ -243,6 +262,7 @@ class DynamicClientRegistrationTest_register {
         assertEquals(201, response.status);
         assertEquals(response.body.get("redirect_uris"), Set.of());
         assertEquals(response.body.get("grant_types"), Set.of(GrantType.authorization_code.name()));
+        assertEquals(response.body.get("application_type"), "web");
         assertEquals(response.body.get("response_types"), Set.of(ResponseType.code.name()));
         assertNull(response.body.get("scope"));
         assertEquals(
@@ -261,6 +281,9 @@ class DynamicClientRegistrationTest_register {
                 "configure",
                 Instant.now().getEpochSecond() + 3600);
     }
+
+    // TODO after extracting class for client validator, following tests should be at client
+    // validator test
 
     @Test
     void validationError_BothJwksAndJwksUri() throws JOSEException {
@@ -304,6 +327,132 @@ class DynamicClientRegistrationTest_register {
                         .grantTypes(Set.of("client_credentials"))
                         .tokenEndpointAuthMethod("none")
                         .build();
+
+        // exercise
+        var response = registration.register(req);
+
+        // verify
+        assertEquals(400, response.status);
+    }
+
+    @Test
+    void validationError_applicationTypeIsWebAndImplicitIllegalRedirectUriHttp()
+            throws JOSEException {
+
+        // setup
+        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var config = Fixtures.azIdPConfig(es256.getKeyID());
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        new InMemoryAccessTokenService(accessTokenStore));
+        var req =
+                ClientRegistrationRequest.builder()
+                        .applicationType("web")
+                        .grantTypes(Set.of("implicit"))
+                        .redirectUris(Set.of("http://example.com"))
+                        .build();
+
+        // exercise
+        var response = registration.register(req);
+
+        // verify
+        assertEquals(400, response.status);
+    }
+
+    @Test
+    void validationError_applicationTypeIsWebAndImplicitIllegalRedirectUriLocalhost()
+            throws JOSEException {
+
+        // setup
+        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var config = Fixtures.azIdPConfig(es256.getKeyID());
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        new InMemoryAccessTokenService(accessTokenStore));
+        var req =
+                ClientRegistrationRequest.builder()
+                        .applicationType("web")
+                        .grantTypes(Set.of("implicit"))
+                        .redirectUris(Set.of("https://localhost:8080"))
+                        .build();
+
+        // exercise
+        var response = registration.register(req);
+
+        // verify
+        assertEquals(400, response.status);
+    }
+
+    @Test
+    void validationError_applicationTypeIsNativeAndRedirectUriHttps() throws JOSEException {
+
+        // setup
+        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var config = Fixtures.azIdPConfig(es256.getKeyID());
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        new InMemoryAccessTokenService(accessTokenStore));
+        var req =
+                ClientRegistrationRequest.builder()
+                        .applicationType("native")
+                        .redirectUris(Set.of("https://localhost:8080"))
+                        .build();
+
+        // exercise
+        var response = registration.register(req);
+
+        // verify
+        assertEquals(400, response.status);
+    }
+
+    @Test
+    void validationError_applicationTypeIsNativeAndRedirectUriNotLocalhost() throws JOSEException {
+
+        // setup
+        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var config = Fixtures.azIdPConfig(es256.getKeyID());
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        new InMemoryAccessTokenService(accessTokenStore));
+        var req =
+                ClientRegistrationRequest.builder()
+                        .applicationType("native")
+                        .redirectUris(Set.of("http://example.com"))
+                        .build();
+
+        // exercise
+        var response = registration.register(req);
+
+        // verify
+        assertEquals(400, response.status);
+    }
+
+    @Test
+    void validationError_IllegalInitiateLoginUri() throws JOSEException {
+
+        // setup
+        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var config = Fixtures.azIdPConfig(es256.getKeyID());
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        new InMemoryAccessTokenService(accessTokenStore));
+        var req =
+                ClientRegistrationRequest.builder().initiateLoginUri("http://example.com").build();
 
         // exercise
         var response = registration.register(req);
