@@ -67,7 +67,11 @@ public class Client {
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final Long defaultMaxAge;
 
-    /** OpenID Connect Dynamic Client Registration 1.0 */
+    /**
+     * OpenID Connect Dynamic Client Registration 1.0
+     *
+     * <p>but AzIdP4J ignores this and always returns auth_time.
+     */
     public final Boolean requireAuthTime;
 
     /** OpenID Connect Dynamic Client Registration 1.0 */

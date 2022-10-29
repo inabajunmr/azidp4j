@@ -118,9 +118,7 @@ public class DynamicClientRegistration {
                         tokenEndpointAuthSigningAlg,
                         idTokenSignedResponseAlg,
                         request.defaultMaxAge,
-                        request.requireAuthTime != null
-                                ? request.requireAuthTime
-                                : false, // TODO apply to ID Token issuing?
+                        request.requireAuthTime != null ? request.requireAuthTime : false,
                         request.initiateLoginUri);
         try {
             clientValidator.validate(client);
