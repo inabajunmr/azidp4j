@@ -15,7 +15,7 @@ public class Fixtures {
                 "http://localhost:8080/client",
                 "http://localhost:8080/client/{CLIENT_ID}",
                 "http://localhost:8080/userinfo",
-                Set.of("openid", "rs:scope1", "rs:scope2", "default"),
+                Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
                 Set.of("openid", "rs:scope1"),
                 kid,
                 3600,

@@ -3,12 +3,61 @@ package org.azidp4j.client;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Set;
+import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.request.ResponseType;
 import org.junit.jupiter.api.Test;
 
-class ClientValidatorTest {
+class InternalClientValidatorTest {
 
-    private final InternalClientValidator sut = new InternalClientValidator();
+    private final InternalClientValidator sut =
+            new InternalClientValidator(Fixtures.azIdPConfig("kid"));
+
+    @Test
+    void validate_NotSupportedScope() {
+        // setup
+        var client =
+                new Client(
+                        "confidential",
+                        "secret",
+                        Set.of("https://rp1.example.com", "https://rp2.example.com"),
+                        Set.of(
+                                ResponseType.code,
+                                ResponseType.token,
+                                ResponseType.id_token,
+                                ResponseType.none),
+                        ApplicationType.WEB,
+                        Set.of(
+                                GrantType.authorization_code,
+                                GrantType.implicit,
+                                GrantType.password,
+                                GrantType.client_credentials,
+                                GrantType.refresh_token),
+                        null,
+                        null,
+                        null,
+                        "unknown",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        null,
+                        SigningAlgorithm.ES256,
+                        null,
+                        null,
+                        null);
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("unsupported scope", e.getMessage());
+        }
+    }
 
     @Test
     void validate_JwksAndJwksUri() {
@@ -17,7 +66,7 @@ class ClientValidatorTest {
                 new Client(
                         "confidential",
                         "secret",
-                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
+                        Set.of("https://rp1.example.com", "https://rp2.example.com"),
                         Set.of(
                                 ResponseType.code,
                                 ResponseType.token,
@@ -53,6 +102,7 @@ class ClientValidatorTest {
             sut.validate(client);
             fail();
         } catch (IllegalArgumentException e) {
+            assertEquals("jwks and jwksUri", e.getMessage());
         }
     }
 
@@ -63,7 +113,7 @@ class ClientValidatorTest {
                 new Client(
                         "confidential",
                         "secret",
-                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
+                        Set.of("https://rp1.example.com", "https://rp2.example.com"),
                         Set.of(),
                         ApplicationType.WEB,
                         Set.of(GrantType.client_credentials), // target
@@ -90,6 +140,9 @@ class ClientValidatorTest {
             sut.validate(client);
             fail();
         } catch (IllegalArgumentException e) {
+            assertEquals(
+                    "tokenEndpoint doesn't required authentication but client_credential supported",
+                    e.getMessage());
         }
     }
 
@@ -127,6 +180,7 @@ class ClientValidatorTest {
             sut.validate(client);
             fail();
         } catch (IllegalArgumentException e) {
+            assertEquals("web application can't supports http and localhost", e.getMessage());
         }
     }
 
@@ -164,6 +218,7 @@ class ClientValidatorTest {
             sut.validate(client);
             fail();
         } catch (IllegalArgumentException e) {
+            assertEquals("web application can't supports http and localhost", e.getMessage());
         }
     }
 
@@ -201,6 +256,7 @@ class ClientValidatorTest {
             sut.validate(client);
             fail();
         } catch (IllegalArgumentException e) {
+            assertEquals("native client can't support https", e.getMessage());
         }
     }
 
@@ -238,6 +294,9 @@ class ClientValidatorTest {
             sut.validate(client);
             fail();
         } catch (IllegalArgumentException e) {
+            assertEquals(
+                    "native client can't supports http schema except for localhost",
+                    e.getMessage());
         }
     }
 
@@ -248,7 +307,7 @@ class ClientValidatorTest {
                 new Client(
                         "confidential",
                         "secret",
-                        Set.of("http://example.com", "http://localhost:8080"),
+                        Set.of("https://example.com"),
                         Set.of(),
                         ApplicationType.WEB,
                         Set.of(GrantType.authorization_code),
@@ -275,6 +334,7 @@ class ClientValidatorTest {
             sut.validate(client);
             fail();
         } catch (IllegalArgumentException e) {
+            assertEquals("illegal initiateLoginUri", e.getMessage());
         }
     }
 
@@ -285,7 +345,7 @@ class ClientValidatorTest {
                 new Client(
                         "confidential",
                         "secret",
-                        Set.of("http://example.com", "http://localhost:8080"),
+                        Set.of("https://example.com"),
                         Set.of(),
                         ApplicationType.WEB,
                         Set.of(GrantType.authorization_code),
@@ -303,15 +363,16 @@ class ClientValidatorTest {
                         TokenEndpointAuthMethod.client_secret_basic,
                         null,
                         SigningAlgorithm.ES256,
+                        -1L, // target
                         null,
-                        null,
-                        "illegal"); // target
+                        "https://example.com");
 
         // exercise
         try {
             sut.validate(client);
             fail();
         } catch (IllegalArgumentException e) {
+            assertEquals("defaultMaxAge must be positive", e.getMessage());
         }
     }
 }

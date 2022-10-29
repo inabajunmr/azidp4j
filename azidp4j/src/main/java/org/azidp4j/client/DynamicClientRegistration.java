@@ -16,7 +16,7 @@ public class DynamicClientRegistration {
     private final AzIdPConfig config;
     private final ClientStore clientStore;
     private final AccessTokenService accessTokenService;
-    private final InternalClientValidator clientValidator = new InternalClientValidator();
+    private final InternalClientValidator clientValidator;
     private final ClientValidator customizableClientValidator;
 
     public DynamicClientRegistration(
@@ -26,6 +26,7 @@ public class DynamicClientRegistration {
             AccessTokenService accessTokenService) {
         this.config = config;
         this.clientStore = clientStore;
+        this.clientValidator = new InternalClientValidator(config);
         this.customizableClientValidator =
                 customizableClientValidator != null ? customizableClientValidator : client -> {};
         this.accessTokenService = accessTokenService;
@@ -306,7 +307,7 @@ public class DynamicClientRegistration {
                                 : client.defaultMaxAge,
                         request.requireAuthTime != null
                                 ? request.requireAuthTime
-                                : client.requireAuthTime, // TODO apply to ID Token issuing?
+                                : client.requireAuthTime,
                         request.initiateLoginUri != null
                                 ? request.initiateLoginUri
                                 : client.initiateLoginUri);

@@ -51,7 +51,7 @@ class DynamicClientRegistrationTest_configure {
                                         Map.of("ja", "クライアント/new", "cn", "客户/new")))
                         .clientUri("http://client.example.com/new")
                         .logoUri("http://client.example.com/logo/new")
-                        .scope("scope1 scope2 scope3")
+                        .scope("rs:scope1 rs:scope2 rs:scope3")
                         .contacts(List.of("hello", "world", "new"))
                         .tosUri(
                                 new HumanReadable<>(
@@ -118,7 +118,7 @@ class DynamicClientRegistrationTest_configure {
                         "客户/new"));
         assertEquals(response.body.get("client_uri"), "http://client.example.com/new");
         assertEquals(response.body.get("logo_uri"), "http://client.example.com/logo/new");
-        assertEquals(response.body.get("scope"), "scope1 scope2 scope3");
+        assertEquals(response.body.get("scope"), "rs:scope1 rs:scope2 rs:scope3");
         assertEquals(response.body.get("contacts"), List.of("hello", "world", "new"));
         assertEquals(
                 response.body.get("tos_uri"),
@@ -187,7 +187,7 @@ class DynamicClientRegistrationTest_configure {
                 Map.of("client_name", "client", "client_name#ja", "クライアント"));
         assertEquals(response.body.get("client_uri"), "http://client.example.com");
         assertEquals(response.body.get("logo_uri"), "http://client.example.com/logo");
-        assertEquals(response.body.get("scope"), "scope1 scope2");
+        assertEquals(response.body.get("scope"), "rs:scope1 rs:scope2");
         assertEquals(response.body.get("contacts"), List.of("hello", "world"));
         assertEquals(
                 response.body.get("tos_uri"),
@@ -283,7 +283,7 @@ class DynamicClientRegistrationTest_configure {
                 .clientName(new HumanReadable<>("client_name", "client", Map.of("ja", "クライアント")))
                 .clientUri("http://client.example.com")
                 .logoUri("http://client.example.com/logo")
-                .scope("scope1 scope2")
+                .scope("rs:scope1 rs:scope2")
                 .contacts(List.of("hello", "world"))
                 .tosUri(
                         new HumanReadable<>(

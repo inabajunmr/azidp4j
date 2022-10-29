@@ -2,15 +2,32 @@ package org.azidp4j.client;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import org.azidp4j.AzIdPConfig;
 
 public class InternalClientValidator {
+
+    private final AzIdPConfig config;
+
+    public InternalClientValidator(AzIdPConfig config) {
+        this.config = config;
+    }
+
     public void validate(Client client) {
+        if (config.scopesSupported != null && client.scope != null) {
+            if (!config.scopesSupported.containsAll(
+                    Arrays.stream(client.scope.split(" ")).toList())) {
+                throw new IllegalArgumentException("unsupported scope");
+            }
+        }
         if (client.jwks != null && client.jwksUri != null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("jwks and jwksUri");
         }
         if (client.tokenEndpointAuthMethod == TokenEndpointAuthMethod.none
                 && client.grantTypes.contains(GrantType.client_credentials)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(
+                    "tokenEndpoint doesn't required authentication but client_credential"
+                            + " supported");
         }
 
         // Web Clients using the OAuth Implicit Grant Type MUST only register URLs using the https
@@ -23,10 +40,11 @@ public class InternalClientValidator {
                 try {
                     var uri = new URI(u);
                     if (!uri.getScheme().equals("https") || uri.getHost().equals("localhost")) {
-                        throw new IllegalArgumentException();
+                        throw new IllegalArgumentException(
+                                "web application can't supports http and localhost");
                     }
                 } catch (URISyntaxException e) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("illegal redirect uri");
                 }
             }
         }
@@ -35,18 +53,23 @@ public class InternalClientValidator {
             for (String u : client.redirectUris) {
                 try {
                     var uri = new URI(u);
+                    if (!uri.isAbsolute()) {
+                        throw new IllegalArgumentException("illegal redirect uri");
+                    }
                     switch (uri.getScheme()) {
                         case "https" -> {
-                            throw new IllegalArgumentException();
+                            throw new IllegalArgumentException("native client can't support https");
                         }
                         case "http" -> {
                             if (!uri.getHost().equals("localhost")) {
-                                throw new IllegalArgumentException();
+                                throw new IllegalArgumentException(
+                                        "native client can't supports http schema except for"
+                                                + " localhost");
                             }
                         }
                     }
                 } catch (URISyntaxException e) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("illegal redirect uri");
                 }
             }
         }
@@ -55,19 +78,19 @@ public class InternalClientValidator {
             try {
                 var initiateLoginUri = new URI(client.initiateLoginUri);
                 if (!initiateLoginUri.isAbsolute()) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("illegal initiateLoginUri");
                 }
                 if (!initiateLoginUri.getScheme().equals("https")) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException("initiateLoginUri must be https");
                 }
             } catch (URISyntaxException e) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("illegal initiateLoginUri");
             }
         }
 
         if (client.defaultMaxAge != null) {
             if (client.defaultMaxAge <= 0) {
-                throw new IllegalArgumentException();
+                throw new IllegalArgumentException("defaultMaxAge must be positive");
             }
         }
     }

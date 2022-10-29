@@ -65,7 +65,7 @@ public class SimpleTest {
                                         GrantType.authorization_code.name(),
                                         GrantType.refresh_token.name()))
                         .responseTypes(Set.of(ResponseType.code.name()))
-                        .scope("scope1 scope2")
+                        .scope("rs:scope1 rs:scope2")
                         .build();
         var clientRegistrationResponse = sut.registerClient(clientRegistrationRequest);
         var clientId = (String) clientRegistrationResponse.body.get("client_id");
@@ -81,14 +81,14 @@ public class SimpleTest {
                         "response_type",
                         "code",
                         "scope",
-                        "scope1 scope2",
+                        "rs:scope1 rs:scope2",
                         "state",
                         "xyz");
         var authorizationRequest =
                 new AuthorizationRequest(
                         "username",
                         Instant.now().getEpochSecond(),
-                        Set.of("scope1", "scope2"),
+                        Set.of("rs:scope1", "rs:scope2"),
                         queryParameters);
 
         // exercise

@@ -51,7 +51,7 @@ class DynamicClientRegistrationTest_register {
                                         "client_name", "client", Map.of("ja", "クライアント")))
                         .clientUri("http://client.example.com")
                         .logoUri("http://client.example.com/logo")
-                        .scope("scope1 scope2")
+                        .scope("rs:scope1 rs:scope2")
                         .contacts(List.of("hello", "world"))
                         .tosUri(
                                 new HumanReadable<>(
@@ -94,7 +94,7 @@ class DynamicClientRegistrationTest_register {
                 Map.of("client_name", "client", "client_name#ja", "クライアント"));
         assertEquals(response.body.get("client_uri"), "http://client.example.com");
         assertEquals(response.body.get("logo_uri"), "http://client.example.com/logo");
-        assertEquals(response.body.get("scope"), "scope1 scope2");
+        assertEquals(response.body.get("scope"), "rs:scope1 rs:scope2");
         assertEquals(response.body.get("contacts"), List.of("hello", "world"));
         assertEquals(
                 response.body.get("tos_uri"),
@@ -163,7 +163,7 @@ class DynamicClientRegistrationTest_register {
                                         "client_name", "client", Map.of("ja", "クライアント")))
                         .clientUri("http://client.example.com")
                         .logoUri("http://client.example.com/logo")
-                        .scope("scope1 scope2")
+                        .scope("rs:scope1 rs:scope2")
                         .contacts(List.of("hello", "world"))
                         .tosUri(
                                 new HumanReadable<>(
@@ -205,7 +205,7 @@ class DynamicClientRegistrationTest_register {
                 Map.of("client_name", "client", "client_name#ja", "クライアント"));
         assertEquals(response.body.get("client_uri"), "http://client.example.com");
         assertEquals(response.body.get("logo_uri"), "http://client.example.com/logo");
-        assertEquals(response.body.get("scope"), "scope1 scope2");
+        assertEquals(response.body.get("scope"), "rs:scope1 rs:scope2");
         assertEquals(response.body.get("contacts"), List.of("hello", "world"));
         assertEquals(
                 response.body.get("tos_uri"),
