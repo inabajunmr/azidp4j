@@ -7,12 +7,10 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.time.Instant;
-import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
-import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
@@ -37,7 +35,7 @@ public class IssueTokenTest {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
-                        "scope1",
+                        "rs:scope1",
                         "clientId",
                         "http://example.com",
                         "xyz",
@@ -48,26 +46,10 @@ public class IssueTokenTest {
                         Instant.now().getEpochSecond() + 600);
         var config = Fixtures.azIdPConfig("kid");
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(ResponseType.code),
-                        Set.of(GrantType.authorization_code),
-                        null,
-                        null,
-                        null,
-                        "scope1 scope2",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+        var confidentialClient = Fixtures.confidentialClient();
+        var noGrantTypeClient = Fixtures.noGrantTypeClient();
+        clientStore.save(confidentialClient);
+        clientStore.save(noGrantTypeClient);
         var accessTokenStore = new InMemoryAccessTokenStore();
         var issueToken =
                 new IssueToken(
@@ -102,8 +84,8 @@ public class IssueTokenTest {
                     InternalTokenRequest.builder()
                             .grantType("password")
                             .redirectUri("http://example.com")
-                            .clientId("clientId")
-                            .authenticatedClientId("clientId")
+                            .clientId(noGrantTypeClient.clientId)
+                            .authenticatedClientId(noGrantTypeClient.clientId)
                             .build();
 
             // exercise

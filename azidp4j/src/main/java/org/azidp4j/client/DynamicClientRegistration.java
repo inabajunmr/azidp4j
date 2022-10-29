@@ -1,5 +1,7 @@
 package org.azidp4j.client;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,7 +37,7 @@ public class DynamicClientRegistration {
                 var grantType = GrantType.of(g);
                 if (grantType == null) {
                     return new ClientRegistrationResponse(
-                            400, Map.of("error", "invalid_grant_type"));
+                            400, Map.of("error", "invalid_client_metadata"));
                 }
                 grantTypes.add(grantType);
             }
@@ -50,21 +52,38 @@ public class DynamicClientRegistration {
                 var responseType = ResponseType.of(r);
                 if (responseType == null) {
                     return new ClientRegistrationResponse(
-                            400, Map.of("error", "invalid_response_type"));
+                            400, Map.of("error", "invalid_client_metadata"));
                 }
                 responseTypes.add(responseType);
             }
         }
 
-        TokenEndpointAuthMethod tokenEndpointAuthMethod =
-                TokenEndpointAuthMethod.client_secret_basic;
+        var applicationType = ApplicationType.WEB;
+        if (request.applicationType != null) {
+            var type = ApplicationType.of(request.applicationType);
+            if (type == null) {
+                return new ClientRegistrationResponse(
+                        400, Map.of("error", "invalid_client_metadata"));
+            }
+        }
+
+        var tokenEndpointAuthMethod = TokenEndpointAuthMethod.client_secret_basic;
         if (request.tokenEndpointAuthMethod != null) {
             var tam = TokenEndpointAuthMethod.of(request.tokenEndpointAuthMethod);
             if (tam == null) {
                 return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_token_endpoint_auth_method"));
+                        400, Map.of("error", "invalid_client_metadata"));
             }
             tokenEndpointAuthMethod = tam;
+        }
+
+        SigningAlgorithm tokenEndpointAuthSigningAlg = null;
+        if (request.tokenEndpointAuthSigningAlg != null) {
+            tokenEndpointAuthSigningAlg = SigningAlgorithm.of(request.tokenEndpointAuthSigningAlg);
+            if (tokenEndpointAuthSigningAlg == null) {
+                return new ClientRegistrationResponse(
+                        400, Map.of("error", "invalid_client_metadata"));
+            }
         }
 
         var idTokenSignedResponseAlg = SigningAlgorithm.RS256;
@@ -72,12 +91,8 @@ public class DynamicClientRegistration {
             idTokenSignedResponseAlg = SigningAlgorithm.of(request.idTokenSignedResponseAlg);
             if (idTokenSignedResponseAlg == null) {
                 return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_response_type"));
+                        400, Map.of("error", "invalid_client_metadata"));
             }
-        }
-
-        if (request.jwks != null && request.jwksUri != null) {
-            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
         }
 
         var client =
@@ -88,6 +103,7 @@ public class DynamicClientRegistration {
                                 : null,
                         request.redirectUris != null ? request.redirectUris : Set.of(),
                         responseTypes,
+                        applicationType,
                         grantTypes,
                         request.clientName,
                         request.clientUri,
@@ -101,7 +117,13 @@ public class DynamicClientRegistration {
                         request.softwareId,
                         request.softwareVersion,
                         tokenEndpointAuthMethod,
-                        idTokenSignedResponseAlg);
+                        tokenEndpointAuthSigningAlg,
+                        idTokenSignedResponseAlg,
+                        request.defaultMaxAge,
+                        request.requireAuthTime != null
+                                ? request.requireAuthTime
+                                : false, // TODO apply to ID Token issuing?
+                        request.initiateLoginUri);
         var error = validateClient(client);
         if (error != null) {
             return error;
@@ -134,6 +156,8 @@ public class DynamicClientRegistration {
                         client.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
                         "response_types",
                         client.responseTypes.stream().map(Enum::name).collect(Collectors.toSet()),
+                        "application_type",
+                        client.applicationType,
                         "client_name",
                         client.clientName != null ? client.clientName.toMap() : null,
                         "client_uri",
@@ -158,8 +182,18 @@ public class DynamicClientRegistration {
                         client.softwareVersion,
                         "token_endpoint_auth_method",
                         client.tokenEndpointAuthMethod.name(),
+                        "tokenEndpointAuthSigningAlg",
+                        client.tokenEndpointAuthSigningAlg != null
+                                ? client.tokenEndpointAuthSigningAlg.name()
+                                : null,
                         "id_token_signed_response_alg",
-                        client.idTokenSignedResponseAlg.name()));
+                        client.idTokenSignedResponseAlg.name(),
+                        "default_max_age",
+                        client.defaultMaxAge,
+                        "require_auth_time",
+                        client.requireAuthTime,
+                        "initiate_login_uri",
+                        client.initiateLoginUri));
     }
 
     public ClientRegistrationResponse configure(ClientConfigurationRequest request) {
@@ -174,7 +208,7 @@ public class DynamicClientRegistration {
                 var grantType = GrantType.of(g);
                 if (grantType == null) {
                     return new ClientRegistrationResponse(
-                            400, Map.of("error", "invalid_grant_type"));
+                            400, Map.of("error", "invalid_client_metadata"));
                 }
                 grantTypes.add(grantType);
             }
@@ -187,22 +221,42 @@ public class DynamicClientRegistration {
         if (request.redirectUris != null) {
             redirectUris = request.redirectUris;
         }
+
+        var applicationType = ApplicationType.WEB;
+        if (request.applicationType != null) {
+            var type = ApplicationType.of(request.applicationType);
+            if (type == null) {
+                return new ClientRegistrationResponse(
+                        400, Map.of("error", "invalid_client_metadata"));
+            }
+        }
+
         var tokenEndpointAuthMethod = client.tokenEndpointAuthMethod;
         if (request.tokenEndpointAuthMethod != null) {
             var tam = TokenEndpointAuthMethod.of(request.tokenEndpointAuthMethod);
             if (tam == null) {
                 return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_token_endpoint_auth_method"));
+                        400, Map.of("error", "invalid_client_metadata"));
             }
             tokenEndpointAuthMethod = tam;
         }
+
+        SigningAlgorithm tokenEndpointAuthSigningAlg = null;
+        if (request.tokenEndpointAuthSigningAlg != null) {
+            tokenEndpointAuthSigningAlg = SigningAlgorithm.of(request.tokenEndpointAuthSigningAlg);
+            if (tokenEndpointAuthSigningAlg == null) {
+                return new ClientRegistrationResponse(
+                        400, Map.of("error", "invalid_client_metadata"));
+            }
+        }
+
         var responseTypes = client.responseTypes;
         if (request.responseTypes != null) {
             for (String r : request.responseTypes) {
                 var responseType = ResponseType.of(r);
                 if (responseType == null) {
                     return new ClientRegistrationResponse(
-                            400, Map.of("error", "invalid_response_type"));
+                            400, Map.of("error", "invalid_client_metadata"));
                 }
                 responseTypes.add(responseType);
             }
@@ -212,7 +266,7 @@ public class DynamicClientRegistration {
             var alg = SigningAlgorithm.of(request.idTokenSignedResponseAlg);
             if (alg == null) {
                 return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_response_type"));
+                        400, Map.of("error", "invalid_client_metadata"));
             }
             idTokenSignedResponseAlg = alg;
         }
@@ -223,6 +277,7 @@ public class DynamicClientRegistration {
                         client.clientSecret,
                         redirectUris,
                         responseTypes,
+                        applicationType,
                         grantTypes,
                         request.clientName != null ? request.clientName : client.clientName,
                         request.clientUri != null ? request.clientUri : client.clientUri,
@@ -238,7 +293,13 @@ public class DynamicClientRegistration {
                                 ? request.softwareVersion
                                 : client.softwareVersion,
                         tokenEndpointAuthMethod,
-                        idTokenSignedResponseAlg);
+                        tokenEndpointAuthSigningAlg,
+                        idTokenSignedResponseAlg,
+                        request.defaultMaxAge,
+                        request.requireAuthTime != null
+                                ? request.requireAuthTime
+                                : false, // TODO apply to ID Token issuing?
+                        request.initiateLoginUri);
         var error = validateClient(updated);
         if (error != null) {
             return error;
@@ -292,12 +353,72 @@ public class DynamicClientRegistration {
 
     private ClientRegistrationResponse validateClient(Client client) {
         if (client.jwks != null && client.jwksUri != null) {
-            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
         if (client.tokenEndpointAuthMethod == TokenEndpointAuthMethod.none
                 && client.grantTypes.contains(GrantType.client_credentials)) {
-            return new ClientRegistrationResponse(400, Map.of("error", "invalid_request"));
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
+
+        // Web Clients using the OAuth Implicit Grant Type MUST only register URLs using the https
+        // scheme as redirect_uris;they MUST NOT use localhost as the hostname. Native Clients MUST
+        // only register redirect_uris using custom URI schemes or URLs using the http: scheme with
+        // localhost as the hostname.
+        if (client.applicationType == ApplicationType.WEB
+                && client.grantTypes.contains(GrantType.implicit)) {
+            for (String u : client.redirectUris) {
+                try {
+                    var uri = new URI(u);
+                    if (!uri.getScheme().equals("https") || uri.getHost().equals("localhost")) {
+                        return new ClientRegistrationResponse(
+                                400, Map.of("error", "invalid_client_metadata"));
+                    }
+                } catch (URISyntaxException e) {
+                    // TODO URI 自体は先にチェックする
+                    // TODO そもそも Client のフィールドが URI のがいいのか？
+                    throw new AssertionError(e);
+                }
+            }
+        }
+
+        if (client.applicationType == ApplicationType.NATIVE) {
+            for (String u : client.redirectUris) {
+                try {
+                    var uri = new URI(u);
+                    switch (uri.getScheme()) {
+                        case "https" -> {
+                            return new ClientRegistrationResponse(
+                                    400, Map.of("error", "invalid_client_metadata"));
+                        }
+                        case "http" -> {
+                            if (!uri.getHost().equals("localhost")) {
+                                return new ClientRegistrationResponse(
+                                        400, Map.of("error", "invalid_client_metadata"));
+                            }
+                        }
+                    }
+                } catch (URISyntaxException e) {
+                    // TODO URI 自体は先にチェックする
+                    // TODO そもそも Client のフィールドが URI のがいいのか？
+                    throw new AssertionError(e);
+                }
+            }
+        }
+
+        try {
+            var initiateLoginUri = new URI(client.initiateLoginUri);
+            if (!initiateLoginUri.getScheme().equals("https")) {
+                return new ClientRegistrationResponse(
+                        400, Map.of("error", "invalid_client_metadata"));
+            }
+        } catch (URISyntaxException e) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
+        }
+
+        if (client.defaultMaxAge <= 0) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
+        }
+
         return null;
     }
 }

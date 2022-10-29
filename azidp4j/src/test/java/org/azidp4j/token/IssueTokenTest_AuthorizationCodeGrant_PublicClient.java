@@ -9,7 +9,6 @@ import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.time.Instant;
-import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.AzIdPConfig;
@@ -18,7 +17,6 @@ import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.CodeChallengeMethod;
-import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenService;
@@ -53,31 +51,14 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
 
     private final AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
 
+    private final Client client = Fixtures.publicClient();
+
     @BeforeEach
     void init() {
         authorizationCodeService =
                 new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var clientStore = new InMemoryClientStore();
-        clientStore.save(
-                new Client(
-                        "clientId",
-                        "secret",
-                        null,
-                        Set.of(ResponseType.code),
-                        Set.of(GrantType.authorization_code),
-                        null,
-                        null,
-                        null,
-                        "openid rs:scope1 rs:scope2",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.none,
-                        SigningAlgorithm.ES256));
+        clientStore.save(client);
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore());
         issueToken =
@@ -101,7 +82,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
-                        "clientId",
+                        client.clientId,
                         "http://example.com",
                         "xyz",
                         null,
@@ -114,7 +95,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .clientId("clientId")
+                        .clientId(client.clientId)
                         .build();
 
         // exercise
@@ -126,7 +107,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 accessTokenService.introspect((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
-                "clientId",
+                client.clientId,
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -143,7 +124,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
-                        "clientId",
+                        client.clientId,
                         "http://example.com",
                         "xyz",
                         null,
@@ -156,7 +137,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .clientId("clientId")
+                        .clientId(client.clientId)
                         .codeVerifier("plain")
                         .build();
 
@@ -169,7 +150,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 accessTokenService.introspect((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
-                "clientId",
+                client.clientId,
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -186,7 +167,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
-                        "clientId",
+                        client.clientId,
                         "http://example.com",
                         "xyz",
                         null,
@@ -199,7 +180,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .clientId("clientId")
+                        .clientId(client.clientId)
                         .codeVerifier("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")
                         .build();
 
@@ -212,7 +193,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 accessTokenService.introspect((String) response.body.get("access_token")).get(),
                 subject,
                 "http://rs.example.com",
-                "clientId",
+                client.clientId,
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -229,7 +210,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
-                        "clientId",
+                        client.clientId,
                         "http://example.com",
                         "xyz",
                         null,
@@ -242,7 +223,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         .code(authorizationCode.code)
                         .grantType("authorization_code")
                         .redirectUri("http://example.com")
-                        .clientId("clientId")
+                        .clientId(client.clientId)
                         .codeVerifier("invalid")
                         .build();
 

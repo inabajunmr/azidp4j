@@ -17,10 +17,7 @@ import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCod
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
-import org.azidp4j.client.Client;
-import org.azidp4j.client.InMemoryClientStore;
-import org.azidp4j.client.SigningAlgorithm;
-import org.azidp4j.client.TokenEndpointAuthMethod;
+import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
@@ -39,6 +36,7 @@ class AuthorizeTest_None {
                         "clientSecret",
                         Set.of("http://rp1.example.com", "http://rp2.example.com"),
                         Set.of(ResponseType.none),
+                        ApplicationType.WEB,
                         Set.of(),
                         null,
                         null,
@@ -52,7 +50,11 @@ class AuthorizeTest_None {
                         null,
                         null,
                         TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256);
+                        null,
+                        SigningAlgorithm.ES256,
+                        null,
+                        null,
+                        null);
         clientStore.save(client);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);

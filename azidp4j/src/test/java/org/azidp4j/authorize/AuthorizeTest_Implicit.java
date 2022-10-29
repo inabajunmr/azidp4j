@@ -40,6 +40,7 @@ class AuthorizeTest_Implicit {
                     "clientSecret",
                     Set.of("http://rp1.example.com", "http://rp2.example.com"),
                     Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token),
+                    ApplicationType.WEB,
                     Set.of(GrantType.authorization_code, GrantType.implicit),
                     null,
                     null,
@@ -53,7 +54,11 @@ class AuthorizeTest_Implicit {
                     null,
                     null,
                     TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
+                    null,
+                    SigningAlgorithm.ES256,
+                    null,
+                    null,
+                    null);
 
     final Client clientRs256 =
             new Client(
@@ -61,6 +66,7 @@ class AuthorizeTest_Implicit {
                     "clientSecret",
                     Set.of("http://rp1.example.com", "http://rp2.example.com"),
                     Set.of(ResponseType.token, ResponseType.id_token),
+                    ApplicationType.WEB,
                     Set.of(GrantType.implicit),
                     null,
                     null,
@@ -74,7 +80,11 @@ class AuthorizeTest_Implicit {
                     null,
                     null,
                     TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.RS256);
+                    null,
+                    SigningAlgorithm.RS256,
+                    null,
+                    null,
+                    null);
 
     final Client noGrantTypesClient =
             new Client(
@@ -82,6 +92,7 @@ class AuthorizeTest_Implicit {
                     "clientSecret",
                     Set.of("http://rp1.example.com"),
                     Set.of(ResponseType.code),
+                    ApplicationType.WEB,
                     Set.of(),
                     null,
                     null,
@@ -95,7 +106,11 @@ class AuthorizeTest_Implicit {
                     null,
                     null,
                     TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
+                    null,
+                    SigningAlgorithm.ES256,
+                    null,
+                    null,
+                    null);
 
     final Client noResponseTypesClient =
             new Client(
@@ -103,6 +118,7 @@ class AuthorizeTest_Implicit {
                     "clientSecret",
                     Set.of("http://rp1.example.com"),
                     Set.of(),
+                    ApplicationType.WEB,
                     Set.of(GrantType.authorization_code, GrantType.implicit),
                     null,
                     null,
@@ -116,7 +132,11 @@ class AuthorizeTest_Implicit {
                     null,
                     null,
                     TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
+                    null,
+                    SigningAlgorithm.ES256,
+                    null,
+                    null,
+                    null);
 
     public AuthorizeTest_Implicit() {
         clientStore.save(clientEs256);
@@ -371,6 +391,7 @@ class AuthorizeTest_Implicit {
                         "clientSecret",
                         Set.of("http://rp1.example.com", "http://rp2.example.com"),
                         Set.of(ResponseType.token, ResponseType.id_token),
+                        ApplicationType.WEB,
                         Set.of(GrantType.implicit),
                         null,
                         null,
@@ -384,7 +405,11 @@ class AuthorizeTest_Implicit {
                         null,
                         null,
                         TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.none);
+                        null,
+                        SigningAlgorithm.none,
+                        null,
+                        null,
+                        null);
         clientStore.save(client);
         var key =
                 new ECKeyGenerator(Curve.P_256)

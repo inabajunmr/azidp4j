@@ -21,10 +21,8 @@ import org.azidp4j.IdTokenAssert;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
-import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
-import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.AccessTokenService;
@@ -36,26 +34,7 @@ import org.junit.jupiter.api.Test;
 class AuthorizeTest_Hybrid {
 
     final ClientStore clientStore = new InMemoryClientStore();
-    final Client client =
-            new Client(
-                    "client1",
-                    "clientSecret",
-                    Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                    Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token),
-                    Set.of(GrantType.authorization_code, GrantType.implicit),
-                    null,
-                    null,
-                    null,
-                    "rs:scope1 rs:scope2 openid",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
+    final Client client = Fixtures.confidentialClient();
 
     final ECKey key =
             new ECKeyGenerator(Curve.P_256)
@@ -110,7 +89,7 @@ class AuthorizeTest_Hybrid {
                 accessTokenService.introspect(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
-                "client1",
+                client.clientId,
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
@@ -148,7 +127,7 @@ class AuthorizeTest_Hybrid {
                 fragmentMap.get("id_token"),
                 key,
                 "username",
-                "client1",
+                client.clientId,
                 "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
@@ -192,7 +171,7 @@ class AuthorizeTest_Hybrid {
                 fragmentMap.get("id_token"),
                 key,
                 "username",
-                "client1",
+                client.clientId,
                 "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
@@ -204,7 +183,7 @@ class AuthorizeTest_Hybrid {
                 accessTokenService.introspect(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
-                "client1",
+                client.clientId,
                 "openid rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
@@ -242,7 +221,7 @@ class AuthorizeTest_Hybrid {
                 fragmentMap.get("id_token"),
                 key,
                 "username",
-                "client1",
+                client.clientId,
                 "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
@@ -254,7 +233,7 @@ class AuthorizeTest_Hybrid {
                 accessTokenService.introspect(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
-                "client1",
+                client.clientId,
                 "openid rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");

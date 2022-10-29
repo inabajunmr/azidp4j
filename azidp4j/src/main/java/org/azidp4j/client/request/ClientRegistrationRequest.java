@@ -7,37 +7,41 @@ import org.azidp4j.util.HumanReadable;
 public class ClientRegistrationRequest {
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
+     * 1.0
      */
     public final Set<String> redirectUris;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
+     * 1.0
      */
     public final Set<String> grantTypes;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
+     * 1.0
      */
     public final Set<String> responseTypes;
 
-    /**
-     * OpenID Connect Dynamic Client Registration 1.0
-     */
+    /** OpenID Connect Dynamic Client Registration 1.0 */
     public final String applicationType;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
+     * 1.0
      */
     public final HumanReadable<String> clientName;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
+     * 1.0
      */
     public final String clientUri;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
+     * 1.0
      */
     public final String logoUri;
 
@@ -45,39 +49,40 @@ public class ClientRegistrationRequest {
     public final String scope;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
+     * 1.0
      */
     public final List<String> contacts;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
+     * 1.0
      */
     public final HumanReadable<String> tosUri;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
+     * 1.0
      */
     public final HumanReadable<String> policyUri;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
+     * 1.0
      */
     public final String jwksUri;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
+     * 1.0
      */
     public final String jwks;
 
-    /**
-     * OpenID Connect Dynamic Client Registration 1.0
-     */
+    /** OpenID Connect Dynamic Client Registration 1.0 */
     // TODO supports with PPID
     // public final String sectorIdentifierUri;
 
-    /**
-     * OpenID Connect Dynamic Client Registration 1.0
-     */
+    /** OpenID Connect Dynamic Client Registration 1.0 */
     // TODO supports with PPID
     // public final String subjectType;
 
@@ -87,10 +92,12 @@ public class ClientRegistrationRequest {
     /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final String softwareVersion;
 
+    /** OpenID Connect Dynamic Client Registration 1.0 */
     public final String tokenEndpointAuthMethod;
 
     /**
-     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration 1.0
+     * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
+     * 1.0
      */
     public final String tokenEndpointAuthSigningAlg;
 
@@ -141,6 +148,7 @@ public class ClientRegistrationRequest {
             Set<String> redirectUris,
             Set<String> grantTypes,
             Set<String> responseTypes,
+            String applicationType,
             HumanReadable<String> clientName,
             String clientUri,
             String logoUri,
@@ -153,10 +161,15 @@ public class ClientRegistrationRequest {
             String softwareId,
             String softwareVersion,
             String tokenEndpointAuthMethod,
-            String idTokenSignedResponseAlg) {
+            String tokenEndpointAuthSigningAlg,
+            String idTokenSignedResponseAlg,
+            Long defaultMaxAge,
+            Boolean requireAuthTime,
+            String initiateLoginUri) {
         this.redirectUris = redirectUris;
         this.grantTypes = grantTypes;
         this.responseTypes = responseTypes;
+        this.applicationType = applicationType;
         this.clientName = clientName;
         this.clientUri = clientUri;
         this.logoUri = logoUri;
@@ -169,13 +182,18 @@ public class ClientRegistrationRequest {
         this.softwareId = softwareId;
         this.softwareVersion = softwareVersion;
         this.tokenEndpointAuthMethod = tokenEndpointAuthMethod;
+        this.tokenEndpointAuthSigningAlg = tokenEndpointAuthSigningAlg;
         this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
+        this.defaultMaxAge = defaultMaxAge;
+        this.requireAuthTime = requireAuthTime;
+        this.initiateLoginUri = initiateLoginUri;
     }
 
     public static class Builder {
         private Set<String> redirectUris;
         private Set<String> grantTypes;
         private Set<String> responseTypes;
+        private String applicationType;
         private HumanReadable<String> clientName;
         private String clientUri;
         private String logoUri;
@@ -188,7 +206,11 @@ public class ClientRegistrationRequest {
         private String softwareId;
         private String softwareVersion;
         private String tokenEndpointAuthMethod;
+        private String tokenEndpointAuthSigningAlg;
         private String idTokenSignedResponseAlg;
+        private Long defaultMaxAge;
+        private Boolean requireAuthTime;
+        private String initiateLoginUri;
 
         public Builder redirectUris(Set<String> redirectUris) {
             this.redirectUris = redirectUris;
@@ -202,6 +224,11 @@ public class ClientRegistrationRequest {
 
         public Builder responseTypes(Set<String> responseTypes) {
             this.responseTypes = responseTypes;
+            return this;
+        }
+
+        public Builder applicationType(String applicationType) {
+            this.applicationType = applicationType;
             return this;
         }
 
@@ -265,8 +292,28 @@ public class ClientRegistrationRequest {
             return this;
         }
 
+        public Builder tokenEndpointAuthSigningAlg(String tokenEndpointAuthSigningAlg) {
+            this.tokenEndpointAuthSigningAlg = tokenEndpointAuthSigningAlg;
+            return this;
+        }
+
         public Builder idTokenSignedResponseAlg(String idTokenSignedResponseAlg) {
             this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
+            return this;
+        }
+
+        public Builder defaultMaxAge(Long defaultMaxAge) {
+            this.defaultMaxAge = defaultMaxAge;
+            return this;
+        }
+
+        public Builder requireAuthTime(Boolean requireAuthTime) {
+            this.requireAuthTime = requireAuthTime;
+            return this;
+        }
+
+        public Builder initiateLoginUri(String initiateLoginUri) {
+            this.initiateLoginUri = initiateLoginUri;
             return this;
         }
 
@@ -275,6 +322,7 @@ public class ClientRegistrationRequest {
                     redirectUris,
                     grantTypes,
                     responseTypes,
+                    applicationType,
                     clientName,
                     clientUri,
                     logoUri,
@@ -287,7 +335,11 @@ public class ClientRegistrationRequest {
                     softwareId,
                     softwareVersion,
                     tokenEndpointAuthMethod,
-                    idTokenSignedResponseAlg);
+                    tokenEndpointAuthSigningAlg,
+                    idTokenSignedResponseAlg,
+                    defaultMaxAge,
+                    requireAuthTime,
+                    initiateLoginUri);
         }
     }
 }

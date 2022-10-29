@@ -12,8 +12,13 @@ public class Client {
 
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final Set<String> redirectUris;
+
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final Set<ResponseType> responseTypes;
+
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    public final ApplicationType applicationType;
+
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final Set<GrantType> grantTypes;
 
@@ -26,6 +31,7 @@ public class Client {
     /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final String logoUri;
 
+    /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final String scope;
 
     /** OAuth 2.0 Dynamic Client Registration Protocol */
@@ -52,8 +58,20 @@ public class Client {
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final TokenEndpointAuthMethod tokenEndpointAuthMethod;
 
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    public final SigningAlgorithm tokenEndpointAuthSigningAlg;
+
     /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final SigningAlgorithm idTokenSignedResponseAlg;
+
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    public final Long defaultMaxAge;
+
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    public final Boolean requireAuthTime;
+
+    /** OpenID Connect Dynamic Client Registration 1.0 */
+    public final String initiateLoginUri;
 
     public boolean isConfidentialClient() {
         return !tokenEndpointAuthMethod.equals(TokenEndpointAuthMethod.none);
@@ -64,6 +82,7 @@ public class Client {
             String clientSecret,
             Set<String> redirectUris,
             Set<ResponseType> responseTypes,
+            ApplicationType applicationType,
             Set<GrantType> grantTypes,
             HumanReadable<String> clientName,
             String clientUri,
@@ -77,11 +96,16 @@ public class Client {
             String softwareId,
             String softwareVersion,
             TokenEndpointAuthMethod tokenEndpointAuthMethod,
-            SigningAlgorithm idTokenSignedResponseAlg) {
+            SigningAlgorithm tokenEndpointAuthSigningAlg,
+            SigningAlgorithm idTokenSignedResponseAlg,
+            Long defaultMaxAge,
+            Boolean requireAuthTime,
+            String initiateLoginUri) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.redirectUris = redirectUris;
         this.responseTypes = responseTypes;
+        this.applicationType = applicationType;
         this.grantTypes = grantTypes;
         this.clientName = clientName;
         this.clientUri = clientUri;
@@ -95,6 +119,10 @@ public class Client {
         this.softwareId = softwareId;
         this.softwareVersion = softwareVersion;
         this.tokenEndpointAuthMethod = tokenEndpointAuthMethod;
+        this.tokenEndpointAuthSigningAlg = tokenEndpointAuthSigningAlg;
         this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
+        this.defaultMaxAge = defaultMaxAge;
+        this.requireAuthTime = requireAuthTime;
+        this.initiateLoginUri = initiateLoginUri;
     }
 }

@@ -79,6 +79,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         "secret",
                         null,
                         Set.of(ResponseType.code),
+                        ApplicationType.WEB,
                         Set.of(GrantType.authorization_code),
                         null,
                         null,
@@ -92,13 +93,18 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         null,
                         TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+                        null,
+                        SigningAlgorithm.ES256,
+                        null,
+                        null,
+                        null));
         clientStore.save(
                 new Client(
                         "RS256Client",
                         "secret",
                         null,
                         Set.of(ResponseType.code),
+                        ApplicationType.WEB,
                         Set.of(GrantType.authorization_code),
                         null,
                         null,
@@ -112,13 +118,18 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         null,
                         TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.RS256));
+                        null,
+                        SigningAlgorithm.RS256,
+                        null,
+                        null,
+                        null));
         clientStore.save(
                 new Client(
                         "NoneClient",
                         "secret",
                         null,
                         Set.of(ResponseType.code),
+                        ApplicationType.WEB,
                         Set.of(GrantType.authorization_code),
                         null,
                         null,
@@ -132,13 +143,18 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         null,
                         TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.none));
+                        null,
+                        SigningAlgorithm.none,
+                        null,
+                        null,
+                        null));
         clientStore.save(
                 new Client(
                         "other",
                         "secret",
                         null,
                         Set.of(ResponseType.code),
+                        ApplicationType.WEB,
                         Set.of(GrantType.authorization_code),
                         null,
                         null,
@@ -152,7 +168,11 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         null,
                         TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+                        null,
+                        SigningAlgorithm.ES256,
+                        null,
+                        null,
+                        null));
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore());
         issueToken =
