@@ -60,8 +60,8 @@ public class DynamicClientRegistration {
 
         var applicationType = ApplicationType.WEB;
         if (request.applicationType != null) {
-            var type = ApplicationType.of(request.applicationType);
-            if (type == null) {
+            applicationType = ApplicationType.of(request.applicationType);
+            if (applicationType == null) {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_client_metadata"));
             }
@@ -405,18 +405,24 @@ public class DynamicClientRegistration {
             }
         }
 
-        try {
-            var initiateLoginUri = new URI(client.initiateLoginUri);
-            if (!initiateLoginUri.getScheme().equals("https")) {
+        if (client.initiateLoginUri != null) {
+            try {
+                var initiateLoginUri = new URI(client.initiateLoginUri);
+                if (!initiateLoginUri.getScheme().equals("https")) {
+                    return new ClientRegistrationResponse(
+                            400, Map.of("error", "invalid_client_metadata"));
+                }
+            } catch (URISyntaxException e) {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_client_metadata"));
             }
-        } catch (URISyntaxException e) {
-            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
 
-        if (client.defaultMaxAge <= 0) {
-            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
+        if (client.defaultMaxAge != null) {
+            if (client.defaultMaxAge <= 0) {
+                return new ClientRegistrationResponse(
+                        400, Map.of("error", "invalid_client_metadata"));
+            }
         }
 
         return null;

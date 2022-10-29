@@ -36,8 +36,8 @@ class DynamicClientRegistrationTest_register {
                 ClientRegistrationRequest.builder()
                         .redirectUris(
                                 Set.of(
-                                        "http://client.example.com/callback1",
-                                        "http://client.example.com/callback2"))
+                                        "https://client.example.com/callback1",
+                                        "https://client.example.com/callback2"))
                         .grantTypes(
                                 Set.of(
                                         "authorization_code",
@@ -77,8 +77,8 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("redirect_uris"),
                 Set.of(
-                        "http://client.example.com/callback1",
-                        "http://client.example.com/callback2"));
+                        "https://client.example.com/callback1",
+                        "https://client.example.com/callback2"));
         assertEquals(
                 response.body.get("grant_types"),
                 Set.of("authorization_code", "implicit", "refresh_token", "client_credentials"));
@@ -137,8 +137,8 @@ class DynamicClientRegistrationTest_register {
                 ClientRegistrationRequest.builder()
                         .redirectUris(
                                 Set.of(
-                                        "http://client.example.com/callback1",
-                                        "http://client.example.com/callback2"))
+                                        "https://client.example.com/callback1",
+                                        "https://client.example.com/callback2"))
                         .grantTypes(
                                 Set.of(
                                         "authorization_code",
@@ -178,8 +178,8 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("redirect_uris"),
                 Set.of(
-                        "http://client.example.com/callback1",
-                        "http://client.example.com/callback2"));
+                        "https://client.example.com/callback1",
+                        "https://client.example.com/callback2"));
         assertEquals(
                 response.body.get("grant_types"),
                 Set.of("authorization_code", "implicit", "refresh_token", "client_credentials"));

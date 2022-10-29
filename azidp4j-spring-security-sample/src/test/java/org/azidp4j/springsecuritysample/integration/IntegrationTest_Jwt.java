@@ -96,7 +96,7 @@ public class IntegrationTest_Jwt {
         var defaultClientAccessToken = (String) tokenResponse.getBody().get("access_token");
 
         // client registration
-        var redirectUri = "http://example.com";
+        var redirectUri = "https://example.com";
         var clientRegistrationRequest =
                 Map.of(
                         "redirect_uris",

@@ -74,6 +74,8 @@ public class SampleTest_PublicClient {
                                 GrantType.implicit.name(),
                                 GrantType.password.name(),
                                 GrantType.refresh_token.name()),
+                        "application_type",
+                        "native",
                         "response_types",
                         Set.of(ResponseType.code.name(), ResponseType.token.name()),
                         "scope",

@@ -34,8 +34,8 @@ class DynamicClientRegistrationTest_configure {
                         .clientId(registrationResponse.body.get("client_id").toString())
                         .redirectUris(
                                 Set.of(
-                                        "http://client.example.com/callback1/new",
-                                        "http://client.example.com/callback2/new"))
+                                        "https://client.example.com/callback1/new",
+                                        "https://client.example.com/callback2/new"))
                         .grantTypes(
                                 Set.of(
                                         "authorization_code",
@@ -87,8 +87,8 @@ class DynamicClientRegistrationTest_configure {
         assertEquals(
                 response.body.get("redirect_uris"),
                 Set.of(
-                        "http://client.example.com/callback1/new",
-                        "http://client.example.com/callback2/new"));
+                        "https://client.example.com/callback1/new",
+                        "https://client.example.com/callback2/new"));
         assertEquals(
                 response.body.get("grant_types"),
                 Set.of(
@@ -163,8 +163,8 @@ class DynamicClientRegistrationTest_configure {
         assertEquals(
                 response.body.get("redirect_uris"),
                 Set.of(
-                        "http://client.example.com/callback1",
-                        "http://client.example.com/callback2"));
+                        "https://client.example.com/callback1",
+                        "https://client.example.com/callback2"));
         assertEquals(
                 response.body.get("grant_types"),
                 Set.of("authorization_code", "implicit", "refresh_token", "client_credentials"));
@@ -250,8 +250,8 @@ class DynamicClientRegistrationTest_configure {
         return ClientRegistrationRequest.builder()
                 .redirectUris(
                         Set.of(
-                                "http://client.example.com/callback1",
-                                "http://client.example.com/callback2"))
+                                "https://client.example.com/callback1",
+                                "https://client.example.com/callback2"))
                 .grantTypes(
                         Set.of(
                                 "authorization_code",
