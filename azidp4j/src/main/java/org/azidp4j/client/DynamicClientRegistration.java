@@ -1,7 +1,5 @@
 package org.azidp4j.client;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,6 +17,7 @@ public class DynamicClientRegistration {
     private final AzIdPConfig config;
     private final ClientStore clientStore;
     private final AccessTokenService accessTokenService;
+    private final ClientValidator clientValidator = new ClientValidator();
 
     public DynamicClientRegistration(
             AzIdPConfig config, ClientStore clientStore, AccessTokenService accessTokenService) {
@@ -124,9 +123,10 @@ public class DynamicClientRegistration {
                                 ? request.requireAuthTime
                                 : false, // TODO apply to ID Token issuing?
                         request.initiateLoginUri);
-        var error = validateClient(client);
-        if (error != null) {
-            return error;
+        try {
+            clientValidator.validate(client);
+        } catch (IllegalArgumentException e) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
         clientStore.save(client);
         var at =
@@ -305,9 +305,10 @@ public class DynamicClientRegistration {
                         request.initiateLoginUri != null
                                 ? request.initiateLoginUri
                                 : client.initiateLoginUri);
-        var error = validateClient(updated);
-        if (error != null) {
-            return error;
+        try {
+            clientValidator.validate(updated);
+        } catch (IllegalArgumentException e) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
         clientStore.save(updated);
         return new ClientRegistrationResponse(
@@ -366,82 +367,5 @@ public class DynamicClientRegistration {
     public ClientDeleteResponse delete(String clientId) {
         clientStore.remove(clientId);
         return new ClientDeleteResponse(204, null);
-    }
-
-    private ClientRegistrationResponse validateClient(Client client) {
-        if (client.jwks != null && client.jwksUri != null) {
-            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
-        }
-        if (client.tokenEndpointAuthMethod == TokenEndpointAuthMethod.none
-                && client.grantTypes.contains(GrantType.client_credentials)) {
-            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
-        }
-
-        // Web Clients using the OAuth Implicit Grant Type MUST only register URLs using the https
-        // scheme as redirect_uris;they MUST NOT use localhost as the hostname. Native Clients MUST
-        // only register redirect_uris using custom URI schemes or URLs using the http: scheme with
-        // localhost as the hostname.
-        if (client.applicationType == ApplicationType.WEB
-                && client.grantTypes.contains(GrantType.implicit)) {
-            for (String u : client.redirectUris) {
-                try {
-                    var uri = new URI(u);
-                    if (!uri.getScheme().equals("https") || uri.getHost().equals("localhost")) {
-                        return new ClientRegistrationResponse(
-                                400, Map.of("error", "invalid_client_metadata"));
-                    }
-                } catch (URISyntaxException e) {
-                    // TODO URI 自体は先にチェックする
-                    // TODO そもそも Client のフィールドが URI のがいいのか？
-                    throw new AssertionError(e);
-                }
-            }
-        }
-
-        if (client.applicationType == ApplicationType.NATIVE) {
-            for (String u : client.redirectUris) {
-                try {
-                    var uri = new URI(u);
-                    switch (uri.getScheme()) {
-                        case "https" -> {
-                            return new ClientRegistrationResponse(
-                                    400, Map.of("error", "invalid_client_metadata"));
-                        }
-                        case "http" -> {
-                            if (!uri.getHost().equals("localhost")) {
-                                return new ClientRegistrationResponse(
-                                        400, Map.of("error", "invalid_client_metadata"));
-                            }
-                        }
-                    }
-                } catch (URISyntaxException e) {
-                    // TODO URI 自体は先にチェックする
-                    // TODO そもそも Client のフィールドが URI のがいいのか？
-                    throw new AssertionError(e);
-                }
-            }
-        }
-
-        if (client.initiateLoginUri != null) {
-            try {
-                var initiateLoginUri = new URI(client.initiateLoginUri);
-                if (!initiateLoginUri.getScheme().equals("https")) {
-                    return new ClientRegistrationResponse(
-                            400, Map.of("error", "invalid_client_metadata"));
-                }
-            } catch (URISyntaxException e) {
-                return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_client_metadata"));
-            }
-        }
-
-        if (client.defaultMaxAge != null) {
-            if (client.defaultMaxAge <= 0) {
-                return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_client_metadata"));
-            }
-        }
-
-        return null;
     }
 }
