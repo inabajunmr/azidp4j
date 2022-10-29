@@ -21,7 +21,7 @@ import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
-import org.azidp4j.client.request.ClientRegistrationRequest;
+import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.introspection.request.IntrospectionRequest;
 import org.azidp4j.revocation.request.RevocationRequest;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
@@ -57,7 +57,7 @@ public class SimpleTest {
 
         // client registration
         var clientRegistrationRequest =
-                ClientRegistrationRequest.builder()
+                ClientRequest.builder()
                         .redirectUris(Set.of("http://example.com"))
                         .grantTypes(
                                 Set.of(

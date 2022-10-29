@@ -13,7 +13,7 @@ import java.util.Set;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.client.ClientStore;
-import org.azidp4j.client.request.ClientRegistrationRequest;
+import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenService;
@@ -95,7 +95,7 @@ public class AzIdPConfiguration {
                         scopeAudienceMapper,
                         userPasswordVerifier);
         var clientRegistration =
-                ClientRegistrationRequest.builder()
+                ClientRequest.builder()
                         .redirectUris(
                                 Set.of(
                                         "http://client.example.com/callback1",

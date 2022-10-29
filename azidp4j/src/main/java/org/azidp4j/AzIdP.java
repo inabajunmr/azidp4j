@@ -8,10 +8,8 @@ import org.azidp4j.authorize.request.AuthorizationRequest;
 import org.azidp4j.authorize.request.AuthorizationRequestParser;
 import org.azidp4j.authorize.response.AuthorizationResponse;
 import org.azidp4j.client.*;
-import org.azidp4j.client.request.ClientConfigurationRequest;
-import org.azidp4j.client.request.ClientConfigurationRequestParser;
-import org.azidp4j.client.request.ClientRegistrationRequest;
-import org.azidp4j.client.request.ClientRegistrationRequestParser;
+import org.azidp4j.client.request.ClientRequest;
+import org.azidp4j.client.request.ClientRequestParser;
 import org.azidp4j.client.response.ClientDeleteResponse;
 import org.azidp4j.client.response.ClientRegistrationResponse;
 import org.azidp4j.discovery.Discovery;
@@ -46,10 +44,7 @@ public class AzIdP {
     private final RevocationRequestParser revocationRequestParser = new RevocationRequestParser();
     private final IntrospectionRequestParser introspectionRequestParser =
             new IntrospectionRequestParser();
-    private final ClientRegistrationRequestParser clientRegistrationRequestParser =
-            new ClientRegistrationRequestParser();
-    private final ClientConfigurationRequestParser clientConfigurationRequestParser =
-            new ClientConfigurationRequestParser();
+    private final ClientRequestParser clientRequestParser = new ClientRequestParser();
 
     public AzIdP(
             AzIdPConfig azIdPConfig,
@@ -130,22 +125,16 @@ public class AzIdP {
         return issueToken.issue(parsed);
     }
 
-    public ClientRegistrationRequest parseClientRegistrationRequest(
-            Map<String, Object> parameters) {
-        return clientRegistrationRequestParser.parse(parameters);
+    public ClientRequest parseClientRegistrationRequest(Map<String, Object> parameters) {
+        return clientRequestParser.parse(parameters);
     }
 
-    public ClientRegistrationResponse registerClient(ClientRegistrationRequest request) {
+    public ClientRegistrationResponse registerClient(ClientRequest request) {
         return clientRegistration.register(request);
     }
 
-    public ClientConfigurationRequest parseClientConfigurationRequest(
-            String clientId, Map<String, Object> parameters) {
-        return clientConfigurationRequestParser.parse(clientId, parameters);
-    }
-
-    public ClientRegistrationResponse configureClient(ClientConfigurationRequest request) {
-        return clientRegistration.configure(request);
+    public ClientRegistrationResponse configureClient(String clientId, ClientRequest request) {
+        return clientRegistration.configure(clientId, request);
     }
 
     public ClientDeleteResponse delete(String clientId) {

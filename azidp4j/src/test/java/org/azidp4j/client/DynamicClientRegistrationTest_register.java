@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
-import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +12,7 @@ import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.request.ResponseType;
-import org.azidp4j.client.request.ClientRegistrationRequest;
+import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.util.HumanReadable;
@@ -33,17 +32,18 @@ class DynamicClientRegistrationTest_register {
                         new InMemoryClientStore(),
                         new InMemoryAccessTokenService(accessTokenStore));
         var req =
-                ClientRegistrationRequest.builder()
+                ClientRequest.builder()
                         .redirectUris(
                                 Set.of(
-                                        "http://client.example.com/callback1",
-                                        "http://client.example.com/callback2"))
+                                        "https://client.example.com/callback1",
+                                        "https://client.example.com/callback2"))
                         .grantTypes(
                                 Set.of(
                                         "authorization_code",
                                         "implicit",
                                         "refresh_token",
                                         "client_credentials"))
+                        .applicationType("web")
                         .responseTypes(Set.of("code", "token", "id_token"))
                         .clientName(
                                 new HumanReadable<>(
@@ -66,7 +66,11 @@ class DynamicClientRegistrationTest_register {
                         .softwareId("azidp")
                         .softwareVersion("1.0.0")
                         .tokenEndpointAuthMethod("client_secret_basic")
+                        .tokenEndpointAuthSigningAlg("RS256")
                         .idTokenSignedResponseAlg("RS256")
+                        .defaultMaxAge(100L)
+                        .requireAuthTime(true)
+                        .initiateLoginUri("https://example.com")
                         .build();
 
         // exercise
@@ -77,11 +81,12 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("redirect_uris"),
                 Set.of(
-                        "http://client.example.com/callback1",
-                        "http://client.example.com/callback2"));
+                        "https://client.example.com/callback1",
+                        "https://client.example.com/callback2"));
         assertEquals(
                 response.body.get("grant_types"),
                 Set.of("authorization_code", "implicit", "refresh_token", "client_credentials"));
+        assertEquals(response.body.get("application_type"), "web");
         assertEquals(response.body.get("response_types"), Set.of("code", "token", "id_token"));
         assertEquals(
                 response.body.get("client_name"),
@@ -111,7 +116,11 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("registration_client_uri"),
                 "http://localhost:8080/client/" + response.body.get("client_id"));
+        assertEquals(response.body.get("token_endpoint_auth_signing_alg"), "RS256");
         assertEquals(response.body.get("id_token_signed_response_alg"), "RS256");
+        assertEquals(response.body.get("default_max_age"), 100L);
+        assertEquals(response.body.get("require_auth_time"), true);
+        assertEquals(response.body.get("initiate_login_uri"), "https://example.com");
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
                 accessTokenStore.find((String) at).get(),
@@ -134,17 +143,18 @@ class DynamicClientRegistrationTest_register {
                         new InMemoryClientStore(),
                         new InMemoryAccessTokenService(accessTokenStore));
         var req =
-                ClientRegistrationRequest.builder()
+                ClientRequest.builder()
                         .redirectUris(
                                 Set.of(
-                                        "http://client.example.com/callback1",
-                                        "http://client.example.com/callback2"))
+                                        "https://client.example.com/callback1",
+                                        "https://client.example.com/callback2"))
                         .grantTypes(
                                 Set.of(
                                         "authorization_code",
                                         "implicit",
                                         "refresh_token",
                                         "client_credentials"))
+                        .applicationType("web")
                         .responseTypes(Set.of("code", "token", "id_token"))
                         .clientName(
                                 new HumanReadable<>(
@@ -167,7 +177,11 @@ class DynamicClientRegistrationTest_register {
                         .softwareId("azidp")
                         .softwareVersion("1.0.0")
                         .tokenEndpointAuthMethod("client_secret_basic")
+                        .tokenEndpointAuthSigningAlg("RS256")
                         .idTokenSignedResponseAlg("RS256")
+                        .defaultMaxAge(100L)
+                        .requireAuthTime(true)
+                        .initiateLoginUri("https://example.com")
                         .build();
 
         // exercise
@@ -178,8 +192,8 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("redirect_uris"),
                 Set.of(
-                        "http://client.example.com/callback1",
-                        "http://client.example.com/callback2"));
+                        "https://client.example.com/callback1",
+                        "https://client.example.com/callback2"));
         assertEquals(
                 response.body.get("grant_types"),
                 Set.of("authorization_code", "implicit", "refresh_token", "client_credentials"));
@@ -212,7 +226,11 @@ class DynamicClientRegistrationTest_register {
         assertEquals(
                 response.body.get("registration_client_uri"),
                 "http://localhost:8080/client/" + response.body.get("client_id"));
+        assertEquals(response.body.get("token_endpoint_auth_signing_alg"), "RS256");
         assertEquals(response.body.get("id_token_signed_response_alg"), "RS256");
+        assertEquals(response.body.get("default_max_age"), 100L);
+        assertEquals(response.body.get("require_auth_time"), true);
+        assertEquals(response.body.get("initiate_login_uri"), "https://example.com");
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
                 accessTokenStore.find((String) at).get(),
@@ -234,7 +252,7 @@ class DynamicClientRegistrationTest_register {
                         config,
                         new InMemoryClientStore(),
                         new InMemoryAccessTokenService(accessTokenStore));
-        var req = ClientRegistrationRequest.builder().build();
+        var req = ClientRequest.builder().build();
 
         // exercise
         var response = registration.register(req);
@@ -243,6 +261,7 @@ class DynamicClientRegistrationTest_register {
         assertEquals(201, response.status);
         assertEquals(response.body.get("redirect_uris"), Set.of());
         assertEquals(response.body.get("grant_types"), Set.of(GrantType.authorization_code.name()));
+        assertEquals(response.body.get("application_type"), "web");
         assertEquals(response.body.get("response_types"), Set.of(ResponseType.code.name()));
         assertNull(response.body.get("scope"));
         assertEquals(
@@ -260,55 +279,5 @@ class DynamicClientRegistrationTest_register {
                 (String) response.body.get("client_id"),
                 "configure",
                 Instant.now().getEpochSecond() + 3600);
-    }
-
-    @Test
-    void validationError_BothJwksAndJwksUri() throws JOSEException {
-        // setup
-        var rs256 = new RSAKeyGenerator(2048).keyID("abc").generate();
-        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var config = Fixtures.azIdPConfig(es256.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var registration =
-                new DynamicClientRegistration(
-                        config,
-                        new InMemoryClientStore(),
-                        new InMemoryAccessTokenService(accessTokenStore));
-        var req =
-                ClientRegistrationRequest.builder()
-                        .jwks("jwks")
-                        .jwksUri("http://client.example.com/jwks")
-                        .build();
-
-        // exercise
-        var response = registration.register(req);
-
-        // verify
-        assertEquals(400, response.status);
-    }
-
-    @Test
-    void validationError_publicClientAndClientCredentials() throws JOSEException {
-
-        // setup
-        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var config = Fixtures.azIdPConfig(es256.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var registration =
-                new DynamicClientRegistration(
-                        config,
-                        new InMemoryClientStore(),
-                        new InMemoryAccessTokenService(accessTokenStore));
-        var req =
-                ClientRegistrationRequest.builder()
-                        .grantTypes(Set.of("client_credentials"))
-                        .tokenEndpointAuthMethod("none")
-                        .build();
-
-        // exercise
-        var response = registration.register(req);
-
-        // verify
-        assertEquals(400, response.status);
     }
 }

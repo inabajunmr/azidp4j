@@ -13,11 +13,9 @@ import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
-import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.AuthorizationErrorTypeWithoutRedirect;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
-import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
@@ -29,47 +27,8 @@ class AuthorizeTest_validationError {
 
     final ClientStore clientStore = new InMemoryClientStore();
     final Client client = Fixtures.confidentialClient();
-    final Client noGrantTypesClient =
-            new Client(
-                    "noGrantTypesClient",
-                    "clientSecret",
-                    Set.of("http://rp1.example.com"),
-                    Set.of(ResponseType.code),
-                    Set.of(),
-                    null,
-                    null,
-                    null,
-                    "scope1 scope2",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
-
-    final Client noResponseTypesClient =
-            new Client(
-                    "noResponseTypesClient",
-                    "clientSecret",
-                    Set.of("http://rp1.example.com"),
-                    Set.of(),
-                    Set.of(GrantType.authorization_code, GrantType.implicit),
-                    null,
-                    null,
-                    null,
-                    "scope1 scope2",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
+    final Client noGrantTypesClient = Fixtures.noGrantTypeClient();
+    final Client noResponseTypesClient = Fixtures.noResponseTypeClient();
     final AzIdPConfig config = Fixtures.azIdPConfig("kid");
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
     final Authorize sut =
@@ -94,7 +53,7 @@ class AuthorizeTest_validationError {
                         .authTime(Instant.now().getEpochSecond())
                         .clientId(client.clientId)
                         .redirectUri("http://rp1.example.com")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .authenticatedUserId("username")
                         .state("xyz")
                         .build();
@@ -113,7 +72,7 @@ class AuthorizeTest_validationError {
                         .clientId(client.clientId)
                         .responseType("illegal")
                         .redirectUri("http://rp1.example.com")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .authenticatedUserId("username")
                         .state("xyz")
                         .build();
@@ -131,7 +90,7 @@ class AuthorizeTest_validationError {
                         .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .redirectUri("http://rp1.example.com")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .authenticatedUserId("username")
                         .state("xyz")
                         .build();
@@ -150,7 +109,7 @@ class AuthorizeTest_validationError {
                         .responseType("code")
                         .clientId("unknown")
                         .redirectUri("http://rp1.example.com")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .authenticatedUserId("username")
                         .state("xyz")
                         .build();
@@ -169,7 +128,7 @@ class AuthorizeTest_validationError {
                         .responseType("code")
                         .clientId(client.clientId)
                         .redirectUri("http://not.authorized.example.com")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .authenticatedUserId("username")
                         .state("xyz")
                         .build();
@@ -187,7 +146,7 @@ class AuthorizeTest_validationError {
                         .authTime(Instant.now().getEpochSecond())
                         .responseType("code")
                         .clientId(client.clientId)
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .authenticatedUserId("username")
                         .state("xyz")
                         .build();
@@ -230,8 +189,8 @@ class AuthorizeTest_validationError {
                         .responseType("code")
                         .clientId(noGrantTypesClient.clientId)
                         .redirectUri("http://rp1.example.com")
-                        .scope("scope1")
-                        .consentedScope(Set.of("scope1"))
+                        .scope("rs:scope1")
+                        .consentedScope(Set.of("rs:scope1"))
                         .authenticatedUserId("username")
                         .state("xyz")
                         .build();
@@ -254,8 +213,8 @@ class AuthorizeTest_validationError {
                         .responseType("code")
                         .clientId(noResponseTypesClient.clientId)
                         .redirectUri("http://rp1.example.com")
-                        .scope("scope1")
-                        .consentedScope(Set.of("scope1"))
+                        .scope("rs:scope1")
+                        .consentedScope(Set.of("rs:scope1"))
                         .authenticatedUserId("username")
                         .state("xyz")
                         .build();
@@ -278,8 +237,8 @@ class AuthorizeTest_validationError {
                         .responseType("code")
                         .clientId(noResponseTypesClient.clientId)
                         .redirectUri("http://rp1.example.com")
-                        .scope("scope1")
-                        .consentedScope(Set.of("scope1"))
+                        .scope("rs:scope1")
+                        .consentedScope(Set.of("rs:scope1"))
                         .authenticatedUserId("username")
                         .state("xyz")
                         .build();

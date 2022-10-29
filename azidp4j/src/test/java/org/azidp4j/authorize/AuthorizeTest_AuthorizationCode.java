@@ -13,10 +13,8 @@ import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
-import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
-import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
@@ -27,67 +25,9 @@ import org.junit.jupiter.api.Test;
 class AuthorizeTest_AuthorizationCode {
 
     final ClientStore clientStore = new InMemoryClientStore();
-    final Client client =
-            new Client(
-                    "client1",
-                    "clientSecret",
-                    Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                    Set.of(ResponseType.code),
-                    Set.of(GrantType.authorization_code),
-                    null,
-                    null,
-                    null,
-                    "scope1 scope2 openid",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
-    final Client noGrantTypesClient =
-            new Client(
-                    "noGrantTypesClient",
-                    "clientSecret",
-                    Set.of("http://rp1.example.com"),
-                    Set.of(ResponseType.code),
-                    Set.of(),
-                    null,
-                    null,
-                    null,
-                    "scope1 scope2",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
-
-    final Client noResponseTypesClient =
-            new Client(
-                    "noResponseTypesClient",
-                    "clientSecret",
-                    Set.of("http://rp1.example.com"),
-                    Set.of(),
-                    Set.of(GrantType.authorization_code, GrantType.implicit),
-                    null,
-                    null,
-                    null,
-                    "scope1 scope2",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
+    final Client client = Fixtures.confidentialClient();
+    final Client noGrantTypesClient = Fixtures.noGrantTypeClient();
+    final Client noResponseTypesClient = Fixtures.noResponseTypeClient();
     final AzIdPConfig config = Fixtures.azIdPConfig("kid");
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
     final Authorize sut =
@@ -114,9 +54,9 @@ class AuthorizeTest_AuthorizationCode {
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .authenticatedUserId("username")
-                        .consentedScope(Set.of("scope1", "scope2"))
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .build();
 
         // exercise
@@ -153,9 +93,9 @@ class AuthorizeTest_AuthorizationCode {
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .authenticatedUserId("username")
-                        .consentedScope(Set.of("scope1", "scope2"))
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .build();
 
@@ -183,7 +123,7 @@ class AuthorizeTest_AuthorizationCode {
                         .redirectUri("http://rp1.example.com")
                         .scope(null)
                         .authenticatedUserId("username")
-                        .consentedScope(Set.of("openid", "scope1"))
+                        .consentedScope(Set.of("openid", "rs:scope1"))
                         .build();
 
         // exercise
@@ -221,9 +161,9 @@ class AuthorizeTest_AuthorizationCode {
                         .authTime(Instant.now().getEpochSecond())
                         .maxAge("10")
                         .redirectUri("http://rp1.example.com")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .authenticatedUserId("username")
-                        .consentedScope(Set.of("scope1", "scope2"))
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .build();
 
@@ -262,9 +202,9 @@ class AuthorizeTest_AuthorizationCode {
                         .authTime(Instant.now().getEpochSecond())
                         .maxAge("10")
                         .redirectUri("http://rp1.example.com")
-                        .scope("scope1")
+                        .scope("rs:scope1")
                         .authenticatedUserId("username")
-                        .consentedScope(Set.of("scope1", "scope2"))
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .build();
 

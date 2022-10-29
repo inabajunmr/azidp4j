@@ -18,6 +18,7 @@ public class InMemoryClientStore implements ClientStore {
                         "default",
                         Set.of(),
                         Set.of(),
+                        ApplicationType.WEB,
                         Set.of(GrantType.client_credentials),
                         new HumanReadable<>("client_name", "default", null),
                         null,
@@ -31,7 +32,11 @@ public class InMemoryClientStore implements ClientStore {
                         null,
                         null,
                         TokenEndpointAuthMethod.client_secret_basic,
-                        SigningAlgorithm.ES256));
+                        null,
+                        SigningAlgorithm.ES256,
+                        null,
+                        false,
+                        null));
     }
 
     @Override

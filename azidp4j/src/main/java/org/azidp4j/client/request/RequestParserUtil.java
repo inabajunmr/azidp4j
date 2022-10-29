@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.azidp4j.util.HumanReadable;
 
-public class RequestParser {
+public class RequestParserUtil {
 
     static Set<String> valuesToStringSet(Object values) {
         if (values == null) {

@@ -2,10 +2,7 @@ package org.azidp4j;
 
 import java.util.Set;
 import org.azidp4j.authorize.request.ResponseType;
-import org.azidp4j.client.Client;
-import org.azidp4j.client.GrantType;
-import org.azidp4j.client.SigningAlgorithm;
-import org.azidp4j.client.TokenEndpointAuthMethod;
+import org.azidp4j.client.*;
 
 public class Fixtures {
 
@@ -18,8 +15,8 @@ public class Fixtures {
                 "http://localhost:8080/client",
                 "http://localhost:8080/client/{CLIENT_ID}",
                 "http://localhost:8080/userinfo",
-                Set.of("openid", "scope1", "scope2", "default"),
-                Set.of("openid", "scope1"),
+                Set.of("openid", "rs:scope1", "rs:scope2", "default"),
+                Set.of("openid", "rs:scope1"),
                 kid,
                 3600,
                 600,
@@ -33,6 +30,7 @@ public class Fixtures {
                 null,
                 null,
                 Set.of(ResponseType.code, ResponseType.token),
+                ApplicationType.WEB,
                 Set.of(
                         GrantType.authorization_code,
                         GrantType.implicit,
@@ -50,7 +48,11 @@ public class Fixtures {
                 null,
                 null,
                 TokenEndpointAuthMethod.none,
-                SigningAlgorithm.ES256);
+                SigningAlgorithm.ES256,
+                null,
+                null,
+                false,
+                null);
     }
 
     public static Client confidentialClient() {
@@ -58,7 +60,12 @@ public class Fixtures {
                 "confidential",
                 "secret",
                 Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                Set.of(ResponseType.code, ResponseType.token),
+                Set.of(
+                        ResponseType.code,
+                        ResponseType.token,
+                        ResponseType.id_token,
+                        ResponseType.none),
+                ApplicationType.WEB,
                 Set.of(
                         GrantType.authorization_code,
                         GrantType.implicit,
@@ -77,6 +84,73 @@ public class Fixtures {
                 null,
                 null,
                 TokenEndpointAuthMethod.client_secret_basic,
-                SigningAlgorithm.ES256);
+                null,
+                SigningAlgorithm.ES256,
+                null,
+                null,
+                null);
+    }
+
+    public static Client noGrantTypeClient() {
+        return new Client(
+                "noGrantTypesClient",
+                "clientSecret",
+                Set.of("http://rp1.example.com"),
+                Set.of(
+                        ResponseType.code,
+                        ResponseType.token,
+                        ResponseType.id_token,
+                        ResponseType.none),
+                ApplicationType.WEB,
+                Set.of(),
+                null,
+                null,
+                null,
+                "scope1 scope2",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                TokenEndpointAuthMethod.client_secret_basic,
+                null,
+                SigningAlgorithm.ES256,
+                null,
+                null,
+                null);
+    }
+
+    public static Client noResponseTypeClient() {
+        return new Client(
+                "noResponseTypeClient",
+                "secret",
+                Set.of("http://rp1.example.com", "http://rp2.example.com"),
+                Set.of(),
+                ApplicationType.WEB,
+                Set.of(
+                        GrantType.authorization_code,
+                        GrantType.implicit,
+                        GrantType.password,
+                        GrantType.client_credentials,
+                        GrantType.refresh_token),
+                null,
+                null,
+                null,
+                "rs:scope1 rs:scope2 openid",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                TokenEndpointAuthMethod.client_secret_basic,
+                null,
+                SigningAlgorithm.ES256,
+                null,
+                null,
+                null);
     }
 }

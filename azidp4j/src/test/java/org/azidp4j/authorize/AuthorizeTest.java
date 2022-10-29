@@ -12,10 +12,8 @@ import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCod
 import org.azidp4j.authorize.request.Display;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
 import org.azidp4j.authorize.request.Prompt;
-import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
-import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
@@ -26,67 +24,9 @@ import org.junit.jupiter.api.Test;
 class AuthorizeTest {
 
     final ClientStore clientStore = new InMemoryClientStore();
-    final Client client =
-            new Client(
-                    "client1",
-                    "clientSecret",
-                    Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                    Set.of(ResponseType.code),
-                    Set.of(GrantType.authorization_code),
-                    null,
-                    null,
-                    null,
-                    "scope1 scope2 openid",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
-    final Client noGrantTypesClient =
-            new Client(
-                    "noGrantTypesClient",
-                    "clientSecret",
-                    Set.of("http://rp1.example.com"),
-                    Set.of(ResponseType.code),
-                    Set.of(),
-                    null,
-                    null,
-                    null,
-                    "scope1 scope2",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
-
-    final Client noResponseTypesClient =
-            new Client(
-                    "noResponseTypesClient",
-                    "clientSecret",
-                    Set.of("http://rp1.example.com"),
-                    Set.of(),
-                    Set.of(GrantType.authorization_code, GrantType.implicit),
-                    null,
-                    null,
-                    null,
-                    "scope1 scope2",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    SigningAlgorithm.ES256);
+    final Client client = Fixtures.confidentialClient();
+    final Client noGrantTypesClient = Fixtures.noGrantTypeClient();
+    final Client noResponseTypesClient = Fixtures.noResponseTypeClient();
     final AzIdPConfig config = Fixtures.azIdPConfig("kid");
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
 
@@ -115,7 +55,7 @@ class AuthorizeTest {
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
-                            .scope("scope1")
+                            .scope("rs:scope1")
                             .state("xyz")
                             .build();
 
@@ -135,7 +75,7 @@ class AuthorizeTest {
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
-                            .scope("scope1")
+                            .scope("rs:scope1")
                             .authenticatedUserId("username")
                             .consentedScope(Set.of())
                             .state("xyz")
@@ -157,9 +97,9 @@ class AuthorizeTest {
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
-                            .scope("scope1 scope2")
+                            .scope("rs:scope1 rs:scope2")
                             .authenticatedUserId("username")
-                            .consentedScope(Set.of("scope1"))
+                            .consentedScope(Set.of("rs:scope1"))
                             .state("xyz")
                             .build();
 
@@ -179,10 +119,10 @@ class AuthorizeTest {
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
-                            .scope("scope1 scope2")
+                            .scope("rs:scope1 rs:scope2")
                             .prompt("login")
                             .authenticatedUserId("username")
-                            .consentedScope(Set.of("scope1 scope2"))
+                            .consentedScope(Set.of("rs:scope1 rs:scope2"))
                             .state("xyz")
                             .build();
 
@@ -202,11 +142,11 @@ class AuthorizeTest {
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
-                            .scope("scope1 scope2")
+                            .scope("rs:scope1 rs:scope2")
                             .prompt("login")
                             .display("popup")
                             .authenticatedUserId("username")
-                            .consentedScope(Set.of("scope1 scope2"))
+                            .consentedScope(Set.of("rs:scope1 rs:scope2"))
                             .state("xyz")
                             .build();
 
@@ -226,10 +166,10 @@ class AuthorizeTest {
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
-                            .scope("scope1 scope2")
+                            .scope("rs:scope1 rs:scope2")
                             .prompt("consent")
                             .authenticatedUserId("username")
-                            .consentedScope(Set.of("scope1 scope2"))
+                            .consentedScope(Set.of("rs:scope1 rs:scope2"))
                             .state("xyz")
                             .build();
 
@@ -248,9 +188,9 @@ class AuthorizeTest {
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
-                            .scope("scope1 scope2")
+                            .scope("rs:scope1 rs:scope2")
                             .prompt("consent")
-                            .consentedScope(Set.of("scope1 scope2"))
+                            .consentedScope(Set.of("rs:scope1 rs:scope2"))
                             .state("xyz")
                             .build();
 
@@ -270,10 +210,10 @@ class AuthorizeTest {
                             .responseType("code")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
-                            .scope("scope1 scope2")
+                            .scope("rs:scope1 rs:scope2")
                             .prompt("login consent")
                             .authenticatedUserId("username")
-                            .consentedScope(Set.of("scope1 scope2"))
+                            .consentedScope(Set.of("rs:scope1 rs:scope2"))
                             .state("xyz")
                             .build();
 
