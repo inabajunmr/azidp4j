@@ -195,6 +195,7 @@ public class DynamicClientRegistration {
                         client.initiateLoginUri));
     }
 
+    // TODO if configure is not required confomance test, it will be removed
     public ClientRegistrationResponse configure(String clientId, ClientRequest request) {
         if (clientId == null) {
             throw new AssertionError();
