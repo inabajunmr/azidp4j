@@ -50,6 +50,7 @@ public class AzIdP {
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
+            ClientValidator clientValidator,
             AuthorizationCodeService authorizationCodeService,
             AccessTokenService accessTokenService,
             RefreshTokenService refreshTokenService,
@@ -75,7 +76,8 @@ public class AzIdP {
                         null,
                         clientStore);
         this.clientRegistration =
-                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenService);
+                new DynamicClientRegistration(
+                        azIdPConfig, clientStore, clientValidator, accessTokenService);
         this.introspect = new Introspect(accessTokenService, refreshTokenService, azIdPConfig);
         this.revocation = new Revocation(accessTokenService, refreshTokenService, clientStore);
     }
@@ -84,6 +86,7 @@ public class AzIdP {
             AzIdPConfig azIdPConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
+            ClientValidator clientValidator,
             AuthorizationCodeService authorizationCodeService,
             AccessTokenService accessTokenService,
             RefreshTokenService refreshTokenService,
@@ -110,7 +113,8 @@ public class AzIdP {
                         userPasswordVerifier,
                         clientStore);
         this.clientRegistration =
-                new DynamicClientRegistration(azIdPConfig, clientStore, accessTokenService);
+                new DynamicClientRegistration(
+                        azIdPConfig, clientStore, clientValidator, accessTokenService);
         this.introspect = new Introspect(accessTokenService, refreshTokenService, azIdPConfig);
         this.revocation = new Revocation(accessTokenService, refreshTokenService, clientStore);
     }

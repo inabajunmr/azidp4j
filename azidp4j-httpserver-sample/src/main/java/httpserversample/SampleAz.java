@@ -79,6 +79,7 @@ public class SampleAz {
                         config,
                         jwks,
                         clientStore,
+                        null,
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         accessTokenService,
                         refreshTokenService,

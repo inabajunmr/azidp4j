@@ -89,6 +89,7 @@ public class AzIdPConfiguration {
                         config,
                         jwkSet,
                         clientStore,
+                        new ClientValidator(),
                         authorizationCodeService,
                         accessTokenService,
                         refreshTokenService,

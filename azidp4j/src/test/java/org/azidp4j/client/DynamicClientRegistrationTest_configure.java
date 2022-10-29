@@ -26,6 +26,7 @@ class DynamicClientRegistrationTest_configure {
                 new DynamicClientRegistration(
                         config,
                         new InMemoryClientStore(),
+                        null,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()));
         var registrationResponse = registration.register(registerAll());
         var configurationRequest =
@@ -157,6 +158,7 @@ class DynamicClientRegistrationTest_configure {
                 new DynamicClientRegistration(
                         config,
                         new InMemoryClientStore(),
+                        null,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()));
         var registrationResponse = registration.register(registerAll());
         var configurationRequest = ClientRequest.builder().build();
@@ -220,6 +222,7 @@ class DynamicClientRegistrationTest_configure {
                 new DynamicClientRegistration(
                         config,
                         new InMemoryClientStore(),
+                        null,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()));
         var registrationResponse = registration.register(registerAll());
         var configurationRequest = ClientRequest.builder().jwks("jwks").build();
@@ -244,6 +247,7 @@ class DynamicClientRegistrationTest_configure {
                 new DynamicClientRegistration(
                         config,
                         new InMemoryClientStore(),
+                        null,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()));
         var registrationResponse = registration.register(registerAll());
         var configurationRequest =

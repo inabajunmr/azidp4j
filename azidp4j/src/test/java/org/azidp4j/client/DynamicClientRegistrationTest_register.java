@@ -30,6 +30,7 @@ class DynamicClientRegistrationTest_register {
                 new DynamicClientRegistration(
                         config,
                         new InMemoryClientStore(),
+                        null,
                         new InMemoryAccessTokenService(accessTokenStore));
         var req =
                 ClientRequest.builder()
@@ -141,6 +142,7 @@ class DynamicClientRegistrationTest_register {
                 new DynamicClientRegistration(
                         config,
                         new InMemoryClientStore(),
+                        null,
                         new InMemoryAccessTokenService(accessTokenStore));
         var req =
                 ClientRequest.builder()
@@ -251,6 +253,7 @@ class DynamicClientRegistrationTest_register {
                 new DynamicClientRegistration(
                         config,
                         new InMemoryClientStore(),
+                        null,
                         new InMemoryAccessTokenService(accessTokenStore));
         var req = ClientRequest.builder().build();
 

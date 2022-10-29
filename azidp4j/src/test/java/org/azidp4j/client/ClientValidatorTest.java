@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 class ClientValidatorTest {
 
-    private final ClientValidator sut = new ClientValidator();
+    private final InternalClientValidator sut = new InternalClientValidator();
 
     @Test
     void validate_JwksAndJwksUri() {

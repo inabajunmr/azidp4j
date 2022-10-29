@@ -50,6 +50,7 @@ public class SimpleTest {
                         config,
                         jwks,
                         new InMemoryClientStore(),
+                        null,
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         new InMemoryAccessTokenService(accessTokenStore),
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),

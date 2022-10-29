@@ -16,12 +16,18 @@ public class DynamicClientRegistration {
     private final AzIdPConfig config;
     private final ClientStore clientStore;
     private final AccessTokenService accessTokenService;
-    private final ClientValidator clientValidator = new ClientValidator();
+    private final InternalClientValidator clientValidator = new InternalClientValidator();
+    private final ClientValidator customizableClientValidator;
 
     public DynamicClientRegistration(
-            AzIdPConfig config, ClientStore clientStore, AccessTokenService accessTokenService) {
+            AzIdPConfig config,
+            ClientStore clientStore,
+            ClientValidator customizableClientValidator,
+            AccessTokenService accessTokenService) {
         this.config = config;
         this.clientStore = clientStore;
+        this.customizableClientValidator =
+                customizableClientValidator != null ? customizableClientValidator : client -> {};
         this.accessTokenService = accessTokenService;
     }
 
@@ -122,6 +128,7 @@ public class DynamicClientRegistration {
                         request.initiateLoginUri);
         try {
             clientValidator.validate(client);
+            customizableClientValidator.validate(client);
         } catch (IllegalArgumentException e) {
             return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
@@ -305,6 +312,7 @@ public class DynamicClientRegistration {
                                 : client.initiateLoginUri);
         try {
             clientValidator.validate(updated);
+            customizableClientValidator.validate(client);
         } catch (IllegalArgumentException e) {
             return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
