@@ -7,47 +7,49 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
-class RequestParserTest {
+class RequestParserUtilTest {
 
     @Test
     void valuesToStringSet_Array() {
         assertEquals(
                 Set.of("a", "b", "c"),
-                RequestParser.valuesToStringSet(new String[] {"a", "b", "c"}));
+                RequestParserUtil.valuesToStringSet(new String[] {"a", "b", "c"}));
     }
 
     @Test
     void valuesToStringSet_List() {
         assertEquals(
-                Set.of("a", "b", "c"), RequestParser.valuesToStringSet(List.of("a", "b", "c")));
+                Set.of("a", "b", "c"), RequestParserUtil.valuesToStringSet(List.of("a", "b", "c")));
     }
 
     @Test
     void valuesToStringSet_Null() {
-        assertNull(RequestParser.valuesToStringSet(null));
+        assertNull(RequestParserUtil.valuesToStringSet(null));
     }
 
     @Test
     void valuesToStringList_Array() {
         assertEquals(
-                List.of("a", "b", "c"), RequestParser.valuesToStringList(List.of("a", "b", "c")));
+                List.of("a", "b", "c"),
+                RequestParserUtil.valuesToStringList(List.of("a", "b", "c")));
     }
 
     @Test
     void valuesToStringList_List() {
         assertEquals(
-                List.of("a", "b", "c"), RequestParser.valuesToStringList(List.of("a", "b", "c")));
+                List.of("a", "b", "c"),
+                RequestParserUtil.valuesToStringList(List.of("a", "b", "c")));
     }
 
     @Test
     void valuesToStringList_Null() {
-        assertNull(RequestParser.valuesToStringList(null));
+        assertNull(RequestParserUtil.valuesToStringList(null));
     }
 
     @Test
     void valuesToHumanReadable() {
         var actual =
-                RequestParser.valuesToHumanReadable(
+                RequestParserUtil.valuesToHumanReadable(
                         "client_id",
                         Map.of(
                                 "client_id",
@@ -63,19 +65,19 @@ class RequestParserTest {
 
     @Test
     void valuesToHumanReadable_NotFound() {
-        var actual = RequestParser.valuesToHumanReadable("client_id", Map.of("wow", "wow"));
+        var actual = RequestParserUtil.valuesToHumanReadable("client_id", Map.of("wow", "wow"));
         assertNull(actual);
     }
 
     @Test
     void valueToString() {
-        var actual = RequestParser.valueToString("key", Map.of("key", "value"));
+        var actual = RequestParserUtil.valueToString("key", Map.of("key", "value"));
         assertEquals("value", actual);
     }
 
     @Test
     void valueToString_NotFound() {
-        var actual = RequestParser.valueToString("notfound", Map.of("key", "value"));
+        var actual = RequestParserUtil.valueToString("notfound", Map.of("key", "value"));
         assertNull(actual);
     }
 }

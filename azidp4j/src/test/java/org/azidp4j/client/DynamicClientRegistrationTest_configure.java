@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.azidp4j.Fixtures;
-import org.azidp4j.client.request.ClientConfigurationRequest;
-import org.azidp4j.client.request.ClientRegistrationRequest;
+import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.util.HumanReadable;
@@ -30,8 +29,7 @@ class DynamicClientRegistrationTest_configure {
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()));
         var registrationResponse = registration.register(registerAll());
         var configurationRequest =
-                ClientConfigurationRequest.builder()
-                        .clientId(registrationResponse.body.get("client_id").toString())
+                ClientRequest.builder()
                         .redirectUris(
                                 Set.of(
                                         "app://client.example.com/callback1/new",
@@ -84,7 +82,10 @@ class DynamicClientRegistrationTest_configure {
                         .build();
 
         // exercise
-        var response = registration.configure(configurationRequest);
+        var response =
+                registration.configure(
+                        registrationResponse.body.get("client_id").toString(),
+                        configurationRequest);
 
         // verify
         assertEquals(200, response.status);
@@ -158,13 +159,13 @@ class DynamicClientRegistrationTest_configure {
                         new InMemoryClientStore(),
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()));
         var registrationResponse = registration.register(registerAll());
-        var configurationRequest =
-                ClientConfigurationRequest.builder()
-                        .clientId(registrationResponse.body.get("client_id").toString())
-                        .build();
+        var configurationRequest = ClientRequest.builder().build();
 
         // exercise
-        var response = registration.configure(configurationRequest);
+        var response =
+                registration.configure(
+                        registrationResponse.body.get("client_id").toString(),
+                        configurationRequest);
 
         // verify
         assertEquals(response.status, 200);
@@ -221,14 +222,13 @@ class DynamicClientRegistrationTest_configure {
                         new InMemoryClientStore(),
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()));
         var registrationResponse = registration.register(registerAll());
-        var configurationRequest =
-                ClientConfigurationRequest.builder()
-                        .clientId(registrationResponse.body.get("client_id").toString())
-                        .jwks("jwks")
-                        .build();
+        var configurationRequest = ClientRequest.builder().jwks("jwks").build();
 
         // exercise
-        var response = registration.configure(configurationRequest);
+        var response =
+                registration.configure(
+                        registrationResponse.body.get("client_id").toString(),
+                        configurationRequest);
 
         // verify
         assertEquals(response.status, 400);
@@ -247,21 +247,23 @@ class DynamicClientRegistrationTest_configure {
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()));
         var registrationResponse = registration.register(registerAll());
         var configurationRequest =
-                ClientConfigurationRequest.builder()
-                        .clientId(registrationResponse.body.get("client_id").toString())
+                ClientRequest.builder()
                         .grantTypes(Set.of("client_credentials"))
                         .tokenEndpointAuthMethod("none")
                         .build();
 
         // exercise
-        var response = registration.configure(configurationRequest);
+        var response =
+                registration.configure(
+                        registrationResponse.body.get("client_id").toString(),
+                        configurationRequest);
 
         // verify
         assertEquals(response.status, 400);
     }
 
-    private ClientRegistrationRequest registerAll() {
-        return ClientRegistrationRequest.builder()
+    private ClientRequest registerAll() {
+        return ClientRequest.builder()
                 .redirectUris(
                         Set.of(
                                 "https://client.example.com/callback1",

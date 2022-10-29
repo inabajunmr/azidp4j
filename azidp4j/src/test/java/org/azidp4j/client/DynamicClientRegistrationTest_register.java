@@ -12,7 +12,7 @@ import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.request.ResponseType;
-import org.azidp4j.client.request.ClientRegistrationRequest;
+import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.util.HumanReadable;
@@ -32,7 +32,7 @@ class DynamicClientRegistrationTest_register {
                         new InMemoryClientStore(),
                         new InMemoryAccessTokenService(accessTokenStore));
         var req =
-                ClientRegistrationRequest.builder()
+                ClientRequest.builder()
                         .redirectUris(
                                 Set.of(
                                         "https://client.example.com/callback1",
@@ -143,7 +143,7 @@ class DynamicClientRegistrationTest_register {
                         new InMemoryClientStore(),
                         new InMemoryAccessTokenService(accessTokenStore));
         var req =
-                ClientRegistrationRequest.builder()
+                ClientRequest.builder()
                         .redirectUris(
                                 Set.of(
                                         "https://client.example.com/callback1",
@@ -252,7 +252,7 @@ class DynamicClientRegistrationTest_register {
                         config,
                         new InMemoryClientStore(),
                         new InMemoryAccessTokenService(accessTokenStore));
-        var req = ClientRegistrationRequest.builder().build();
+        var req = ClientRequest.builder().build();
 
         // exercise
         var response = registration.register(req);

@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.Set;
 import org.azidp4j.util.HumanReadable;
 
-public class ClientConfigurationRequest {
-
-    public final String clientId;
+public class ClientRequest {
 
     /**
      * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
@@ -142,12 +140,11 @@ public class ClientConfigurationRequest {
     // TODO supports with request object
     // public final String request_uris;
 
-    public static ClientConfigurationRequest.Builder builder() {
-        return new ClientConfigurationRequest.Builder();
+    public static Builder builder() {
+        return new Builder();
     }
 
-    private ClientConfigurationRequest(
-            String clientId,
+    private ClientRequest(
             Set<String> redirectUris,
             Set<String> grantTypes,
             Set<String> responseTypes,
@@ -169,7 +166,6 @@ public class ClientConfigurationRequest {
             Long defaultMaxAge,
             Boolean requireAuthTime,
             String initiateLoginUri) {
-        this.clientId = clientId;
         this.redirectUris = redirectUris;
         this.grantTypes = grantTypes;
         this.responseTypes = responseTypes;
@@ -194,7 +190,6 @@ public class ClientConfigurationRequest {
     }
 
     public static class Builder {
-        private String clientId;
         private Set<String> redirectUris;
         private Set<String> grantTypes;
         private Set<String> responseTypes;
@@ -217,122 +212,113 @@ public class ClientConfigurationRequest {
         private Boolean requireAuthTime;
         private String initiateLoginUri;
 
-        public ClientConfigurationRequest.Builder clientId(String clientId) {
-            this.clientId = clientId;
-            return this;
-        }
-
-        public ClientConfigurationRequest.Builder redirectUris(Set<String> redirectUris) {
+        public Builder redirectUris(Set<String> redirectUris) {
             this.redirectUris = redirectUris;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder grantTypes(Set<String> grantTypes) {
+        public Builder grantTypes(Set<String> grantTypes) {
             this.grantTypes = grantTypes;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder responseTypes(Set<String> responseTypes) {
+        public Builder responseTypes(Set<String> responseTypes) {
             this.responseTypes = responseTypes;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder applicationType(String applicationType) {
+        public Builder applicationType(String applicationType) {
             this.applicationType = applicationType;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder clientName(HumanReadable<String> clientName) {
+        public Builder clientName(HumanReadable<String> clientName) {
             this.clientName = clientName;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder clientUri(String clientUri) {
+        public Builder clientUri(String clientUri) {
             this.clientUri = clientUri;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder logoUri(String logoUri) {
+        public Builder logoUri(String logoUri) {
             this.logoUri = logoUri;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder scope(String scope) {
+        public Builder scope(String scope) {
             this.scope = scope;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder contacts(List<String> contacts) {
+        public Builder contacts(List<String> contacts) {
             this.contacts = contacts;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder tosUri(HumanReadable<String> tosUri) {
+        public Builder tosUri(HumanReadable<String> tosUri) {
             this.tosUri = tosUri;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder policyUri(HumanReadable<String> policyUri) {
+        public Builder policyUri(HumanReadable<String> policyUri) {
             this.policyUri = policyUri;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder jwksUri(String jwksUri) {
+        public Builder jwksUri(String jwksUri) {
             this.jwksUri = jwksUri;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder jwks(String jwks) {
+        public Builder jwks(String jwks) {
             this.jwks = jwks;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder softwareId(String softwareId) {
+        public Builder softwareId(String softwareId) {
             this.softwareId = softwareId;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder softwareVersion(String softwareVersion) {
+        public Builder softwareVersion(String softwareVersion) {
             this.softwareVersion = softwareVersion;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder tokenEndpointAuthMethod(
-                String tokenEndpointAuthMethod) {
+        public Builder tokenEndpointAuthMethod(String tokenEndpointAuthMethod) {
             this.tokenEndpointAuthMethod = tokenEndpointAuthMethod;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder tokenEndpointAuthSigningAlg(
-                String tokenEndpointAuthSigningAlg) {
+        public Builder tokenEndpointAuthSigningAlg(String tokenEndpointAuthSigningAlg) {
             this.tokenEndpointAuthSigningAlg = tokenEndpointAuthSigningAlg;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder idTokenSignedResponseAlg(
-                String idTokenSignedResponseAlg) {
+        public Builder idTokenSignedResponseAlg(String idTokenSignedResponseAlg) {
             this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder defaultMaxAge(Long defaultMaxAge) {
+        public Builder defaultMaxAge(Long defaultMaxAge) {
             this.defaultMaxAge = defaultMaxAge;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder requireAuthTime(Boolean requireAuthTime) {
+        public Builder requireAuthTime(Boolean requireAuthTime) {
             this.requireAuthTime = requireAuthTime;
             return this;
         }
 
-        public ClientConfigurationRequest.Builder initiateLoginUri(String initiateLoginUri) {
+        public Builder initiateLoginUri(String initiateLoginUri) {
             this.initiateLoginUri = initiateLoginUri;
             return this;
         }
 
-        public ClientConfigurationRequest build() {
-            return new ClientConfigurationRequest(
-                    clientId,
+        public ClientRequest build() {
+            return new ClientRequest(
                     redirectUris,
                     grantTypes,
                     responseTypes,

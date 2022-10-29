@@ -40,8 +40,8 @@ public class DynamicClientRegistrationEndpointHandler {
         LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " configure");
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth instanceof BearerTokenAuthentication && auth.getName().equals(clientId)) {
-            var req = azIdP.parseClientConfigurationRequest(auth.getName(), requestBody);
-            var response = azIdP.configureClient(req);
+            var req = azIdP.parseClientRegistrationRequest(requestBody);
+            var response = azIdP.configureClient(auth.getName(), req);
             return ResponseEntity.status(response.status).body(response.body);
         } else {
             return ResponseEntity.status(401).build();

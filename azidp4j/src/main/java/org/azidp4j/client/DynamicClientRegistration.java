@@ -5,8 +5,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.request.ResponseType;
-import org.azidp4j.client.request.ClientConfigurationRequest;
-import org.azidp4j.client.request.ClientRegistrationRequest;
+import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.client.response.ClientDeleteResponse;
 import org.azidp4j.client.response.ClientRegistrationResponse;
 import org.azidp4j.token.accesstoken.AccessTokenService;
@@ -26,7 +25,7 @@ public class DynamicClientRegistration {
         this.accessTokenService = accessTokenService;
     }
 
-    public ClientRegistrationResponse register(ClientRegistrationRequest request) {
+    public ClientRegistrationResponse register(ClientRequest request) {
         Set<GrantType> grantTypes = new HashSet<>();
         if (request.grantTypes == null) {
             // default
@@ -196,11 +195,11 @@ public class DynamicClientRegistration {
                         client.initiateLoginUri));
     }
 
-    public ClientRegistrationResponse configure(ClientConfigurationRequest request) {
-        if (request.clientId == null) {
+    public ClientRegistrationResponse configure(String clientId, ClientRequest request) {
+        if (clientId == null) {
             throw new AssertionError();
         }
-        var client = clientStore.find(request.clientId).orElseThrow(AssertionError::new);
+        var client = clientStore.find(clientId).orElseThrow(AssertionError::new);
         var grantTypes = client.grantTypes;
         if (request.grantTypes != null) {
             grantTypes = new HashSet<>();
