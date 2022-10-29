@@ -49,7 +49,6 @@ class JwtRefreshTokenServiceTest {
         assertEquals(Set.of("audience"), issued.audience);
         assertEquals(exp, issued.expiresAtEpochSec);
         assertEquals(iat, issued.issuedAtEpochSec);
-        assertEquals("code", issued.authorizationCode);
 
         var introspected = sut.introspect(issued.token).get();
         assertEquals("sub", introspected.sub);
@@ -58,7 +57,6 @@ class JwtRefreshTokenServiceTest {
         assertEquals(Set.of("audience"), introspected.audience);
         assertEquals(exp, introspected.expiresAtEpochSec);
         assertEquals(iat, introspected.issuedAtEpochSec);
-        assertEquals("code", introspected.authorizationCode);
     }
 
     @Test
@@ -149,7 +147,6 @@ class JwtRefreshTokenServiceTest {
         assertEquals(Set.of("audience"), issued.audience);
         assertEquals(exp, issued.expiresAtEpochSec);
         assertEquals(iat, issued.issuedAtEpochSec);
-        assertEquals("code", issued.authorizationCode);
         JwtRefreshTokenService wrongKeyService =
                 new JwtRefreshTokenService(
                         new JWKSet(List.of(es256)), jwsIssuer, "issuer", () -> "abc");
@@ -175,7 +172,6 @@ class JwtRefreshTokenServiceTest {
         assertEquals(Set.of("audience"), issued.audience);
         assertEquals(exp, issued.expiresAtEpochSec);
         assertEquals(iat, issued.issuedAtEpochSec);
-        assertEquals("code", issued.authorizationCode);
 
         var introspected = sut.introspect(issued.token);
         assertFalse(introspected.isPresent());
@@ -198,7 +194,6 @@ class JwtRefreshTokenServiceTest {
         assertEquals(Set.of("audience"), issued.audience);
         assertEquals(exp, issued.expiresAtEpochSec);
         assertEquals(iat, issued.issuedAtEpochSec);
-        assertEquals("code", issued.authorizationCode);
 
         var introspected = sut.introspect(issued.token);
         assertFalse(introspected.isPresent());

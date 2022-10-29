@@ -59,12 +59,10 @@ public class JwtRefreshTokenService implements RefreshTokenService {
                         "client_id",
                         clientId,
                         "scope",
-                        scope,
-                        "authorization_code",
-                        authorizationCode); // TODO unused authorization code should be packed in
+                        scope);
         // jwt?
         var jwt = jwsIssuer.issue(kidSupplier.get(), "rt+jwt", claims).serialize();
-        return new RefreshToken(jwt, sub, scope, clientId, audience, exp, iat, authorizationCode);
+        return new RefreshToken(jwt, sub, scope, clientId, audience, exp, iat, null);
     }
 
     @Override
@@ -109,15 +107,9 @@ public class JwtRefreshTokenService implements RefreshTokenService {
                             ? ((List<String>) payload.get("aud")) // TODO check type before cast
                                     .stream().collect(Collectors.toSet())
                             : null;
-            var authorizationCode =
-                    payload.containsKey("authorization_code")
-                            ? (String) payload.get("authorization_code")
-                            : null;
             var exp = payload.containsKey("exp") ? (Long) payload.get("exp") : null;
             var iat = payload.containsKey("iat") ? (Long) payload.get("iat") : null;
-            return Optional.of(
-                    new RefreshToken(
-                            token, sub, scope, clientId, aud, exp, iat, authorizationCode));
+            return Optional.of(new RefreshToken(token, sub, scope, clientId, aud, exp, iat, null));
         } catch (ParseException | JOSEException e) {
             return Optional.empty();
         }
