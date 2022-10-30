@@ -17,6 +17,8 @@ azidp4j is library for Java OAuth 2.0 Authorization Server & OpenID Connect Iden
     * Encrypted ID Token
     * ...
 * [Proof Key for Code Exchange by OAuth Public Clients](https://datatracker.ietf.org/doc/html/rfc7636)
+* [OAuth 2.0 Token Introspection](https://datatracker.ietf.org/doc/html/rfc7662)
+* [OAuth 2.0 Token Revocation](https://datatracker.ietf.org/doc/html/rfc7009)
 * [OAuth 2.0 Dynamic Client Registration Protocol](https://www.rfc-editor.org/rfc/rfc7591)
 * [OpenID Connect Dynamic Client Registration 1.0](https://openid.net/specs/openid-connect-registration-1_0.html)
 
