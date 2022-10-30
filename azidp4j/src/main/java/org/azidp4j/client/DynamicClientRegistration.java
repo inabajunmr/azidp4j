@@ -113,7 +113,7 @@ public class DynamicClientRegistration {
                         request.clientName,
                         request.clientUri,
                         request.logoUri,
-                        request.scope, // TODO should be restricted by discovery supported_scopes?
+                        request.scope,
                         request.contacts,
                         request.tosUri,
                         request.policyUri,
