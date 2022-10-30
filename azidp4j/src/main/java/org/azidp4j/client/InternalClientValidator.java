@@ -2,6 +2,7 @@ package org.azidp4j.client;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import org.azidp4j.AzIdPConfig;
 
@@ -14,6 +15,19 @@ public class InternalClientValidator {
     }
 
     public void validate(Client client) {
+        var redirectUris = new ArrayList<URI>();
+        for (String u : client.redirectUris) {
+            try {
+                var uri = new URI(u);
+                if (!uri.isAbsolute()) {
+                    throw new IllegalArgumentException("illegal redirect uri");
+                }
+                redirectUris.add(uri);
+            } catch (URISyntaxException e) {
+                throw new IllegalArgumentException("illegal redirect uri");
+            }
+        }
+
         if (config.scopesSupported != null && client.scope != null) {
             if (!config.scopesSupported.containsAll(
                     Arrays.stream(client.scope.split(" ")).toList())) {
@@ -36,40 +50,27 @@ public class InternalClientValidator {
         // localhost as the hostname.
         if (client.applicationType == ApplicationType.WEB
                 && client.grantTypes.contains(GrantType.implicit)) {
-            for (String u : client.redirectUris) {
-                try {
-                    var uri = new URI(u);
-                    if (!uri.getScheme().equals("https") || uri.getHost().equals("localhost")) {
-                        throw new IllegalArgumentException(
-                                "web application can't supports http and localhost");
-                    }
-                } catch (URISyntaxException e) {
-                    throw new IllegalArgumentException("illegal redirect uri");
+            for (URI uri : redirectUris) {
+                if (!uri.getScheme().equals("https") || uri.getHost().equals("localhost")) {
+                    throw new IllegalArgumentException(
+                            "web application can't supports http and localhost");
                 }
             }
         }
 
         if (client.applicationType == ApplicationType.NATIVE) {
-            for (String u : client.redirectUris) {
-                try {
-                    var uri = new URI(u);
-                    if (!uri.isAbsolute()) {
-                        throw new IllegalArgumentException("illegal redirect uri");
+            for (URI uri : redirectUris) {
+                switch (uri.getScheme()) {
+                    case "https" -> {
+                        throw new IllegalArgumentException("native client can't support https");
                     }
-                    switch (uri.getScheme()) {
-                        case "https" -> {
-                            throw new IllegalArgumentException("native client can't support https");
-                        }
-                        case "http" -> {
-                            if (!uri.getHost().equals("localhost")) {
-                                throw new IllegalArgumentException(
-                                        "native client can't supports http schema except for"
-                                                + " localhost");
-                            }
+                    case "http" -> {
+                        if (!uri.getHost().equals("localhost")) {
+                            throw new IllegalArgumentException(
+                                    "native client can't supports http schema except for"
+                                            + " localhost");
                         }
                     }
-                } catch (URISyntaxException e) {
-                    throw new IllegalArgumentException("illegal redirect uri");
                 }
             }
         }
