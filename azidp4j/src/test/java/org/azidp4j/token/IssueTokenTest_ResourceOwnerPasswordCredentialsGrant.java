@@ -23,16 +23,17 @@ import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
 
-    @Test
-    void success() throws JOSEException {
+    private final IssueToken issueToken;
 
-        // setup
+    private final InMemoryAccessTokenStore accessTokenStore;
+
+    IssueTokenTest_ResourceOwnerPasswordCredentialsGrant() throws JOSEException {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeService =
                 new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
+        this.accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
@@ -43,8 +44,9 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 };
         var clientStore = new InMemoryClientStore();
         clientStore.save(Fixtures.confidentialClient());
+        clientStore.save(Fixtures.publicClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken =
+        this.issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeService,
@@ -54,6 +56,12 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         scopeAudienceMapper,
                         userPasswordVerifier,
                         clientStore);
+    }
+
+    @Test
+    void success() throws JOSEException {
+
+        // setup
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("password")
@@ -85,33 +93,6 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
     void success_publicClient() throws JOSEException {
 
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeService =
-                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
-        var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var userPasswordVerifier =
-                new UserPasswordVerifier() {
-                    @Override
-                    public boolean verify(String username, String password) {
-                        return true;
-                    }
-                };
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.publicClient());
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeService,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        idTokenIssuer,
-                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
-                        scopeAudienceMapper,
-                        userPasswordVerifier,
-                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("password")
@@ -193,33 +174,6 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
     void clientHasNotEnoughScope() throws JOSEException {
 
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeService =
-                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
-        var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var userPasswordVerifier =
-                new UserPasswordVerifier() {
-                    @Override
-                    public boolean verify(String username, String password) {
-                        return true;
-                    }
-                };
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.confidentialClient());
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken = // TODO 初期化をまとめられるか？
-                new IssueToken(
-                        config,
-                        authorizationCodeService,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        idTokenIssuer,
-                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
-                        scopeAudienceMapper,
-                        userPasswordVerifier,
-                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("password")

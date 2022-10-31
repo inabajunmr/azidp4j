@@ -23,21 +23,23 @@ import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ClientCredentialsGrant {
 
-    @Test
-    void success() throws JOSEException {
+    private final IssueToken issueToken;
 
+    private final InMemoryAccessTokenStore accessTokenStore;
+
+    public IssueTokenTest_ClientCredentialsGrant() throws JOSEException {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeService =
                 new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
+        this.accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
         clientStore.save(Fixtures.confidentialClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken =
+        this.issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeService,
@@ -47,6 +49,10 @@ class IssueTokenTest_ClientCredentialsGrant {
                         scopeAudienceMapper,
                         null,
                         clientStore);
+    }
+
+    @Test
+    void success() {
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")
@@ -72,29 +78,9 @@ class IssueTokenTest_ClientCredentialsGrant {
     }
 
     @Test
-    void clientHasNotEnoughScope() throws JOSEException {
+    void clientHasNotEnoughScope() {
 
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeService =
-                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
-        var config = Fixtures.azIdPConfig("kid");
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.confidentialClient());
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeService,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        idTokenIssuer,
-                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
-                        scopeAudienceMapper,
-                        null,
-                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")
@@ -111,29 +97,9 @@ class IssueTokenTest_ClientCredentialsGrant {
     }
 
     @Test
-    void notAuthenticatedClient() throws JOSEException {
+    void notAuthenticatedClient() {
 
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeService =
-                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
-        var config = Fixtures.azIdPConfig("kid");
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.confidentialClient());
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeService,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        idTokenIssuer,
-                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
-                        scopeAudienceMapper,
-                        null,
-                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("client_credentials")

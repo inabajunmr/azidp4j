@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
+import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import java.net.URI;
@@ -34,9 +36,17 @@ import org.junit.jupiter.api.Test;
 class AuthorizeTest_Implicit {
 
     final ClientStore clientStore = new InMemoryClientStore();
+    final ECKey eckey =
+            new ECKeyGenerator(Curve.P_256)
+                    .algorithm(new Algorithm("ES256"))
+                    .keyID("123")
+                    .generate();
+    final RSAKey rsaKey =
+            new RSAKeyGenerator(2048).keyID("abc").algorithm(new Algorithm("RS256")).generate();
+
     final Client clientEs256 =
             new Client(
-                    "client1",
+                    "es256client",
                     "clientSecret",
                     Set.of("http://rp1.example.com", "http://rp2.example.com"),
                     Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token),
@@ -62,7 +72,7 @@ class AuthorizeTest_Implicit {
 
     final Client clientRs256 =
             new Client(
-                    "client1",
+                    "rs256client",
                     "clientSecret",
                     Set.of("http://rp1.example.com", "http://rp2.example.com"),
                     Set.of(ResponseType.token, ResponseType.id_token),
@@ -138,30 +148,31 @@ class AuthorizeTest_Implicit {
                     null,
                     null);
 
-    public AuthorizeTest_Implicit() {
-        clientStore.save(clientEs256);
-        clientStore.save(noGrantTypesClient);
-        clientStore.save(noResponseTypesClient);
-    }
+    final Authorize sut;
+    final InMemoryAccessTokenStore accessTokenStore;
 
-    @Test
-    void implicitGrant_withoutState() throws JOSEException {
-        // setup
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(clientEs256);
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var config = Fixtures.azIdPConfig(key.getKeyID());
+    public AuthorizeTest_Implicit() throws JOSEException {
+        var config = Fixtures.azIdPConfig(eckey.getKeyID());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var sut =
+        this.accessTokenStore = new InMemoryAccessTokenStore();
+        this.sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(accessTokenStore),
-                        new IDTokenIssuer(config, new JWKSet()),
+                        new IDTokenIssuer(config, new JWKSet(List.of(rsaKey, eckey))),
                         config);
+
+        clientStore.save(clientEs256);
+        clientStore.save(clientRs256);
+        clientStore.save(noGrantTypesClient);
+        clientStore.save(noResponseTypesClient);
+    }
+
+    @Test
+    void implicitGrant_withoutState() {
+        // setup
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("token")
@@ -195,23 +206,8 @@ class AuthorizeTest_Implicit {
     }
 
     @Test
-    void implicitGrant_withState() throws JOSEException {
+    void implicitGrant_withState() {
         // setup
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(clientEs256);
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var sut =
-                new Authorize(
-                        clientStore,
-                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
-                        scopeAudienceMapper,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        new IDTokenIssuer(config, new JWKSet()),
-                        config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("token")
@@ -238,7 +234,7 @@ class AuthorizeTest_Implicit {
                 accessTokenStore.find(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
-                "client1",
+                clientEs256.clientId,
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
@@ -248,25 +244,6 @@ class AuthorizeTest_Implicit {
     @Test
     void implicitGrant_oidc_es256_withState() throws JOSEException, ParseException {
         // setup
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(clientEs256);
-        var key =
-                new ECKeyGenerator(Curve.P_256)
-                        .keyID("123")
-                        .algorithm(new Algorithm("ES256"))
-                        .generate();
-        var jwks = new JWKSet(key);
-        var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var sut =
-                new Authorize(
-                        clientStore,
-                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
-                        scopeAudienceMapper,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        new IDTokenIssuer(config, jwks),
-                        config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("token id_token")
@@ -293,16 +270,16 @@ class AuthorizeTest_Implicit {
                 accessTokenStore.find(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
-                "client1",
+                clientEs256.clientId,
                 "openid rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
         IdTokenAssert.assertIdTokenES256(
                 fragmentMap.get("id_token"),
-                key,
+                eckey,
                 "username",
-                "client1",
+                clientEs256.clientId,
                 "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
@@ -315,27 +292,6 @@ class AuthorizeTest_Implicit {
     @Test
     void implicitGrant_oidc_rs256_withState() throws JOSEException, ParseException {
         // setup
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(clientRs256);
-        var ecKey =
-                new ECKeyGenerator(Curve.P_256)
-                        .keyID("123")
-                        .algorithm(new Algorithm("ES256"))
-                        .generate();
-        var rsaKey =
-                new RSAKeyGenerator(2048).keyID("123").algorithm(new Algorithm("RS256")).generate();
-        var jwks = new JWKSet(List.of(ecKey, rsaKey));
-        var config = Fixtures.azIdPConfig(ecKey.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var sut =
-                new Authorize(
-                        clientStore,
-                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
-                        scopeAudienceMapper,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        new IDTokenIssuer(config, jwks),
-                        config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("token id_token")
@@ -362,7 +318,7 @@ class AuthorizeTest_Implicit {
                 accessTokenStore.find(fragmentMap.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
-                "client1",
+                clientRs256.clientId,
                 "openid rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
@@ -371,7 +327,7 @@ class AuthorizeTest_Implicit {
                 fragmentMap.get("id_token"),
                 rsaKey,
                 "username",
-                "client1",
+                clientRs256.clientId,
                 "http://localhost:8080",
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),

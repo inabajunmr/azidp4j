@@ -26,23 +26,26 @@ import org.azidp4j.token.request.InternalTokenRequest;
 import org.junit.jupiter.api.Test;
 
 public class IssueTokenTest_RefreshToken {
+    private final InMemoryRefreshTokenStore refreshTokenStore;
 
-    @Test
-    void success() throws JOSEException {
+    private final IssueToken issueToken;
 
-        // setup
+    private final InMemoryAccessTokenStore accessTokenStore;
+
+    public IssueTokenTest_RefreshToken() throws JOSEException {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
         var authorizationCodeService =
                 new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
+        this.accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
         var clientStore = new InMemoryClientStore();
         clientStore.save(Fixtures.confidentialClient());
-        var refreshTokenStore = new InMemoryRefreshTokenStore();
+        clientStore.save(Fixtures.publicClient());
+        this.refreshTokenStore = new InMemoryRefreshTokenStore();
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken =
+        this.issueToken =
                 new IssueToken(
                         config,
                         authorizationCodeService,
@@ -52,6 +55,12 @@ public class IssueTokenTest_RefreshToken {
                         scopeAudienceMapper,
                         null,
                         clientStore);
+    }
+
+    @Test
+    void success() {
+
+        // setup
         var refreshToken =
                 new RefreshToken(
                         UUID.randomUUID().toString(),
@@ -89,30 +98,9 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void success_scopeShrink() throws JOSEException {
+    void success_scopeShrink() {
 
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeService =
-                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
-        var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenStore = new InMemoryRefreshTokenStore();
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.confidentialClient());
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeService,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        idTokenIssuer,
-                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
-                        scopeAudienceMapper,
-                        null,
-                        clientStore);
         var refreshToken =
                 new RefreshToken(
                         UUID.randomUUID().toString(),
@@ -154,30 +142,9 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void success_publicClient() throws JOSEException {
+    void success_publicClient() {
 
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeService =
-                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
-        var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenStore = new InMemoryRefreshTokenStore();
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.publicClient());
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeService,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        idTokenIssuer,
-                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
-                        scopeAudienceMapper,
-                        null,
-                        clientStore);
         var refreshToken =
                 new RefreshToken(
                         UUID.randomUUID().toString(),
@@ -215,30 +182,9 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void error_scopeExpand() throws JOSEException {
+    void error_scopeExpand() {
 
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeService =
-                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
-        var config = Fixtures.azIdPConfig("kid");
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var refreshTokenStore = new InMemoryRefreshTokenStore();
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.confidentialClient());
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeService,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        idTokenIssuer,
-                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
-                        scopeAudienceMapper,
-                        null,
-                        clientStore);
         var refreshToken =
                 new RefreshToken(
                         UUID.randomUUID().toString(),
@@ -271,26 +217,6 @@ public class IssueTokenTest_RefreshToken {
     void error_refreshTokenIsNotFound() throws JOSEException {
 
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeService =
-                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
-        var config = Fixtures.azIdPConfig("kid");
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.confidentialClient());
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeService,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        idTokenIssuer,
-                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
-                        scopeAudienceMapper,
-                        null,
-                        clientStore);
         var tokenRequest =
                 InternalTokenRequest.builder()
                         .grantType("refresh_token")
@@ -317,7 +243,6 @@ public class IssueTokenTest_RefreshToken {
         var jwks = new JWKSet(key);
         var authorizationCodeService =
                 new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
-        // always issuing expired
         var config =
                 new AzIdPConfig(
                         "http://localhost:8080",
@@ -332,7 +257,7 @@ public class IssueTokenTest_RefreshToken {
                         key.getKeyID(),
                         3600,
                         600,
-                        -1,
+                        -1, // always issuing expired
                         604800);
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks);
@@ -377,46 +302,9 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void error_authenticatedClientUnmatched() throws JOSEException {
+    void error_authenticatedClientUnmatched() {
 
         // setup
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var authorizationCodeService =
-                new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
-        // always issuing expired
-        var config =
-                new AzIdPConfig(
-                        "http://localhost:8080",
-                        "http://localhost:8080/authorize",
-                        "http://localhost:8080/token",
-                        "http://localhost:8080/.well-known/jwks.json",
-                        "http://localhost:8080/client",
-                        "http://localhost:8080/client/{CLIENT_ID}",
-                        "http://localhost:8080/userinfo",
-                        Set.of("openid", "scope1", "scope2", "default"),
-                        Set.of("openid", "scope1"),
-                        key.getKeyID(),
-                        3600,
-                        600,
-                        3600,
-                        604800);
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
-        var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.confidentialClient());
-        var refreshTokenStore = new InMemoryRefreshTokenStore();
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var issueToken =
-                new IssueToken(
-                        config,
-                        authorizationCodeService,
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        idTokenIssuer,
-                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
-                        scopeAudienceMapper,
-                        null,
-                        clientStore);
         var refreshToken =
                 new RefreshToken(
                         UUID.randomUUID().toString(),
