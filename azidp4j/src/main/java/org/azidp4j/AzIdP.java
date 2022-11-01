@@ -18,7 +18,6 @@ import org.azidp4j.introspection.request.IntrospectionRequest;
 import org.azidp4j.introspection.response.IntrospectionResponse;
 import org.azidp4j.revocation.Revocation;
 import org.azidp4j.revocation.request.RevocationRequest;
-import org.azidp4j.revocation.request.RevocationRequestParser;
 import org.azidp4j.revocation.response.RevocationResponse;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
@@ -40,7 +39,6 @@ public class AzIdP {
     private final DynamicClientRegistration clientRegistration;
     private final Introspect introspect;
     private final Revocation revocation;
-    private final RevocationRequestParser revocationRequestParser = new RevocationRequestParser();
     private final ClientRequestParser clientRequestParser = new ClientRequestParser();
 
     public AzIdP(
@@ -147,7 +145,7 @@ public class AzIdP {
     }
 
     public RevocationResponse revoke(RevocationRequest request) {
-        return revocation.revoke(revocationRequestParser.parse(request));
+        return revocation.revoke(request);
     }
 
     public Map<String, Object> discovery() {

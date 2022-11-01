@@ -7,13 +7,15 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.azidp4j.Fixtures;
 import org.azidp4j.client.*;
-import org.azidp4j.revocation.request.InternalRevocationRequest;
+import org.azidp4j.revocation.request.RevocationRequest;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
+import org.azidp4j.util.MapUtil;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -55,14 +57,15 @@ class RevocationTest {
         assertTrue(accessTokenService.introspect(at.getToken()).isPresent());
 
         // exercise
-        sut.revoke(
-                InternalRevocationRequest.builder()
-                        .authenticatedClientId("confidential")
-                        .token(at.getToken())
-                        .tokenTypeHint(tokenTypeHint)
-                        .build());
+        var response =
+                sut.revoke(
+                        new RevocationRequest(
+                                "confidential",
+                                MapUtil.ofNullable(
+                                        "token", at.getToken(), "token_type_hint", tokenTypeHint)));
 
         // verify
+        assertEquals(200, response.status);
         assertFalse(accessTokenService.introspect(at.getToken()).isPresent());
     }
 
@@ -71,12 +74,15 @@ class RevocationTest {
     void notFound(String tokenTypeHint) {
 
         // exercise
-        sut.revoke(
-                InternalRevocationRequest.builder()
-                        .authenticatedClientId("confidential")
-                        .token("not found")
-                        .tokenTypeHint(tokenTypeHint)
-                        .build());
+        var response =
+                sut.revoke(
+                        new RevocationRequest(
+                                "confidential",
+                                MapUtil.ofNullable(
+                                        "token", "not found", "token_type_hint", tokenTypeHint)));
+
+        // verify
+        assertEquals(200, response.status);
     }
 
     @ParameterizedTest
@@ -84,12 +90,15 @@ class RevocationTest {
     void tokenIsNull(String tokenTypeHint) {
 
         // exercise
-        sut.revoke(
-                InternalRevocationRequest.builder()
-                        .authenticatedClientId("confidential")
-                        .token(null)
-                        .tokenTypeHint(tokenTypeHint)
-                        .build());
+        var response =
+                sut.revoke(
+                        new RevocationRequest(
+                                "confidential",
+                                MapUtil.ofNullable(
+                                        "token", null, "token_type_hint", tokenTypeHint)));
+
+        // verify
+        assertEquals(200, response.status);
     }
 
     @ParameterizedTest
@@ -109,14 +118,15 @@ class RevocationTest {
         assertTrue(refreshTokenService.introspect(rt.token).isPresent());
 
         // exercise
-        sut.revoke(
-                InternalRevocationRequest.builder()
-                        .authenticatedClientId("confidential")
-                        .token(rt.token)
-                        .tokenTypeHint(tokenTypeHint)
-                        .build());
+        var response =
+                sut.revoke(
+                        new RevocationRequest(
+                                "confidential",
+                                MapUtil.ofNullable(
+                                        "token", rt.token, "token_type_hint", tokenTypeHint)));
 
         // verify
+        assertEquals(200, response.status);
         assertFalse(refreshTokenService.introspect(rt.token).isPresent());
     }
 
@@ -137,14 +147,43 @@ class RevocationTest {
         assertTrue(refreshTokenService.introspect(rt.token).isPresent());
 
         // exercise
-        sut.revoke(
-                InternalRevocationRequest.builder()
-                        .authenticatedClientId(null)
-                        .token(rt.token)
-                        .tokenTypeHint(tokenTypeHint)
-                        .build());
+        var response =
+                sut.revoke(
+                        new RevocationRequest(
+                                "confidential",
+                                MapUtil.ofNullable(
+                                        "token", rt.token, "token_type_hint", tokenTypeHint)));
 
         // verify
+        assertEquals(200, response.status);
         assertFalse(refreshTokenService.introspect(rt.token).isPresent());
+    }
+
+    @Test
+    void illegalTokenTypeHint() {
+        // exercise
+        var response =
+                sut.revoke(
+                        new RevocationRequest(
+                                "confidential",
+                                MapUtil.ofNullable(
+                                        "token", "token", "token_type_hint", "illegal")));
+
+        // verify
+        assertEquals(400, response.status);
+    }
+
+    @Test
+    void illegalType() {
+
+        // exercise
+        var response =
+                sut.revoke(
+                        new RevocationRequest(
+                                "confidential",
+                                MapUtil.ofNullable("token", 100, "token_type_hint", null)));
+
+        // verify
+        assertEquals(400, response.status);
     }
 }

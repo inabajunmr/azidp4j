@@ -1,10 +1,14 @@
 package org.azidp4j.revocation.request;
 
+import org.azidp4j.RequestParserUtil;
+
 public class RevocationRequestParser {
 
     public InternalRevocationRequest parse(RevocationRequest request) {
-        var token = request.bodyParameters.get("token");
-        var tokenTypeHint = request.bodyParameters.get("token_type_hint");
+
+        var token = RequestParserUtil.valueToString("token", request.bodyParameters);
+        var tokenTypeHint =
+                RequestParserUtil.valueToString("token_type_hint", request.bodyParameters);
         return InternalRevocationRequest.builder()
                 .authenticatedClientId(request.authenticatedClientId)
                 .token(token)

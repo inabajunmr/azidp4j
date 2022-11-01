@@ -33,7 +33,7 @@ public class RevocationHandler {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Map> revoke(
             HttpServletRequest request,
-            @RequestParam MultiValueMap<String, String> body,
+            @RequestParam MultiValueMap<String, Object> body,
             Authentication authentication) {
         LOGGER.info(RevocationHandler.class.getName());
         String clientId = null;
