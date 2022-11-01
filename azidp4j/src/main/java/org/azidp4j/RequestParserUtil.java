@@ -53,6 +53,17 @@ public class RequestParserUtil {
     }
 
     public static String valueToString(String key, Map<String, Object> parameters) {
-        return parameters.containsKey(key) ? parameters.get(key).toString() : null;
+        if (parameters.containsKey(key)) {
+            var val = parameters.get(key);
+            if (val == null) {
+                return null;
+            }
+            if (val instanceof String cast) {
+                return cast;
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
+        return null;
     }
 }

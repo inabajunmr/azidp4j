@@ -34,7 +34,7 @@ public class IntrospectionEndpointHandler {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Map> introspect(
             HttpServletRequest request,
-            @RequestParam MultiValueMap<String, String> body,
+            @RequestParam MultiValueMap<String, Object> body,
             Authentication authentication) {
 
         LOGGER.info(IntrospectionEndpointHandler.class.getName());

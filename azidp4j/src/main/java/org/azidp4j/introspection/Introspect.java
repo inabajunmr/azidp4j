@@ -4,6 +4,8 @@ import java.util.Map;
 import java.util.Objects;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.introspection.request.InternalIntrospectionRequest;
+import org.azidp4j.introspection.request.IntrospectionRequest;
+import org.azidp4j.introspection.request.IntrospectionRequestParser;
 import org.azidp4j.introspection.response.IntrospectionResponse;
 import org.azidp4j.revocation.request.TokenTypeHint;
 import org.azidp4j.token.accesstoken.AccessToken;
@@ -20,6 +22,9 @@ public class Introspect {
 
     private final AzIdPConfig config;
 
+    private final IntrospectionRequestParser introspectionRequestParser =
+            new IntrospectionRequestParser();
+
     public Introspect(
             AccessTokenService accessTokenService,
             RefreshTokenService refreshTokenService,
@@ -29,23 +34,29 @@ public class Introspect {
         this.config = config;
     }
 
-    public IntrospectionResponse introspect(InternalIntrospectionRequest request) {
-        if (request.token == null) {
+    public IntrospectionResponse introspect(IntrospectionRequest request) {
+        InternalIntrospectionRequest req;
+        try {
+            req = introspectionRequestParser.parse(request);
+        } catch (IllegalArgumentException e) {
             return new IntrospectionResponse(400, Map.of());
         }
-        var hint = TokenTypeHint.of(request.tokenTypeHint);
+        if (req.token == null) {
+            return new IntrospectionResponse(400, Map.of());
+        }
+        var hint = TokenTypeHint.of(req.tokenTypeHint);
         if (hint == null) {
             hint = TokenTypeHint.access_token;
         }
 
         if (Objects.equals(hint, TokenTypeHint.refresh_token)) {
-            var rtOpt = refreshTokenService.introspect(request.token);
+            var rtOpt = refreshTokenService.introspect(req.token);
             if (rtOpt.isPresent()) {
                 return introspectRefreshToken(rtOpt.get());
             }
         }
 
-        var atOpt = accessTokenService.introspect(request.token);
+        var atOpt = accessTokenService.introspect(req.token);
         if (atOpt.isPresent()) {
             return introspectAccessToken(atOpt.get());
         }
@@ -54,7 +65,7 @@ public class Introspect {
             return new IntrospectionResponse(200, Map.of("active", false));
         }
 
-        var rtOpt = refreshTokenService.introspect(request.token);
+        var rtOpt = refreshTokenService.introspect(req.token);
         return rtOpt.map(this::introspectRefreshToken)
                 .orElseGet(() -> new IntrospectionResponse(200, Map.of("active", false)));
     }

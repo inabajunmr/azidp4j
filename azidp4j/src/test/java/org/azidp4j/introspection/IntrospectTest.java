@@ -9,13 +9,14 @@ import java.util.UUID;
 import java.util.stream.Stream;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
-import org.azidp4j.introspection.request.InternalIntrospectionRequest;
+import org.azidp4j.introspection.request.IntrospectionRequest;
 import org.azidp4j.token.accesstoken.*;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
+import org.azidp4j.util.MapUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -48,10 +49,9 @@ class IntrospectTest {
         // exercise
         var actual =
                 introspect.introspect(
-                        InternalIntrospectionRequest.builder()
-                                .token(at.getToken())
-                                .tokenTypeHint(tokenTypeHint)
-                                .build());
+                        new IntrospectionRequest(
+                                MapUtil.ofNullable(
+                                        "token", at.getToken(), "token_type_hint", tokenTypeHint)));
 
         // verify
         assertEquals(actual.status, 200);
@@ -64,10 +64,8 @@ class IntrospectTest {
         // exercise
         var actual =
                 introspect.introspect(
-                        InternalIntrospectionRequest.builder()
-                                .token("not found")
-                                .tokenTypeHint(null)
-                                .build());
+                        new IntrospectionRequest(
+                                MapUtil.ofNullable("token", "not found", "token_type_hint", null)));
 
         // verify
         assertEquals(actual.status, 200);
@@ -86,12 +84,12 @@ class IntrospectTest {
         var at = saveTestAccessToken(Instant.now().getEpochSecond() - 1);
 
         // exercise
+
         var actual =
                 sut.introspect(
-                        InternalIntrospectionRequest.builder()
-                                .token(at.getToken())
-                                .tokenTypeHint(null)
-                                .build());
+                        new IntrospectionRequest(
+                                MapUtil.ofNullable(
+                                        "token", at.getToken(), "token_type_hint", null)));
 
         // verify
         assertEquals(actual.status, 200);
@@ -108,10 +106,9 @@ class IntrospectTest {
         // exercise
         var actual =
                 introspect.introspect(
-                        InternalIntrospectionRequest.builder()
-                                .token(rt.token)
-                                .tokenTypeHint(tokenTypeHint)
-                                .build());
+                        new IntrospectionRequest(
+                                MapUtil.ofNullable(
+                                        "token", rt.token, "token_type_hint", tokenTypeHint)));
 
         // verify
         assertEquals(actual.status, 200);
@@ -127,10 +124,8 @@ class IntrospectTest {
         // exercise
         var actual =
                 introspect.introspect(
-                        InternalIntrospectionRequest.builder()
-                                .token(rt.token)
-                                .tokenTypeHint(null)
-                                .build());
+                        new IntrospectionRequest(
+                                MapUtil.ofNullable("token", rt.token, "token_type_hint", null)));
 
         // verify
         assertEquals(actual.status, 200);
@@ -141,7 +136,21 @@ class IntrospectTest {
     void tokenIsNull() {
         // exercise
         var actual =
-                introspect.introspect(InternalIntrospectionRequest.builder().token(null).build());
+                introspect.introspect(
+                        new IntrospectionRequest(
+                                MapUtil.ofNullable("token", null, "token_type_hint", null)));
+
+        // verify
+        assertEquals(actual.status, 400);
+    }
+
+    @Test
+    void illegalType() {
+        // exercise
+        var actual =
+                introspect.introspect(
+                        new IntrospectionRequest(
+                                MapUtil.ofNullable("token", 100, "token_type_hint", null)));
 
         // verify
         assertEquals(actual.status, 400);

@@ -15,7 +15,6 @@ import org.azidp4j.client.response.ClientRegistrationResponse;
 import org.azidp4j.discovery.Discovery;
 import org.azidp4j.introspection.Introspect;
 import org.azidp4j.introspection.request.IntrospectionRequest;
-import org.azidp4j.introspection.request.IntrospectionRequestParser;
 import org.azidp4j.introspection.response.IntrospectionResponse;
 import org.azidp4j.revocation.Revocation;
 import org.azidp4j.revocation.request.RevocationRequest;
@@ -42,8 +41,6 @@ public class AzIdP {
     private final Introspect introspect;
     private final Revocation revocation;
     private final RevocationRequestParser revocationRequestParser = new RevocationRequestParser();
-    private final IntrospectionRequestParser introspectionRequestParser =
-            new IntrospectionRequestParser();
     private final ClientRequestParser clientRequestParser = new ClientRequestParser();
 
     public AzIdP(
@@ -146,7 +143,7 @@ public class AzIdP {
     }
 
     public IntrospectionResponse introspect(IntrospectionRequest request) {
-        return introspect.introspect(introspectionRequestParser.parse(request));
+        return introspect.introspect(request);
     }
 
     public RevocationResponse revoke(RevocationRequest request) {
