@@ -32,7 +32,8 @@ import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
-import org.azidp4j.token.request.InternalTokenRequest;
+import org.azidp4j.token.request.TokenRequest;
+import org.azidp4j.util.MapUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -205,12 +206,15 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .authenticatedClientId("ES256Client")
-                        .build();
+                new TokenRequest(
+                        "ES256Client",
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -247,12 +251,15 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .authenticatedClientId("ES256Client")
-                        .build();
+                new TokenRequest(
+                        "ES256Client",
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -301,12 +308,15 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .authenticatedClientId("ES256Client")
-                        .build();
+                new TokenRequest(
+                        "ES256Client",
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -358,12 +368,15 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .authenticatedClientId("RS256Client")
-                        .build();
+                new TokenRequest(
+                        "RS256Client",
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -414,12 +427,15 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .authenticatedClientId("NoneClient")
-                        .build();
+                new TokenRequest(
+                        "NoneClient",
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -469,12 +485,15 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .authenticatedClientId("ES256Client")
-                        .build();
+                new TokenRequest(
+                        "ES256Client",
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com"));
 
         // exercise
         var tokenResponse = issueToken.issue(tokenRequest);
@@ -502,12 +521,15 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .authenticatedClientId("ES256Client")
-                        .build();
+                new TokenRequest(
+                        "ES256Client",
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -543,12 +565,15 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .authenticatedClientId("other")
-                        .build();
+                new TokenRequest(
+                        "other",
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -574,12 +599,15 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         Instant.now().minus(Duration.ofSeconds(10)).getEpochSecond());
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .authenticatedClientId("ES256Client")
-                        .build();
+                new TokenRequest(
+                        "ES256Client",
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -606,12 +634,15 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://invalid.example.com")
-                        .authenticatedClientId("ES256Client")
-                        .build();
+                new TokenRequest(
+                        "ES256Client",
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://invalid.example.com"));
 
         // exercise
         var tokenResponse = issueToken.issue(tokenRequest);
@@ -639,12 +670,17 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         null,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .clientId("ES256Client")
-                        .build();
+                new TokenRequest(
+                        null,
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com",
+                                "client_id",
+                                "ES256Client"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);

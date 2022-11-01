@@ -18,7 +18,8 @@ import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
-import org.azidp4j.token.request.InternalTokenRequest;
+import org.azidp4j.token.request.TokenRequest;
+import org.azidp4j.util.MapUtil;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ClientCredentialsGrant {
@@ -54,11 +55,10 @@ class IssueTokenTest_ClientCredentialsGrant {
     @Test
     void success() {
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("client_credentials")
-                        .authenticatedClientId("confidential")
-                        .scope("rs:scope1")
-                        .build();
+                new TokenRequest(
+                        "confidential",
+                        MapUtil.ofNullable(
+                                "grant_type", "client_credentials", "scope", "rs:scope1"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -82,11 +82,10 @@ class IssueTokenTest_ClientCredentialsGrant {
 
         // setup
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("client_credentials")
-                        .authenticatedClientId("confidential")
-                        .scope("rs:unauthorized")
-                        .build();
+                new TokenRequest(
+                        "confidential",
+                        MapUtil.ofNullable(
+                                "grant_type", "client_credentials", "scope", "rs:unauthorized"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -101,11 +100,15 @@ class IssueTokenTest_ClientCredentialsGrant {
 
         // setup
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("client_credentials")
-                        .clientId("confidential")
-                        .scope("rs:unauthorized")
-                        .build();
+                new TokenRequest(
+                        null,
+                        MapUtil.ofNullable(
+                                "grant_type",
+                                "client_credentials",
+                                "scope",
+                                "rs:scope1",
+                                "client_id",
+                                "confidential"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);

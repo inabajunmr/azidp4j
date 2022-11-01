@@ -19,6 +19,8 @@ import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
 import org.azidp4j.token.request.InternalTokenRequest;
+import org.azidp4j.token.request.TokenRequest;
+import org.azidp4j.token.request.TokenRequestParser;
 import org.azidp4j.token.response.TokenResponse;
 import org.azidp4j.util.MapUtil;
 
@@ -33,6 +35,7 @@ public class IssueToken {
     private final UserPasswordVerifier userPasswordVerifier;
     private final ClientStore clientStore;
     private final ScopeValidator scopeValidator = new ScopeValidator();
+    private final TokenRequestParser tokenRequestParser = new TokenRequestParser();
 
     public IssueToken(
             AzIdPConfig azIdPConfig,
@@ -53,30 +56,33 @@ public class IssueToken {
         this.clientStore = clientStore;
     }
 
-    public TokenResponse issue(InternalTokenRequest request) {
-        var grantType = GrantType.of(request.grantType);
+    public TokenResponse issue(TokenRequest request) {
+        InternalTokenRequest req;
+        try {
+            req = tokenRequestParser.parse(request);
+        } catch (IllegalArgumentException e) {
+            return new TokenResponse(400, Map.of("error", "invalid_request"));
+        }
+        var grantType = GrantType.of(req.grantType);
         if (grantType == null) {
             return new TokenResponse(400, Map.of("error", "invalid_request"));
         }
-        if (request.authenticatedClientId == null && request.clientId == null) {
+        if (req.authenticatedClientId == null && req.clientId == null) {
             return new TokenResponse(400, Map.of("error", "invalid_request"));
         }
-        if (request.authenticatedClientId != null
-                && request.clientId != null
-                && !Objects.equals(request.authenticatedClientId, request.clientId)) {
+        if (req.authenticatedClientId != null
+                && req.clientId != null
+                && !Objects.equals(req.authenticatedClientId, req.clientId)) {
             return new TokenResponse(400, Map.of("error", "invalid_request"));
         }
         var clientOpt =
-                clientStore.find(
-                        request.clientId != null
-                                ? request.clientId
-                                : request.authenticatedClientId);
+                clientStore.find(req.clientId != null ? req.clientId : req.authenticatedClientId);
         if (!clientOpt.isPresent()) {
             return new TokenResponse(400, Map.of("error", "unauthorized_client"));
         }
         var client = clientOpt.get();
         if (client.tokenEndpointAuthMethod != TokenEndpointAuthMethod.none
-                && request.authenticatedClientId == null) {
+                && req.authenticatedClientId == null) {
             // client authentication required
             return new TokenResponse(400, Map.of("error", "invalid_client"));
         }
@@ -85,10 +91,10 @@ public class IssueToken {
         }
         switch (grantType) {
             case authorization_code -> {
-                var authorizationCodeOpt = authorizationCodeService.consume(request.code);
+                var authorizationCodeOpt = authorizationCodeService.consume(req.code);
                 if (!authorizationCodeOpt.isPresent()) {
-                    accessTokenService.revokeByAuthorizationCode(request.code);
-                    refreshTokenService.revokeByAuthorizationCode(request.code);
+                    accessTokenService.revokeByAuthorizationCode(req.code);
+                    refreshTokenService.revokeByAuthorizationCode(req.code);
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
                 var authorizationCode = authorizationCodeOpt.get();
@@ -99,13 +105,13 @@ public class IssueToken {
                 if (!scopeValidator.hasEnoughScope(authorizationCode.scope, client)) {
                     return new TokenResponse(400, Map.of("error", "invalid_scope"));
                 }
-                if (!authorizationCode.redirectUri.equals(request.redirectUri)) {
+                if (!authorizationCode.redirectUri.equals(req.redirectUri)) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
                 if (authorizationCode.codeChallengeMethod != null) {
                     switch (authorizationCode.codeChallengeMethod) {
                         case PLAIN -> {
-                            if (!authorizationCode.codeChallenge.equals(request.codeVerifier)) {
+                            if (!authorizationCode.codeChallenge.equals(req.codeVerifier)) {
                                 return new TokenResponse(400, Map.of("error", "invalid_grant"));
                             }
                         }
@@ -116,7 +122,7 @@ public class IssueToken {
                             } catch (NoSuchAlgorithmException e) {
                                 throw new AssertionError();
                             }
-                            var hash = sha256.digest(request.codeVerifier.getBytes());
+                            var hash = sha256.digest(req.codeVerifier.getBytes());
                             if (!authorizationCode.codeChallenge.equals(
                                     Base64URL.encode(hash).toString())) {
                                 return new TokenResponse(400, Map.of("error", "invalid_grant"));
@@ -215,7 +221,7 @@ public class IssueToken {
             case password -> {
                 // TODO scope is required
                 // verify scope
-                if (!scopeValidator.hasEnoughScope(request.scope, client)) {
+                if (!scopeValidator.hasEnoughScope(req.scope, client)) {
                     return new TokenResponse(400, Map.of("error", "invalid_scope"));
                 }
                 // verify user
@@ -224,24 +230,24 @@ public class IssueToken {
                             "Resource owner password credentials grant needs to set"
                                     + " userPasswordVerifier on AzIdp instance.");
                 }
-                if (userPasswordVerifier.verify(request.username, request.password)) {
+                if (userPasswordVerifier.verify(req.username, req.password)) {
                     var at =
                             accessTokenService.issue(
-                                    request.username,
-                                    request.scope,
+                                    req.username,
+                                    req.scope,
                                     client.clientId,
                                     Instant.now().getEpochSecond()
                                             + config.accessTokenExpirationSec,
                                     Instant.now().getEpochSecond(),
-                                    scopeAudienceMapper.map(request.scope),
+                                    scopeAudienceMapper.map(req.scope),
                                     null);
                     var rt =
                             new RefreshToken(
                                     UUID.randomUUID().toString(),
-                                    request.username,
-                                    request.scope,
+                                    req.username,
+                                    req.scope,
                                     client.clientId,
-                                    scopeAudienceMapper.map(request.scope),
+                                    scopeAudienceMapper.map(req.scope),
                                     Instant.now().getEpochSecond()
                                             + config.refreshTokenExpirationSec,
                                     Instant.now().getEpochSecond());
@@ -257,30 +263,30 @@ public class IssueToken {
                                     "expires_in",
                                     config.accessTokenExpirationSec,
                                     "scope",
-                                    request.scope));
+                                    req.scope));
                 } else {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
             }
             case client_credentials -> {
-                if (request.scope == null) {
+                if (req.scope == null) {
                     return new TokenResponse(400, Map.of("error", "invalid_scope"));
                 }
                 if (client.tokenEndpointAuthMethod == TokenEndpointAuthMethod.none) {
                     return new TokenResponse(400, Map.of("error", "invalid_client"));
                 }
                 // verify scope
-                if (!scopeValidator.hasEnoughScope(request.scope, client)) {
+                if (!scopeValidator.hasEnoughScope(req.scope, client)) {
                     return new TokenResponse(400, Map.of("error", "invalid_scope"));
                 }
                 var at =
                         accessTokenService.issue(
                                 client.clientId,
-                                request.scope,
+                                req.scope,
                                 client.clientId,
                                 Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
                                 Instant.now().getEpochSecond(),
-                                scopeAudienceMapper.map(request.scope),
+                                scopeAudienceMapper.map(req.scope),
                                 null);
                 return new TokenResponse(
                         200,
@@ -292,13 +298,13 @@ public class IssueToken {
                                 "expires_in",
                                 config.accessTokenExpirationSec,
                                 "scope",
-                                request.scope));
+                                req.scope));
             }
             case refresh_token -> {
-                if (request.refreshToken == null) {
+                if (req.refreshToken == null) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
-                var rtOpt = refreshTokenService.consume(request.refreshToken);
+                var rtOpt = refreshTokenService.consume(req.refreshToken);
                 if (!rtOpt.isPresent()) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
@@ -309,10 +315,10 @@ public class IssueToken {
                 if (rt.expiresAtEpochSec < Instant.now().getEpochSecond()) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
-                if (!scopeValidator.hasEnoughScope(request.scope, rt.scope)) {
+                if (!scopeValidator.hasEnoughScope(req.scope, rt.scope)) {
                     return new TokenResponse(400, Map.of("error", "invalid_scope"));
                 }
-                var scope = request.scope != null ? request.scope : rt.scope;
+                var scope = req.scope != null ? req.scope : rt.scope;
                 var at =
                         accessTokenService.issue(
                                 rt.sub,

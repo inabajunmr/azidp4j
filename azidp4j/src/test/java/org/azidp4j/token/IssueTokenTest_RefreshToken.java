@@ -22,7 +22,8 @@ import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
-import org.azidp4j.token.request.InternalTokenRequest;
+import org.azidp4j.token.request.TokenRequest;
+import org.azidp4j.util.MapUtil;
 import org.junit.jupiter.api.Test;
 
 public class IssueTokenTest_RefreshToken {
@@ -72,12 +73,15 @@ public class IssueTokenTest_RefreshToken {
                         Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("refresh_token")
-                        .scope("rs:scope1 rs:scope2")
-                        .refreshToken(refreshToken.token)
-                        .authenticatedClientId("confidential")
-                        .build();
+                new TokenRequest(
+                        "confidential",
+                        MapUtil.ofNullable(
+                                "grant_type",
+                                "refresh_token",
+                                "scope",
+                                "rs:scope1 rs:scope2",
+                                "refresh_token",
+                                refreshToken.token));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -112,12 +116,15 @@ public class IssueTokenTest_RefreshToken {
                         Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("refresh_token")
-                        .scope("rs:scope1")
-                        .refreshToken(refreshToken.token)
-                        .authenticatedClientId("confidential")
-                        .build();
+                new TokenRequest(
+                        "confidential",
+                        MapUtil.ofNullable(
+                                "grant_type",
+                                "refresh_token",
+                                "scope",
+                                "rs:scope1",
+                                "refresh_token",
+                                refreshToken.token));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -156,13 +163,17 @@ public class IssueTokenTest_RefreshToken {
                         Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("refresh_token")
-                        .scope("rs:scope1 rs:scope2")
-                        .refreshToken(refreshToken.token)
-                        .clientId("public")
-                        .build();
-
+                new TokenRequest(
+                        null,
+                        MapUtil.ofNullable(
+                                "grant_type",
+                                "refresh_token",
+                                "scope",
+                                "rs:scope1 rs:scope2",
+                                "refresh_token",
+                                refreshToken.token,
+                                "client_id",
+                                "public"));
         // exercise
         var response = issueToken.issue(tokenRequest);
 
@@ -196,12 +207,15 @@ public class IssueTokenTest_RefreshToken {
                         Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("refresh_token")
-                        .scope("rs:scope1 rs:scope2")
-                        .refreshToken(refreshToken.token)
-                        .authenticatedClientId("confidential")
-                        .build();
+                new TokenRequest(
+                        "confidential",
+                        MapUtil.ofNullable(
+                                "grant_type",
+                                "refresh_token",
+                                "scope",
+                                "rs:scope1 rs:scope2",
+                                "refresh_token",
+                                refreshToken.token));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -218,12 +232,15 @@ public class IssueTokenTest_RefreshToken {
 
         // setup
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("refresh_token")
-                        .scope("rs:scope1 rs:scope2")
-                        .refreshToken("invalid")
-                        .authenticatedClientId("confidential")
-                        .build();
+                new TokenRequest(
+                        "confidential",
+                        MapUtil.ofNullable(
+                                "grant_type",
+                                "refresh_token",
+                                "scope",
+                                "rs:scope1 rs:scope2",
+                                "refresh_token",
+                                "invalid"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -286,13 +303,15 @@ public class IssueTokenTest_RefreshToken {
                         Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("refresh_token")
-                        .scope("rs:scope1")
-                        .refreshToken(refreshToken.token)
-                        .authenticatedClientId("confidential")
-                        .build();
-
+                new TokenRequest(
+                        "confidential",
+                        MapUtil.ofNullable(
+                                "grant_type",
+                                "refresh_token",
+                                "scope",
+                                "rs:scope1",
+                                "refresh_token",
+                                refreshToken.token));
         // exercise
         var response = issueToken.issue(tokenRequest);
 
@@ -316,12 +335,15 @@ public class IssueTokenTest_RefreshToken {
                         Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("refresh_token")
-                        .scope("rs:scope1")
-                        .refreshToken(refreshToken.token)
-                        .authenticatedClientId("confidential")
-                        .build();
+                new TokenRequest(
+                        "confidential",
+                        MapUtil.ofNullable(
+                                "grant_type",
+                                "refresh_token",
+                                "scope",
+                                "rs:scope1",
+                                "refresh_token",
+                                refreshToken.token));
 
         // exercise
         var response = issueToken.issue(tokenRequest);

@@ -18,7 +18,8 @@ import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
-import org.azidp4j.token.request.InternalTokenRequest;
+import org.azidp4j.token.request.TokenRequest;
+import org.azidp4j.util.MapUtil;
 import org.junit.jupiter.api.Test;
 
 class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
@@ -63,13 +64,17 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
 
         // setup
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("password")
-                        .username("username")
-                        .password("password")
-                        .authenticatedClientId("confidential")
-                        .scope("rs:scope1")
-                        .build();
+                new TokenRequest(
+                        "confidential",
+                        MapUtil.ofNullable(
+                                "grant_type",
+                                "password",
+                                "username",
+                                "username",
+                                "password",
+                                "password",
+                                "scope",
+                                "rs:scope1"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -94,14 +99,19 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
 
         // setup
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("password")
-                        .username("username")
-                        .password("password")
-                        .clientId("public")
-                        .scope("rs:scope1")
-                        .build();
-
+                new TokenRequest(
+                        null,
+                        MapUtil.ofNullable(
+                                "grant_type",
+                                "password",
+                                "username",
+                                "username",
+                                "password",
+                                "password",
+                                "scope",
+                                "rs:scope1",
+                                "client_id",
+                                "public"));
         // exercise
         var response = issueToken.issue(tokenRequest);
 
@@ -152,13 +162,17 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         userPasswordVerifier,
                         clientStore);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("password")
-                        .username("username")
-                        .password("password")
-                        .authenticatedClientId("confidential")
-                        .scope("rs:scope1")
-                        .build();
+                new TokenRequest(
+                        "confidential",
+                        MapUtil.ofNullable(
+                                "grant_type",
+                                "password",
+                                "username",
+                                "username",
+                                "password",
+                                "password",
+                                "scope",
+                                "rs:scope1"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -175,14 +189,17 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
 
         // setup
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .grantType("password")
-                        .username("username")
-                        .password("password")
-                        .authenticatedClientId("confidential")
-                        .scope("unauthorized")
-                        .build();
-
+                new TokenRequest(
+                        "confidential",
+                        MapUtil.ofNullable(
+                                "grant_type",
+                                "password",
+                                "username",
+                                "username",
+                                "password",
+                                "password",
+                                "scope",
+                                "unauthorized"));
         // exercise
         var response = issueToken.issue(tokenRequest);
 

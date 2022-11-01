@@ -120,8 +120,7 @@ public class AzIdP {
     }
 
     public TokenResponse issueToken(TokenRequest tokenRequest) {
-        var parsed = tokenRequestParser.parse(tokenRequest);
-        return issueToken.issue(parsed);
+        return issueToken.issue(tokenRequest);
     }
 
     public ClientRequest parseClientRegistrationRequest(Map<String, Object> parameters) {

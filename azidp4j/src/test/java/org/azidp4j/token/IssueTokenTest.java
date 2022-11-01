@@ -18,7 +18,8 @@ import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
-import org.azidp4j.token.request.InternalTokenRequest;
+import org.azidp4j.token.request.TokenRequest;
+import org.azidp4j.util.MapUtil;
 import org.junit.jupiter.api.Test;
 
 public class IssueTokenTest {
@@ -62,15 +63,41 @@ public class IssueTokenTest {
                         null,
                         clientStore);
 
+        // type error
+        {
+            var tokenRequest =
+                    new TokenRequest(
+                            null,
+                            MapUtil.ofNullable(
+                                    "code",
+                                    1,
+                                    "grant_type",
+                                    "authorization_code",
+                                    "redirect_uri",
+                                    "http://example.com",
+                                    "client_id",
+                                    "not found"));
+
+            // exercise
+            var response = issueToken.issue(tokenRequest);
+
+            // verify
+            assertEquals(response.body.get("error"), "invalid_request");
+        }
         // client not found
         {
             var tokenRequest =
-                    InternalTokenRequest.builder()
-                            .code(authorizationCode.code)
-                            .grantType("authorization_code")
-                            .redirectUri("http://example.com")
-                            .clientId("not found")
-                            .build();
+                    new TokenRequest(
+                            null,
+                            MapUtil.ofNullable(
+                                    "code",
+                                    authorizationCode.code,
+                                    "grant_type",
+                                    "authorization_code",
+                                    "redirect_uri",
+                                    "http://example.com",
+                                    "client_id",
+                                    "not found"));
 
             // exercise
             var response = issueToken.issue(tokenRequest);
@@ -81,12 +108,15 @@ public class IssueTokenTest {
         // grant type not supported
         {
             var tokenRequest =
-                    InternalTokenRequest.builder()
-                            .grantType("password")
-                            .redirectUri("http://example.com")
-                            .clientId(noGrantTypeClient.clientId)
-                            .authenticatedClientId(noGrantTypeClient.clientId)
-                            .build();
+                    new TokenRequest(
+                            noGrantTypeClient.clientId,
+                            MapUtil.ofNullable(
+                                    "grant_type",
+                                    "password",
+                                    "redirect_uri",
+                                    "http://example.com",
+                                    "client_id",
+                                    noGrantTypeClient.clientId));
 
             // exercise
             var response = issueToken.issue(tokenRequest);

@@ -25,7 +25,8 @@ import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
-import org.azidp4j.token.request.InternalTokenRequest;
+import org.azidp4j.token.request.TokenRequest;
+import org.azidp4j.util.MapUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -91,13 +92,17 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         null,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .clientId(client.clientId)
-                        .build();
-
+                new TokenRequest(
+                        null,
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com",
+                                "client_id",
+                                client.clientId));
         // exercise
         var response = issueToken.issue(tokenRequest);
 
@@ -133,13 +138,19 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         CodeChallengeMethod.PLAIN,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .clientId(client.clientId)
-                        .codeVerifier("plain")
-                        .build();
+                new TokenRequest(
+                        null,
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com",
+                                "client_id",
+                                client.clientId,
+                                "code_verifier",
+                                "plain"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -176,13 +187,19 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         CodeChallengeMethod.S256,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .clientId(client.clientId)
-                        .codeVerifier("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")
-                        .build();
+                new TokenRequest(
+                        null,
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com",
+                                "client_id",
+                                client.clientId,
+                                "code_verifier",
+                                "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
@@ -219,13 +236,19 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         CodeChallengeMethod.PLAIN,
                         Instant.now().getEpochSecond() + 600);
         var tokenRequest =
-                InternalTokenRequest.builder()
-                        .code(authorizationCode.code)
-                        .grantType("authorization_code")
-                        .redirectUri("http://example.com")
-                        .clientId(client.clientId)
-                        .codeVerifier("invalid")
-                        .build();
+                new TokenRequest(
+                        null,
+                        MapUtil.ofNullable(
+                                "code",
+                                authorizationCode.code,
+                                "grant_type",
+                                "authorization_code",
+                                "redirect_uri",
+                                "http://example.com",
+                                "client_id",
+                                client.clientId,
+                                "code_verifier",
+                                "invalid"));
 
         // exercise
         var response = issueToken.issue(tokenRequest);
