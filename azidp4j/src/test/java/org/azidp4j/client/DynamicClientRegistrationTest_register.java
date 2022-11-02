@@ -15,13 +15,13 @@ import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
-import org.azidp4j.util.HumanReadable;
+import org.azidp4j.util.MapUtil;
 import org.junit.jupiter.api.Test;
 
 class DynamicClientRegistrationTest_register {
 
     @Test
-    void success_All_Jwks() throws JOSEException {
+    void success_All_JwksUri() throws JOSEException {
         // setup
         var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var config = Fixtures.azIdPConfig(es256.getKeyID());
@@ -33,46 +33,60 @@ class DynamicClientRegistrationTest_register {
                         null,
                         new InMemoryAccessTokenService(accessTokenStore));
         var req =
-                ClientRequest.builder()
-                        .redirectUris(
+                new ClientRequest(
+                        MapUtil.ofNullable(
+                                "redirect_uris",
                                 Set.of(
                                         "https://client.example.com/callback1",
-                                        "https://client.example.com/callback2"))
-                        .grantTypes(
+                                        "https://client.example.com/callback2"),
+                                "grant_types",
                                 Set.of(
                                         "authorization_code",
                                         "implicit",
                                         "refresh_token",
-                                        "client_credentials"))
-                        .applicationType("web")
-                        .responseTypes(Set.of("code", "token", "id_token"))
-                        .clientName(
-                                new HumanReadable<>(
-                                        "client_name", "client", Map.of("ja", "クライアント")))
-                        .clientUri("http://client.example.com")
-                        .logoUri("http://client.example.com/logo")
-                        .scope("rs:scope1 rs:scope2")
-                        .contacts(List.of("hello", "world"))
-                        .tosUri(
-                                new HumanReadable<>(
-                                        "tos_uri",
-                                        "http://client.example.com/tos",
-                                        Map.of("ja", "http://client.example.com/tos/ja")))
-                        .policyUri(
-                                new HumanReadable<>(
-                                        "policy_uri",
-                                        "http://client.example.com/policy",
-                                        Map.of("ja", "http://client.example.com/policy/ja")))
-                        .jwksUri("http://client.example.com/jwks")
-                        .softwareId("azidp")
-                        .softwareVersion("1.0.0")
-                        .tokenEndpointAuthMethod("client_secret_basic")
-                        .tokenEndpointAuthSigningAlg("RS256")
-                        .idTokenSignedResponseAlg("RS256")
-                        .defaultMaxAge(100L)
-                        .requireAuthTime(true)
-                        .initiateLoginUri("https://example.com")
-                        .build();
+                                        "client_credentials"),
+                                "application_type",
+                                "web",
+                                "response_types",
+                                Set.of("code", "token", "id_token"),
+                                "client_name",
+                                "client",
+                                "client_name#ja",
+                                "クライアント",
+                                "client_uri",
+                                "http://client.example.com",
+                                "logo_uri",
+                                "http://client.example.com/logo",
+                                "scope",
+                                "rs:scope1 rs:scope2",
+                                "contacts",
+                                List.of("hello", "world"),
+                                "tos_uri",
+                                "http://client.example.com/tos",
+                                "tos_uri#ja",
+                                "http://client.example.com/tos/ja",
+                                "policy_uri",
+                                "http://client.example.com/policy",
+                                "policy_uri#ja",
+                                "http://client.example.com/policy/ja",
+                                "jwks_uri",
+                                "http://client.example.com/jwks",
+                                "software_id",
+                                "azidp",
+                                "software_version",
+                                "1.0.0",
+                                "token_endpoint_auth_method",
+                                "client_secret_basic",
+                                "token_endpoint_auth_signing_alg",
+                                "RS256",
+                                "id_token_signed_response_alg",
+                                "RS256",
+                                "default_max_age",
+                                100L,
+                                "require_auth_time",
+                                true,
+                                "initiate_login_uri",
+                                "https://example.com"));
 
         // exercise
         var response = registration.register(req);
@@ -89,27 +103,16 @@ class DynamicClientRegistrationTest_register {
                 Set.of("authorization_code", "implicit", "refresh_token", "client_credentials"));
         assertEquals(response.body.get("application_type"), "web");
         assertEquals(response.body.get("response_types"), Set.of("code", "token", "id_token"));
-        assertEquals(
-                response.body.get("client_name"),
-                Map.of("client_name", "client", "client_name#ja", "クライアント"));
+        assertEquals(response.body.get("client_name"), "client");
+        assertEquals(response.body.get("client_name#ja"), "クライアント");
         assertEquals(response.body.get("client_uri"), "http://client.example.com");
         assertEquals(response.body.get("logo_uri"), "http://client.example.com/logo");
         assertEquals(response.body.get("scope"), "rs:scope1 rs:scope2");
         assertEquals(response.body.get("contacts"), List.of("hello", "world"));
-        assertEquals(
-                response.body.get("tos_uri"),
-                Map.of(
-                        "tos_uri",
-                        "http://client.example.com/tos",
-                        "tos_uri#ja",
-                        "http://client.example.com/tos/ja"));
-        assertEquals(
-                response.body.get("policy_uri"),
-                Map.of(
-                        "policy_uri",
-                        "http://client.example.com/policy",
-                        "policy_uri#ja",
-                        "http://client.example.com/policy/ja"));
+        assertEquals(response.body.get("tos_uri"), "http://client.example.com/tos");
+        assertEquals(response.body.get("tos_uri#ja"), "http://client.example.com/tos/ja");
+        assertEquals(response.body.get("policy_uri"), "http://client.example.com/policy");
+        assertEquals(response.body.get("policy_uri#ja"), "http://client.example.com/policy/ja");
         assertEquals(response.body.get("jwks_uri"), "http://client.example.com/jwks");
         assertEquals(response.body.get("software_id"), "azidp");
         assertEquals(response.body.get("software_version"), "1.0.0");
@@ -133,7 +136,7 @@ class DynamicClientRegistrationTest_register {
     }
 
     @Test
-    void success_All_JwksUri() throws JOSEException {
+    void success_All_Jwks() throws JOSEException {
         // setup
         var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var config = Fixtures.azIdPConfig(es256.getKeyID());
@@ -145,46 +148,60 @@ class DynamicClientRegistrationTest_register {
                         null,
                         new InMemoryAccessTokenService(accessTokenStore));
         var req =
-                ClientRequest.builder()
-                        .redirectUris(
+                new ClientRequest(
+                        MapUtil.ofNullable(
+                                "redirect_uris",
                                 Set.of(
                                         "https://client.example.com/callback1",
-                                        "https://client.example.com/callback2"))
-                        .grantTypes(
+                                        "https://client.example.com/callback2"),
+                                "grant_types",
                                 Set.of(
                                         "authorization_code",
                                         "implicit",
                                         "refresh_token",
-                                        "client_credentials"))
-                        .applicationType("web")
-                        .responseTypes(Set.of("code", "token", "id_token"))
-                        .clientName(
-                                new HumanReadable<>(
-                                        "client_name", "client", Map.of("ja", "クライアント")))
-                        .clientUri("http://client.example.com")
-                        .logoUri("http://client.example.com/logo")
-                        .scope("rs:scope1 rs:scope2")
-                        .contacts(List.of("hello", "world"))
-                        .tosUri(
-                                new HumanReadable<>(
-                                        "tos_uri",
-                                        "http://client.example.com/tos",
-                                        Map.of("ja", "http://client.example.com/tos/ja")))
-                        .policyUri(
-                                new HumanReadable<>(
-                                        "policy_uri",
-                                        "http://client.example.com/policy",
-                                        Map.of("ja", "http://client.example.com/policy/ja")))
-                        .jwks("jwks")
-                        .softwareId("azidp")
-                        .softwareVersion("1.0.0")
-                        .tokenEndpointAuthMethod("client_secret_basic")
-                        .tokenEndpointAuthSigningAlg("RS256")
-                        .idTokenSignedResponseAlg("RS256")
-                        .defaultMaxAge(100L)
-                        .requireAuthTime(true)
-                        .initiateLoginUri("https://example.com")
-                        .build();
+                                        "client_credentials"),
+                                "application_type",
+                                "web",
+                                "response_types",
+                                Set.of("code", "token", "id_token"),
+                                "client_name",
+                                "client",
+                                "client_name#ja",
+                                "クライアント",
+                                "client_uri",
+                                "http://client.example.com",
+                                "logo_uri",
+                                "http://client.example.com/logo",
+                                "scope",
+                                "rs:scope1 rs:scope2",
+                                "contacts",
+                                List.of("hello", "world"),
+                                "tos_uri",
+                                "http://client.example.com/tos",
+                                "tos_uri#ja",
+                                "http://client.example.com/tos/ja",
+                                "policy_uri",
+                                "http://client.example.com/policy",
+                                "policy_uri#ja",
+                                "http://client.example.com/policy/ja",
+                                "jwks",
+                                "jwks",
+                                "software_id",
+                                "azidp",
+                                "software_version",
+                                "1.0.0",
+                                "token_endpoint_auth_method",
+                                "client_secret_basic",
+                                "token_endpoint_auth_signing_alg",
+                                "RS256",
+                                "id_token_signed_response_alg",
+                                "RS256",
+                                "default_max_age",
+                                100L,
+                                "require_auth_time",
+                                true,
+                                "initiate_login_uri",
+                                "https://example.com"));
 
         // exercise
         var response = registration.register(req);
@@ -200,27 +217,16 @@ class DynamicClientRegistrationTest_register {
                 response.body.get("grant_types"),
                 Set.of("authorization_code", "implicit", "refresh_token", "client_credentials"));
         assertEquals(response.body.get("response_types"), Set.of("code", "token", "id_token"));
-        assertEquals(
-                response.body.get("client_name"),
-                Map.of("client_name", "client", "client_name#ja", "クライアント"));
+        assertEquals(response.body.get("client_name"), "client");
+        assertEquals(response.body.get("client_name#ja"), "クライアント");
         assertEquals(response.body.get("client_uri"), "http://client.example.com");
         assertEquals(response.body.get("logo_uri"), "http://client.example.com/logo");
         assertEquals(response.body.get("scope"), "rs:scope1 rs:scope2");
         assertEquals(response.body.get("contacts"), List.of("hello", "world"));
-        assertEquals(
-                response.body.get("tos_uri"),
-                Map.of(
-                        "tos_uri",
-                        "http://client.example.com/tos",
-                        "tos_uri#ja",
-                        "http://client.example.com/tos/ja"));
-        assertEquals(
-                response.body.get("policy_uri"),
-                Map.of(
-                        "policy_uri",
-                        "http://client.example.com/policy",
-                        "policy_uri#ja",
-                        "http://client.example.com/policy/ja"));
+        assertEquals(response.body.get("tos_uri"), "http://client.example.com/tos");
+        assertEquals(response.body.get("tos_uri#ja"), "http://client.example.com/tos/ja");
+        assertEquals(response.body.get("policy_uri"), "http://client.example.com/policy");
+        assertEquals(response.body.get("policy_uri#ja"), "http://client.example.com/policy/ja");
         assertEquals(response.body.get("jwks"), "jwks");
         assertEquals(response.body.get("software_id"), "azidp");
         assertEquals(response.body.get("software_version"), "1.0.0");
@@ -255,10 +261,9 @@ class DynamicClientRegistrationTest_register {
                         new InMemoryClientStore(),
                         null,
                         new InMemoryAccessTokenService(accessTokenStore));
-        var req = ClientRequest.builder().build();
 
         // exercise
-        var response = registration.register(req);
+        var response = registration.register(new ClientRequest(Map.of()));
 
         // verify
         assertEquals(201, response.status);

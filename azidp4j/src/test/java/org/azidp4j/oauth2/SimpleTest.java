@@ -58,15 +58,19 @@ public class SimpleTest {
 
         // client registration
         var clientRegistrationRequest =
-                ClientRequest.builder()
-                        .redirectUris(Set.of("http://example.com"))
-                        .grantTypes(
+                new ClientRequest(
+                        Map.of(
+                                "grant_types",
                                 Set.of(
                                         GrantType.authorization_code.name(),
-                                        GrantType.refresh_token.name()))
-                        .responseTypes(Set.of(ResponseType.code.name()))
-                        .scope("rs:scope1 rs:scope2")
-                        .build();
+                                        GrantType.refresh_token.name()),
+                                "scope",
+                                "rs:scope1 rs:scope2",
+                                "redirect_uris",
+                                Set.of("http://example.com"),
+                                "response_types",
+                                Set.of(ResponseType.code.name())));
+
         var clientRegistrationResponse = sut.registerClient(clientRegistrationRequest);
         var clientId = (String) clientRegistrationResponse.body.get("client_id");
 

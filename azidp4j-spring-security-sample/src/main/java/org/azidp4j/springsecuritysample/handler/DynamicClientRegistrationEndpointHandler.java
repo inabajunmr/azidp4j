@@ -3,6 +3,7 @@ package org.azidp4j.springsecuritysample.handler;
 import java.util.HashMap;
 import java.util.Map;
 import org.azidp4j.AzIdP;
+import org.azidp4j.client.request.ClientRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,11 +26,11 @@ public class DynamicClientRegistrationEndpointHandler {
         LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " register");
         var requestWithScope = requestBody;
         if (!requestBody.containsKey("scope")) {
+            // OIDC Conformance test only supports OIDC registration so insert openid scope
             requestWithScope = new HashMap<>(requestBody);
             requestWithScope.put("scope", "openid");
         }
-        var req = azIdP.parseClientRegistrationRequest(requestWithScope);
-        var response = azIdP.registerClient(req);
+        var response = azIdP.registerClient(new ClientRequest(requestWithScope));
         return ResponseEntity.status(response.status).body(response.body);
     }
 
@@ -40,8 +41,7 @@ public class DynamicClientRegistrationEndpointHandler {
         LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " configure");
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth instanceof BearerTokenAuthentication && auth.getName().equals(clientId)) {
-            var req = azIdP.parseClientRegistrationRequest(requestBody);
-            var response = azIdP.configureClient(auth.getName(), req);
+            var response = azIdP.configureClient(auth.getName(), new ClientRequest(requestBody));
             return ResponseEntity.status(response.status).body(response.body);
         } else {
             return ResponseEntity.status(401).build();

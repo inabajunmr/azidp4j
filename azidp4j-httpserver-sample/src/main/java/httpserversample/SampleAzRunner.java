@@ -1,28 +1,29 @@
 package httpserversample;
 
 import com.nimbusds.jose.JOSEException;
+
+import java.util.Map;
 import java.util.Set;
 
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.request.ClientRequest;
+import org.azidp4j.client.request.InternalClientRequest;
 import org.azidp4j.client.GrantType;
 
 public class SampleAzRunner {
     public static void main(String[] args) throws JOSEException {
         var az = new SampleAz();
-        var clientRegistrationRequest =
-                ClientRequest.builder()
-                        .grantTypes(
-                                Set.of(
-                                        GrantType.authorization_code.name(),
-                                        GrantType.client_credentials.name(),
-                                        GrantType.implicit.name(),
-                                        GrantType.password.name(),
-                                        GrantType.refresh_token.name()))
-                        .scope("rs:scope1 rs:scope2 openid")
-                        .redirectUris(Set.of("http://example.com"))
-                        .responseTypes(Set.of(ResponseType.code.name(), ResponseType.token.name()))
-                        .build();
+        var clientRegistrationRequest = new ClientRequest(
+                Map.of("grant_type",  Set.of(
+                GrantType.authorization_code.name(),
+                GrantType.client_credentials.name(),
+                GrantType.implicit.name(),
+                GrantType.password.name(),
+                GrantType.refresh_token.name()),
+                "scope","rs:scope1 rs:scope2 openid",
+                "redirect_uris", Set.of("http://example.com"),
+                "response_types", Set.of(ResponseType.code.name(), ResponseType.token.name())
+                ));
 
         try {
             var client = az.azIdP.registerClient(clientRegistrationRequest);

@@ -9,6 +9,7 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
@@ -96,21 +97,21 @@ public class AzIdPConfiguration {
                         scopeAudienceMapper,
                         userPasswordVerifier);
         var clientRegistration =
-                ClientRequest.builder()
-                        .redirectUris(
-                                Set.of(
-                                        "http://client.example.com/callback1",
-                                        "http://client.example.com/callback2"))
-                        .grantTypes(
-                                Set.of(
-                                        "authorization_code",
-                                        "implicit",
-                                        "refresh_token",
-                                        "client_credentials"))
-                        .scope("scope1 scope2 openid client")
-                        .responseTypes(Set.of("code", "token", "id_token"))
-                        .tokenEndpointAuthMethod("client_secret_basic")
-                        .build();
+                new ClientRequest(
+                        Map.of(
+                                "redirect_uris",
+                                        (Set.of(
+                                                "http://client.example.com/callback1",
+                                                "http://client.example.com/callback2")),
+                                "grant_types",
+                                        (Set.of(
+                                                "authorization_code",
+                                                "implicit",
+                                                "refresh_token",
+                                                "client_credentials")),
+                                "scope", ("scope1 scope2 openid client"),
+                                "response_types", (Set.of("code", "token", "id_token")),
+                                "token_endpoint_auth_method", "client_secret_basic"));
         var client = azIdp.registerClient(clientRegistration);
         System.out.println(client.body);
         System.out.println(
