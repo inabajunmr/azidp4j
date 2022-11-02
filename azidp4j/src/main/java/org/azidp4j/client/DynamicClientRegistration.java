@@ -209,7 +209,6 @@ public class DynamicClientRegistration {
 
     // TODO if configure is not required conformance test, it will be removed
     public ClientRegistrationResponse configure(String clientId, ClientRequest req) {
-        // TODO
         if (clientId == null) {
             throw new AssertionError();
         }
