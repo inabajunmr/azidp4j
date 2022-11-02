@@ -29,6 +29,26 @@ class RequestParserUtilTest {
     }
 
     @Test
+    void valuesToStringSet_TypeError_ContainsNotString() {
+        try {
+            RequestParserUtil.valuesToStringSet(List.of("a", 1, "b"));
+            fail();
+        } catch (IllegalArgumentException e) {
+            // NOP
+        }
+    }
+
+    @Test
+    void valuesToStringSet_TypeError_NotCollection() {
+        try {
+            RequestParserUtil.valuesToStringSet(1);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // NOP
+        }
+    }
+
+    @Test
     void valuesToStringList_Array() {
         assertEquals(
                 List.of("a", "b", "c"),
@@ -45,6 +65,26 @@ class RequestParserUtilTest {
     @Test
     void valuesToStringList_Null() {
         assertNull(RequestParserUtil.valuesToStringList(null));
+    }
+
+    @Test
+    void valuesToStringList_TypeError_ContainsNotString() {
+        try {
+            RequestParserUtil.valuesToStringList(List.of("a", 1, "b"));
+            fail();
+        } catch (IllegalArgumentException e) {
+            // NOP
+        }
+    }
+
+    @Test
+    void valuesToStringList_TypeError_NotCollection() {
+        try {
+            RequestParserUtil.valuesToStringList(1);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // NOP
+        }
     }
 
     @Test
@@ -68,6 +108,30 @@ class RequestParserUtilTest {
     void valuesToHumanReadable_NotFound() {
         var actual = RequestParserUtil.valuesToHumanReadable("client_id", Map.of("wow", "wow"));
         assertNull(actual);
+    }
+
+    @Test
+    void valuesToHumanReadable_TypeError_Default() {
+        try {
+            RequestParserUtil.valuesToHumanReadable(
+                    "client_name",
+                    Map.of("client_name", 1, "client_name#ja", "クライアント", "client_name#cn", "客户"));
+            fail();
+        } catch (IllegalArgumentException e) {
+            // NOP
+        }
+    }
+
+    @Test
+    void valuesToHumanReadable_TypeError_Tag() {
+        try {
+            RequestParserUtil.valuesToHumanReadable(
+                    "client_name",
+                    Map.of("client_name", "client", "client_name#ja", 1, "client_name#cn", "客户"));
+            fail();
+        } catch (IllegalArgumentException e) {
+            // NOP
+        }
     }
 
     @Test
