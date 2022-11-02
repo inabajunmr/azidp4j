@@ -7,6 +7,7 @@ import org.azidp4j.util.HumanReadable;
 public class RequestParserUtil {
 
     public static Set<String> valuesToStringSet(Object values) {
+        // TODO type check
         if (values == null) {
             return null;
         }
@@ -22,6 +23,7 @@ public class RequestParserUtil {
     }
 
     public static List<String> valuesToStringList(Object values) {
+        // TODO type check
         if (values == null) {
             return null;
         }
@@ -38,6 +40,7 @@ public class RequestParserUtil {
 
     public static HumanReadable<String> valuesToHumanReadable(
             String key, Map<String, Object> parameters) {
+        // TODO type check
         var defaultValue = parameters.containsKey(key) ? (String) parameters.get(key) : null;
         var map = new HashMap<String, String>();
         parameters.keySet().stream()
@@ -49,7 +52,7 @@ public class RequestParserUtil {
         if (defaultValue == null && map.isEmpty()) {
             return null;
         }
-        return new HumanReadable<>("client_name", defaultValue, map);
+        return new HumanReadable<>(key, defaultValue, map);
     }
 
     public static String valueToString(String key, Map<String, Object> parameters) {

@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.request.ClientRequest;
+import org.azidp4j.client.request.ClientRequestParser;
+import org.azidp4j.client.request.InternalClientRequest;
 import org.azidp4j.client.response.ClientDeleteResponse;
 import org.azidp4j.client.response.ClientRegistrationResponse;
 import org.azidp4j.token.accesstoken.AccessTokenService;
@@ -18,6 +20,7 @@ public class DynamicClientRegistration {
     private final AccessTokenService accessTokenService;
     private final InternalClientValidator clientValidator;
     private final ClientValidator customizableClientValidator;
+    private final ClientRequestParser clientRequestParser = new ClientRequestParser();
 
     public DynamicClientRegistration(
             AzIdPConfig config,
@@ -32,7 +35,13 @@ public class DynamicClientRegistration {
         this.accessTokenService = accessTokenService;
     }
 
-    public ClientRegistrationResponse register(ClientRequest request) {
+    public ClientRegistrationResponse register(ClientRequest req) {
+        InternalClientRequest request;
+        try {
+            request = clientRequestParser.parse(req);
+        } catch (IllegalArgumentException e) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
+        }
         Set<GrantType> grantTypes = new HashSet<>();
         if (request.grantTypes == null) {
             // default
@@ -143,8 +152,7 @@ public class DynamicClientRegistration {
                         Instant.now().getEpochSecond(),
                         Set.of(config.issuer),
                         null);
-        return new ClientRegistrationResponse(
-                201,
+        var res =
                 MapUtil.nullRemovedMap(
                         "client_id",
                         client.clientId,
@@ -163,8 +171,6 @@ public class DynamicClientRegistration {
                         client.responseTypes.stream().map(Enum::name).collect(Collectors.toSet()),
                         "application_type",
                         client.applicationType.name().toLowerCase(),
-                        "client_name",
-                        client.clientName != null ? client.clientName.toMap() : null,
                         "client_uri",
                         client.clientUri,
                         "logo_uri",
@@ -173,10 +179,6 @@ public class DynamicClientRegistration {
                         client.scope,
                         "contacts",
                         client.contacts,
-                        "tos_uri",
-                        client.tosUri != null ? client.tosUri.toMap() : null,
-                        "policy_uri",
-                        client.policyUri != null ? client.policyUri.toMap() : null,
                         "jwks_uri",
                         client.jwksUri,
                         "jwks",
@@ -198,13 +200,24 @@ public class DynamicClientRegistration {
                         "require_auth_time",
                         client.requireAuthTime,
                         "initiate_login_uri",
-                        client.initiateLoginUri));
+                        client.initiateLoginUri);
+        Optional.ofNullable(client.clientName).ifPresent(v -> res.putAll(v.toMap()));
+        Optional.ofNullable(client.tosUri).ifPresent(v -> res.putAll(v.toMap()));
+        Optional.ofNullable(client.policyUri).ifPresent(v -> res.putAll(v.toMap()));
+        return new ClientRegistrationResponse(201, res);
     }
 
-    // TODO if configure is not required confomance test, it will be removed
-    public ClientRegistrationResponse configure(String clientId, ClientRequest request) {
+    // TODO if configure is not required conformance test, it will be removed
+    public ClientRegistrationResponse configure(String clientId, ClientRequest req) {
+        // TODO
         if (clientId == null) {
             throw new AssertionError();
+        }
+        InternalClientRequest request;
+        try {
+            request = clientRequestParser.parse(req);
+        } catch (IllegalArgumentException e) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
         var client = clientStore.find(clientId).orElseThrow(AssertionError::new);
         var grantTypes = client.grantTypes;
@@ -318,8 +331,7 @@ public class DynamicClientRegistration {
             return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
         clientStore.save(updated);
-        return new ClientRegistrationResponse(
-                200,
+        var res =
                 MapUtil.nullRemovedMap(
                         "client_id",
                         updated.clientId,
@@ -331,8 +343,6 @@ public class DynamicClientRegistration {
                         updated.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
                         "application_type",
                         updated.applicationType.name().toLowerCase(),
-                        "client_name",
-                        updated.clientName != null ? updated.clientName.toMap() : null,
                         "client_uri",
                         updated.clientUri,
                         "logo_uri",
@@ -343,10 +353,6 @@ public class DynamicClientRegistration {
                         updated.scope,
                         "contacts",
                         updated.contacts,
-                        "tos_uri",
-                        updated.tosUri != null ? updated.tosUri.toMap() : null,
-                        "policy_uri",
-                        updated.policyUri != null ? updated.policyUri.toMap() : null,
                         "jwks_uri",
                         updated.jwksUri,
                         "jwks",
@@ -368,7 +374,11 @@ public class DynamicClientRegistration {
                         "require_auth_time",
                         updated.requireAuthTime,
                         "initiate_login_uri",
-                        updated.initiateLoginUri));
+                        updated.initiateLoginUri);
+        Optional.ofNullable(updated.clientName).ifPresent(v -> res.putAll(v.toMap()));
+        Optional.ofNullable(updated.tosUri).ifPresent(v -> res.putAll(v.toMap()));
+        Optional.ofNullable(updated.policyUri).ifPresent(v -> res.putAll(v.toMap()));
+        return new ClientRegistrationResponse(200, res);
     }
 
     public ClientDeleteResponse delete(String clientId) {

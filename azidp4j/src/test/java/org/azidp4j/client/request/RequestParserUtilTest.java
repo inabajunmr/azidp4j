@@ -51,13 +51,13 @@ class RequestParserUtilTest {
     void valuesToHumanReadable() {
         var actual =
                 RequestParserUtil.valuesToHumanReadable(
-                        "client_id",
+                        "client_name",
                         Map.of(
-                                "client_id",
+                                "client_name",
                                 "client",
-                                "client_id#ja",
+                                "client_name#ja",
                                 "クライアント",
-                                "client_id#cn",
+                                "client_name#cn",
                                 "客户"));
         assertEquals(
                 Map.of("client_name", "client", "client_name#ja", "クライアント", "client_name#cn", "客户"),

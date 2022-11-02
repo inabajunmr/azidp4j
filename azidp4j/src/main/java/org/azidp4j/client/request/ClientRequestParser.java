@@ -6,8 +6,8 @@ import java.util.*;
 
 public class ClientRequestParser {
 
-    public ClientRequest parse(Map<String, Object> parameters) {
-
+    public InternalClientRequest parse(ClientRequest request) {
+        var parameters = request.bodyParameters;
         var redirectUris = valuesToStringSet(parameters.get("redirect_uris"));
         var grantTypes = valuesToStringSet(parameters.get("grant_types"));
         var responseTypes = valuesToStringSet(parameters.get("response_types"));
@@ -36,7 +36,7 @@ public class ClientRequestParser {
                         ? (Boolean) parameters.get("require_auth_time")
                         : null;
         var initiateLoginUri = valueToString("initiate_login_uri", parameters);
-        return ClientRequest.builder()
+        return InternalClientRequest.builder()
                 .redirectUris(redirectUris)
                 .grantTypes(grantTypes)
                 .responseTypes(responseTypes)

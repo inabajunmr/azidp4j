@@ -123,10 +123,6 @@ public class AzIdP {
         return issueToken.issue(tokenRequest);
     }
 
-    public ClientRequest parseClientRegistrationRequest(Map<String, Object> parameters) {
-        return clientRequestParser.parse(parameters);
-    }
-
     public ClientRegistrationResponse registerClient(ClientRequest request) {
         return clientRegistration.register(request);
     }
