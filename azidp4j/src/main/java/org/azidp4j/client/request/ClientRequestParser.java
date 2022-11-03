@@ -2,8 +2,6 @@ package org.azidp4j.client.request;
 
 import static org.azidp4j.RequestParserUtil.*;
 
-import java.util.*;
-
 public class ClientRequestParser {
 
     public InternalClientRequest parse(ClientRequest request) {
