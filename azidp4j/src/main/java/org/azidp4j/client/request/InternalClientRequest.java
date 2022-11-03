@@ -1,5 +1,6 @@
 package org.azidp4j.client.request;
 
+import com.nimbusds.jose.jwk.JWKSet;
 import java.util.List;
 import java.util.Set;
 import org.azidp4j.util.HumanReadable;
@@ -76,7 +77,7 @@ public class InternalClientRequest {
      * OAuth 2.0 Dynamic Client Registration Protocol / OpenID Connect Dynamic Client Registration
      * 1.0
      */
-    public final String jwks;
+    public final JWKSet jwks;
 
     /** OpenID Connect Dynamic Client Registration 1.0 */
     // TODO supports with PPID
@@ -157,7 +158,7 @@ public class InternalClientRequest {
             HumanReadable<String> tosUri,
             HumanReadable<String> policyUri,
             String jwksUri,
-            String jwks,
+            JWKSet jwks,
             String softwareId,
             String softwareVersion,
             String tokenEndpointAuthMethod,
@@ -202,7 +203,7 @@ public class InternalClientRequest {
         private HumanReadable<String> tosUri;
         private HumanReadable<String> policyUri;
         private String jwksUri;
-        private String jwks;
+        private JWKSet jwks;
         private String softwareId;
         private String softwareVersion;
         private String tokenEndpointAuthMethod;
@@ -272,7 +273,7 @@ public class InternalClientRequest {
             return this;
         }
 
-        public Builder jwks(String jwks) {
+        public Builder jwks(JWKSet jwks) {
             this.jwks = jwks;
             return this;
         }

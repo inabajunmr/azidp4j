@@ -1,5 +1,7 @@
 package org.azidp4j;
 
+import com.nimbusds.jose.jwk.JWKSet;
+import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.azidp4j.util.HumanReadable;
@@ -81,6 +83,38 @@ public class RequestParserUtil {
             }
             if (val instanceof String cast) {
                 return cast;
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
+        return null;
+    }
+
+    public static JWKSet valueToJwks(String key, Map<String, Object> parameters) {
+        if (parameters.containsKey(key)) {
+            var val = parameters.get(key);
+            if (val == null) {
+                return null;
+            }
+            if (val instanceof String cast) {
+                try {
+                    return JWKSet.parse(cast);
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            } else if (val instanceof Map<?, ?> cast) {
+                try {
+                    cast.keySet()
+                            .forEach(
+                                    k -> {
+                                        if (!(key instanceof String)) {
+                                            throw new IllegalArgumentException();
+                                        }
+                                    });
+                    return JWKSet.parse((Map<String, Object>) cast);
+                } catch (ParseException e) {
+                    throw new IllegalArgumentException(e);
+                }
             } else {
                 throw new IllegalArgumentException();
             }

@@ -1,5 +1,7 @@
 package org.azidp4j;
 
+import com.nimbusds.jose.jwk.JWKSet;
+import java.text.ParseException;
 import java.util.Set;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
@@ -152,5 +154,18 @@ public class Fixtures {
                 null,
                 null,
                 null);
+    }
+
+    public static JWKSet jwkSet() {
+        // from conformance test
+        var jwkSet =
+                """
+                {"keys":[{"kty":"RSA","e":"AQAB","use":"sig","alg":"RS256","n":"hNdk44dzDC8_SimAX4YgnQSTBOl4hhVP_p4sT4Nf3IhiG5L3CUYaOm6WkAKwPHWFaD8Zt4_WIk-PESY-SEBWcRzn-Ae7vXyHubxbC6eMc5dA5dC7yLVfmzYGbJpzWT_9TxWQKB8Kpk0leIPiul3sLMBCQ1F-jOeHsW2xKuskrnjqwDxCGxMBKXiKJnAVQboJzP9iDDxZgur29Dbapt7xApUu-TmYNlFzMG8PdaDN6ZqeN-PZdP10NX0xmRf7sGSSoHr7y5wQ7dfFvbus9YTuaOyg9ku5VSV-w51qPkCRBFchZkxoA6a8h1rprmHWjEt_3U-RwljEhryL-avO8wTKaQ"}]}
+                """;
+        try {
+            return JWKSet.parse(jwkSet);
+        } catch (ParseException e) {
+            throw new AssertionError(e);
+        }
     }
 }

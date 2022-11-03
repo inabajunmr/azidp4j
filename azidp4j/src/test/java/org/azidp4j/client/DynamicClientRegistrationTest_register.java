@@ -185,7 +185,7 @@ class DynamicClientRegistrationTest_register {
                                 "policy_uri#ja",
                                 "http://client.example.com/policy/ja",
                                 "jwks",
-                                "jwks",
+                                Fixtures.jwkSet().toJSONObject(),
                                 "software_id",
                                 "azidp",
                                 "software_version",
@@ -227,7 +227,7 @@ class DynamicClientRegistrationTest_register {
         assertEquals(response.body.get("tos_uri#ja"), "http://client.example.com/tos/ja");
         assertEquals(response.body.get("policy_uri"), "http://client.example.com/policy");
         assertEquals(response.body.get("policy_uri#ja"), "http://client.example.com/policy/ja");
-        assertEquals(response.body.get("jwks"), "jwks");
+        assertEquals(response.body.get("jwks"), Fixtures.jwkSet().toJSONObject());
         assertEquals(response.body.get("software_id"), "azidp");
         assertEquals(response.body.get("software_version"), "1.0.0");
         assertEquals(response.body.get("token_endpoint_auth_method"), "client_secret_basic");

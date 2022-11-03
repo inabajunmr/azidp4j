@@ -1,5 +1,6 @@
 package org.azidp4j.client;
 
+import com.nimbusds.jose.jwk.JWKSet;
 import java.util.List;
 import java.util.Set;
 import org.azidp4j.authorize.request.ResponseType;
@@ -47,7 +48,7 @@ public class Client {
     public final String jwksUri;
 
     /** OAuth 2.0 Dynamic Client Registration Protocol */
-    public final String jwks;
+    public final JWKSet jwks;
 
     /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final String softwareId;
@@ -96,7 +97,7 @@ public class Client {
             HumanReadable<String> tosUri,
             HumanReadable<String> policyUri,
             String jwksUri,
-            String jwks,
+            JWKSet jwks,
             String softwareId,
             String softwareVersion,
             TokenEndpointAuthMethod tokenEndpointAuthMethod,

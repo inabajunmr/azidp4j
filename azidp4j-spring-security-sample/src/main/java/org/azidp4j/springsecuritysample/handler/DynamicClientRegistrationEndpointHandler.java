@@ -34,20 +34,6 @@ public class DynamicClientRegistrationEndpointHandler {
         return ResponseEntity.status(response.status).body(response.body);
     }
 
-    @PostMapping("/client/{client_id}")
-    public ResponseEntity<Map<String, Object>> configure(
-            @PathVariable("client_id") String clientId,
-            @RequestBody Map<String, Object> requestBody) {
-        LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " configure");
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth instanceof BearerTokenAuthentication && auth.getName().equals(clientId)) {
-            var response = azIdP.configureClient(auth.getName(), new ClientRequest(requestBody));
-            return ResponseEntity.status(response.status).body(response.body);
-        } else {
-            return ResponseEntity.status(401).build();
-        }
-    }
-
     @DeleteMapping("/client/{client_id}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable("client_id") String clientId) {
         LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " delete");

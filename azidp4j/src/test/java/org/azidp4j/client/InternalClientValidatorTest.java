@@ -87,7 +87,7 @@ class InternalClientValidatorTest {
                         null,
                         null,
                         "https://example.com/jwks", // target
-                        "jwks", // target
+                        Fixtures.jwkSet(), // target
                         null,
                         null,
                         TokenEndpointAuthMethod.client_secret_basic,

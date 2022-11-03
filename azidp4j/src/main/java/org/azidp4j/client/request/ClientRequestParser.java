@@ -20,7 +20,7 @@ public class ClientRequestParser {
         var tosUri = valuesToHumanReadable("tos_uri", parameters);
         var policyUri = valuesToHumanReadable("policy_uri", parameters);
         var jwksUri = valueToString("jwks_uri", parameters);
-        var jwks = valueToString("jwks", parameters);
+        var jwks = valueToJwks("jwks", parameters);
         var softwareId = valueToString("software_id", parameters);
         var softwareVersion = valueToString("software_version", parameters);
         var tokenEndpointAuthMethod = valueToString("token_endpoint_auth_method", parameters);

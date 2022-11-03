@@ -187,7 +187,7 @@ class DynamicClientRegistrationTest_configure {
         var response =
                 registration.configure(
                         registrationResponse.body.get("client_id").toString(),
-                        new ClientRequest(Map.of("jwks", "jwks")));
+                        new ClientRequest(Map.of("jwks", Fixtures.jwkSet().toJSONObject())));
 
         // verify
         assertEquals(response.status, 400);

@@ -57,7 +57,7 @@ public class DynamicClientRegistration {
             }
         }
 
-        Set<ResponseType> responseTypes = new HashSet<>();
+        Set<ResponseType> responseTypes = new HashSet<>(); // TODO should be Set<Set<ResponseType>>
         if (request.responseTypes == null) {
             // default
             responseTypes.add(ResponseType.code);
@@ -182,7 +182,7 @@ public class DynamicClientRegistration {
                         "jwks_uri",
                         client.jwksUri,
                         "jwks",
-                        client.jwks,
+                        client.jwks != null ? client.jwks.toJSONObject() : null,
                         "software_id",
                         client.softwareId,
                         "software_version",
@@ -355,7 +355,7 @@ public class DynamicClientRegistration {
                         "jwks_uri",
                         updated.jwksUri,
                         "jwks",
-                        updated.jwks,
+                        updated.jwks != null ? updated.jwks.toJSONObject() : null,
                         "software_id",
                         updated.softwareId,
                         "software_version",

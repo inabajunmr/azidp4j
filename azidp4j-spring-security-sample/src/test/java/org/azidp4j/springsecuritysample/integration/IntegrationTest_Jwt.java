@@ -105,7 +105,8 @@ public class IntegrationTest_Jwt {
                         Set.of(
                                 GrantType.authorization_code.name(),
                                 GrantType.implicit.name(),
-                                GrantType.password.name()),
+                                GrantType.password.name(),
+                                GrantType.refresh_token.name()),
                         "response_types",
                         Set.of(ResponseType.code.name(), ResponseType.token.name()),
                         "scope",
@@ -130,26 +131,6 @@ public class IntegrationTest_Jwt {
                 (String) clientRegistrationResponse.getBody().get("registration_access_token");
         var configurationUri =
                 (String) clientRegistrationResponse.getBody().get("registration_client_uri");
-
-        // client configuration
-        var clientConfigurationRequest =
-                Map.of(
-                        "grant_types",
-                        Set.of(
-                                GrantType.authorization_code.name(),
-                                GrantType.implicit.name(),
-                                GrantType.password.name(),
-                                GrantType.refresh_token.name()));
-        var clientConfigurationEntity =
-                RequestEntity.post(configurationUri)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + configurationToken)
-                        .body(clientConfigurationRequest);
-        var clientConfigurationResponse =
-                testRestTemplate.postForEntity(
-                        configurationUri, clientConfigurationEntity, Map.class);
-        assertThat(clientConfigurationResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         // authorization request
         var state = UUID.randomUUID().toString();
