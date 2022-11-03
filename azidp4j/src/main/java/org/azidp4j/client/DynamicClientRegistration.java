@@ -57,13 +57,13 @@ public class DynamicClientRegistration {
             }
         }
 
-        Set<ResponseType> responseTypes = new HashSet<>(); // TODO should be Set<Set<ResponseType>>
+        Set<Set<ResponseType>> responseTypes = new HashSet<>();
         if (request.responseTypes == null) {
             // default
-            responseTypes.add(ResponseType.code);
+            responseTypes.add(Set.of(ResponseType.code));
         } else {
             for (String r : request.responseTypes) {
-                var responseType = ResponseType.of(r);
+                var responseType = ResponseType.parse(r);
                 if (responseType == null) {
                     return new ClientRegistrationResponse(
                             400, Map.of("error", "invalid_client_metadata"));
@@ -168,7 +168,14 @@ public class DynamicClientRegistration {
                         "grant_types",
                         client.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
                         "response_types",
-                        client.responseTypes.stream().map(Enum::name).collect(Collectors.toSet()),
+                        client.responseTypes.stream()
+                                .map(
+                                        r -> {
+                                            var joiner = new StringJoiner(" ");
+                                            r.stream().forEach(v -> joiner.add(v.name()));
+                                            return joiner.toString();
+                                        })
+                                .collect(Collectors.toSet()),
                         "application_type",
                         client.applicationType.name().toLowerCase(),
                         "client_uri",
@@ -205,179 +212,6 @@ public class DynamicClientRegistration {
         Optional.ofNullable(client.tosUri).ifPresent(v -> res.putAll(v.toMap()));
         Optional.ofNullable(client.policyUri).ifPresent(v -> res.putAll(v.toMap()));
         return new ClientRegistrationResponse(201, res);
-    }
-
-    // TODO if configure is not required conformance test, it will be removed
-    public ClientRegistrationResponse configure(String clientId, ClientRequest req) {
-        if (clientId == null) {
-            throw new AssertionError();
-        }
-        InternalClientRequest request;
-        try {
-            request = clientRequestParser.parse(req);
-        } catch (IllegalArgumentException e) {
-            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
-        }
-        var client = clientStore.find(clientId).orElseThrow(AssertionError::new);
-        var grantTypes = client.grantTypes;
-        if (request.grantTypes != null) {
-            grantTypes = new HashSet<>();
-            for (String g : request.grantTypes) {
-                var grantType = GrantType.of(g);
-                if (grantType == null) {
-                    return new ClientRegistrationResponse(
-                            400, Map.of("error", "invalid_client_metadata"));
-                }
-                grantTypes.add(grantType);
-            }
-        }
-        var scope = client.scope;
-        if (request.scope != null) {
-            scope = request.scope;
-        }
-        var redirectUris = client.redirectUris;
-        if (request.redirectUris != null) {
-            redirectUris = request.redirectUris;
-        }
-
-        var applicationType = ApplicationType.WEB;
-        if (request.applicationType != null) {
-            applicationType = ApplicationType.of(request.applicationType);
-            if (applicationType == null) {
-                return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_client_metadata"));
-            }
-        }
-
-        var tokenEndpointAuthMethod = client.tokenEndpointAuthMethod;
-        if (request.tokenEndpointAuthMethod != null) {
-            var tam = TokenEndpointAuthMethod.of(request.tokenEndpointAuthMethod);
-            if (tam == null) {
-                return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_client_metadata"));
-            }
-            tokenEndpointAuthMethod = tam;
-        }
-
-        SigningAlgorithm tokenEndpointAuthSigningAlg = client.tokenEndpointAuthSigningAlg;
-        if (request.tokenEndpointAuthSigningAlg != null) {
-            tokenEndpointAuthSigningAlg = SigningAlgorithm.of(request.tokenEndpointAuthSigningAlg);
-            if (tokenEndpointAuthSigningAlg == null) {
-                return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_client_metadata"));
-            }
-        }
-
-        var responseTypes = client.responseTypes;
-        if (request.responseTypes != null) {
-            for (String r : request.responseTypes) {
-                var responseType = ResponseType.of(r);
-                if (responseType == null) {
-                    return new ClientRegistrationResponse(
-                            400, Map.of("error", "invalid_client_metadata"));
-                }
-                responseTypes.add(responseType);
-            }
-        }
-        var idTokenSignedResponseAlg = client.idTokenSignedResponseAlg;
-        if (request.idTokenSignedResponseAlg != null) {
-            var alg = SigningAlgorithm.of(request.idTokenSignedResponseAlg);
-            if (alg == null) {
-                return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_client_metadata"));
-            }
-            idTokenSignedResponseAlg = alg;
-        }
-
-        // TODO 指定された値だけ更新？全部更新？
-        var updated =
-                new Client(
-                        client.clientId,
-                        client.clientSecret,
-                        redirectUris,
-                        responseTypes,
-                        applicationType,
-                        grantTypes,
-                        request.clientName != null ? request.clientName : client.clientName,
-                        request.clientUri != null ? request.clientUri : client.clientUri,
-                        request.logoUri != null ? request.logoUri : client.logoUri,
-                        scope,
-                        request.contacts != null ? request.contacts : client.contacts,
-                        request.tosUri != null ? request.tosUri : client.tosUri,
-                        request.policyUri != null ? request.policyUri : client.policyUri,
-                        request.jwksUri != null ? request.jwksUri : client.jwksUri,
-                        request.jwks != null ? request.jwks : client.jwks,
-                        request.softwareId != null ? request.softwareId : client.softwareId,
-                        request.softwareVersion != null
-                                ? request.softwareVersion
-                                : client.softwareVersion,
-                        tokenEndpointAuthMethod,
-                        tokenEndpointAuthSigningAlg,
-                        idTokenSignedResponseAlg,
-                        request.defaultMaxAge != null
-                                ? request.defaultMaxAge
-                                : client.defaultMaxAge,
-                        request.requireAuthTime != null
-                                ? request.requireAuthTime
-                                : client.requireAuthTime,
-                        request.initiateLoginUri != null
-                                ? request.initiateLoginUri
-                                : client.initiateLoginUri);
-        try {
-            clientValidator.validate(updated);
-            customizableClientValidator.validate(client);
-        } catch (IllegalArgumentException e) {
-            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
-        }
-        clientStore.save(updated);
-        var res =
-                MapUtil.nullRemovedMap(
-                        "client_id",
-                        updated.clientId,
-                        "client_secret",
-                        updated.clientSecret,
-                        "redirect_uris",
-                        updated.redirectUris,
-                        "grant_types",
-                        updated.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
-                        "application_type",
-                        updated.applicationType.name().toLowerCase(),
-                        "client_uri",
-                        updated.clientUri,
-                        "logo_uri",
-                        updated.logoUri,
-                        "response_types",
-                        updated.responseTypes.stream().map(Enum::name).collect(Collectors.toSet()),
-                        "scope",
-                        updated.scope,
-                        "contacts",
-                        updated.contacts,
-                        "jwks_uri",
-                        updated.jwksUri,
-                        "jwks",
-                        updated.jwks != null ? updated.jwks.toJSONObject() : null,
-                        "software_id",
-                        updated.softwareId,
-                        "software_version",
-                        updated.softwareVersion,
-                        "token_endpoint_auth_method",
-                        updated.tokenEndpointAuthMethod.name(),
-                        "token_endpoint_auth_signing_alg",
-                        updated.tokenEndpointAuthSigningAlg != null
-                                ? updated.tokenEndpointAuthSigningAlg.name()
-                                : null,
-                        "id_token_signed_response_alg",
-                        updated.idTokenSignedResponseAlg.name(),
-                        "default_max_age",
-                        updated.defaultMaxAge,
-                        "require_auth_time",
-                        updated.requireAuthTime,
-                        "initiate_login_uri",
-                        updated.initiateLoginUri);
-        Optional.ofNullable(updated.clientName).ifPresent(v -> res.putAll(v.toMap()));
-        Optional.ofNullable(updated.tosUri).ifPresent(v -> res.putAll(v.toMap()));
-        Optional.ofNullable(updated.policyUri).ifPresent(v -> res.putAll(v.toMap()));
-        return new ClientRegistrationResponse(200, res);
     }
 
     public ClientDeleteResponse delete(String clientId) {

@@ -15,7 +15,7 @@ public class Client {
     public final Set<String> redirectUris;
 
     /** OpenID Connect Dynamic Client Registration 1.0 */
-    public final Set<ResponseType> responseTypes;
+    public final Set<Set<ResponseType>> responseTypes;
 
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final ApplicationType applicationType;
@@ -86,7 +86,7 @@ public class Client {
             String clientId,
             String clientSecret,
             Set<String> redirectUris,
-            Set<ResponseType> responseTypes,
+            Set<Set<ResponseType>> responseTypes,
             ApplicationType applicationType,
             Set<GrantType> grantTypes,
             HumanReadable<String> clientName,

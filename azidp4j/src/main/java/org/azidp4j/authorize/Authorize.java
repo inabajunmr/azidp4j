@@ -280,7 +280,7 @@ public class Authorize {
             }
         }
 
-        if (!client.responseTypes.containsAll(responseType)) {
+        if (!client.responseTypes.contains(responseType)) {
             return AuthorizationResponse.redirect(
                     redirectUri,
                     MapUtil.nullRemovedStringMap(

@@ -21,10 +21,11 @@ class InternalClientValidatorTest {
                         "secret",
                         Set.of("https://rp1.example.com", "https://rp2.example.com"),
                         Set.of(
-                                ResponseType.code,
-                                ResponseType.token,
-                                ResponseType.id_token,
-                                ResponseType.none),
+                                Set.of(
+                                        ResponseType.code,
+                                        ResponseType.token,
+                                        ResponseType.id_token,
+                                        ResponseType.none)),
                         ApplicationType.WEB,
                         Set.of(
                                 GrantType.authorization_code,
@@ -68,10 +69,11 @@ class InternalClientValidatorTest {
                         "secret",
                         Set.of("https://rp1.example.com", "https://rp2.example.com"),
                         Set.of(
-                                ResponseType.code,
-                                ResponseType.token,
-                                ResponseType.id_token,
-                                ResponseType.none),
+                                Set.of(
+                                        ResponseType.code,
+                                        ResponseType.token,
+                                        ResponseType.id_token,
+                                        ResponseType.none)),
                         ApplicationType.WEB,
                         Set.of(
                                 GrantType.authorization_code,

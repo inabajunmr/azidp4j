@@ -35,7 +35,7 @@ class AuthorizeTest_None {
                         "client1",
                         "clientSecret",
                         Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                        Set.of(ResponseType.none),
+                        Set.of(Set.of(ResponseType.none)),
                         ApplicationType.WEB,
                         Set.of(),
                         null,

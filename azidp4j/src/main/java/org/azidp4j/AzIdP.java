@@ -127,10 +127,6 @@ public class AzIdP {
         return clientRegistration.register(request);
     }
 
-    public ClientRegistrationResponse configureClient(String clientId, ClientRequest request) {
-        return clientRegistration.configure(clientId, request);
-    }
-
     public ClientDeleteResponse delete(String clientId) {
         return clientRegistration.delete(clientId);
     }
