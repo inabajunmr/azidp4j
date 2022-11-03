@@ -2,7 +2,6 @@ package org.azidp4j.revocation;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.revocation.request.InternalRevocationRequest;
 import org.azidp4j.revocation.request.RevocationRequest;
@@ -53,28 +52,27 @@ public class Revocation {
         if (Objects.equals(hint, TokenTypeHint.refresh_token)) {
             var rtOpt = refreshTokenService.introspect(req.token);
             if (rtOpt.isPresent()) {
-                return revokeRefreshToken(req, rtOpt);
+                return revokeRefreshToken(req, rtOpt.get());
             }
         }
 
         var atOpt = accessTokenService.introspect(req.token);
         if (atOpt.isPresent()) {
-            return revokeAccessToken(req, atOpt);
+            return revokeAccessToken(req, atOpt.get());
         }
 
         var rtOpt = refreshTokenService.introspect(req.token);
         if (rtOpt.isPresent()) {
-            return revokeRefreshToken(req, rtOpt);
+            return revokeRefreshToken(req, rtOpt.get());
         }
 
         return new RevocationResponse(200, Map.of());
     }
 
     private RevocationResponse revokeAccessToken(
-            InternalRevocationRequest request, Optional<AccessToken> atOpt) {
-        var at = atOpt.get();
+            InternalRevocationRequest request, AccessToken at) {
         var client = clientStore.find(at.getClientId());
-        if (!client.isPresent()) {
+        if (client.isEmpty()) {
             return new RevocationResponse(200, Map.of());
         }
 
@@ -90,10 +88,9 @@ public class Revocation {
     }
 
     private RevocationResponse revokeRefreshToken(
-            InternalRevocationRequest request, Optional<RefreshToken> rtOpt) {
-        var rt = rtOpt.get();
+            InternalRevocationRequest request, RefreshToken rt) {
         var client = clientStore.find(rt.clientId);
-        if (!client.isPresent()) {
+        if (client.isEmpty()) {
             return new RevocationResponse(200, Map.of());
         }
 

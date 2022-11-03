@@ -54,7 +54,7 @@ public class SampleAz {
                         "http://localhost:8080/userinfo",
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
-                        es256.getKeyID(), 3600, 600, 604800, 3600);
+                        3600, 600, 604800, 3600);
         clientStore = new InMemoryClientStore();
         var userPasswordVerifier =
                 new UserPasswordVerifier() {

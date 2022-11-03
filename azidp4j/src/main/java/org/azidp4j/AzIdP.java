@@ -9,7 +9,6 @@ import org.azidp4j.authorize.request.AuthorizationRequestParser;
 import org.azidp4j.authorize.response.AuthorizationResponse;
 import org.azidp4j.client.*;
 import org.azidp4j.client.request.ClientRequest;
-import org.azidp4j.client.request.ClientRequestParser;
 import org.azidp4j.client.response.ClientDeleteResponse;
 import org.azidp4j.client.response.ClientRegistrationResponse;
 import org.azidp4j.discovery.Discovery;
@@ -25,7 +24,6 @@ import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
 import org.azidp4j.token.request.TokenRequest;
-import org.azidp4j.token.request.TokenRequestParser;
 import org.azidp4j.token.response.TokenResponse;
 
 public class AzIdP {
@@ -35,11 +33,9 @@ public class AzIdP {
     private final AuthorizationRequestParser authorizationRequestParser =
             new AuthorizationRequestParser();
     private final IssueToken issueToken;
-    private final TokenRequestParser tokenRequestParser = new TokenRequestParser();
     private final DynamicClientRegistration clientRegistration;
     private final Introspect introspect;
     private final Revocation revocation;
-    private final ClientRequestParser clientRequestParser = new ClientRequestParser();
 
     public AzIdP(
             AzIdPConfig azIdPConfig,

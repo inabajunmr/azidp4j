@@ -60,7 +60,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
     }
 
     @Test
-    void success() throws JOSEException {
+    void success() {
 
         // setup
         var tokenRequest =
@@ -95,7 +95,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
     }
 
     @Test
-    void success_publicClient() throws JOSEException {
+    void success_publicClient() {
 
         // setup
         var tokenRequest =
@@ -185,7 +185,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
     }
 
     @Test
-    void clientHasNotEnoughScope() throws JOSEException {
+    void clientHasNotEnoughScope() {
 
         // setup
         var tokenRequest =

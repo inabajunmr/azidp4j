@@ -61,9 +61,8 @@ public class InternalClientValidator {
         if (client.applicationType == ApplicationType.NATIVE) {
             for (URI uri : redirectUris) {
                 switch (uri.getScheme()) {
-                    case "https" -> {
-                        throw new IllegalArgumentException("native client can't support https");
-                    }
+                    case "https" -> throw new IllegalArgumentException(
+                            "native client can't support https");
                     case "http" -> {
                         if (!uri.getHost().equals("localhost")) {
                             throw new IllegalArgumentException(

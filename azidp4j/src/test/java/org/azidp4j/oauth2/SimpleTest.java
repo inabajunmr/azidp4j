@@ -156,7 +156,7 @@ public class SimpleTest {
                                 clientId,
                                 Map.of(
                                         "token",
-                                        (String) tokenResponse2.body.get("access_token"),
+                                        tokenResponse2.body.get("access_token"),
                                         "token_type_hint",
                                         "access_token")));
 

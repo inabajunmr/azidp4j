@@ -172,7 +172,7 @@ public class DynamicClientRegistration {
                                 .map(
                                         r -> {
                                             var joiner = new StringJoiner(" ");
-                                            r.stream().forEach(v -> joiner.add(v.name()));
+                                            r.forEach(v -> joiner.add(v.name()));
                                             return joiner.toString();
                                         })
                                 .collect(Collectors.toSet()),

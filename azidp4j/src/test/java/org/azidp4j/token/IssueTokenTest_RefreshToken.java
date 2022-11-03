@@ -228,7 +228,7 @@ public class IssueTokenTest_RefreshToken {
     }
 
     @Test
-    void error_refreshTokenIsNotFound() throws JOSEException {
+    void error_refreshTokenIsNotFound() {
 
         // setup
         var tokenRequest =
@@ -271,7 +271,6 @@ public class IssueTokenTest_RefreshToken {
                         "http://localhost:8080/userinfo",
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
-                        key.getKeyID(),
                         3600,
                         600,
                         -1, // always issuing expired

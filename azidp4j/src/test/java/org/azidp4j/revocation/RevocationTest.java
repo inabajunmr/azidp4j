@@ -22,18 +22,19 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 class RevocationTest {
 
-    AccessTokenService accessTokenService =
+    private final AccessTokenService accessTokenService =
             new InMemoryAccessTokenService(new InMemoryAccessTokenStore());
-    RefreshTokenService refreshTokenService =
+    private final RefreshTokenService refreshTokenService =
             new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore());
-    ClientStore clientStore = new InMemoryClientStore();
+    private final ClientStore clientStore = new InMemoryClientStore();
 
     {
         clientStore.save(Fixtures.confidentialClient());
         clientStore.save(Fixtures.publicClient());
     }
 
-    Revocation sut = new Revocation(accessTokenService, refreshTokenService, clientStore);
+    private final Revocation sut =
+            new Revocation(accessTokenService, refreshTokenService, clientStore);
 
     static Stream<Arguments> hints() {
         return Stream.of(

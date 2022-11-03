@@ -13,13 +13,12 @@ public class RequestParserUtil {
             return null;
         }
         if (values instanceof Collection cast) {
-            cast.stream()
-                    .forEach(
-                            v -> {
-                                if (!(v instanceof String)) {
-                                    throw new IllegalArgumentException();
-                                }
-                            });
+            cast.forEach(
+                    v -> {
+                        if (!(v instanceof String)) {
+                            throw new IllegalArgumentException();
+                        }
+                    });
             return (Set<String>) cast.stream().collect(Collectors.toSet());
         } else if (values instanceof String[]) {
             return Arrays.stream((String[]) values).collect(Collectors.toSet());
@@ -33,13 +32,12 @@ public class RequestParserUtil {
             return null;
         }
         if (values instanceof List cast) {
-            cast.stream()
-                    .forEach(
-                            v -> {
-                                if (!(v instanceof String)) {
-                                    throw new IllegalArgumentException();
-                                }
-                            });
+            cast.forEach(
+                    v -> {
+                        if (!(v instanceof String)) {
+                            throw new IllegalArgumentException();
+                        }
+                    });
             return ((List<String>) cast.stream().toList());
         } else if (values instanceof String[]) {
             return Arrays.stream((String[]) values).collect(Collectors.toList());

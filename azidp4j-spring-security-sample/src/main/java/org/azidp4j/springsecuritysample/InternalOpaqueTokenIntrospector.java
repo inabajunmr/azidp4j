@@ -22,7 +22,7 @@ public class InternalOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
     @Override
     public OAuth2AuthenticatedPrincipal introspect(String token) {
         var at = accessTokenService.introspect(token);
-        if (!at.isPresent()) {
+        if (at.isEmpty()) {
             throw new BadOpaqueTokenException("Provided token isn't active");
         }
         if (at.get().getExpiresAtEpochSec() < Instant.now().getEpochSecond()) {

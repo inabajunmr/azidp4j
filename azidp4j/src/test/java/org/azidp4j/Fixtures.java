@@ -19,7 +19,6 @@ public class Fixtures {
                 "http://localhost:8080/userinfo",
                 Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
                 Set.of("openid", "rs:scope1"),
-                kid,
                 3600,
                 600,
                 604800,

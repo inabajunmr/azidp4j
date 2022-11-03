@@ -32,7 +32,7 @@ public class IntrospectionEndpointHandler {
             value = "/introspect",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<Map> introspect(
+    public ResponseEntity<Map<String, Object>> introspect(
             HttpServletRequest request,
             @RequestParam MultiValueMap<String, Object> body,
             Authentication authentication) {

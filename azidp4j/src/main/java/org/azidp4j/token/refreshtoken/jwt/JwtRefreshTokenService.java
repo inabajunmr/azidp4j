@@ -11,7 +11,6 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.token.refreshtoken.RefreshToken;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
@@ -104,8 +103,7 @@ public class JwtRefreshTokenService implements RefreshTokenService {
                     payload.containsKey("client_id") ? (String) payload.get("client_id") : null;
             var aud =
                     payload.containsKey("aud")
-                            ? ((List<String>) payload.get("aud")) // TODO check type before cast
-                                    .stream().collect(Collectors.toSet())
+                            ? new HashSet<>(((List<String>) payload.get("aud")))
                             : null;
             var exp = payload.containsKey("exp") ? (Long) payload.get("exp") : null;
             var iat = payload.containsKey("iat") ? (Long) payload.get("iat") : null;

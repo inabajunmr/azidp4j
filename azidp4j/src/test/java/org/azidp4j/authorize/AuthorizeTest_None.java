@@ -57,7 +57,6 @@ class AuthorizeTest_None {
                         null);
         clientStore.save(client);
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
         var config =
                 new AzIdPConfig(
                         "http://localhost:8080",
@@ -69,7 +68,6 @@ class AuthorizeTest_None {
                         "http://localhost:8080/userinfo",
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
-                        key.getKeyID(),
                         3600,
                         600,
                         604800,

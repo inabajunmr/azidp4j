@@ -14,7 +14,7 @@ public class HumanReadable<T> {
         this.tags = tags;
     }
 
-    public HumanReadable put(String tag, T value) {
+    public HumanReadable<T> put(String tag, T value) {
         if (tag != null) {
             var merge = new HashMap<String, T>();
             if (tags != null) {
@@ -47,7 +47,7 @@ public class HumanReadable<T> {
 
     public Map<String, T> toMap() {
         var merge = new HashMap<String, T>();
-        tags.entrySet().forEach((kv) -> merge.put(key + "#" + kv.getKey(), kv.getValue()));
+        tags.forEach((tag, value) -> merge.put(key + "#" + tag, value));
         merge.put(key, defaultValue);
         return merge;
     }

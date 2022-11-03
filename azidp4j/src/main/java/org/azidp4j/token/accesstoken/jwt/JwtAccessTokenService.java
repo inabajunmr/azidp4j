@@ -11,7 +11,6 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.token.accesstoken.AccessToken;
 import org.azidp4j.token.accesstoken.AccessTokenService;
@@ -106,8 +105,7 @@ public class JwtAccessTokenService implements AccessTokenService {
                     payload.containsKey("client_id") ? (String) payload.get("client_id") : null;
             var aud =
                     payload.containsKey("aud")
-                            ? ((List<String>) payload.get("aud"))
-                                    .stream().collect(Collectors.toSet())
+                            ? new HashSet<>(((List<String>) payload.get("aud")))
                             : null;
             var authorizationCode =
                     payload.containsKey("authorization_code")

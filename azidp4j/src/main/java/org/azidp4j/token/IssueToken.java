@@ -77,7 +77,7 @@ public class IssueToken {
         }
         var clientOpt =
                 clientStore.find(req.clientId != null ? req.clientId : req.authenticatedClientId);
-        if (!clientOpt.isPresent()) {
+        if (clientOpt.isEmpty()) {
             return new TokenResponse(400, Map.of("error", "unauthorized_client"));
         }
         var client = clientOpt.get();
@@ -92,7 +92,7 @@ public class IssueToken {
         switch (grantType) {
             case authorization_code -> {
                 var authorizationCodeOpt = authorizationCodeService.consume(req.code);
-                if (!authorizationCodeOpt.isPresent()) {
+                if (authorizationCodeOpt.isEmpty()) {
                     accessTokenService.revokeByAuthorizationCode(req.code);
                     refreshTokenService.revokeByAuthorizationCode(req.code);
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
@@ -305,7 +305,7 @@ public class IssueToken {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
                 var rtOpt = refreshTokenService.consume(req.refreshToken);
-                if (!rtOpt.isPresent()) {
+                if (rtOpt.isEmpty()) {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
                 var rt = rtOpt.get();

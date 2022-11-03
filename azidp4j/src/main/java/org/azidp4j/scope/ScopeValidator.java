@@ -29,6 +29,6 @@ public class ScopeValidator {
             return false;
         }
         var requestedScopes = requestedScope.split(" ");
-        return Arrays.stream(requestedScopes).anyMatch(s -> s.equals(target));
+        return Arrays.asList(requestedScopes).contains(target);
     }
 }

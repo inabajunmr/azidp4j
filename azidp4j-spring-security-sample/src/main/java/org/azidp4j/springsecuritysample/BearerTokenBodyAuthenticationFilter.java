@@ -42,7 +42,7 @@ public class BearerTokenBodyAuthenticationFilter extends OncePerRequestFilter {
             }
             var at =
                     accessTokenService.introspect(request.getParameterMap().get("access_token")[0]);
-            if (!at.isPresent()) {
+            if (at.isEmpty()) {
                 filterChain.doFilter(request, response);
             } else {
                 var principal =

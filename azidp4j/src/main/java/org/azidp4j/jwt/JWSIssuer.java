@@ -23,8 +23,7 @@ public class JWSIssuer {
             if (jwk == null) {
                 throw new AssertionError();
             }
-            if (jwk instanceof ECKey) {
-                ECKey ecJWK = (ECKey) jwk;
+            if (jwk instanceof ECKey ecJWK) {
                 JWSSigner signer = new ECDSASigner(ecJWK);
                 JWSObject jwsObject =
                         new JWSObject(
@@ -63,7 +62,7 @@ public class JWSIssuer {
                     jwkSet.getKeys().stream()
                             .filter(jwk -> jwk.getAlgorithm().getName().equals(alg.name()))
                             .findAny();
-            if (!key.isPresent()) {
+            if (key.isEmpty()) {
                 throw new AssertionError();
             }
             var jwk = key.get();

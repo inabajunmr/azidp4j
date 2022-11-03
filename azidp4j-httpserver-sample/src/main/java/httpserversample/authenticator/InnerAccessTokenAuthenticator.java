@@ -23,7 +23,7 @@ public class InnerAccessTokenAuthenticator extends Authenticator {
         }
         var token = accessTokenService.introspect(authorization.replaceAll("^Bearer ", ""));
         if(token.isPresent()) {
-            if(Arrays.stream(token.get().getScope().split(" ")).anyMatch(s -> s.equals("default"))){
+            if(Arrays.asList(token.get().getScope().split(" ")).contains("default")){
                 return new Success(
                         new HttpPrincipal(
                                 token.get().getSub(),
