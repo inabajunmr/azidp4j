@@ -51,15 +51,7 @@ public class AzIdPConfiguration {
             AccessTokenService accessTokenService,
             RefreshTokenService refreshTokenService) {
         var key = jwkSet.getKeys().get(0);
-        var config =
-                new org.azidp4j.AzIdPConfig( // TODO already bean defined
-                        endpoint,
-                        Set.of("openid", "scope1", "scope2", "default"),
-                        Set.of("openid", "scope1"),
-                        Duration.ofSeconds(3600),
-                        Duration.ofSeconds(600),
-                        Duration.ofSeconds(604800),
-                        Duration.ofSeconds(3600));
+        ScopeAudienceMapper scopeAudienceMapper = scope -> Set.of("rs.example.com");
         var discoveryConfig =
                 DiscoveryConfig.builder()
                         .authorizationEndpoint(endpoint + "/authorize")
@@ -81,19 +73,21 @@ public class AzIdPConfiguration {
                         };
                     }
                 };
-        ScopeAudienceMapper scopeAudienceMapper = scope -> Set.of("rs.example.com");
         var azIdp =
-                new AzIdP(
-                        config,
-                        discoveryConfig,
-                        jwkSet,
-                        clientStore,
-                        new ClientValidator(),
-                        authorizationCodeService,
-                        accessTokenService,
-                        refreshTokenService,
-                        scopeAudienceMapper,
-                        userPasswordVerifier);
+                AzIdP.init()
+                        .issuer(endpoint)
+                        .jwkSet(jwkSet)
+                        .scopesSupported(Set.of("openid", "scope1", "scope2", "default"))
+                        .defaultScopes(Set.of("openid", "scope1"))
+                        .customClientStore(clientStore)
+                        .customClientValidator(new ClientValidator())
+                        .customAuthorizationCodeService(authorizationCodeService)
+                        .customScopeAudienceMapper(scopeAudienceMapper)
+                        .customAccessTokenService(accessTokenService)
+                        .customRefreshTokenService(refreshTokenService)
+                        .userPasswordVerifier(userPasswordVerifier)
+                        .discovery(discoveryConfig)
+                        .buildOIDC();
         var clientRegistration =
                 new ClientRequest(
                         Map.of(

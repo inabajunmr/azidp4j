@@ -13,6 +13,7 @@ import org.azidp4j.client.response.ClientDeleteResponse;
 import org.azidp4j.client.response.ClientRegistrationResponse;
 import org.azidp4j.discovery.Discovery;
 import org.azidp4j.discovery.DiscoveryConfig;
+import org.azidp4j.initializer.AzIdPBuilder;
 import org.azidp4j.introspection.Introspect;
 import org.azidp4j.introspection.request.IntrospectionRequest;
 import org.azidp4j.introspection.response.IntrospectionResponse;
@@ -38,6 +39,11 @@ public class AzIdP {
     private final Introspect introspect;
     private final Revocation revocation;
 
+    public static AzIdPBuilder init() {
+        return new AzIdPBuilder();
+    }
+
+    // TODO private
     public AzIdP(
             AzIdPConfig azIdPConfig,
             DiscoveryConfig discoveryConfig,

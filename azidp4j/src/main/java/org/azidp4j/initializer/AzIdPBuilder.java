@@ -1,7 +1,11 @@
 package org.azidp4j.initializer;
 
+import com.nimbusds.jose.jwk.JWKSet;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 import org.azidp4j.AzIdP;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
@@ -12,6 +16,7 @@ import org.azidp4j.client.ClientValidator;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.scope.ScopeAudienceMapper;
+import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
@@ -22,6 +27,7 @@ import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
 public class AzIdPBuilder {
 
     private String issuer = null;
+    private JWKSet jwkSet = null;
     private Set<String> scopesSupported = null;
     private Set<String> defaultScopes = null;
     private Duration authorizationCodeExpiration = Duration.ofSeconds(60);
@@ -35,9 +41,15 @@ public class AzIdPBuilder {
     private AccessTokenService accessTokenService = null;
     private RefreshTokenService refreshTokenService = null;
     private DiscoveryConfig discoveryConfig = null;
+    private UserPasswordVerifier userPasswordVerifier = null;
 
     public AzIdPBuilder issuer(String issuer) {
         this.issuer = issuer;
+        return this;
+    }
+
+    public AzIdPBuilder jwkSet(JWKSet jwkSet) {
+        this.jwkSet = jwkSet;
         return this;
     }
 
@@ -99,6 +111,12 @@ public class AzIdPBuilder {
         return this;
     }
 
+    public AzIdPBuilder customAuthorizationCodeService(
+            AuthorizationCodeService authorizationCodeService) {
+        this.authorizationCodeService = authorizationCodeService;
+        return this;
+    }
+
     public AzIdPBuilder staticScopeAudienceMapper(String audience) {
         this.scopeAudienceMapper = scope -> Set.of(audience);
         return this;
@@ -134,7 +152,65 @@ public class AzIdPBuilder {
         return this;
     }
 
+    public AzIdPBuilder userPasswordVerifier(UserPasswordVerifier userPasswordVerifier) {
+        this.userPasswordVerifier = userPasswordVerifier;
+        return this;
+    }
+
     public AzIdP buildOAuth2() {
+        // TODO validate
+        List<String> errors = new ArrayList<>();
+        required(errors, "issuer", issuer);
+        required(errors, "scopesSupported", scopesSupported);
+        required(errors, "defaultScopes", defaultScopes);
+        required(errors, "accessTokenExpiration", accessTokenExpiration);
+        required(errors, "authorizationCodeExpiration", authorizationCodeExpiration);
+        required(errors, "refreshTokenExpiration", refreshTokenExpiration);
+        required(errors, "discoveryConfig", discoveryConfig);
+        required(errors, "clientStore", clientStore);
+        // TODO only authorization_code grant supported
+        required(errors, "authorizationCodeService", authorizationCodeService);
+        required(errors, "accessTokenService", accessTokenService);
+        // TODO only refresh grant supported
+        required(errors, "refreshTokenService", refreshTokenService);
+        required(errors, "scopeAudienceMapper", refreshTokenService);
+        required(errors, "userPasswordVerifier", userPasswordVerifier);
+        if (!errors.isEmpty()) {
+            var joiner = new StringJoiner("\n");
+            errors.forEach(msg -> joiner.add(msg));
+            throw new AssertionError(joiner.toString());
+        }
+
+        var config =
+                new AzIdPConfig(
+                        issuer,
+                        scopesSupported,
+                        defaultScopes,
+                        accessTokenExpiration,
+                        authorizationCodeExpiration,
+                        refreshTokenExpiration,
+                        idTokenExpiration);
+        return new AzIdP(
+                config,
+                discoveryConfig,
+                jwkSet,
+                clientStore,
+                clientValidator,
+                authorizationCodeService,
+                accessTokenService,
+                refreshTokenService,
+                scopeAudienceMapper,
+                userPasswordVerifier);
+    }
+
+    public List<String> required(List<String> errors, String name, Object value) {
+        if (value == null) {
+            errors.add(name + " is required.");
+        }
+        return errors;
+    }
+
+    public AzIdP buildOIDC() {
         // TODO validate
         var config =
                 new AzIdPConfig(
@@ -148,12 +224,13 @@ public class AzIdPBuilder {
         return new AzIdP(
                 config,
                 discoveryConfig,
-                null,
+                jwkSet,
                 clientStore,
                 clientValidator,
                 authorizationCodeService,
                 accessTokenService,
                 refreshTokenService,
-                scopeAudienceMapper);
+                scopeAudienceMapper,
+                userPasswordVerifier);
     }
 }
