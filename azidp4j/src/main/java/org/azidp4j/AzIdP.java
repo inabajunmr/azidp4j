@@ -43,6 +43,11 @@ public class AzIdP {
         return new AzIdPBuilder();
     }
 
+    public static AzIdPBuilder initInMemory() {
+        // TODO
+        return new AzIdPBuilder();
+    }
+
     // TODO private
     public AzIdP(
             AzIdPConfig azIdPConfig,

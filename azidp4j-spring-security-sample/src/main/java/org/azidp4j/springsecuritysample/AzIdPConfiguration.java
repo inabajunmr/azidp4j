@@ -15,6 +15,7 @@ import java.util.Set;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.client.ClientStore;
+import org.azidp4j.client.GrantType;
 import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.scope.ScopeAudienceMapper;
@@ -37,6 +38,12 @@ public class AzIdPConfiguration {
                 endpoint,
                 Set.of("openid", "scope1", "scope2", "default"),
                 Set.of("openid", "scope1"),
+                Set.of(
+                        GrantType.authorization_code,
+                        GrantType.implicit,
+                        GrantType.password,
+                        GrantType.client_credentials,
+                        GrantType.refresh_token),
                 Duration.ofSeconds(3600),
                 Duration.ofSeconds(600),
                 Duration.ofSeconds(604800),
@@ -79,6 +86,13 @@ public class AzIdPConfiguration {
                         .jwkSet(jwkSet)
                         .scopesSupported(Set.of("openid", "scope1", "scope2", "default"))
                         .defaultScopes(Set.of("openid", "scope1"))
+                        .grantTypesSupported(
+                                Set.of(
+                                        GrantType.authorization_code,
+                                        GrantType.implicit,
+                                        GrantType.password,
+                                        GrantType.client_credentials,
+                                        GrantType.refresh_token))
                         .customClientStore(clientStore)
                         .customClientValidator(new ClientValidator())
                         .customAuthorizationCodeService(authorizationCodeService)

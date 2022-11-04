@@ -63,6 +63,7 @@ class AuthorizeTest_None {
                         "http://localhost:8080",
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
+                        Set.of(GrantType.authorization_code),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),

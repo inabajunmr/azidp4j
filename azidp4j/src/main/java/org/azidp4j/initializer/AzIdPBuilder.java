@@ -13,6 +13,7 @@ import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCod
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.ClientValidator;
+import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.scope.ScopeAudienceMapper;
@@ -34,6 +35,8 @@ public class AzIdPBuilder {
     private Duration accessTokenExpiration = Duration.ofMinutes(10);
     private Duration idTokenExpiration = Duration.ofMinutes(10);
     private Duration refreshTokenExpiration = Duration.ofDays(1);
+    private Set<GrantType> grantTypesSupported =
+            Set.of(GrantType.authorization_code, GrantType.implicit);
     private ClientStore clientStore = null;
     private ClientValidator clientValidator = null;
     private AuthorizationCodeService authorizationCodeService = null;
@@ -80,6 +83,11 @@ public class AzIdPBuilder {
 
     public AzIdPBuilder refreshTokenExpiration(Duration expiration) {
         this.refreshTokenExpiration = expiration;
+        return this;
+    }
+
+    public AzIdPBuilder grantTypesSupported(Set<GrantType> grantTypesSupported) {
+        this.grantTypesSupported = grantTypesSupported;
         return this;
     }
 
@@ -158,7 +166,7 @@ public class AzIdPBuilder {
     }
 
     public AzIdP buildOAuth2() {
-        // TODO validate
+        // validate
         List<String> errors = new ArrayList<>();
         required(errors, "issuer", issuer);
         required(errors, "scopesSupported", scopesSupported);
@@ -168,13 +176,18 @@ public class AzIdPBuilder {
         required(errors, "refreshTokenExpiration", refreshTokenExpiration);
         required(errors, "discoveryConfig", discoveryConfig);
         required(errors, "clientStore", clientStore);
-        // TODO only authorization_code grant supported
-        required(errors, "authorizationCodeService", authorizationCodeService);
+        if (grantTypesSupported.contains(GrantType.authorization_code)) {
+            required(errors, "authorizationCodeService", authorizationCodeService);
+        }
         required(errors, "accessTokenService", accessTokenService);
-        // TODO only refresh grant supported
-        required(errors, "refreshTokenService", refreshTokenService);
-        required(errors, "scopeAudienceMapper", refreshTokenService);
-        required(errors, "userPasswordVerifier", userPasswordVerifier);
+        if (grantTypesSupported.contains(GrantType.refresh_token)) {
+            required(errors, "refreshTokenService", refreshTokenService);
+        }
+        required(errors, "scopeAudienceMapper", scopeAudienceMapper);
+        if (grantTypesSupported.contains(GrantType.password)) {
+            required(errors, "userPasswordVerifier", userPasswordVerifier);
+        }
+
         if (!errors.isEmpty()) {
             var joiner = new StringJoiner("\n");
             errors.forEach(msg -> joiner.add(msg));
@@ -186,6 +199,7 @@ public class AzIdPBuilder {
                         issuer,
                         scopesSupported,
                         defaultScopes,
+                        grantTypesSupported,
                         accessTokenExpiration,
                         authorizationCodeExpiration,
                         refreshTokenExpiration,
@@ -217,6 +231,7 @@ public class AzIdPBuilder {
                         issuer,
                         scopesSupported,
                         defaultScopes,
+                        grantTypesSupported,
                         accessTokenExpiration,
                         authorizationCodeExpiration,
                         refreshTokenExpiration,

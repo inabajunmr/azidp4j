@@ -22,6 +22,7 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.ClientStore;
+import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.jwt.JWSIssuer;
@@ -50,6 +51,7 @@ public class SampleAz {
                         "http://localhost:8080",
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
+                        Set.of(GrantType.authorization_code, GrantType.implicit, GrantType.password, GrantType.client_credentials, GrantType.refresh_token),
                         Duration.ofSeconds(3600), Duration.ofSeconds(600), Duration.ofSeconds(604800), Duration.ofSeconds(3600));
         var discoveryConfig = DiscoveryConfig.builder()
                 .authorizationEndpoint("http://localhost:8080/authorize")

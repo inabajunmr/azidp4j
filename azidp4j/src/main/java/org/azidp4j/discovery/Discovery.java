@@ -44,13 +44,8 @@ public class Discovery {
                         "code id_token token"),
                 "response_modes_supported", // default is query and fragment
                 Set.of("query", "fragment"),
-                "grant_types_supported", // default is ["authorization_code", "implicit"]
-                Set.of(
-                        "authorization_code",
-                        "implicit",
-                        "password",
-                        "client_credentials",
-                        "refresh_token"),
+                "grant_types_supported",
+                config.grantTypesSupported,
                 // "acr_values_supported", null,
                 "subject_types_supported",
                 Set.of("public"),

@@ -15,6 +15,12 @@ public class Fixtures {
                 "http://localhost:8080",
                 Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
                 Set.of("openid", "rs:scope1"),
+                Set.of(
+                        GrantType.authorization_code,
+                        GrantType.implicit,
+                        GrantType.password,
+                        GrantType.client_credentials,
+                        GrantType.refresh_token),
                 Duration.ofSeconds(3600),
                 Duration.ofSeconds(600),
                 Duration.ofSeconds(604800),

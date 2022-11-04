@@ -28,6 +28,11 @@ public class InternalClientValidator {
             }
         }
 
+        if (!config.grantTypesSupported.containsAll(client.grantTypes)) {
+            // TODO test
+            throw new IllegalArgumentException("unsupported grant types.");
+        }
+
         if (config.scopesSupported != null && client.scope != null) {
             if (!config.scopesSupported.containsAll(
                     Arrays.stream(client.scope.split(" ")).toList())) {
