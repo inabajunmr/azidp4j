@@ -45,7 +45,7 @@ public class IDTokenIssuer {
                         "aud",
                         clientId,
                         "exp",
-                        Instant.now().getEpochSecond() + config.idTokenExpirationSec,
+                        Instant.now().getEpochSecond() + config.idTokenExpiration.toSeconds(),
                         "iat",
                         Instant.now().getEpochSecond(),
                         "jti",

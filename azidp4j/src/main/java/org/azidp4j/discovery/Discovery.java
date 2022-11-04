@@ -10,24 +10,27 @@ public class Discovery {
 
     private final AzIdPConfig config;
 
-    public Discovery(AzIdPConfig config) {
+    private final DiscoveryConfig discoveryConfig;
+
+    public Discovery(AzIdPConfig config, DiscoveryConfig discoveryConfig) {
         this.config = config;
+        this.discoveryConfig = discoveryConfig;
     }
 
     public Map<String, Object> metadata() {
         return MapUtil.nullRemovedMap(
                 "issuer",
-                config.issuer,
+                config.issuer, // TODO validate (no fragment and query)
                 "authorization_endpoint",
-                config.authorizationEndpoint,
+                discoveryConfig.authorizationEndpoint,
                 "token_endpoint",
-                config.tokenEndpoint,
+                discoveryConfig.tokenEndpoint,
                 "userinfo_endpoint",
-                config.userInfoEndpoint,
+                discoveryConfig.userInfoEndpoint,
                 "jwks_uri",
-                config.jwksEndpoint,
+                discoveryConfig.jwksEndpoint,
                 "registration_endpoint",
-                config.clientRegistrationEndpoint,
+                discoveryConfig.clientRegistrationEndpoint,
                 "scopes_supported",
                 config.scopesSupported,
                 "response_types_supported",
@@ -39,9 +42,9 @@ public class Discovery {
                         "code id_token",
                         "id_token token",
                         "code id_token token"),
-                "response_modes_supported",
+                "response_modes_supported", // default is query and fragment
                 Set.of("query", "fragment"),
-                "grant_types_supported",
+                "grant_types_supported", // default is ["authorization_code", "implicit"]
                 Set.of(
                         "authorization_code",
                         "implicit",
@@ -70,9 +73,12 @@ public class Discovery {
                 "request_object_encryption_enc_values_supported",
                 Set.of(),
                 "token_endpoint_auth_methods_supported",
-                Set.of("client_secret_basic", "client_secret_post", "none"),
+                Set.of(
+                        "client_secret_basic",
+                        "client_secret_post",
+                        "none"), // default is client_secret_basic
                 "token_endpoint_auth_signing_alg_values_supported",
-                Set.of(),
+                Set.of(), // if jwt authentication is used, the value is required.
                 // "display_values_supported", null,
                 // "claim_types_supported",  null,
                 // "claims_supported", null,

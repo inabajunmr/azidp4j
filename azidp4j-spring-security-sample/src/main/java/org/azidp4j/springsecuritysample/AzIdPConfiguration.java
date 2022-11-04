@@ -8,6 +8,7 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +16,7 @@ import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.request.ClientRequest;
+import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenService;
@@ -33,18 +35,12 @@ public class AzIdPConfiguration {
     public org.azidp4j.AzIdPConfig azIdPConfig(JWKSet jwkSet) {
         return new org.azidp4j.AzIdPConfig(
                 endpoint,
-                endpoint + "/authorize",
-                endpoint + "/token",
-                endpoint + "/.well-known/jwks.json",
-                endpoint + "/client",
-                endpoint + "/client/{CLIENT_ID}",
-                endpoint + "/userinfo",
                 Set.of("openid", "scope1", "scope2", "default"),
                 Set.of("openid", "scope1"),
-                3600,
-                600,
-                604800,
-                3600);
+                Duration.ofSeconds(3600),
+                Duration.ofSeconds(600),
+                Duration.ofSeconds(604800),
+                Duration.ofSeconds(3600));
     }
 
     @Bean
@@ -56,20 +52,23 @@ public class AzIdPConfiguration {
             RefreshTokenService refreshTokenService) {
         var key = jwkSet.getKeys().get(0);
         var config =
-                new org.azidp4j.AzIdPConfig(
+                new org.azidp4j.AzIdPConfig( // TODO already bean defined
                         endpoint,
-                        endpoint + "/authorize",
-                        endpoint + "/token",
-                        endpoint + "/.well-known/jwks.json",
-                        endpoint + "/client",
-                        endpoint + "/client/{CLIENT_ID}",
-                        endpoint + "/userinfo",
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
-                        3600,
-                        600,
-                        604800,
-                        3600);
+                        Duration.ofSeconds(3600),
+                        Duration.ofSeconds(600),
+                        Duration.ofSeconds(604800),
+                        Duration.ofSeconds(3600));
+        var discoveryConfig =
+                DiscoveryConfig.builder()
+                        .authorizationEndpoint(endpoint + "/authorize")
+                        .tokenEndpoint(endpoint + "/token")
+                        .jwksEndpoint(endpoint + "/.well-known/jwks.json")
+                        .clientRegistrationEndpoint(endpoint + "/client")
+                        .clientConfigurationEndpointPattern(endpoint + "/client/{CLIENT_ID}")
+                        .userInfoEndpoint(endpoint + "/userinfo")
+                        .build();
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -86,6 +85,7 @@ public class AzIdPConfiguration {
         var azIdp =
                 new AzIdP(
                         config,
+                        discoveryConfig,
                         jwkSet,
                         clientStore,
                         new ClientValidator(),

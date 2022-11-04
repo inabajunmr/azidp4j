@@ -9,6 +9,7 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.sun.net.httpserver.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -22,6 +23,7 @@ import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCod
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenService;
@@ -46,15 +48,16 @@ public class SampleAz {
         var config =
                 new AzIdPConfig(
                         "http://localhost:8080",
-                        "http://localhost:8080/authorize",
-                        "http://localhost:8080/token",
-                        "http://localhost:8080/jwks",
-                        "http://localhost:8080/client",
-                        "http://localhost:8080/client/{CLIENT_ID}",
-                        "http://localhost:8080/userinfo",
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
-                        3600, 600, 604800, 3600);
+                        Duration.ofSeconds(3600), Duration.ofSeconds(600), Duration.ofSeconds(604800), Duration.ofSeconds(3600));
+        var discoveryConfig = DiscoveryConfig.builder()
+                .authorizationEndpoint("http://localhost:8080/authorize")
+                .tokenEndpoint("http://localhost:8080/token")
+                .jwksEndpoint("http://localhost:8080/jwks")
+                .clientRegistrationEndpoint("http://localhost:8080/client")
+                .clientConfigurationEndpointPattern("http://localhost:8080/client/{CLIENT_ID}")
+                .userInfoEndpoint("http://localhost:8080/userinfo").build();
         clientStore = new InMemoryClientStore();
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
@@ -77,6 +80,7 @@ public class SampleAz {
         azIdP =
                 new AzIdP(
                         config,
+                        discoveryConfig,
                         jwks,
                         clientStore,
                         null,

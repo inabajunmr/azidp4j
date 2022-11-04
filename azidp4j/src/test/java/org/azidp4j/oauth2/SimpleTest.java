@@ -48,6 +48,7 @@ public class SimpleTest {
         var sut =
                 new AzIdP(
                         config,
+                        Fixtures.discoveryConfig(),
                         jwks,
                         new InMemoryClientStore(),
                         null,

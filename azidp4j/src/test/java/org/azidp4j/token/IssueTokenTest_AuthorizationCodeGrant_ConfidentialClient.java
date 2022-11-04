@@ -229,7 +229,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
-        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("expires_in"), 3600L);
         assertTrue(response.body.containsKey("refresh_token"));
     }
 
@@ -274,7 +274,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 "rs:scope1 openid",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
-        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("expires_in"), 3600L);
         assertTrue(response.body.containsKey("refresh_token"));
         IdTokenAssert.assertIdTokenES256(
                 (String) response.body.get("id_token"),
@@ -332,9 +332,9 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 "rs:scope1 openid",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
-        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("expires_in"), 3600L);
         assertEquals(response.body.get("token_type"), "bearer");
-        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("expires_in"), 3600L);
         assertTrue(response.body.containsKey("refresh_token"));
         IdTokenAssert.assertIdTokenES256(
                 (String) response.body.get("id_token"),
@@ -392,9 +392,9 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 "rs:scope1 openid",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
-        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("expires_in"), 3600L);
         assertEquals(response.body.get("token_type"), "bearer");
-        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("expires_in"), 3600L);
         assertTrue(response.body.containsKey("refresh_token"));
         IdTokenAssert.assertIdTokenRS256(
                 (String) response.body.get("id_token"),
@@ -451,9 +451,9 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 "rs:scope1 openid",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
-        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("expires_in"), 3600L);
         assertEquals(response.body.get("token_type"), "bearer");
-        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("expires_in"), 3600L);
         assertTrue(response.body.containsKey("refresh_token"));
         IdTokenAssert.assertIdTokenNone(
                 (String) response.body.get("id_token"),

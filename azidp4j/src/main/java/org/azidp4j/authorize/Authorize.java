@@ -310,13 +310,14 @@ public class Authorize {
                             authorizationRequest.authenticatedUserId,
                             scope,
                             authorizationRequest.clientId,
-                            Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                            Instant.now().getEpochSecond()
+                                    + config.accessTokenExpiration.toSeconds(),
                             Instant.now().getEpochSecond(),
                             scopeAudienceMapper.map(scope),
                             null);
             accessToken = at.getToken();
             tokenType = "bearer";
-            expiresIn = String.valueOf(config.accessTokenExpirationSec);
+            expiresIn = String.valueOf(config.accessTokenExpiration.getSeconds());
         }
 
         String authorizationCode = null;
@@ -333,7 +334,8 @@ public class Authorize {
                             authorizationRequest.nonce,
                             authorizationRequest.codeChallenge,
                             codeChallengeMethod,
-                            Instant.now().getEpochSecond() + config.authorizationCodeExpirationSec);
+                            Instant.now().getEpochSecond()
+                                    + config.authorizationCodeExpiration.toSeconds());
             authorizationCode = code.code;
         }
 
