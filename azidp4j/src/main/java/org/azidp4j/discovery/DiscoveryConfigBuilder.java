@@ -7,7 +7,6 @@ public class DiscoveryConfigBuilder {
     private String jwksEndpoint;
     private String clientRegistrationEndpoint;
     private String clientConfigurationEndpointPattern;
-
     private String userInfoEndpoint;
 
     public DiscoveryConfigBuilder authorizationEndpoint(String authorizationEndpoint) {

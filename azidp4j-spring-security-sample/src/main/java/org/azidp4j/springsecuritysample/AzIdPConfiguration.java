@@ -8,7 +8,6 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,24 +30,6 @@ public class AzIdPConfiguration {
 
     @Value("${endpoint}")
     private String endpoint;
-
-    @Bean
-    public org.azidp4j.AzIdPConfig azIdPConfig(JWKSet jwkSet) {
-        return new org.azidp4j.AzIdPConfig(
-                endpoint,
-                Set.of("openid", "scope1", "scope2", "default"),
-                Set.of("openid", "scope1"),
-                Set.of(
-                        GrantType.authorization_code,
-                        GrantType.implicit,
-                        GrantType.password,
-                        GrantType.client_credentials,
-                        GrantType.refresh_token),
-                Duration.ofSeconds(3600),
-                Duration.ofSeconds(600),
-                Duration.ofSeconds(604800),
-                Duration.ofSeconds(3600));
-    }
 
     @Bean
     public AzIdP azIdP(
