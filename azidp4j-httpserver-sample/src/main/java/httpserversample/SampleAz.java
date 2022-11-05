@@ -63,7 +63,7 @@ public class SampleAz {
         accessTokenService = new JwtAccessTokenService(jwks, "http://localhost:8080", es256::getKeyID);
         // accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore() );
 
-        var refreshTokenService = new JwtRefreshTokenService(jwks, new JWSIssuer(jwks), "http://localhost:8080", es256::getKeyID);
+        var refreshTokenService = new JwtRefreshTokenService(jwks, "http://localhost:8080", es256::getKeyID);
         // var refreshTokenService = new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore());
 
         azIdP = AzIdP.initInMemory()

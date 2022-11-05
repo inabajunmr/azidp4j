@@ -20,7 +20,6 @@ import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.jwt.JwtAuthorizationCodeService;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.GrantType;
-import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
@@ -60,8 +59,7 @@ public class IntegrationTest_Jwt {
         @Bean
         @Primary
         public RefreshTokenService refreshTokenService(AzIdPConfig config) {
-            return new JwtRefreshTokenService(
-                    jwkSet, new JWSIssuer(jwkSet), config.issuer, () -> "123");
+            return new JwtRefreshTokenService(jwkSet, config.issuer, () -> "123");
         }
 
         @Bean

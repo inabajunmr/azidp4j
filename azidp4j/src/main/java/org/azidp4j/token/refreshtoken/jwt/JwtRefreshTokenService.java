@@ -23,10 +23,9 @@ public class JwtRefreshTokenService implements RefreshTokenService {
     private final String issuer;
     private final Supplier<String> kidSupplier;
 
-    public JwtRefreshTokenService(
-            JWKSet jwkSet, JWSIssuer jwsIssuer, String issuer, Supplier<String> kidSupplier) {
+    public JwtRefreshTokenService(JWKSet jwkSet, String issuer, Supplier<String> kidSupplier) {
         this.jwkSet = jwkSet;
-        this.jwsIssuer = jwsIssuer;
+        this.jwsIssuer = new JWSIssuer(jwkSet);
         this.issuer = issuer;
         this.kidSupplier = kidSupplier;
     }
