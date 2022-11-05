@@ -46,13 +46,6 @@ public class SampleAz {
         var rs256 = new RSAKeyGenerator(2048).keyID("abc").algorithm(new Algorithm("RS256")).generate();
         var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").algorithm(new Algorithm("ES256")).generate();
         jwks = new JWKSet(List.of(rs256,es256));
-        var config =
-                new AzIdPConfig(
-                        "http://localhost:8080",
-                        Set.of("openid", "scope1", "scope2", "default"),
-                        Set.of("openid", "scope1"),
-                        Set.of(GrantType.authorization_code, GrantType.implicit, GrantType.password, GrantType.client_credentials, GrantType.refresh_token),
-                        Duration.ofSeconds(3600), Duration.ofSeconds(600), Duration.ofSeconds(604800), Duration.ofSeconds(3600));
         var discoveryConfig = DiscoveryConfig.builder()
                 .authorizationEndpoint("http://localhost:8080/authorize")
                 .tokenEndpoint("http://localhost:8080/token")
@@ -73,24 +66,29 @@ public class SampleAz {
                         };
                     }
                 };
-        accessTokenService = new JwtAccessTokenService(jwks, new JWSIssuer(jwks), config.issuer, es256::getKeyID);
+        accessTokenService = new JwtAccessTokenService(jwks, new JWSIssuer(jwks), "http://localhost:8080", es256::getKeyID);
         // accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore() );
 
-        var refreshTokenService = new JwtRefreshTokenService(jwks, new JWSIssuer(jwks), config.issuer, es256::getKeyID);
+        var refreshTokenService = new JwtRefreshTokenService(jwks, new JWSIssuer(jwks), "http://localhost:8080", es256::getKeyID);
         // var refreshTokenService = new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore());
 
-        azIdP =
-                new AzIdP(
-                        config,
-                        discoveryConfig,
-                        jwks,
-                        clientStore,
-                        null,
-                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
-                        accessTokenService,
-                        refreshTokenService,
-                        new SampleScopeAudienceMapper(),
-                        userPasswordVerifier);
+        azIdP = AzIdP.initInMemory()
+                .issuer("http://localhost:8080")
+                .jwkSet(jwks)
+                .grantTypesSupported(
+                        Set.of(
+                                GrantType.authorization_code,
+                                GrantType.implicit,
+                                GrantType.refresh_token,
+                                GrantType.password,
+                                GrantType.client_credentials))
+                .scopesSupported(Set.of("openid", "scope1", "scope2", "scope3", "default"))
+                .defaultScopes(Set.of("openid", "scope1"))
+                .customClientStore(clientStore)
+                .customAccessTokenService(accessTokenService)
+                .discovery(discoveryConfig)
+                .customScopeAudienceMapper(new SampleScopeAudienceMapper())
+                .userPasswordVerifier(userPasswordVerifier).buildOAuth2();
     }
 
     public void start(int port) throws IOException {

@@ -7,8 +7,26 @@ import java.util.Set;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
 import org.azidp4j.discovery.DiscoveryConfig;
+import org.azidp4j.scope.SampleScopeAudienceMapper;
 
 public class Fixtures {
+
+    public static AzIdPBuilder azIdPBuilder() {
+        return AzIdP.initInMemory()
+                .issuer("http://localhost:8080")
+                .grantTypesSupported(
+                        Set.of(
+                                GrantType.authorization_code,
+                                GrantType.implicit,
+                                GrantType.refresh_token,
+                                GrantType.password,
+                                GrantType.client_credentials))
+                .scopesSupported(Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"))
+                .defaultScopes(Set.of("openid", "rs:scope1"))
+                .discovery(Fixtures.discoveryConfig())
+                .customScopeAudienceMapper(new SampleScopeAudienceMapper())
+                .userPasswordVerifier((username, password) -> true);
+    }
 
     public static AzIdPConfig azIdPConfig(String kid) {
         return new AzIdPConfig(

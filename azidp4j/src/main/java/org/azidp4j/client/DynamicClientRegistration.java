@@ -154,7 +154,7 @@ public class DynamicClientRegistration {
                         client.clientId,
                         Instant.now().getEpochSecond() + config.accessTokenExpiration.toSeconds(),
                         Instant.now().getEpochSecond(),
-                        Set.of(config.issuer),
+                        Set.of(config.issuer), // TODO access token service should have issuer?
                         null);
         var res =
                 MapUtil.nullRemovedMap(

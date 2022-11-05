@@ -13,7 +13,6 @@ import org.azidp4j.client.response.ClientDeleteResponse;
 import org.azidp4j.client.response.ClientRegistrationResponse;
 import org.azidp4j.discovery.Discovery;
 import org.azidp4j.discovery.DiscoveryConfig;
-import org.azidp4j.initializer.AzIdPBuilder;
 import org.azidp4j.introspection.Introspect;
 import org.azidp4j.introspection.request.IntrospectionRequest;
 import org.azidp4j.introspection.response.IntrospectionResponse;
@@ -44,53 +43,20 @@ public class AzIdP {
     }
 
     public static AzIdPBuilder initInMemory() {
+        return new AzIdPBuilder()
+                .inMemoryClientStore()
+                .inMemoryAuthorizationCodeService()
+                .inMemoryAccessTokenService()
+                .inMemoryRefreshTokenService()
+                .inMemoryAuthorizationCodeService();
+    }
+
+    public static AzIdPBuilder initJwt() {
         // TODO
-        return new AzIdPBuilder();
+        return null;
     }
 
-    // TODO private
-    public AzIdP(
-            AzIdPConfig azIdPConfig,
-            DiscoveryConfig discoveryConfig,
-            JWKSet jwkSet,
-            ClientStore clientStore,
-            ClientValidator clientValidator,
-            AuthorizationCodeService authorizationCodeService,
-            AccessTokenService accessTokenService,
-            RefreshTokenService refreshTokenService,
-            ScopeAudienceMapper scopeAudienceMapper) {
-        this.discovery = new Discovery(azIdPConfig, discoveryConfig);
-        var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
-        this.authorize =
-                new Authorize(
-                        clientStore,
-                        authorizationCodeService,
-                        scopeAudienceMapper,
-                        accessTokenService,
-                        idTokenIssuer,
-                        azIdPConfig);
-        this.issueToken =
-                new IssueToken(
-                        azIdPConfig,
-                        authorizationCodeService,
-                        accessTokenService,
-                        idTokenIssuer,
-                        refreshTokenService,
-                        scopeAudienceMapper,
-                        null,
-                        clientStore);
-        this.clientRegistration =
-                new DynamicClientRegistration(
-                        azIdPConfig,
-                        discoveryConfig,
-                        clientStore,
-                        clientValidator,
-                        accessTokenService);
-        this.introspect = new Introspect(accessTokenService, refreshTokenService, azIdPConfig);
-        this.revocation = new Revocation(accessTokenService, refreshTokenService, clientStore);
-    }
-
-    public AzIdP(
+    protected AzIdP(
             AzIdPConfig azIdPConfig,
             DiscoveryConfig discoveryConfig,
             JWKSet jwkSet,

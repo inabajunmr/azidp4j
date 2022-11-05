@@ -1,4 +1,4 @@
-package org.azidp4j.initializer;
+package org.azidp4j;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import java.time.Duration;
@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
-import org.azidp4j.AzIdP;
-import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
