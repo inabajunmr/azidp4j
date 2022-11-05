@@ -13,6 +13,7 @@ import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.authorizationcode.jwt.JwtAuthorizationCodeService;
+import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.ClientValidator;
 import org.azidp4j.client.GrantType;
@@ -41,6 +42,8 @@ public class AzIdPBuilder {
     private Duration refreshTokenExpiration = Duration.ofDays(1);
     private Set<GrantType> grantTypesSupported =
             Set.of(GrantType.authorization_code, GrantType.implicit);
+    private Set<ResponseMode> responseModesSupported =
+            Set.of(ResponseMode.query, ResponseMode.fragment);
     private ClientStore clientStore = null;
     private ClientValidator clientValidator = null;
     private AuthorizationCodeService authorizationCodeService = null;
@@ -98,6 +101,11 @@ public class AzIdPBuilder {
 
     public AzIdPBuilder grantTypesSupported(Set<GrantType> grantTypesSupported) {
         this.grantTypesSupported = grantTypesSupported;
+        return this;
+    }
+
+    public AzIdPBuilder responseModesSupported(Set<ResponseMode> responseModesSupported) {
+        this.responseModesSupported = responseModesSupported;
         return this;
     }
 
@@ -197,11 +205,21 @@ public class AzIdPBuilder {
         required(errors, "authorizationCodeExpiration", authorizationCodeExpiration);
         required(errors, "refreshTokenExpiration", refreshTokenExpiration);
         required(errors, "grantTypesSupported", grantTypesSupported);
+        required(errors, "responseModesSupported", responseModesSupported);
         required(errors, "discoveryConfig", discoveryConfig);
         required(errors, "clientStore", clientStore);
         required(errors, "scopeAudienceMapper", scopeAudienceMapper);
         if (grantTypesSupported != null && grantTypesSupported.contains(GrantType.password)) {
             required(errors, "userPasswordVerifier", userPasswordVerifier);
+        }
+        if (grantTypesSupported != null
+                && (grantTypesSupported.contains(GrantType.authorization_code)
+                        || grantTypesSupported.contains(GrantType.implicit))) {
+            if (responseModesSupported != null && responseModesSupported.size() == 0) {
+                // TODO grant type との兼ね合いがまだあるかも
+                // implicit だったら fragment 必須とか
+                errors.add("responseModesSupported is required");
+            }
         }
         if (scopesSupported != null && scopesSupported.contains("openid")) {
             required(errors, "jwkSet", jwkSet);
@@ -232,6 +250,7 @@ public class AzIdPBuilder {
                         scopesSupported,
                         defaultScopes,
                         grantTypesSupported,
+                        responseModesSupported,
                         accessTokenExpiration,
                         authorizationCodeExpiration,
                         refreshTokenExpiration,
@@ -284,6 +303,7 @@ public class AzIdPBuilder {
             var uri = new URI(issuer);
             if (!uri.isAbsolute()) {
                 errors.add("issuer isn't correct format.");
+                return;
             }
             if (!uri.getScheme().equals("https") && !uri.getHost().equals("localhost")) {
                 errors.add("issuer must be https.");

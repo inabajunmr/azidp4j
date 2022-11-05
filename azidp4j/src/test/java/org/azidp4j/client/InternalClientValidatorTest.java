@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
+import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.junit.jupiter.api.Test;
 
@@ -29,6 +30,7 @@ class InternalClientValidatorTest {
                                 // GrantType.password, // target
                                 GrantType.client_credentials,
                                 GrantType.refresh_token),
+                        Set.of(ResponseMode.query, ResponseMode.fragment),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),

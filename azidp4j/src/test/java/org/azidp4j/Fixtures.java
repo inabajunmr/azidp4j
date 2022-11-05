@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import java.text.ParseException;
 import java.time.Duration;
 import java.util.Set;
+import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
 import org.azidp4j.discovery.DiscoveryConfig;
@@ -40,6 +41,7 @@ public class Fixtures {
                         GrantType.password,
                         GrantType.client_credentials,
                         GrantType.refresh_token),
+                Set.of(ResponseMode.query, ResponseMode.fragment),
                 Duration.ofSeconds(3600),
                 Duration.ofSeconds(600),
                 Duration.ofSeconds(604800),

@@ -42,8 +42,8 @@ public class Discovery {
                         "code id_token",
                         "id_token token",
                         "code id_token token"),
-                "response_modes_supported", // default is query and fragment
-                Set.of("query", "fragment"),
+                "response_modes_supported",
+                config.responseModesSupported,
                 "grant_types_supported",
                 config.grantTypesSupported,
                 // "acr_values_supported", null,

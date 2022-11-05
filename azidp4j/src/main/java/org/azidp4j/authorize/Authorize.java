@@ -66,6 +66,10 @@ public class Authorize {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_mode);
         }
+        if (!config.responseModesSupported.contains(responseMode)) {
+            return AuthorizationResponse.errorPage(
+                    AuthorizationErrorTypeWithoutRedirect.unsupported_response_mode);
+        }
 
         // validate client
         if (authorizationRequest.clientId == null) {

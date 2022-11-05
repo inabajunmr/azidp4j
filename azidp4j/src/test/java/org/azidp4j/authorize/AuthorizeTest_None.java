@@ -16,6 +16,7 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
+import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
@@ -64,6 +65,7 @@ class AuthorizeTest_None {
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
                         Set.of(GrantType.authorization_code),
+                        Set.of(ResponseMode.query, ResponseMode.fragment),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
