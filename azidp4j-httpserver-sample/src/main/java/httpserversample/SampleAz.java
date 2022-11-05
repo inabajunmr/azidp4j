@@ -86,7 +86,7 @@ public class SampleAz {
         server.createContext("/jwks", new JWKsEndpointHandler(jwks));
         server.createContext("/discovery", new DiscoveryHandler(azIdP));
         server.createContext("/client", new DynamicClientRegistrationHandler(azIdP))
-                .setAuthenticator(new InnerAccessTokenAuthenticator(accessTokenService));
+                .setAuthenticator(new InnerAccessTokenAuthenticator(accessTokenService)); // TODO introspect via azidp4j
         server.createContext("/login", new LoginHandler());
         server.createContext("/consent", new ConsentHandler());
         ExecutorService pool = Executors.newFixedThreadPool(1);

@@ -223,7 +223,7 @@ public class AzIdPBuilder {
         if (!errors.isEmpty()) {
             var joiner = new StringJoiner("\n");
             errors.forEach(msg -> joiner.add(msg));
-            throw new AssertionError(joiner.toString());
+            throw new IllegalArgumentException(joiner.toString());
         }
 
         var config =
@@ -275,7 +275,6 @@ public class AzIdPBuilder {
      * identical to the iss Claim value in ID Tokens issued from this Issuer.
      */
     private void validateIssuer(List<String> errors, String issuer) {
-        // TODO test
         required(errors, "issuer", issuer);
         if (issuer == null) {
             return;

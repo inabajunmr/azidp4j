@@ -38,7 +38,6 @@ public class AzIdPConfiguration {
             AuthorizationCodeService authorizationCodeService,
             AccessTokenService accessTokenService,
             RefreshTokenService refreshTokenService) {
-        var key = jwkSet.getKeys().get(0);
         ScopeAudienceMapper scopeAudienceMapper = scope -> Set.of("rs.example.com");
         var discoveryConfig =
                 DiscoveryConfig.builder()
@@ -76,7 +75,8 @@ public class AzIdPConfiguration {
                                         GrantType.refresh_token))
                         .customClientStore(clientStore)
                         .customClientValidator(new ClientValidator())
-                        .customAuthorizationCodeService(authorizationCodeService)
+                        .customAuthorizationCodeService(
+                                authorizationCodeService) // TODO inMemory interface
                         .customScopeAudienceMapper(scopeAudienceMapper)
                         .customAccessTokenService(accessTokenService)
                         .customRefreshTokenService(refreshTokenService)
