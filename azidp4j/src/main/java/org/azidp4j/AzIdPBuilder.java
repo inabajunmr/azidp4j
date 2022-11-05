@@ -123,7 +123,6 @@ public class AzIdPBuilder {
     public AzIdPBuilder jwtAuthorizationCodeService(Supplier<String> kidSupplier) {
         this.authorizationCodeServiceKidSupplier = kidSupplier;
         this.isJwtAuthorizationCodeService = true;
-        // TODO other jwt services
         return this;
     }
 
