@@ -20,7 +20,7 @@ public class Discovery {
     public Map<String, Object> metadata() {
         return MapUtil.nullRemovedMap(
                 "issuer",
-                config.issuer, // TODO validate (no fragment and query)
+                config.issuer,
                 "authorization_endpoint",
                 discoveryConfig.authorizationEndpoint,
                 "token_endpoint",

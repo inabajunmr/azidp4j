@@ -1,6 +1,8 @@
 package org.azidp4j;
 
 import com.nimbusds.jose.jwk.JWKSet;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -188,37 +190,25 @@ public class AzIdPBuilder {
 
         // validate
         List<String> errors = new ArrayList<>();
-        required(errors, "issuer", issuer);
+        validateIssuer(errors, issuer);
         required(errors, "scopesSupported", scopesSupported);
         required(errors, "defaultScopes", defaultScopes);
         required(errors, "accessTokenExpiration", accessTokenExpiration);
         required(errors, "authorizationCodeExpiration", authorizationCodeExpiration);
         required(errors, "refreshTokenExpiration", refreshTokenExpiration);
+        required(errors, "grantTypesSupported", grantTypesSupported);
         required(errors, "discoveryConfig", discoveryConfig);
         required(errors, "clientStore", clientStore);
         required(errors, "scopeAudienceMapper", scopeAudienceMapper);
-        if (grantTypesSupported.contains(GrantType.password)) {
+        if (grantTypesSupported != null && grantTypesSupported.contains(GrantType.password)) {
             required(errors, "userPasswordVerifier", userPasswordVerifier);
         }
-        if (scopesSupported.contains("openid")) {
+        if (scopesSupported != null && scopesSupported.contains("openid")) {
             required(errors, "jwkSet", jwkSet);
             required(errors, "idTokenExpiration", idTokenExpiration);
         }
 
-        // init jwt service
-        if (isJwtAuthorizationCodeService) {
-            this.authorizationCodeService =
-                    new JwtAuthorizationCodeService(
-                            jwkSet, issuer, authorizationCodeServiceKidSupplier);
-        }
-        if (isJwtAccessTokenService) {
-            this.accessTokenService =
-                    new JwtAccessTokenService(jwkSet, issuer, accessTokenServiceKidSupplier);
-        }
-        if (isJwtRefreshTokenService) {
-            this.refreshTokenService =
-                    new JwtRefreshTokenService(jwkSet, issuer, refreshTokenServiceKidSupplier);
-        }
+        constructJwtServices();
 
         // validate
         if (grantTypesSupported.contains(GrantType.authorization_code)) {
@@ -259,7 +249,55 @@ public class AzIdPBuilder {
                 userPasswordVerifier);
     }
 
-    public List<String> required(List<String> errors, String name, Object value) {
+    private void constructJwtServices() {
+        // init jwt service
+        if (isJwtAuthorizationCodeService) {
+            this.authorizationCodeService =
+                    new JwtAuthorizationCodeService(
+                            jwkSet, issuer, authorizationCodeServiceKidSupplier);
+        }
+        if (isJwtAccessTokenService) {
+            this.accessTokenService =
+                    new JwtAccessTokenService(jwkSet, issuer, accessTokenServiceKidSupplier);
+        }
+        if (isJwtRefreshTokenService) {
+            this.refreshTokenService =
+                    new JwtRefreshTokenService(jwkSet, issuer, refreshTokenServiceKidSupplier);
+        }
+    }
+
+    /**
+     * ref. https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
+     *
+     * <p>REQUIRED. URL using the https scheme with no query or fragment component that the OP
+     * asserts as its Issuer Identifier. If Issuer discovery is supported (see Section 2), this
+     * value MUST be identical to the issuer value returned by WebFinger. This also MUST be
+     * identical to the iss Claim value in ID Tokens issued from this Issuer.
+     */
+    private void validateIssuer(List<String> errors, String issuer) {
+        // TODO test
+        required(errors, "issuer", issuer);
+        if (issuer == null) {
+            return;
+        }
+
+        try {
+            var uri = new URI(issuer);
+            if (!uri.isAbsolute()) {
+                errors.add("issuer isn't correct format.");
+            }
+            if (!uri.getScheme().equals("https") && !uri.getHost().equals("localhost")) {
+                errors.add("issuer must be https.");
+            }
+            if (uri.getQuery() != null || uri.getFragment() != null) {
+                errors.add("issuer must be url with no query or fragment.");
+            }
+        } catch (URISyntaxException e) {
+            errors.add(e.getMessage());
+        }
+    }
+
+    private List<String> required(List<String> errors, String name, Object value) {
         if (value == null) {
             errors.add(name + " is required.");
         }
