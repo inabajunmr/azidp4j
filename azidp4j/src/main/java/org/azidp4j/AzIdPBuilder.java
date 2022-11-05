@@ -114,6 +114,7 @@ public class AzIdPBuilder {
         // TODO other jwt services
         // TODO JwtAuthorizationCodeService needs to setup like JWKSet
         // how initialize this?
+
         return this;
     }
 
@@ -163,7 +164,7 @@ public class AzIdPBuilder {
         return this;
     }
 
-    public AzIdP buildOAuth2() {
+    public AzIdP build() {
         // validate
         List<String> errors = new ArrayList<>();
         required(errors, "issuer", issuer);
@@ -185,7 +186,10 @@ public class AzIdPBuilder {
         if (grantTypesSupported.contains(GrantType.password)) {
             required(errors, "userPasswordVerifier", userPasswordVerifier);
         }
-
+        if (scopesSupported.contains("openid")) {
+            required(errors, "jwkSet", jwkSet);
+            required(errors, "idTokenExpiration", idTokenExpiration);
+        }
         if (!errors.isEmpty()) {
             var joiner = new StringJoiner("\n");
             errors.forEach(msg -> joiner.add(msg));
@@ -220,30 +224,5 @@ public class AzIdPBuilder {
             errors.add(name + " is required.");
         }
         return errors;
-    }
-
-    public AzIdP buildOIDC() {
-        // TODO validate
-        var config =
-                new AzIdPConfig(
-                        issuer,
-                        scopesSupported,
-                        defaultScopes,
-                        grantTypesSupported,
-                        accessTokenExpiration,
-                        authorizationCodeExpiration,
-                        refreshTokenExpiration,
-                        idTokenExpiration);
-        return new AzIdP(
-                config,
-                discoveryConfig,
-                jwkSet,
-                clientStore,
-                clientValidator,
-                authorizationCodeService,
-                accessTokenService,
-                refreshTokenService,
-                scopeAudienceMapper,
-                userPasswordVerifier);
     }
 }

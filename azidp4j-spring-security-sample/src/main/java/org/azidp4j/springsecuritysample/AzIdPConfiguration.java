@@ -101,7 +101,7 @@ public class AzIdPConfiguration {
                         .customRefreshTokenService(refreshTokenService)
                         .userPasswordVerifier(userPasswordVerifier)
                         .discovery(discoveryConfig)
-                        .buildOIDC();
+                        .build();
         var clientRegistration =
                 new ClientRequest(
                         Map.of(

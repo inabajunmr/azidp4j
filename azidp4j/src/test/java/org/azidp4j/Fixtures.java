@@ -11,8 +11,9 @@ import org.azidp4j.scope.SampleScopeAudienceMapper;
 
 public class Fixtures {
 
-    public static AzIdPBuilder azIdPBuilder() {
+    public static AzIdPBuilder azIdPBuilder(JWKSet jwkSet) {
         return AzIdP.initInMemory()
+                .jwkSet(jwkSet)
                 .issuer("http://localhost:8080")
                 .grantTypesSupported(
                         Set.of(

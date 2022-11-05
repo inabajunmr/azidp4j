@@ -2,7 +2,7 @@ package org.azidp4j.oauth2;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.nimbusds.jose.*;
+import com.nimbusds.jose.jwk.JWKSet;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
@@ -27,8 +27,8 @@ public class SimpleTest {
      * request(using authorization code) 4. token request(using refresh token)
      */
     @Test
-    void test() throws JOSEException {
-        var sut = Fixtures.azIdPBuilder().buildOAuth2();
+    void test() {
+        var sut = Fixtures.azIdPBuilder(new JWKSet()).build();
 
         // client registration
         var clientRegistrationRequest =

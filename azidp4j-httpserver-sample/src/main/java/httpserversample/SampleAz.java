@@ -9,7 +9,6 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.sun.net.httpserver.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -18,9 +17,6 @@ import java.util.concurrent.Executors;
 import httpserversample.authenticator.InnerAccessTokenAuthenticator;
 import httpserversample.handler.*;
 import org.azidp4j.AzIdP;
-import org.azidp4j.AzIdPConfig;
-import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
-import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
@@ -29,8 +25,6 @@ import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
-import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
-import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
 import org.azidp4j.token.refreshtoken.jwt.JwtRefreshTokenService;
 
 public class SampleAz {
@@ -66,7 +60,7 @@ public class SampleAz {
                         };
                     }
                 };
-        accessTokenService = new JwtAccessTokenService(jwks, new JWSIssuer(jwks), "http://localhost:8080", es256::getKeyID);
+        accessTokenService = new JwtAccessTokenService(jwks, "http://localhost:8080", es256::getKeyID);
         // accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore() );
 
         var refreshTokenService = new JwtRefreshTokenService(jwks, new JWSIssuer(jwks), "http://localhost:8080", es256::getKeyID);
@@ -88,7 +82,7 @@ public class SampleAz {
                 .customAccessTokenService(accessTokenService)
                 .discovery(discoveryConfig)
                 .customScopeAudienceMapper(new SampleScopeAudienceMapper())
-                .userPasswordVerifier(userPasswordVerifier).buildOAuth2();
+                .userPasswordVerifier(userPasswordVerifier).build();
     }
 
     public void start(int port) throws IOException {

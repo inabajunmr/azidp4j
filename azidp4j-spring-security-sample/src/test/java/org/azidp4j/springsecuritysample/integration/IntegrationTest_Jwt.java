@@ -54,8 +54,7 @@ public class IntegrationTest_Jwt {
         @Bean
         @Primary
         public AccessTokenService accessTokenService(AzIdPConfig config) {
-            return new JwtAccessTokenService(
-                    jwkSet, new JWSIssuer(jwkSet), config.issuer, () -> "123");
+            return new JwtAccessTokenService(jwkSet, config.issuer, () -> "123");
         }
 
         @Bean
@@ -68,8 +67,7 @@ public class IntegrationTest_Jwt {
         @Bean
         @Primary
         public AuthorizationCodeService authorizationCodeService(AzIdPConfig config) {
-            return new JwtAuthorizationCodeService(
-                    jwkSet, new JWSIssuer(jwkSet), config.issuer, () -> "123");
+            return new JwtAuthorizationCodeService(jwkSet, config.issuer, () -> "123");
         }
     }
 

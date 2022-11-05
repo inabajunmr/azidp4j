@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.azidp4j.authorize.request.CodeChallengeMethod;
-import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
 import org.azidp4j.util.MapUtil;
 import org.junit.jupiter.api.Test;
@@ -30,10 +29,9 @@ class JwtAuthorizationCodeServiceTest {
                     .algorithm(new Algorithm("ES256"))
                     .generate();
     final JWKSet jwks = new JWKSet(List.of(rs256, es256));
-    final JWSIssuer jwsIssuer = new JWSIssuer(jwks);
     final Supplier<String> kidSupplier = () -> "abc";
     final JwtAuthorizationCodeService sut =
-            new JwtAuthorizationCodeService(jwks, jwsIssuer, "issuer", kidSupplier);
+            new JwtAuthorizationCodeService(jwks, "issuer", kidSupplier);
 
     JwtAuthorizationCodeServiceTest() throws JOSEException {}
 
@@ -180,8 +178,7 @@ class JwtAuthorizationCodeServiceTest {
 
         // exercise
         JwtAccessTokenService wrongKeyService =
-                new JwtAccessTokenService(
-                        new JWKSet(List.of(es256)), jwsIssuer, "issuer", () -> "abc");
+                new JwtAccessTokenService(new JWKSet(List.of(es256)), "issuer", () -> "abc");
 
         // exercise
         var introspected = wrongKeyService.introspect(issued.code);
@@ -219,7 +216,7 @@ class JwtAuthorizationCodeServiceTest {
         var exp = Instant.now().getEpochSecond() + 100;
         var authTime = Instant.now().getEpochSecond();
         JwtAuthorizationCodeService service =
-                new JwtAuthorizationCodeService(jwks, jwsIssuer, "invalid", kidSupplier);
+                new JwtAuthorizationCodeService(jwks, "invalid", kidSupplier);
         var issued =
                 service.issue(
                         "sub",
