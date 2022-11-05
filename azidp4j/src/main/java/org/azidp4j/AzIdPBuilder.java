@@ -6,9 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Supplier;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
+import org.azidp4j.authorize.authorizationcode.jwt.JwtAuthorizationCodeService;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.ClientValidator;
 import org.azidp4j.client.GrantType;
@@ -19,9 +21,11 @@ import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
+import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
+import org.azidp4j.token.refreshtoken.jwt.JwtRefreshTokenService;
 
 public class AzIdPBuilder {
 
@@ -38,9 +42,15 @@ public class AzIdPBuilder {
     private ClientStore clientStore = null;
     private ClientValidator clientValidator = null;
     private AuthorizationCodeService authorizationCodeService = null;
+    private boolean isJwtAuthorizationCodeService = false;
+    private Supplier<String> authorizationCodeServiceKidSupplier = null;
     private ScopeAudienceMapper scopeAudienceMapper = null;
     private AccessTokenService accessTokenService = null;
+    private boolean isJwtAccessTokenService = false;
+    private Supplier<String> accessTokenServiceKidSupplier = null;
     private RefreshTokenService refreshTokenService = null;
+    private boolean isJwtRefreshTokenService = false;
+    private Supplier<String> refreshTokenServiceKidSupplier = null;
     private DiscoveryConfig discoveryConfig = null;
     private UserPasswordVerifier userPasswordVerifier = null;
 
@@ -110,11 +120,10 @@ public class AzIdPBuilder {
         return this;
     }
 
-    public AzIdPBuilder jwtAuthorizationCodeService() {
+    public AzIdPBuilder jwtAuthorizationCodeService(Supplier<String> kidSupplier) {
+        this.authorizationCodeServiceKidSupplier = kidSupplier;
+        this.isJwtAuthorizationCodeService = true;
         // TODO other jwt services
-        // TODO JwtAuthorizationCodeService needs to setup like JWKSet
-        // how initialize this?
-
         return this;
     }
 
@@ -139,6 +148,12 @@ public class AzIdPBuilder {
         return this;
     }
 
+    public AzIdPBuilder jwtAccessTokenService(Supplier<String> kidSupplier) {
+        this.accessTokenServiceKidSupplier = kidSupplier;
+        this.isJwtAccessTokenService = true;
+        return this;
+    }
+
     public AzIdPBuilder customAccessTokenService(AccessTokenService accessTokenService) {
         this.accessTokenService = accessTokenService;
         return this;
@@ -146,6 +161,12 @@ public class AzIdPBuilder {
 
     public AzIdPBuilder inMemoryRefreshTokenService() {
         this.refreshTokenService = new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore());
+        return this;
+    }
+
+    public AzIdPBuilder jwtRefreshTokenService(Supplier<String> kidSupplier) {
+        this.refreshTokenServiceKidSupplier = kidSupplier;
+        this.isJwtRefreshTokenService = true;
         return this;
     }
 
@@ -165,6 +186,7 @@ public class AzIdPBuilder {
     }
 
     public AzIdP build() {
+
         // validate
         List<String> errors = new ArrayList<>();
         required(errors, "issuer", issuer);
@@ -175,13 +197,6 @@ public class AzIdPBuilder {
         required(errors, "refreshTokenExpiration", refreshTokenExpiration);
         required(errors, "discoveryConfig", discoveryConfig);
         required(errors, "clientStore", clientStore);
-        if (grantTypesSupported.contains(GrantType.authorization_code)) {
-            required(errors, "authorizationCodeService", authorizationCodeService);
-        }
-        required(errors, "accessTokenService", accessTokenService);
-        if (grantTypesSupported.contains(GrantType.refresh_token)) {
-            required(errors, "refreshTokenService", refreshTokenService);
-        }
         required(errors, "scopeAudienceMapper", scopeAudienceMapper);
         if (grantTypesSupported.contains(GrantType.password)) {
             required(errors, "userPasswordVerifier", userPasswordVerifier);
@@ -190,6 +205,32 @@ public class AzIdPBuilder {
             required(errors, "jwkSet", jwkSet);
             required(errors, "idTokenExpiration", idTokenExpiration);
         }
+
+        // init jwt service
+        if (isJwtAuthorizationCodeService) {
+            this.authorizationCodeService =
+                    new JwtAuthorizationCodeService(
+                            jwkSet, issuer, authorizationCodeServiceKidSupplier);
+        }
+        if (isJwtAccessTokenService) {
+            this.accessTokenService =
+                    new JwtAccessTokenService(jwkSet, issuer, accessTokenServiceKidSupplier);
+        }
+        if (isJwtRefreshTokenService) {
+            this.refreshTokenService =
+                    new JwtRefreshTokenService(jwkSet, issuer, refreshTokenServiceKidSupplier);
+        }
+
+        // validate
+        if (grantTypesSupported.contains(GrantType.authorization_code)) {
+            required(errors, "authorizationCodeService", authorizationCodeService);
+        }
+        required(errors, "accessTokenService", accessTokenService);
+        if (grantTypesSupported.contains(GrantType.refresh_token)) {
+            required(errors, "refreshTokenService", refreshTokenService);
+        }
+        required(errors, "accessTokenService", accessTokenService);
+
         if (!errors.isEmpty()) {
             var joiner = new StringJoiner("\n");
             errors.forEach(msg -> joiner.add(msg));

@@ -2,6 +2,7 @@ package org.azidp4j;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import java.util.Map;
+import java.util.function.Supplier;
 import org.azidp4j.authorize.*;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.AuthorizationRequest;
@@ -51,9 +52,14 @@ public class AzIdP {
                 .inMemoryAuthorizationCodeService();
     }
 
-    public static AzIdPBuilder initJwt() {
-        // TODO
-        return null;
+    public static AzIdPBuilder initJwt(
+            Supplier<String> authorizationCodeKidSupplier,
+            Supplier<String> accessTokenKidSupplier,
+            Supplier<String> refreshTokenKidSupplier) {
+        return new AzIdPBuilder()
+                .jwtAuthorizationCodeService(authorizationCodeKidSupplier)
+                .jwtAccessTokenService(accessTokenKidSupplier)
+                .jwtRefreshTokenService(refreshTokenKidSupplier);
     }
 
     protected AzIdP(

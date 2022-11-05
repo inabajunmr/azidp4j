@@ -61,12 +61,7 @@ public class SampleAz {
                     }
                 };
         accessTokenService = new JwtAccessTokenService(jwks, "http://localhost:8080", es256::getKeyID);
-        // accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore() );
-
-        var refreshTokenService = new JwtRefreshTokenService(jwks, "http://localhost:8080", es256::getKeyID);
-        // var refreshTokenService = new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore());
-
-        azIdP = AzIdP.initInMemory()
+        azIdP = AzIdP.initJwt(es256::getKeyID,es256::getKeyID,es256::getKeyID)
                 .issuer("http://localhost:8080")
                 .jwkSet(jwks)
                 .grantTypesSupported(
@@ -79,7 +74,6 @@ public class SampleAz {
                 .scopesSupported(Set.of("openid", "scope1", "scope2", "scope3", "default"))
                 .defaultScopes(Set.of("openid", "scope1"))
                 .customClientStore(clientStore)
-                .customAccessTokenService(accessTokenService)
                 .discovery(discoveryConfig)
                 .customScopeAudienceMapper(new SampleScopeAudienceMapper())
                 .userPasswordVerifier(userPasswordVerifier).build();
