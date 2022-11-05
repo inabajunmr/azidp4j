@@ -9,7 +9,6 @@ public class AzIdPConfig {
     public final String issuer;
     public final Set<String> scopesSupported;
     public final Set<String> defaultScope;
-    // TODO client registration validate
     public final Set<GrantType> grantTypesSupported;
     public final Duration authorizationCodeExpiration;
     public final Duration accessTokenExpiration;
