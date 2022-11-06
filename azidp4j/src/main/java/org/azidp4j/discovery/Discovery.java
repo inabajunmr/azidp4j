@@ -34,7 +34,7 @@ public class Discovery {
                 "scopes_supported",
                 config.scopesSupported,
                 "response_types_supported",
-                Set.of(
+                Set.of( // TODO customize
                         "code",
                         "token",
                         "id_token",

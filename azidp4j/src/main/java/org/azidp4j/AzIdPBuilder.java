@@ -216,8 +216,6 @@ public class AzIdPBuilder {
                 && (grantTypesSupported.contains(GrantType.authorization_code)
                         || grantTypesSupported.contains(GrantType.implicit))) {
             if (responseModesSupported != null && responseModesSupported.size() == 0) {
-                // TODO grant type との兼ね合いがまだあるかも
-                // implicit だったら fragment 必須とか
                 errors.add("responseModesSupported is required");
             }
         }
