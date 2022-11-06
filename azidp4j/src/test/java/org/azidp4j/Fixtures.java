@@ -2,27 +2,61 @@ package org.azidp4j;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import java.text.ParseException;
+import java.time.Duration;
 import java.util.Set;
+import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
+import org.azidp4j.discovery.DiscoveryConfig;
+import org.azidp4j.scope.SampleScopeAudienceMapper;
 
 public class Fixtures {
+
+    public static AzIdPBuilder azIdPBuilder(JWKSet jwkSet) {
+        return AzIdP.initInMemory()
+                .jwkSet(jwkSet)
+                .issuer("http://localhost:8080")
+                .grantTypesSupported(
+                        Set.of(
+                                GrantType.authorization_code,
+                                GrantType.implicit,
+                                GrantType.refresh_token,
+                                GrantType.password,
+                                GrantType.client_credentials))
+                .scopesSupported(Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"))
+                .defaultScopes(Set.of("openid", "rs:scope1"))
+                .discovery(Fixtures.discoveryConfig())
+                .customScopeAudienceMapper(new SampleScopeAudienceMapper())
+                .userPasswordVerifier((username, password) -> true);
+    }
 
     public static AzIdPConfig azIdPConfig(String kid) {
         return new AzIdPConfig(
                 "http://localhost:8080",
-                "http://localhost:8080/authorize",
-                "http://localhost:8080/token",
-                "http://localhost:8080/.well-known/jwks.json",
-                "http://localhost:8080/client",
-                "http://localhost:8080/client/{CLIENT_ID}",
-                "http://localhost:8080/userinfo",
                 Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
                 Set.of("openid", "rs:scope1"),
-                3600,
-                600,
-                604800,
-                3600);
+                Set.of(
+                        GrantType.authorization_code,
+                        GrantType.implicit,
+                        GrantType.password,
+                        GrantType.client_credentials,
+                        GrantType.refresh_token),
+                Set.of(ResponseMode.query, ResponseMode.fragment),
+                Duration.ofSeconds(3600),
+                Duration.ofSeconds(600),
+                Duration.ofSeconds(604800),
+                Duration.ofSeconds(3600));
+    }
+
+    public static DiscoveryConfig discoveryConfig() {
+        return DiscoveryConfig.builder()
+                .authorizationEndpoint("http://localhost:8080/authorize")
+                .tokenEndpoint("http://localhost:8080/token")
+                .jwksEndpoint("http://localhost:8080/.well-known/jwks.json")
+                .clientRegistrationEndpoint("http://localhost:8080/client")
+                .clientConfigurationEndpointPattern("http://localhost:8080/client/{CLIENT_ID}")
+                .userInfoEndpoint("http://localhost:8080/userinfo")
+                .build();
     }
 
     public static Client publicClient() {

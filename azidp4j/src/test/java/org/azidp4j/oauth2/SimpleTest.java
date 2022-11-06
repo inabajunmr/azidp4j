@@ -2,33 +2,21 @@ package org.azidp4j.oauth2;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.azidp4j.AzIdP;
 import org.azidp4j.Fixtures;
-import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
-import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.AuthorizationRequest;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.GrantType;
-import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.introspection.request.IntrospectionRequest;
 import org.azidp4j.revocation.request.RevocationRequest;
-import org.azidp4j.scope.SampleScopeAudienceMapper;
-import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
-import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
-import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
-import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
 import org.azidp4j.token.request.TokenRequest;
 import org.junit.jupiter.api.Test;
 
@@ -39,22 +27,8 @@ public class SimpleTest {
      * request(using authorization code) 4. token request(using refresh token)
      */
     @Test
-    void test() throws JOSEException {
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var jwks = new JWKSet(key);
-        var config = Fixtures.azIdPConfig(key.getKeyID());
-        var accessTokenStore = new InMemoryAccessTokenStore();
-        var scopeAudienceMapper = new SampleScopeAudienceMapper();
-        var sut =
-                new AzIdP(
-                        config,
-                        jwks,
-                        new InMemoryClientStore(),
-                        null,
-                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
-                        new InMemoryAccessTokenService(accessTokenStore),
-                        new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
-                        scopeAudienceMapper);
+    void test() {
+        var sut = Fixtures.azIdPBuilder(new JWKSet()).build();
 
         // client registration
         var clientRegistrationRequest =

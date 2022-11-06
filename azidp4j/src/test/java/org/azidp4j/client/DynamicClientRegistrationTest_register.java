@@ -29,6 +29,7 @@ class DynamicClientRegistrationTest_register {
         var registration =
                 new DynamicClientRegistration(
                         config,
+                        Fixtures.discoveryConfig(),
                         new InMemoryClientStore(),
                         null,
                         new InMemoryAccessTokenService(accessTokenStore));
@@ -144,6 +145,7 @@ class DynamicClientRegistrationTest_register {
         var registration =
                 new DynamicClientRegistration(
                         config,
+                        Fixtures.discoveryConfig(),
                         new InMemoryClientStore(),
                         null,
                         new InMemoryAccessTokenService(accessTokenStore));
@@ -258,6 +260,7 @@ class DynamicClientRegistrationTest_register {
         var registration =
                 new DynamicClientRegistration(
                         config,
+                        Fixtures.discoveryConfig(),
                         new InMemoryClientStore(),
                         null,
                         new InMemoryAccessTokenService(accessTokenStore));

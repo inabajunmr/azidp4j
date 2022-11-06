@@ -2,6 +2,7 @@ package org.azidp4j;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import java.util.Map;
+import java.util.function.Supplier;
 import org.azidp4j.authorize.*;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.AuthorizationRequest;
@@ -12,6 +13,7 @@ import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.client.response.ClientDeleteResponse;
 import org.azidp4j.client.response.ClientRegistrationResponse;
 import org.azidp4j.discovery.Discovery;
+import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.introspection.Introspect;
 import org.azidp4j.introspection.request.IntrospectionRequest;
 import org.azidp4j.introspection.response.IntrospectionResponse;
@@ -37,44 +39,32 @@ public class AzIdP {
     private final Introspect introspect;
     private final Revocation revocation;
 
-    public AzIdP(
-            AzIdPConfig azIdPConfig,
-            JWKSet jwkSet,
-            ClientStore clientStore,
-            ClientValidator clientValidator,
-            AuthorizationCodeService authorizationCodeService,
-            AccessTokenService accessTokenService,
-            RefreshTokenService refreshTokenService,
-            ScopeAudienceMapper scopeAudienceMapper) {
-        this.discovery = new Discovery(azIdPConfig);
-        var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
-        this.authorize =
-                new Authorize(
-                        clientStore,
-                        authorizationCodeService,
-                        scopeAudienceMapper,
-                        accessTokenService,
-                        idTokenIssuer,
-                        azIdPConfig);
-        this.issueToken =
-                new IssueToken(
-                        azIdPConfig,
-                        authorizationCodeService,
-                        accessTokenService,
-                        idTokenIssuer,
-                        refreshTokenService,
-                        scopeAudienceMapper,
-                        null,
-                        clientStore);
-        this.clientRegistration =
-                new DynamicClientRegistration(
-                        azIdPConfig, clientStore, clientValidator, accessTokenService);
-        this.introspect = new Introspect(accessTokenService, refreshTokenService, azIdPConfig);
-        this.revocation = new Revocation(accessTokenService, refreshTokenService, clientStore);
+    public static AzIdPBuilder init() {
+        return new AzIdPBuilder();
     }
 
-    public AzIdP(
+    public static AzIdPBuilder initInMemory() {
+        return new AzIdPBuilder()
+                .inMemoryClientStore()
+                .inMemoryAuthorizationCodeService()
+                .inMemoryAccessTokenService()
+                .inMemoryRefreshTokenService()
+                .inMemoryAuthorizationCodeService();
+    }
+
+    public static AzIdPBuilder initJwt(
+            Supplier<String> authorizationCodeKidSupplier,
+            Supplier<String> accessTokenKidSupplier,
+            Supplier<String> refreshTokenKidSupplier) {
+        return new AzIdPBuilder()
+                .jwtAuthorizationCodeService(authorizationCodeKidSupplier)
+                .jwtAccessTokenService(accessTokenKidSupplier)
+                .jwtRefreshTokenService(refreshTokenKidSupplier);
+    }
+
+    protected AzIdP(
             AzIdPConfig azIdPConfig,
+            DiscoveryConfig discoveryConfig,
             JWKSet jwkSet,
             ClientStore clientStore,
             ClientValidator clientValidator,
@@ -83,7 +73,7 @@ public class AzIdP {
             RefreshTokenService refreshTokenService,
             ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier) {
-        this.discovery = new Discovery(azIdPConfig);
+        this.discovery = new Discovery(azIdPConfig, discoveryConfig);
         var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
         this.authorize =
                 new Authorize(
@@ -105,7 +95,11 @@ public class AzIdP {
                         clientStore);
         this.clientRegistration =
                 new DynamicClientRegistration(
-                        azIdPConfig, clientStore, clientValidator, accessTokenService);
+                        azIdPConfig,
+                        discoveryConfig,
+                        clientStore,
+                        clientValidator,
+                        accessTokenService);
         this.introspect = new Introspect(accessTokenService, refreshTokenService, azIdPConfig);
         this.revocation = new Revocation(accessTokenService, refreshTokenService, clientStore);
     }

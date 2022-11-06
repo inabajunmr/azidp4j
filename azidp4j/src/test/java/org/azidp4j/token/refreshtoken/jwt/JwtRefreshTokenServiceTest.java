@@ -31,8 +31,7 @@ class JwtRefreshTokenServiceTest {
     final JWKSet jwks = new JWKSet(List.of(rs256, es256));
     final JWSIssuer jwsIssuer = new JWSIssuer(jwks);
     final Supplier<String> kidSupplier = () -> "abc";
-    final JwtRefreshTokenService sut =
-            new JwtRefreshTokenService(jwks, jwsIssuer, "issuer", kidSupplier);
+    final JwtRefreshTokenService sut = new JwtRefreshTokenService(jwks, "issuer", kidSupplier);
 
     JwtRefreshTokenServiceTest() throws JOSEException {}
 
@@ -148,8 +147,7 @@ class JwtRefreshTokenServiceTest {
         assertEquals(exp, issued.expiresAtEpochSec);
         assertEquals(iat, issued.issuedAtEpochSec);
         JwtRefreshTokenService wrongKeyService =
-                new JwtRefreshTokenService(
-                        new JWKSet(List.of(es256)), jwsIssuer, "issuer", () -> "abc");
+                new JwtRefreshTokenService(new JWKSet(List.of(es256)), "issuer", () -> "abc");
 
         // exercise
         var introspected = wrongKeyService.introspect(issued.token);
@@ -182,8 +180,7 @@ class JwtRefreshTokenServiceTest {
         // setup
         var exp = Instant.now().getEpochSecond() + 100;
         var iat = Instant.now().getEpochSecond();
-        JwtRefreshTokenService service =
-                new JwtRefreshTokenService(jwks, jwsIssuer, "invalid", kidSupplier);
+        JwtRefreshTokenService service = new JwtRefreshTokenService(jwks, "invalid", kidSupplier);
 
         var issued =
                 service.issue(

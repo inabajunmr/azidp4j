@@ -10,12 +10,14 @@ import org.azidp4j.client.request.ClientRequestParser;
 import org.azidp4j.client.request.InternalClientRequest;
 import org.azidp4j.client.response.ClientDeleteResponse;
 import org.azidp4j.client.response.ClientRegistrationResponse;
+import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.util.MapUtil;
 
 public class DynamicClientRegistration {
 
     private final AzIdPConfig config;
+    private final DiscoveryConfig discoveryConfig;
     private final ClientStore clientStore;
     private final AccessTokenService accessTokenService;
     private final InternalClientValidator clientValidator;
@@ -24,10 +26,12 @@ public class DynamicClientRegistration {
 
     public DynamicClientRegistration(
             AzIdPConfig config,
+            DiscoveryConfig discoveryConfig,
             ClientStore clientStore,
             ClientValidator customizableClientValidator,
             AccessTokenService accessTokenService) {
         this.config = config;
+        this.discoveryConfig = discoveryConfig;
         this.clientStore = clientStore;
         this.clientValidator = new InternalClientValidator(config);
         this.customizableClientValidator =
@@ -148,7 +152,7 @@ public class DynamicClientRegistration {
                         client.clientId,
                         "configure",
                         client.clientId,
-                        Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                        Instant.now().getEpochSecond() + config.accessTokenExpiration.toSeconds(),
                         Instant.now().getEpochSecond(),
                         Set.of(config.issuer),
                         null);
@@ -161,7 +165,7 @@ public class DynamicClientRegistration {
                         "registration_access_token",
                         at.getToken(),
                         "registration_client_uri",
-                        config.clientConfigurationEndpointPattern.replace(
+                        discoveryConfig.clientConfigurationEndpointPattern.replace(
                                 "{CLIENT_ID}", client.clientId),
                         "redirect_uris",
                         client.redirectUris,

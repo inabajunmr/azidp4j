@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import java.net.URI;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Set;
@@ -13,6 +14,7 @@ import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
+import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.response.AuthorizationErrorTypeWithoutRedirect;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
@@ -483,5 +485,44 @@ class AuthorizeTest_validationError {
         assertEquals(
                 response.errorPage.errorType,
                 AuthorizationErrorTypeWithoutRedirect.invalid_response_mode);
+    }
+
+    @Test
+    void unsupportedResponseMode() {
+        var config =
+                new AzIdPConfig(
+                        "http://localhost:8080",
+                        Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
+                        Set.of("openid", "rs:scope1"),
+                        Set.of(GrantType.authorization_code),
+                        Set.of(ResponseMode.query),
+                        Duration.ofSeconds(3600),
+                        Duration.ofSeconds(600),
+                        Duration.ofSeconds(604800),
+                        Duration.ofSeconds(3600));
+        final Authorize sut =
+                new Authorize(
+                        clientStore,
+                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
+                        scopeAudienceMapper,
+                        new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
+                        new IDTokenIssuer(config, new JWKSet()),
+                        config);
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("code")
+                        .authTime(Instant.now().getEpochSecond())
+                        .clientId(client.clientId)
+                        .redirectUri("http://rp1.example.com")
+                        .scope("rs:scope1")
+                        .responseMode("fragment")
+                        .authenticatedUserId("username")
+                        .state("xyz")
+                        .build();
+        var response = sut.authorize(authorizationRequest);
+        assertEquals(response.next, NextAction.errorPage);
+        assertEquals(
+                response.errorPage.errorType,
+                AuthorizationErrorTypeWithoutRedirect.unsupported_response_mode);
     }
 }

@@ -20,14 +20,13 @@ import org.azidp4j.util.MapUtil;
 public class JwtAuthorizationCodeService implements AuthorizationCodeService {
 
     private final JWKSet jwkSet;
-    private final JWSIssuer jwsIssuer;
     private final String issuer;
+    private final JWSIssuer jwsIssuer;
     private final Supplier<String> kidSupplier;
 
-    public JwtAuthorizationCodeService(
-            JWKSet jwkSet, JWSIssuer jwsIssuer, String issuer, Supplier<String> kidSupplier) {
+    public JwtAuthorizationCodeService(JWKSet jwkSet, String issuer, Supplier<String> kidSupplier) {
         this.jwkSet = jwkSet;
-        this.jwsIssuer = jwsIssuer;
+        this.jwsIssuer = new JWSIssuer(jwkSet);
         this.issuer = issuer;
         this.kidSupplier = kidSupplier;
     }

@@ -140,7 +140,8 @@ public class IssueToken {
                                 authorizationCode.sub,
                                 authorizationCode.scope,
                                 authorizationCode.clientId,
-                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                                Instant.now().getEpochSecond()
+                                        + config.accessTokenExpiration.toSeconds(),
                                 Instant.now().getEpochSecond(),
                                 scopeAudienceMapper.map(authorizationCode.scope),
                                 authorizationCode.code);
@@ -149,7 +150,8 @@ public class IssueToken {
                                 authorizationCode.sub,
                                 authorizationCode.scope,
                                 authorizationCode.clientId,
-                                Instant.now().getEpochSecond() + config.refreshTokenExpirationSec,
+                                Instant.now().getEpochSecond()
+                                        + config.refreshTokenExpiration.toSeconds(),
                                 Instant.now().getEpochSecond(),
                                 scopeAudienceMapper.map(authorizationCode.scope),
                                 authorizationCode.code);
@@ -177,7 +179,7 @@ public class IssueToken {
                                         "token_type",
                                         "bearer",
                                         "expires_in",
-                                        config.accessTokenExpirationSec,
+                                        config.accessTokenExpiration.toSeconds(),
                                         "scope",
                                         authorizationCode.scope));
                     }
@@ -193,7 +195,7 @@ public class IssueToken {
                                     "token_type",
                                     "bearer",
                                     "expires_in",
-                                    config.accessTokenExpirationSec,
+                                    config.accessTokenExpiration.toSeconds(),
                                     "scope",
                                     authorizationCode.scope,
                                     "state",
@@ -211,7 +213,7 @@ public class IssueToken {
                                     "token_type",
                                     "bearer",
                                     "expires_in",
-                                    config.accessTokenExpirationSec,
+                                    config.accessTokenExpiration.toSeconds(),
                                     "scope",
                                     authorizationCode.scope,
                                     "state",
@@ -237,7 +239,7 @@ public class IssueToken {
                                     req.scope,
                                     client.clientId,
                                     Instant.now().getEpochSecond()
-                                            + config.accessTokenExpirationSec,
+                                            + config.accessTokenExpiration.toSeconds(),
                                     Instant.now().getEpochSecond(),
                                     scopeAudienceMapper.map(req.scope),
                                     null);
@@ -249,7 +251,7 @@ public class IssueToken {
                                     client.clientId,
                                     scopeAudienceMapper.map(req.scope),
                                     Instant.now().getEpochSecond()
-                                            + config.refreshTokenExpirationSec,
+                                            + config.refreshTokenExpiration.toSeconds(),
                                     Instant.now().getEpochSecond());
                     return new TokenResponse(
                             200,
@@ -261,7 +263,7 @@ public class IssueToken {
                                     "token_type",
                                     "bearer",
                                     "expires_in",
-                                    config.accessTokenExpirationSec,
+                                    config.accessTokenExpiration.toSeconds(),
                                     "scope",
                                     req.scope));
                 } else {
@@ -284,7 +286,8 @@ public class IssueToken {
                                 client.clientId,
                                 req.scope,
                                 client.clientId,
-                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                                Instant.now().getEpochSecond()
+                                        + config.accessTokenExpiration.toSeconds(),
                                 Instant.now().getEpochSecond(),
                                 scopeAudienceMapper.map(req.scope),
                                 null);
@@ -296,7 +299,7 @@ public class IssueToken {
                                 "token_type",
                                 "bearer",
                                 "expires_in",
-                                config.accessTokenExpirationSec,
+                                config.accessTokenExpiration.toSeconds(),
                                 "scope",
                                 req.scope));
             }
@@ -324,7 +327,8 @@ public class IssueToken {
                                 rt.sub,
                                 scope,
                                 client.clientId,
-                                Instant.now().getEpochSecond() + config.accessTokenExpirationSec,
+                                Instant.now().getEpochSecond()
+                                        + config.accessTokenExpiration.toSeconds(),
                                 Instant.now().getEpochSecond(),
                                 scopeAudienceMapper.map(scope),
                                 rt.authorizationCode);
@@ -333,7 +337,8 @@ public class IssueToken {
                                 rt.sub,
                                 scope,
                                 rt.clientId,
-                                Instant.now().getEpochSecond() + config.refreshTokenExpirationSec,
+                                Instant.now().getEpochSecond()
+                                        + config.refreshTokenExpiration.toSeconds(),
                                 Instant.now().getEpochSecond(),
                                 scopeAudienceMapper.map(scope),
                                 rt.authorizationCode);
@@ -347,7 +352,7 @@ public class IssueToken {
                                 "token_type",
                                 "bearer",
                                 "expires_in",
-                                config.accessTokenExpirationSec,
+                                config.accessTokenExpiration.toSeconds(),
                                 "scope",
                                 scope));
             }

@@ -2,8 +2,11 @@ package org.azidp4j.client;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Duration;
 import java.util.Set;
+import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
+import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.junit.jupiter.api.Test;
 
@@ -11,6 +14,72 @@ class InternalClientValidatorTest {
 
     private final InternalClientValidator sut =
             new InternalClientValidator(Fixtures.azIdPConfig("kid"));
+
+    @Test
+    void validate_NotSupportedGrantType() {
+
+        // setup
+        var config =
+                new AzIdPConfig(
+                        "http://localhost:8080",
+                        Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
+                        Set.of("openid", "rs:scope1"),
+                        Set.of(
+                                GrantType.authorization_code,
+                                GrantType.implicit,
+                                // GrantType.password, // target
+                                GrantType.client_credentials,
+                                GrantType.refresh_token),
+                        Set.of(ResponseMode.query, ResponseMode.fragment),
+                        Duration.ofSeconds(3600),
+                        Duration.ofSeconds(600),
+                        Duration.ofSeconds(604800),
+                        Duration.ofSeconds(3600));
+        var sut = new InternalClientValidator(config);
+        var client =
+                new Client(
+                        "confidential",
+                        "secret",
+                        Set.of("https://rp1.example.com", "https://rp2.example.com"),
+                        Set.of(
+                                Set.of(
+                                        ResponseType.code,
+                                        ResponseType.token,
+                                        ResponseType.id_token,
+                                        ResponseType.none)),
+                        ApplicationType.WEB,
+                        Set.of(
+                                GrantType.authorization_code,
+                                GrantType.implicit,
+                                GrantType.password,
+                                GrantType.client_credentials,
+                                GrantType.refresh_token),
+                        null,
+                        null,
+                        null,
+                        "rs:scope1 rs:scope2 openid",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        null,
+                        SigningAlgorithm.ES256,
+                        null,
+                        null,
+                        null);
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("unsupported grant types", e.getMessage());
+        }
+    }
 
     @Test
     void validate_NotSupportedScope() {

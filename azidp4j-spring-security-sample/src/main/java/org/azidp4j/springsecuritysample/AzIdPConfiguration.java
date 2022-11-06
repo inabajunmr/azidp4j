@@ -14,7 +14,9 @@ import java.util.Set;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.client.ClientStore;
+import org.azidp4j.client.GrantType;
 import org.azidp4j.client.request.ClientRequest;
+import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenService;
@@ -30,46 +32,22 @@ public class AzIdPConfiguration {
     private String endpoint;
 
     @Bean
-    public org.azidp4j.AzIdPConfig azIdPConfig(JWKSet jwkSet) {
-        return new org.azidp4j.AzIdPConfig(
-                endpoint,
-                endpoint + "/authorize",
-                endpoint + "/token",
-                endpoint + "/.well-known/jwks.json",
-                endpoint + "/client",
-                endpoint + "/client/{CLIENT_ID}",
-                endpoint + "/userinfo",
-                Set.of("openid", "scope1", "scope2", "default"),
-                Set.of("openid", "scope1"),
-                3600,
-                600,
-                604800,
-                3600);
-    }
-
-    @Bean
     public AzIdP azIdP(
             ClientStore clientStore,
             JWKSet jwkSet,
             AuthorizationCodeService authorizationCodeService,
             AccessTokenService accessTokenService,
             RefreshTokenService refreshTokenService) {
-        var key = jwkSet.getKeys().get(0);
-        var config =
-                new org.azidp4j.AzIdPConfig(
-                        endpoint,
-                        endpoint + "/authorize",
-                        endpoint + "/token",
-                        endpoint + "/.well-known/jwks.json",
-                        endpoint + "/client",
-                        endpoint + "/client/{CLIENT_ID}",
-                        endpoint + "/userinfo",
-                        Set.of("openid", "scope1", "scope2", "default"),
-                        Set.of("openid", "scope1"),
-                        3600,
-                        600,
-                        604800,
-                        3600);
+        ScopeAudienceMapper scopeAudienceMapper = scope -> Set.of("rs.example.com");
+        var discoveryConfig =
+                DiscoveryConfig.builder()
+                        .authorizationEndpoint(endpoint + "/authorize")
+                        .tokenEndpoint(endpoint + "/token")
+                        .jwksEndpoint(endpoint + "/.well-known/jwks.json")
+                        .clientRegistrationEndpoint(endpoint + "/client")
+                        .clientConfigurationEndpointPattern(endpoint + "/client/{CLIENT_ID}")
+                        .userInfoEndpoint(endpoint + "/userinfo")
+                        .build();
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -82,18 +60,29 @@ public class AzIdPConfiguration {
                         };
                     }
                 };
-        ScopeAudienceMapper scopeAudienceMapper = scope -> Set.of("rs.example.com");
         var azIdp =
-                new AzIdP(
-                        config,
-                        jwkSet,
-                        clientStore,
-                        new ClientValidator(),
-                        authorizationCodeService,
-                        accessTokenService,
-                        refreshTokenService,
-                        scopeAudienceMapper,
-                        userPasswordVerifier);
+                AzIdP.init()
+                        .issuer(endpoint)
+                        .jwkSet(jwkSet)
+                        .scopesSupported(Set.of("openid", "scope1", "scope2", "default"))
+                        .defaultScopes(Set.of("openid", "scope1"))
+                        .grantTypesSupported(
+                                Set.of(
+                                        GrantType.authorization_code,
+                                        GrantType.implicit,
+                                        GrantType.password,
+                                        GrantType.client_credentials,
+                                        GrantType.refresh_token))
+                        .customClientStore(clientStore)
+                        .customClientValidator(new ClientValidator())
+                        .customAuthorizationCodeService(
+                                authorizationCodeService) // TODO inMemory interface
+                        .customScopeAudienceMapper(scopeAudienceMapper)
+                        .customAccessTokenService(accessTokenService)
+                        .customRefreshTokenService(refreshTokenService)
+                        .userPasswordVerifier(userPasswordVerifier)
+                        .discovery(discoveryConfig)
+                        .build();
         var clientRegistration =
                 new ClientRequest(
                         Map.of(

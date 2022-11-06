@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.net.URI;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Set;
@@ -15,6 +16,7 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
+import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
@@ -60,18 +62,14 @@ class AuthorizeTest_None {
         var config =
                 new AzIdPConfig(
                         "http://localhost:8080",
-                        "http://localhost:8080/authorize",
-                        "http://localhost:8080/token",
-                        "http://localhost:8080/.well-known/jwks.json",
-                        "http://localhost:8080/client",
-                        "http://localhost:8080/client/{CLIENT_ID}",
-                        "http://localhost:8080/userinfo",
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
-                        3600,
-                        600,
-                        604800,
-                        3600);
+                        Set.of(GrantType.authorization_code),
+                        Set.of(ResponseMode.query, ResponseMode.fragment),
+                        Duration.ofSeconds(3600),
+                        Duration.ofSeconds(600),
+                        Duration.ofSeconds(604800),
+                        Duration.ofSeconds(3600));
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var sut =
                 new Authorize(

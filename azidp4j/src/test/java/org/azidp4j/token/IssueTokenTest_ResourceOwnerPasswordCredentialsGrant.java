@@ -90,7 +90,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
-        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("expires_in"), 3600L);
         assertTrue(response.body.containsKey("refresh_token"));
     }
 
@@ -126,7 +126,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
-        assertEquals(response.body.get("expires_in"), 3600);
+        assertEquals(response.body.get("expires_in"), 3600L);
         assertTrue(response.body.containsKey("refresh_token"));
     }
 

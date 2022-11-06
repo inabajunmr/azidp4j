@@ -28,8 +28,7 @@ class JwtAccessTokenServiceTest {
     final JWKSet jwks = new JWKSet(List.of(rs256, es256));
     final JWSIssuer jwsIssuer = new JWSIssuer(jwks);
     final Supplier<String> kidSupplier = () -> "abc";
-    final JwtAccessTokenService sut =
-            new JwtAccessTokenService(jwks, jwsIssuer, "issuer", kidSupplier);
+    final JwtAccessTokenService sut = new JwtAccessTokenService(jwks, "issuer", kidSupplier);
 
     JwtAccessTokenServiceTest() throws JOSEException {}
 
@@ -148,8 +147,7 @@ class JwtAccessTokenServiceTest {
         assertEquals(iat, issued.getIssuedAtEpochSec());
         assertEquals("code", issued.getAuthorizationCode());
         JwtAccessTokenService wrongKeyService =
-                new JwtAccessTokenService(
-                        new JWKSet(List.of(es256)), jwsIssuer, "issuer", () -> "abc");
+                new JwtAccessTokenService(new JWKSet(List.of(es256)), "issuer", () -> "abc");
 
         // exercise
         var introspected = wrongKeyService.introspect(issued.getToken());
@@ -183,8 +181,7 @@ class JwtAccessTokenServiceTest {
         // setup
         var exp = Instant.now().getEpochSecond() + 100;
         var iat = Instant.now().getEpochSecond();
-        JwtAccessTokenService service =
-                new JwtAccessTokenService(jwks, jwsIssuer, "invalid", kidSupplier);
+        JwtAccessTokenService service = new JwtAccessTokenService(jwks, "invalid", kidSupplier);
 
         var issued =
                 service.issue(
