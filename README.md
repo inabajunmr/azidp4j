@@ -1,4 +1,4 @@
-# azidp4j
+# [wip] azidp4j
 
 azidp4j is library for Java OAuth 2.0 Authorization Server & OpenID Connect Identity Provider.
 
@@ -33,17 +33,33 @@ azidp4j is library for Java OAuth 2.0 Authorization Server & OpenID Connect Iden
 
 ### Initialization
 ```java
-var azIdp =
-        new AzIdP(
-                config,
-                jwkSet,
-                clientStore,
-                null,
-                authorizationCodeService,
-                accessTokenService,
-                refreshTokenService,
-                scopeAudienceMapper,
-                userPasswordVerifier);
+
+var discovery =
+        DiscoveryConfig.builder()
+                .authorizationEndpoint("https://example.com/authorize")
+                .tokenEndpoint("https://example.com/token")
+                .userInfoEndpoint("https://example.com/userinfo")
+                .clientRegistrationEndpoint("https://example.com/client")
+                .clientConfigurationEndpointPattern(
+                        "https://example.com/client/{CLIENT_ID}")
+                .jwksEndpoint("https://example.com/jwks")
+                .build();
+var rs256 =
+        new RSAKeyGenerator(2048)
+                .keyID("rs256key")
+                .algorithm(new Algorithm("RS256"))
+                .generate();
+var es256 =
+        new ECKeyGenerator(Curve.P_256).keyID("es256key")
+                .algorithm(new Algorithm("ES256"))
+                .generate();
+var azIdP = AzIdP.initInMemory()
+        .issuer("https://example.com")
+        .jwkSet(new JWKSet(List.of(rs256, es256)))
+        .staticScopeAudienceMapper("audience")
+        .scopesSupported(Set.of("openid"))
+        .defaultScopes(Set.of())
+        .discovery(discovery).build();
 ```
 
 ### Authorization Endpoint
