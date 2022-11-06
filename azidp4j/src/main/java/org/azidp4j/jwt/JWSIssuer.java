@@ -7,7 +7,6 @@ import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import java.util.Map;
-import org.azidp4j.client.SigningAlgorithm;
 
 public class JWSIssuer {
 
@@ -25,65 +24,44 @@ public class JWSIssuer {
             }
             if (jwk instanceof ECKey ecJWK) {
                 JWSSigner signer = new ECDSASigner(ecJWK);
-                JWSObject jwsObject =
-                        new JWSObject(
-                                new JWSHeader.Builder(JWSAlgorithm.ES256)
-                                        .keyID(ecJWK.getKeyID())
-                                        .type(new JOSEObjectType(type))
-                                        .build(),
-                                new Payload(payload));
+                JWSObject jwsObject;
+                if (type == null) {
+                    jwsObject =
+                            new JWSObject(
+                                    new JWSHeader.Builder(JWSAlgorithm.ES256)
+                                            .keyID(ecJWK.getKeyID())
+                                            .build(),
+                                    new Payload(payload));
+                } else {
+                    jwsObject =
+                            new JWSObject(
+                                    new JWSHeader.Builder(JWSAlgorithm.ES256)
+                                            .keyID(ecJWK.getKeyID())
+                                            .type(new JOSEObjectType(type))
+                                            .build(),
+                                    new Payload(payload));
+                }
                 jwsObject.sign(signer);
                 return jwsObject;
             } else if (jwk instanceof RSAKey rsaJWK) {
                 JWSSigner signer = new RSASSASigner(rsaJWK);
-                JWSObject jwsObject =
-                        new JWSObject(
-                                new JWSHeader.Builder(JWSAlgorithm.RS256)
-                                        .keyID(rsaJWK.getKeyID())
-                                        .type(new JOSEObjectType(type))
-                                        .build(),
-                                new Payload(payload));
-                jwsObject.sign(signer);
-                return jwsObject;
-            } else {
-                throw new RuntimeException("not supported key.");
-            }
-        } catch (JOSEException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public JOSEObject issue(SigningAlgorithm alg, Map<String, Object> payload) {
-        try {
-            if (alg == SigningAlgorithm.none) {
-                return new PlainObject(new Payload(payload));
-            }
-            var key =
-                    jwkSet.getKeys().stream()
-                            .filter(jwk -> jwk.getAlgorithm().getName().equals(alg.name()))
-                            .findAny(); // TODO should opt kid
-            if (key.isEmpty()) {
-                throw new AssertionError();
-            }
-            var jwk = key.get();
-            if (jwk instanceof ECKey ecJWK) {
-                JWSSigner signer = new ECDSASigner(ecJWK);
-                JWSObject jwsObject =
-                        new JWSObject(
-                                new JWSHeader.Builder(JWSAlgorithm.ES256)
-                                        .keyID(ecJWK.getKeyID())
-                                        .build(),
-                                new Payload(payload));
-                jwsObject.sign(signer);
-                return jwsObject;
-            } else if (jwk instanceof RSAKey rsaJWK) {
-                JWSSigner signer = new RSASSASigner(rsaJWK);
-                JWSObject jwsObject =
-                        new JWSObject(
-                                new JWSHeader.Builder(JWSAlgorithm.RS256)
-                                        .keyID(rsaJWK.getKeyID())
-                                        .build(),
-                                new Payload(payload));
+                JWSObject jwsObject;
+                if (type == null) {
+                    jwsObject =
+                            new JWSObject(
+                                    new JWSHeader.Builder(JWSAlgorithm.RS256)
+                                            .keyID(rsaJWK.getKeyID())
+                                            .build(),
+                                    new Payload(payload));
+                } else {
+                    jwsObject =
+                            new JWSObject(
+                                    new JWSHeader.Builder(JWSAlgorithm.RS256)
+                                            .keyID(rsaJWK.getKeyID())
+                                            .type(new JOSEObjectType(type))
+                                            .build(),
+                                    new Payload(payload));
+                }
                 jwsObject.sign(signer);
                 return jwsObject;
             } else {

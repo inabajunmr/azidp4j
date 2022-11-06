@@ -20,6 +20,7 @@ import org.azidp4j.AzIdP;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.token.UserPasswordVerifier;
@@ -64,6 +65,15 @@ public class SampleAz {
         azIdP = AzIdP.initJwt(es256::getKeyID,es256::getKeyID,es256::getKeyID)
                 .issuer("http://localhost:8080")
                 .jwkSet(jwks)
+                .idTokenKidSupplier((signingAlgorithm -> {
+                    if(signingAlgorithm == SigningAlgorithm.ES256) {
+                        return es256.getKeyID();
+                    }
+                    if(signingAlgorithm == SigningAlgorithm.RS256) {
+                        return rs256.getKeyID();
+                    }
+                    throw new AssertionError();
+                }))
                 .grantTypesSupported(
                         Set.of(
                                 GrantType.authorization_code,

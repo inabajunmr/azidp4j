@@ -28,6 +28,7 @@ import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
 import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.token.SampleIdTokenKidSupplier;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
@@ -157,13 +158,14 @@ class AuthorizeTest_Implicit {
         var config = Fixtures.azIdPConfig(eckey.getKeyID());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         this.accessTokenStore = new InMemoryAccessTokenStore();
+        var jwks = new JWKSet(List.of(rsaKey, eckey));
         this.sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(accessTokenStore),
-                        new IDTokenIssuer(config, new JWKSet(List.of(rsaKey, eckey))),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
                         config);
 
         clientStore.save(clientEs256);
@@ -384,7 +386,7 @@ class AuthorizeTest_Implicit {
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(accessTokenStore),
-                        new IDTokenIssuer(config, jwks),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()

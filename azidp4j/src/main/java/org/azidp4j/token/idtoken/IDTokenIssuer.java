@@ -1,6 +1,8 @@
 package org.azidp4j.token.idtoken;
 
 import com.nimbusds.jose.JOSEObject;
+import com.nimbusds.jose.Payload;
+import com.nimbusds.jose.PlainObject;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.util.Base64URL;
 import java.security.MessageDigest;
@@ -9,6 +11,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.jwt.JWSIssuer;
@@ -20,9 +23,13 @@ public class IDTokenIssuer {
 
     private final JWSIssuer jwsIssuer;
 
-    public IDTokenIssuer(AzIdPConfig config, JWKSet jwkSet) {
+    private final Function<SigningAlgorithm, String> kidSupplier;
+
+    public IDTokenIssuer(
+            AzIdPConfig config, JWKSet jwkSet, Function<SigningAlgorithm, String> kidSupplier) {
         this.config = config;
         this.jwsIssuer = new JWSIssuer(jwkSet);
+        this.kidSupplier = kidSupplier;
     }
 
     public JOSEObject issue(
@@ -60,7 +67,10 @@ public class IDTokenIssuer {
                         atHash,
                         "c_hash",
                         cHash);
-        return jwsIssuer.issue(alg, claims);
+        if (alg.equals(SigningAlgorithm.none)) {
+            return new PlainObject(new Payload(claims));
+        }
+        return jwsIssuer.issue(kidSupplier.apply(alg), null, claims);
     }
 
     private String calculateXHash(String token) {

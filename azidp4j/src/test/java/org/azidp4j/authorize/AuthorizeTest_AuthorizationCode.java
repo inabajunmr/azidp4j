@@ -17,6 +17,7 @@ import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.scope.ScopeAudienceMapper;
+import org.azidp4j.token.SampleIdTokenKidSupplier;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
@@ -30,13 +31,14 @@ class AuthorizeTest_AuthorizationCode {
     final Client noResponseTypesClient = Fixtures.noResponseTypeClient();
     final AzIdPConfig config = Fixtures.azIdPConfig("kid");
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
+    final JWKSet jwks = new JWKSet();
     final Authorize sut =
             new Authorize(
                     clientStore,
                     new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                     scopeAudienceMapper,
                     new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
-                    new IDTokenIssuer(config, new JWKSet()),
+                    new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
                     config);
 
     public AuthorizeTest_AuthorizationCode() {
@@ -85,7 +87,7 @@ class AuthorizeTest_AuthorizationCode {
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
-                        new IDTokenIssuer(config, new JWKSet()),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
@@ -152,7 +154,7 @@ class AuthorizeTest_AuthorizationCode {
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
-                        new IDTokenIssuer(config, new JWKSet()),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
@@ -192,7 +194,7 @@ class AuthorizeTest_AuthorizationCode {
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
-                        new IDTokenIssuer(config, new JWKSet()),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()

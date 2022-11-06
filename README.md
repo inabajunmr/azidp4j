@@ -22,7 +22,9 @@ azidp4j is library for Java OAuth 2.0 Authorization Server & OpenID Connect Iden
 * [OAuth 2.0 Dynamic Client Registration Protocol](https://www.rfc-editor.org/rfc/rfc7591)
 * [OpenID Connect Dynamic Client Registration 1.0](https://openid.net/specs/openid-connect-registration-1_0.html)
 
-### azidp4j doesn't support(you need to implement)
+### azidp4j doesn't support
+
+Application needs to implement...
 
 * Web application server
 * Persistence
@@ -32,6 +34,7 @@ azidp4j is library for Java OAuth 2.0 Authorization Server & OpenID Connect Iden
 ## Quickstart
 
 ### Initialization
+
 ```java
 
 var discovery =
@@ -49,13 +52,10 @@ var rs256 =
                 .keyID("rs256key")
                 .algorithm(new Algorithm("RS256"))
                 .generate();
-var es256 =
-        new ECKeyGenerator(Curve.P_256).keyID("es256key")
-                .algorithm(new Algorithm("ES256"))
-                .generate();
 var azIdP = AzIdP.initInMemory()
         .issuer("https://example.com")
-        .jwkSet(new JWKSet(List.of(rs256, es256)))
+        .jwkSet(new JWKSet(List.of(rs256)))
+        .idTokenKidSupplier((alg) -> rs256.getKeyID())
         .staticScopeAudienceMapper("audience")
         .scopesSupported(Set.of("openid"))
         .defaultScopes(Set.of())

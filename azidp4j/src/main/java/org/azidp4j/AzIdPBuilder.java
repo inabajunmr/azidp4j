@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
@@ -15,10 +16,7 @@ import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCod
 import org.azidp4j.authorize.authorizationcode.jwt.JwtAuthorizationCodeService;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
-import org.azidp4j.client.ClientStore;
-import org.azidp4j.client.ClientValidator;
-import org.azidp4j.client.GrantType;
-import org.azidp4j.client.InMemoryClientStore;
+import org.azidp4j.client.*;
 import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.UserPasswordVerifier;
@@ -35,6 +33,7 @@ public class AzIdPBuilder {
 
     private String issuer = null;
     private JWKSet jwkSet = null;
+    private Function<SigningAlgorithm, String> idTokenKidSupplier;
     private Set<String> scopesSupported = null;
     private Set<String> defaultScopes = null;
     private Duration authorizationCodeExpiration = Duration.ofSeconds(60);
@@ -68,6 +67,11 @@ public class AzIdPBuilder {
 
     public AzIdPBuilder jwkSet(JWKSet jwkSet) {
         this.jwkSet = jwkSet;
+        return this;
+    }
+
+    public AzIdPBuilder idTokenKidSupplier(Function<SigningAlgorithm, String> idTokenKidSupplier) {
+        this.idTokenKidSupplier = idTokenKidSupplier;
         return this;
     }
 
@@ -231,6 +235,7 @@ public class AzIdPBuilder {
 
         if (scopesSupported != null && scopesSupported.contains("openid")) {
             required(errors, "jwkSet", jwkSet);
+            required(errors, "idTokenKidSupplier", idTokenKidSupplier);
             required(errors, "idTokenExpiration", idTokenExpiration);
         }
 
@@ -245,6 +250,9 @@ public class AzIdPBuilder {
             required(errors, "refreshTokenService", refreshTokenService);
         }
         required(errors, "accessTokenService", accessTokenService);
+
+        // TODO JWKSet has key signing alg supported
+        // TODO all idTokenKidSupplier issued kid against all signing alg contains JWKSet
 
         if (!errors.isEmpty()) {
             var joiner = new StringJoiner("\n");
@@ -268,6 +276,7 @@ public class AzIdPBuilder {
                 config,
                 discoveryConfig,
                 jwkSet,
+                idTokenKidSupplier,
                 clientStore,
                 clientValidator,
                 authorizationCodeService,

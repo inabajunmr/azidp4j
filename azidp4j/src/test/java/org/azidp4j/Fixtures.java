@@ -15,6 +15,7 @@ public class Fixtures {
     public static AzIdPBuilder azIdPBuilder(JWKSet jwkSet) {
         return AzIdP.initInMemory()
                 .jwkSet(jwkSet)
+                .idTokenKidSupplier((alg) -> jwkSet.getKeys().get(0).getKeyID())
                 .issuer("http://localhost:8080")
                 .grantTypesSupported(
                         Set.of(

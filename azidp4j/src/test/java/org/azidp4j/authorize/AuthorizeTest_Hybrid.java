@@ -25,6 +25,7 @@ import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
 import org.azidp4j.scope.ScopeAudienceMapper;
+import org.azidp4j.token.SampleIdTokenKidSupplier;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
@@ -53,7 +54,7 @@ class AuthorizeTest_Hybrid {
                     new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                     scopeAudienceMapper,
                     accessTokenService,
-                    new IDTokenIssuer(config, jwks),
+                    new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
                     config);
 
     public AuthorizeTest_Hybrid() throws JOSEException {

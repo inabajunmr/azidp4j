@@ -44,6 +44,7 @@ class AzIdPBuilderTest {
         AzIdP.initInMemory()
                 .issuer("https://example.com")
                 .jwkSet(new JWKSet())
+                .idTokenKidSupplier((alg) -> "kid")
                 .staticScopeAudienceMapper("audience")
                 .scopesSupported(Set.of("openid"))
                 .defaultScopes(Set.of())

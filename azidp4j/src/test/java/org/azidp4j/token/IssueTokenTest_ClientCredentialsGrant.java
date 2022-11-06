@@ -36,7 +36,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                 new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig(key.getKeyID());
         this.accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks);
+        var idTokenIssuer = new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks));
         var clientStore = new InMemoryClientStore();
         clientStore.save(Fixtures.confidentialClient());
         var scopeAudienceMapper = new SampleScopeAudienceMapper();

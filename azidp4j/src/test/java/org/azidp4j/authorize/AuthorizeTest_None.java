@@ -21,6 +21,7 @@ import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.*;
 import org.azidp4j.scope.SampleScopeAudienceMapper;
+import org.azidp4j.token.SampleIdTokenKidSupplier;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
@@ -72,13 +73,14 @@ class AuthorizeTest_None {
                         Duration.ofSeconds(604800),
                         Duration.ofSeconds(3600));
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
+        var jwks = new JWKSet();
         var sut =
                 new Authorize(
                         clientStore,
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
-                        new IDTokenIssuer(config, new JWKSet()),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()

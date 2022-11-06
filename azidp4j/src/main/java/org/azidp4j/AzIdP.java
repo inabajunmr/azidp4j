@@ -2,6 +2,7 @@ package org.azidp4j;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.azidp4j.authorize.*;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
@@ -66,6 +67,7 @@ public class AzIdP {
             AzIdPConfig azIdPConfig,
             DiscoveryConfig discoveryConfig,
             JWKSet jwkSet,
+            Function<SigningAlgorithm, String> kidSupplier,
             ClientStore clientStore,
             ClientValidator clientValidator,
             AuthorizationCodeService authorizationCodeService,
@@ -74,7 +76,7 @@ public class AzIdP {
             ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier) {
         this.discovery = new Discovery(azIdPConfig, discoveryConfig);
-        var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet);
+        var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet, kidSupplier);
         this.authorize =
                 new Authorize(
                         clientStore,

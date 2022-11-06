@@ -64,6 +64,20 @@ public class AzIdPConfiguration {
                 AzIdP.init()
                         .issuer(endpoint)
                         .jwkSet(jwkSet)
+                        .idTokenKidSupplier(
+                                (signingAlgorithm -> {
+                                    var key =
+                                            jwkSet.getKeys().stream()
+                                                    .filter(
+                                                            k ->
+                                                                    k.getAlgorithm()
+                                                                            .getName()
+                                                                            .equals(
+                                                                                    signingAlgorithm
+                                                                                            .name()))
+                                                    .findAny();
+                                    return key.orElseThrow(AssertionError::new).getKeyID();
+                                }))
                         .scopesSupported(Set.of("openid", "scope1", "scope2", "default"))
                         .defaultScopes(Set.of("openid", "scope1"))
                         .grantTypesSupported(
