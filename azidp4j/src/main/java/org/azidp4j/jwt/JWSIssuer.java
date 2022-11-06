@@ -61,7 +61,7 @@ public class JWSIssuer {
             var key =
                     jwkSet.getKeys().stream()
                             .filter(jwk -> jwk.getAlgorithm().getName().equals(alg.name()))
-                            .findAny();
+                            .findAny(); // TODO should opt kid
             if (key.isEmpty()) {
                 throw new AssertionError();
             }

@@ -14,6 +14,7 @@ import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCod
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.authorizationcode.jwt.JwtAuthorizationCodeService;
 import org.azidp4j.authorize.request.ResponseMode;
+import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.ClientValidator;
 import org.azidp4j.client.GrantType;
@@ -42,6 +43,7 @@ public class AzIdPBuilder {
     private Duration refreshTokenExpiration = Duration.ofDays(1);
     private Set<GrantType> grantTypesSupported =
             Set.of(GrantType.authorization_code, GrantType.implicit);
+    private Set<Set<ResponseType>> responseTypesSupported;
     private Set<ResponseMode> responseModesSupported =
             Set.of(ResponseMode.query, ResponseMode.fragment);
     private ClientStore clientStore = null;
@@ -101,6 +103,11 @@ public class AzIdPBuilder {
 
     public AzIdPBuilder grantTypesSupported(Set<GrantType> grantTypesSupported) {
         this.grantTypesSupported = grantTypesSupported;
+        return this;
+    }
+
+    public AzIdPBuilder responseTypesSupported(Set<Set<ResponseType>> responseTypesSupported) {
+        this.responseTypesSupported = responseTypesSupported;
         return this;
     }
 
@@ -219,6 +226,9 @@ public class AzIdPBuilder {
                 errors.add("responseModesSupported is required");
             }
         }
+
+        defaultResponseTypesSupported();
+
         if (scopesSupported != null && scopesSupported.contains("openid")) {
             required(errors, "jwkSet", jwkSet);
             required(errors, "idTokenExpiration", idTokenExpiration);
@@ -248,6 +258,7 @@ public class AzIdPBuilder {
                         scopesSupported,
                         defaultScopes,
                         grantTypesSupported,
+                        responseTypesSupported,
                         responseModesSupported,
                         accessTokenExpiration,
                         authorizationCodeExpiration,
@@ -264,6 +275,28 @@ public class AzIdPBuilder {
                 refreshTokenService,
                 scopeAudienceMapper,
                 userPasswordVerifier);
+    }
+
+    private void defaultResponseTypesSupported() {
+        if (responseTypesSupported != null) {
+            return;
+        }
+
+        if (!grantTypesSupported.contains(GrantType.implicit)) {
+            responseTypesSupported = Set.of(Set.of(ResponseType.code));
+            return;
+        }
+
+        if (scopesSupported != null && scopesSupported.contains("openid")) {
+            responseTypesSupported =
+                    Set.of(
+                            Set.of(ResponseType.code),
+                            Set.of(ResponseType.token),
+                            Set.of(ResponseType.id_token),
+                            Set.of(ResponseType.token, ResponseType.id_token));
+        } else {
+            responseTypesSupported = Set.of(Set.of(ResponseType.code), Set.of(ResponseType.token));
+        }
     }
 
     private void constructJwtServices() {

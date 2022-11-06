@@ -30,6 +30,17 @@ class InternalClientValidatorTest {
                                 // GrantType.password, // target
                                 GrantType.client_credentials,
                                 GrantType.refresh_token),
+                        Set.of(
+                                Set.of(ResponseType.code),
+                                Set.of(ResponseType.token),
+                                Set.of(ResponseType.id_token),
+                                Set.of(ResponseType.code, ResponseType.token),
+                                Set.of(ResponseType.code, ResponseType.id_token),
+                                Set.of(ResponseType.token, ResponseType.id_token),
+                                Set.of(
+                                        ResponseType.code,
+                                        ResponseType.token,
+                                        ResponseType.id_token)),
                         Set.of(ResponseMode.query, ResponseMode.fragment),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
@@ -82,7 +93,7 @@ class InternalClientValidatorTest {
     }
 
     @Test
-    void validate_NotSupportedScope() {
+    void validate_NotSupportedResponseTypes() {
         // setup
         var client =
                 new Client(
@@ -95,6 +106,53 @@ class InternalClientValidatorTest {
                                         ResponseType.token,
                                         ResponseType.id_token,
                                         ResponseType.none)),
+                        ApplicationType.WEB,
+                        Set.of(
+                                GrantType.authorization_code,
+                                GrantType.implicit,
+                                GrantType.password,
+                                GrantType.client_credentials,
+                                GrantType.refresh_token),
+                        null,
+                        null,
+                        null,
+                        "unknown",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        null,
+                        SigningAlgorithm.ES256,
+                        null,
+                        null,
+                        null);
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("unsupported response types", e.getMessage());
+        }
+    }
+
+    @Test
+    void validate_NotSupportedScope() {
+        // setup
+        var client =
+                new Client(
+                        "confidential",
+                        "secret",
+                        Set.of("https://rp1.example.com", "https://rp2.example.com"),
+                        Set.of(
+                                Set.of(
+                                        ResponseType.code,
+                                        ResponseType.token,
+                                        ResponseType.id_token)),
                         ApplicationType.WEB,
                         Set.of(
                                 GrantType.authorization_code,
@@ -141,8 +199,7 @@ class InternalClientValidatorTest {
                                 Set.of(
                                         ResponseType.code,
                                         ResponseType.token,
-                                        ResponseType.id_token,
-                                        ResponseType.none)),
+                                        ResponseType.id_token)),
                         ApplicationType.WEB,
                         Set.of(
                                 GrantType.authorization_code,

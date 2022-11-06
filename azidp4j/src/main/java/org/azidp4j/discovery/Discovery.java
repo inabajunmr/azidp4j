@@ -34,14 +34,7 @@ public class Discovery {
                 "scopes_supported",
                 config.scopesSupported,
                 "response_types_supported",
-                Set.of( // TODO customize
-                        "code",
-                        "token",
-                        "id_token",
-                        "code token",
-                        "code id_token",
-                        "id_token token",
-                        "code id_token token"),
+                config.responseTypeSupported, // TODO client registration validation
                 "response_modes_supported",
                 config.responseModesSupported,
                 "grant_types_supported",
@@ -84,9 +77,9 @@ public class Discovery {
                 false,
                 "request_parameter_supported",
                 false,
-                //                "request_uri_parameter_supported", // the parameter is false,
+                // "request_uri_parameter_supported", // the parameter is false,
                 // oidcc-basic-certification-test-plan	will be failed.
-                //                false,
+                // false,
                 "require_request_uri_registration",
                 false,
                 // "op_policy_uri", null,

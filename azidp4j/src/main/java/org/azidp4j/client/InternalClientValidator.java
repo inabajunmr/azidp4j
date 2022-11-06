@@ -32,6 +32,10 @@ public class InternalClientValidator {
             throw new IllegalArgumentException("unsupported grant types");
         }
 
+        if (!config.responseTypeSupported.containsAll(client.responseTypes)) {
+            throw new IllegalArgumentException("unsupported response types");
+        }
+
         if (config.scopesSupported != null && client.scope != null) {
             if (!config.scopesSupported.containsAll(
                     Arrays.stream(client.scope.split(" ")).toList())) {

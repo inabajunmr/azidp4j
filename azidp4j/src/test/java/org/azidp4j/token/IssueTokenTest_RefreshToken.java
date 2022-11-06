@@ -268,6 +268,7 @@ public class IssueTokenTest_RefreshToken {
                         Set.of("openid", "scope1"),
                         Set.of(GrantType.refresh_token),
                         Set.of(),
+                        Set.of(),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(-1), // always issuing expired

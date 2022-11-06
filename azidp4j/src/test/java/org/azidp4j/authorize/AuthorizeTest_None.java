@@ -65,6 +65,7 @@ class AuthorizeTest_None {
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
                         Set.of(GrantType.authorization_code),
+                        Set.of(Set.of(ResponseType.none)),
                         Set.of(ResponseMode.query, ResponseMode.fragment),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),

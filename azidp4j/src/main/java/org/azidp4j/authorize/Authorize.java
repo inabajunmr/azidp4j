@@ -60,6 +60,10 @@ public class Authorize {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
         }
+        if (!config.responseTypeSupported.contains(responseType)) {
+            return AuthorizationResponse.errorPage(
+                    AuthorizationErrorTypeWithoutRedirect.unsupported_response_type);
+        }
 
         var responseMode = ResponseMode.of(authorizationRequest.responseMode, responseType);
         if (responseMode == null) {
