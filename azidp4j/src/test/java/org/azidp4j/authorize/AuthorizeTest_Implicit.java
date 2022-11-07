@@ -258,6 +258,7 @@ class AuthorizeTest_Implicit {
                         .authenticatedUserId("username")
                         .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
                         .state("xyz")
+                        .nonce("abc")
                         .build();
 
         // exercise
@@ -288,7 +289,7 @@ class AuthorizeTest_Implicit {
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
-                null,
+                "abc",
                 fragmentMap.get("access_token"),
                 null);
     }
@@ -306,6 +307,7 @@ class AuthorizeTest_Implicit {
                         .authenticatedUserId("username")
                         .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
                         .state("xyz")
+                        .nonce("abc")
                         .build();
 
         // exercise
@@ -336,7 +338,7 @@ class AuthorizeTest_Implicit {
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
-                null,
+                "abc",
                 fragmentMap.get("access_token"),
                 null);
     }
@@ -398,6 +400,7 @@ class AuthorizeTest_Implicit {
                         .authenticatedUserId("username")
                         .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
                         .state("xyz")
+                        .nonce("abc")
                         .build();
 
         // exercise
@@ -427,7 +430,7 @@ class AuthorizeTest_Implicit {
                 Instant.now().getEpochSecond() + 3600,
                 Instant.now().getEpochSecond(),
                 Instant.now().getEpochSecond(),
-                null,
+                "abc",
                 fragmentMap.get("access_token"),
                 null);
     }

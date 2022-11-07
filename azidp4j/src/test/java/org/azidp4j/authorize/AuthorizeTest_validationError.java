@@ -571,4 +571,28 @@ class AuthorizeTest_validationError {
                 response.errorPage.errorType,
                 AuthorizationErrorTypeWithoutRedirect.unsupported_response_mode);
     }
+
+    @Test
+    void oidcImplicitButNoNonce() {
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("id_token")
+                        .authTime(Instant.now().getEpochSecond())
+                        .clientId(client.clientId)
+                        .redirectUri("http://rp1.example.com")
+                        .scope("rs:scope1")
+                        .responseMode("fragment")
+                        .authenticatedUserId("username")
+                        .state("xyz")
+                        .build();
+        var response = sut.authorize(authorizationRequest);
+        assertEquals(response.next, NextAction.redirect);
+        var location = URI.create(response.redirect.redirectTo);
+        assertEquals("rp1.example.com", location.getHost());
+        var queryMap =
+                Arrays.stream(location.getFragment().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals("xyz", queryMap.get("state"));
+        assertEquals("invalid_request", queryMap.get("error"));
+    }
 }

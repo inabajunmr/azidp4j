@@ -163,6 +163,16 @@ public class Authorize {
             }
         }
 
+        // implicit requires nonce
+        // ref. https://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthRequest
+        if (responseType.contains(ResponseType.id_token) && authorizationRequest.nonce == null) {
+            return AuthorizationResponse.redirect(
+                    redirectUri,
+                    MapUtil.nullRemovedStringMap(
+                            "error", "invalid_request", "state", authorizationRequest.state),
+                    responseMode);
+        }
+
         // validate scope
         if (!scopeValidator.hasEnoughScope(scope, client)) {
             return AuthorizationResponse.redirect(
