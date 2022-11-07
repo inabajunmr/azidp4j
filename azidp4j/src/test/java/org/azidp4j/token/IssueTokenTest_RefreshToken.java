@@ -269,6 +269,7 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(GrantType.refresh_token),
                         Set.of(),
                         Set.of(),
+                        Set.of(SigningAlgorithm.ES256),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(-1), // always issuing expired

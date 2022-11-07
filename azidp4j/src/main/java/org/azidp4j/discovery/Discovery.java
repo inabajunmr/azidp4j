@@ -43,7 +43,7 @@ public class Discovery {
                 "subject_types_supported",
                 Set.of("public"),
                 "id_token_signing_alg_values_supported",
-                Set.of("ES256", "RS256", "none"),
+                config.idTokenSigningAlgValuesSupported,
                 "id_token_encryption_alg_values_supported",
                 Set.of(),
                 "id_token_encryption_enc_values_supported",

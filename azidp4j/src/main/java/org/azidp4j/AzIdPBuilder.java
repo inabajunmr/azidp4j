@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
@@ -32,7 +33,8 @@ import org.azidp4j.token.refreshtoken.jwt.JwtRefreshTokenService;
 public class AzIdPBuilder {
 
     private String issuer = null;
-    private JWKSet jwkSet = null;
+    private JWKSet jwkSet;
+    private Set<SigningAlgorithm> idTokenSigningAlgValuesSupported;
     private Function<SigningAlgorithm, String> idTokenKidSupplier;
     private Set<String> scopesSupported = null;
     private Set<String> defaultScopes = null;
@@ -67,6 +69,12 @@ public class AzIdPBuilder {
 
     public AzIdPBuilder jwkSet(JWKSet jwkSet) {
         this.jwkSet = jwkSet;
+        return this;
+    }
+
+    public AzIdPBuilder idTokenSigningAlgValuesSupported(
+            Set<SigningAlgorithm> idTokenSigningAlgValuesSupported) {
+        this.idTokenSigningAlgValuesSupported = idTokenSigningAlgValuesSupported;
         return this;
     }
 
@@ -233,26 +241,20 @@ public class AzIdPBuilder {
 
         defaultResponseTypesSupported();
 
-        if (scopesSupported != null && scopesSupported.contains("openid")) {
+        if (isOpenId()) {
             required(errors, "jwkSet", jwkSet);
             required(errors, "idTokenKidSupplier", idTokenKidSupplier);
             required(errors, "idTokenExpiration", idTokenExpiration);
+            if (idTokenSigningAlgValuesSupported == null) {
+                idTokenSigningAlgValuesSupported =
+                        jwkSet.getKeys().stream()
+                                .map(v -> SigningAlgorithm.of(v.getAlgorithm().getName()))
+                                .collect(Collectors.toSet());
+            }
         }
-
+        validateIdTokenSigningAlgAndJwkSet(errors);
         constructJwtServices();
-
-        // validate
-        if (grantTypesSupported.contains(GrantType.authorization_code)) {
-            required(errors, "authorizationCodeService", authorizationCodeService);
-        }
-        required(errors, "accessTokenService", accessTokenService);
-        if (grantTypesSupported.contains(GrantType.refresh_token)) {
-            required(errors, "refreshTokenService", refreshTokenService);
-        }
-        required(errors, "accessTokenService", accessTokenService);
-
-        // TODO JWKSet has key signing alg supported
-        // TODO all idTokenKidSupplier issued kid against all signing alg contains JWKSet
+        validateTokenServices(errors);
 
         if (!errors.isEmpty()) {
             var joiner = new StringJoiner("\n");
@@ -268,6 +270,7 @@ public class AzIdPBuilder {
                         grantTypesSupported,
                         responseTypesSupported,
                         responseModesSupported,
+                        idTokenSigningAlgValuesSupported,
                         accessTokenExpiration,
                         authorizationCodeExpiration,
                         refreshTokenExpiration,
@@ -284,6 +287,44 @@ public class AzIdPBuilder {
                 refreshTokenService,
                 scopeAudienceMapper,
                 userPasswordVerifier);
+    }
+
+    private void validateTokenServices(List<String> errors) {
+        if (grantTypesSupported.contains(GrantType.authorization_code)) {
+            required(errors, "authorizationCodeService", authorizationCodeService);
+        }
+        required(errors, "accessTokenService", accessTokenService);
+        if (grantTypesSupported.contains(GrantType.refresh_token)) {
+            required(errors, "refreshTokenService", refreshTokenService);
+        }
+        required(errors, "accessTokenService", accessTokenService);
+    }
+
+    private void validateIdTokenSigningAlgAndJwkSet(List<String> errors) {
+        if (!isOpenId()) {
+            return;
+        }
+        idTokenSigningAlgValuesSupported.forEach(
+                alg -> {
+                    if (alg == SigningAlgorithm.none) {
+                        return;
+                    }
+                    var kid = idTokenKidSupplier.apply(alg);
+                    if (jwkSet.getKeyByKeyId(kid) == null) {
+                        errors.add(
+                                "idTokenKidSupplier supply "
+                                        + kid
+                                        + " but jwkSet doesn't have "
+                                        + kid);
+                    }
+                });
+    }
+
+    private boolean isOpenId() {
+        if (scopesSupported == null) {
+            return false;
+        }
+        return scopesSupported.contains("openid");
     }
 
     private void defaultResponseTypesSupported() {

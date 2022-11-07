@@ -2,10 +2,7 @@ package org.azidp4j.authorize;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
@@ -30,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class AuthorizeTest_None {
 
     @Test
-    void none() throws JOSEException {
+    void none() {
         // setup
         var clientStore = new InMemoryClientStore();
         var client =
@@ -59,7 +56,6 @@ class AuthorizeTest_None {
                         null,
                         null);
         clientStore.save(client);
-        var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var config =
                 new AzIdPConfig(
                         "http://localhost:8080",
@@ -68,6 +64,7 @@ class AuthorizeTest_None {
                         Set.of(GrantType.authorization_code),
                         Set.of(Set.of(ResponseType.none)),
                         Set.of(ResponseMode.query, ResponseMode.fragment),
+                        Set.of(SigningAlgorithm.none),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
