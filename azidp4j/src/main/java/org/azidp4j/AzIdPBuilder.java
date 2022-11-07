@@ -219,7 +219,9 @@ public class AzIdPBuilder {
         List<String> errors = new ArrayList<>();
         validateIssuer(errors, issuer);
         required(errors, "scopesSupported", scopesSupported);
-        required(errors, "defaultScopes", defaultScopes);
+        if (defaultScopes == null) {
+            defaultScopes = Set.of();
+        }
         required(errors, "accessTokenExpiration", accessTokenExpiration);
         required(errors, "authorizationCodeExpiration", authorizationCodeExpiration);
         required(errors, "refreshTokenExpiration", refreshTokenExpiration);

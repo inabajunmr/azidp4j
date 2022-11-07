@@ -58,7 +58,6 @@ var azIdP = AzIdP.initInMemory()
         .idTokenKidSupplier((alg) -> rs256.getKeyID())
         .staticScopeAudienceMapper("audience")
         .scopesSupported(Set.of("openid"))
-        .defaultScopes(Set.of())
         .discovery(discovery).build();
 ```
 
