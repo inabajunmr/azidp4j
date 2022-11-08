@@ -36,9 +36,8 @@ public class IntrospectionEndpointHandler {
             HttpServletRequest request,
             @RequestParam MultiValueMap<String, Object> body,
             Authentication authentication) {
-
         LOGGER.info(IntrospectionEndpointHandler.class.getName());
-        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("CLIENT"))) {
+        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CLIENT"))) {
             return ResponseEntity.status(401).build();
         }
 

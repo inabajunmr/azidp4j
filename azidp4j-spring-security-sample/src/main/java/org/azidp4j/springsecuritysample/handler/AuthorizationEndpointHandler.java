@@ -116,7 +116,8 @@ public class AuthorizationEndpointHandler {
                                                 additionalPage.clientId, StandardCharsets.UTF_8))
                                 .build();
             }
-            case select_account -> throw new AssertionError();
+            case select_account -> throw new AssertionError(
+                    "This sample doesn't support select_account");
             default -> throw new AssertionError();
         }
     }

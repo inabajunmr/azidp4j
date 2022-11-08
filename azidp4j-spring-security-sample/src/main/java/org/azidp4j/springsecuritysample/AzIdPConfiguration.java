@@ -64,20 +64,7 @@ public class AzIdPConfiguration {
                 AzIdP.init()
                         .issuer(endpoint)
                         .jwkSet(jwkSet)
-                        .idTokenKidSupplier(
-                                (signingAlgorithm -> {
-                                    var key =
-                                            jwkSet.getKeys().stream()
-                                                    .filter(
-                                                            k ->
-                                                                    k.getAlgorithm()
-                                                                            .getName()
-                                                                            .equals(
-                                                                                    signingAlgorithm
-                                                                                            .name()))
-                                                    .findAny();
-                                    return key.orElseThrow(AssertionError::new).getKeyID();
-                                }))
+                        .idTokenKidSupplier(new IdTokenKidSupplier(jwkSet))
                         .scopesSupported(Set.of("openid", "scope1", "scope2", "default"))
                         .defaultScopes(Set.of("openid", "scope1"))
                         .grantTypesSupported(
@@ -89,6 +76,8 @@ public class AzIdPConfiguration {
                                         GrantType.refresh_token))
                         .customClientStore(clientStore)
                         .customClientValidator(new ClientValidator())
+                        // integration test inject some type of service so don't use shortcut
+                        // interface
                         .customAuthorizationCodeService(
                                 authorizationCodeService) // TODO inMemory interface
                         .customScopeAudienceMapper(scopeAudienceMapper)

@@ -4,13 +4,14 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.AzIdP;
 import org.azidp4j.client.ClientStore;
-import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.azidp4j.token.request.TokenRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationConverter;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -37,35 +38,11 @@ public class TokenEndpointHandler {
 
         // attempt basic authentication
         String authenticatedClientId = null;
-        {
-            var usernamePasswordAuthenticationToken = authenticationConverter.convert(request);
-            if (usernamePasswordAuthenticationToken != null) {
-                var client = clientStore.find(usernamePasswordAuthenticationToken.getName());
-                if (client.isPresent()
-                        && client.get()
-                                .clientSecret
-                                .equals(usernamePasswordAuthenticationToken.getCredentials())
-                        && client.get().tokenEndpointAuthMethod
-                                == TokenEndpointAuthMethod.client_secret_basic) {
-                    authenticatedClientId = client.get().clientId;
-                }
-            }
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null
+                && auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CLIENT"))) {
+            authenticatedClientId = auth.getName();
         }
-
-        // attempt body authentication
-        if (authenticatedClientId == null && body.containsKey("client_id")) {
-            var clientId = body.get("client_id").get(0).toString();
-            var client = clientStore.find(clientId);
-            if (client.isPresent()
-                    && client.get().tokenEndpointAuthMethod
-                            == TokenEndpointAuthMethod.client_secret_post
-                    && body.containsKey("client_secret")) {
-                if (client.get().clientSecret.equals(body.get("client_secret").get(0))) {
-                    authenticatedClientId = client.get().clientId;
-                }
-            }
-        }
-
         var response =
                 azIdP.issueToken(new TokenRequest(authenticatedClientId, body.toSingleValueMap()));
         return ResponseEntity.status(response.status).body(response.body);

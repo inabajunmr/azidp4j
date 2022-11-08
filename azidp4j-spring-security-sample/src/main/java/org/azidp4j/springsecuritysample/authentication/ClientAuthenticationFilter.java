@@ -1,4 +1,4 @@
-package org.azidp4j.springsecuritysample;
+package org.azidp4j.springsecuritysample.authentication;
 
 import java.io.IOException;
 import java.util.Set;
@@ -6,7 +6,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.azidp4j.springsecuritysample.authentication.ClientAuthenticator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,7 +30,7 @@ public class ClientAuthenticationFilter extends OncePerRequestFilter {
                             new UsernamePasswordAuthenticationToken(
                                     client.clientId,
                                     client.clientSecret,
-                                    Set.of(new SimpleGrantedAuthority("CLIENT"))));
+                                    Set.of(new SimpleGrantedAuthority("ROLE_CLIENT"))));
             filterChain.doFilter(request, response);
         } else {
             filterChain.doFilter(request, response);

@@ -2,9 +2,11 @@ package org.azidp4j.springsecuritysample;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
+import org.azidp4j.AzIdP;
+import org.azidp4j.springsecuritysample.authentication.BearerTokenBodyAuthenticationFilter;
+import org.azidp4j.springsecuritysample.authentication.InternalOpaqueTokenIntrospector;
 import org.azidp4j.springsecuritysample.user.UserInfo;
 import org.azidp4j.springsecuritysample.user.UserStore;
-import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,8 +57,8 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public OpaqueTokenIntrospector introspector(AccessTokenService accessTokenService) {
-        return new InternalOpaqueTokenIntrospector(accessTokenService);
+    public OpaqueTokenIntrospector introspector(AzIdP azIdP) {
+        return new InternalOpaqueTokenIntrospector(azIdP);
     }
 
     @Bean

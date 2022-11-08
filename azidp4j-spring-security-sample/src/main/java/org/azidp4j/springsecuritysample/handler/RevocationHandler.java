@@ -37,7 +37,7 @@ public class RevocationHandler {
             Authentication authentication) {
         LOGGER.info(RevocationHandler.class.getName());
         String clientId = null;
-        if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("CLIENT"))) {
+        if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CLIENT"))) {
             clientId = authentication.getName();
         }
         var response = azIdP.revoke(new RevocationRequest(clientId, body.toSingleValueMap()));
