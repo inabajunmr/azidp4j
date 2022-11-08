@@ -311,14 +311,13 @@ public class IntegrationTest_Jwt {
 
         // userinfo endpoint(post with body bearer token)
         {
-            MultiValueMap<String, String> token = new LinkedMultiValueMap<>();
-            token.add("access_token", accessToken);
-            var userInfoRequest =
-                    RequestEntity.post(endpoint + "/userinfo")
-                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                            .accept(MediaType.APPLICATION_JSON)
-                            .body(token);
-            var userinfo = testRestTemplate.exchange(userInfoRequest, Map.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            // DefaultBearerTokenResolver doesn't accept x-www-form-urlencoded; charset=UTF8 but
+            // RestTemplate add it so using String
+            HttpEntity<String> entity = new HttpEntity<>("access_token=" + accessToken, headers);
+            var userinfo =
+                    testRestTemplate.postForEntity(endpoint + "/userinfo", entity, Map.class);
             assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
         }

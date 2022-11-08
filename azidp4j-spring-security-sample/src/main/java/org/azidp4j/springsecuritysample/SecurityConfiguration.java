@@ -3,7 +3,7 @@ package org.azidp4j.springsecuritysample;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import org.azidp4j.AzIdP;
-import org.azidp4j.springsecuritysample.authentication.BearerTokenBodyAuthenticationFilter;
+// import org.azidp4j.springsecuritysample.authentication.BearerTokenBodyAuthenticationFilter;
 import org.azidp4j.springsecuritysample.authentication.InternalOpaqueTokenIntrospector;
 import org.azidp4j.springsecuritysample.user.UserInfo;
 import org.azidp4j.springsecuritysample.user.UserStore;
@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -22,13 +23,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-    @Autowired BearerTokenBodyAuthenticationFilter bearerTokenBodyAuthenticationFilter;
-
     @Autowired UserStore userStore;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // @formatter:off
+        var resolver = new DefaultBearerTokenResolver();
+        resolver.setAllowFormEncodedBodyParameter(true);
         http.authorizeHttpRequests(
                         (authorize) ->
                                 authorize
@@ -45,8 +46,7 @@ public class SecurityConfiguration {
                                         .authenticated())
                 .httpBasic(withDefaults())
                 .formLogin(withDefaults())
-                .oauth2ResourceServer()
-                .opaqueToken();
+                .oauth2ResourceServer(oauth2 -> oauth2.bearerTokenResolver(resolver).opaqueToken());
         http.httpBasic().disable();
         http.csrf()
                 .ignoringAntMatchers(
