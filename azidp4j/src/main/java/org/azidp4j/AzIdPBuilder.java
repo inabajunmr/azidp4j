@@ -260,7 +260,7 @@ public class AzIdPBuilder {
 
         if (!errors.isEmpty()) {
             var joiner = new StringJoiner("\n");
-            errors.forEach(msg -> joiner.add(msg));
+            errors.forEach(joiner::add);
             throw new IllegalArgumentException(joiner.toString());
         }
 
@@ -399,10 +399,9 @@ public class AzIdPBuilder {
         }
     }
 
-    private List<String> required(List<String> errors, String name, Object value) {
+    private void required(List<String> errors, String name, Object value) {
         if (value == null) {
             errors.add(name + " is required.");
         }
-        return errors;
     }
 }

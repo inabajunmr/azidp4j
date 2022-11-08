@@ -19,7 +19,7 @@ public class RequestParserUtil {
                             throw new IllegalArgumentException();
                         }
                     });
-            return (Set<String>) cast.stream().collect(Collectors.toSet());
+            return new HashSet<String>(cast);
         } else if (values instanceof String[]) {
             return Arrays.stream((String[]) values).collect(Collectors.toSet());
         } else {
@@ -105,7 +105,7 @@ public class RequestParserUtil {
                     cast.keySet()
                             .forEach(
                                     k -> {
-                                        if (!(key instanceof String)) {
+                                        if (!(k instanceof String)) {
                                             throw new IllegalArgumentException();
                                         }
                                     });

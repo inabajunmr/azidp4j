@@ -350,6 +350,4 @@ public class IssueTokenTest_RefreshToken {
         assertEquals(response.status, 400);
         assertEquals("invalid_grant", response.body.get("error"));
     }
-
-    // TODO id_token?
 }
