@@ -5,7 +5,6 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.azidp4j.AzIdP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -24,7 +23,8 @@ public class BearerTokenBodyAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        // TODO consider https://spring.pleiades.io/spring-security/reference/5.8/servlet/oauth2/resource-server/bearer-tokens.html#_reading_the_bearer_token_from_a_custom_header
+        // TODO consider
+        // https://spring.pleiades.io/spring-security/reference/5.8/servlet/oauth2/resource-server/bearer-tokens.html#_reading_the_bearer_token_from_a_custom_header
         if (!request.getParameterMap().containsKey("access_token")) {
             filterChain.doFilter(request, response);
             return;
