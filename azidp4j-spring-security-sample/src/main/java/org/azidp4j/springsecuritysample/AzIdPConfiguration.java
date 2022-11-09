@@ -65,7 +65,7 @@ public class AzIdPConfiguration {
                         .issuer(endpoint)
                         .jwkSet(jwkSet)
                         .idTokenKidSupplier(new IdTokenKidSupplier(jwkSet))
-                        .scopesSupported(Set.of("openid", "scope1", "scope2", "default"))
+                        .scopesSupported(Set.of("openid", "scope1", "scope2", "client", "default"))
                         .defaultScopes(Set.of("openid", "scope1"))
                         .grantTypesSupported(
                                 Set.of(
@@ -90,8 +90,8 @@ public class AzIdPConfiguration {
                         Map.of(
                                 "redirect_uris",
                                         (Set.of(
-                                                "http://client.example.com/callback1",
-                                                "http://client.example.com/callback2")),
+                                                "https://client.example.com/callback1",
+                                                "https://client.example.com/callback2")),
                                 "grant_types",
                                         (Set.of(
                                                 "authorization_code",

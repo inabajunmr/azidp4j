@@ -38,13 +38,20 @@ public class AuthorizationEndpointHandler {
     public String authorizationEndpoint(
             @RequestParam Map<String, String> params, HttpServletRequest req) {
         LOGGER.info(AuthorizationEndpointHandler.class.getName());
+
+        // When user is unauthenticated, azidp4j accepts null as authenticatedUserName.
+        // In that case, azidp4j requires login page or error.
         String authenticatedUserName = null;
         if (req.getUserPrincipal() != null) {
             authenticatedUserName = req.getUserPrincipal().getName();
         }
+
+        // Consented scope management is out of scope from azidp.
         var clientId = params.getOrDefault("client_id", null);
         var consentedScopes =
                 inMemoryUserConsentStore.getUserConsents(authenticatedUserName, clientId);
+
+        // Construct AuthorizationRequest for azidp4j
         var authzReq =
                 new AuthorizationRequest(
                         authenticatedUserName,
@@ -53,15 +60,23 @@ public class AuthorizationEndpointHandler {
                                 : null,
                         consentedScopes,
                         params);
+
+        // Authorization Request
         var response = azIdP.authorize(authzReq);
+
+        // azidp4j responses what authorization should do next.
         switch (response.next) {
             case redirect -> {
                 return "redirect:" + response.redirect.redirectTo;
             }
             case errorPage -> {
+                // Error but can't redirect as authorization response.
+                // ex. redirect_uri is not allowed.
                 return errorPage(req, response);
             }
             case additionalPage -> {
+                // When authorization request processing needs additional action.
+                // ex. user authentication or request consent.
                 return additionalPage(req, authzReq, response.additionalPage);
             }
             default -> throw new AssertionError();
@@ -72,38 +87,61 @@ public class AuthorizationEndpointHandler {
             HttpServletRequest req, AuthorizationRequest authzReq, AdditionalPage additionalPage) {
         switch (additionalPage.prompt) {
             case login -> {
-                var session = req.getSession();
-                var map = new LinkedMultiValueMap<String, String>();
+                var queryParamsForSavedAuthorizationRequest =
+                        new LinkedMultiValueMap<String, String>();
+                // After user login, redirect to authorization once again.
+                // So server needs to save authorization request.
+                // But if request has prompt=login, same authorization request repeatedly requires
+                // login so
+                // remove the prompt parameter.
                 authzReq.removePrompt("login")
                         .queryParameters()
                         .forEach(
-                                (k, v) -> map.add(k, URLEncoder.encode(v, StandardCharsets.UTF_8)));
-                session.setAttribute(
-                        "SPRING_SECURITY_SAVED_REQUEST",
-                        new SimpleSavedRequest(
-                                UriComponentsBuilder.fromPath("/authorize")
-                                        .queryParams(map)
-                                        .build()
-                                        .toUriString()));
+                                (k, v) ->
+                                        queryParamsForSavedAuthorizationRequest.add(
+                                                k, URLEncoder.encode(v, StandardCharsets.UTF_8)));
+
+                // Save authorization request without prompt=login in session.
+                req.getSession()
+                        .setAttribute(
+                                "SPRING_SECURITY_SAVED_REQUEST",
+                                new SimpleSavedRequest(
+                                        UriComponentsBuilder.fromPath("/authorize")
+                                                .queryParams(
+                                                        queryParamsForSavedAuthorizationRequest)
+                                                .build()
+                                                .toUriString()));
+
+                // Redirect to Login page.
                 return "redirect:/login";
             }
             case consent -> {
-                var session = req.getSession();
-                var map = new LinkedMultiValueMap<String, String>();
+                // After user consent, redirect to authorization once again.
+                // So server needs to save authorization request.
+                // But if request has prompt=consent, same authorization request repeatedly requires
+                // login so
+                // remove the prompt parameter.
+                var queryParamsForSavedAuthorizationRequest =
+                        new LinkedMultiValueMap<String, String>();
                 authzReq.removePrompt("consent")
                         .queryParameters()
                         .forEach(
-                                (k, v) -> map.add(k, URLEncoder.encode(v, StandardCharsets.UTF_8)));
-                session.setAttribute(
-                        "SPRING_SECURITY_SAVED_REQUEST",
-                        new SimpleSavedRequest(
-                                UriComponentsBuilder.fromPath("/authorize")
-                                        .queryParams(map)
-                                        .build()
-                                        .toUriString()));
-                UriComponentsBuilder.fromPath("/consent")
-                        .queryParam("scope", authzReq.queryParameters().get("scope"))
-                        .build();
+                                (k, v) ->
+                                        queryParamsForSavedAuthorizationRequest.add(
+                                                k, URLEncoder.encode(v, StandardCharsets.UTF_8)));
+
+                // Save authorization request without prompt=consent in session.
+                req.getSession()
+                        .setAttribute(
+                                "SPRING_SECURITY_SAVED_REQUEST",
+                                new SimpleSavedRequest(
+                                        UriComponentsBuilder.fromPath("/authorize")
+                                                .queryParams(
+                                                        queryParamsForSavedAuthorizationRequest)
+                                                .build()
+                                                .toUriString()));
+
+                // Redirect to consent page.
                 return "redirect:"
                         + UriComponentsBuilder.fromPath("/consent")
                                 .queryParam(
@@ -116,7 +154,7 @@ public class AuthorizationEndpointHandler {
                                                 additionalPage.clientId, StandardCharsets.UTF_8))
                                 .build();
             }
-            case select_account -> throw new AssertionError(
+            case select_account -> throw new IllegalArgumentException(
                     "This sample doesn't support select_account");
             default -> throw new AssertionError();
         }

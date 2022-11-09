@@ -35,8 +35,6 @@ public class TokenEndpointHandler {
     public ResponseEntity<Map> tokenEndpoint(
             HttpServletRequest request, @RequestParam MultiValueMap<String, Object> body) {
         LOGGER.info(TokenEndpointHandler.class.getName());
-
-        // attempt basic authentication
         String authenticatedClientId = null;
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null
