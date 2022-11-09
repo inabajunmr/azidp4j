@@ -34,7 +34,6 @@ public class SampleAz {
     public AzIdP azIdP;
     private final JWKSet jwks;
     private final ClientStore clientStore;
-    private final AccessTokenService accessTokenService;
 
     public SampleAz() throws JOSEException {
 
@@ -61,7 +60,6 @@ public class SampleAz {
                         };
                     }
                 };
-        accessTokenService = new JwtAccessTokenService(jwks, "http://localhost:8080", es256::getKeyID);
         azIdP = AzIdP.initJwt(es256::getKeyID,es256::getKeyID,es256::getKeyID)
                 .issuer("http://localhost:8080")
                 .jwkSet(jwks)
@@ -96,7 +94,7 @@ public class SampleAz {
         server.createContext("/jwks", new JWKsEndpointHandler(jwks));
         server.createContext("/discovery", new DiscoveryHandler(azIdP));
         server.createContext("/client", new DynamicClientRegistrationHandler(azIdP))
-                .setAuthenticator(new InnerAccessTokenAuthenticator(accessTokenService)); // TODO introspect via azidp4j
+                .setAuthenticator(new InnerAccessTokenAuthenticator(azIdP));
         server.createContext("/login", new LoginHandler());
         server.createContext("/consent", new ConsentHandler());
         ExecutorService pool = Executors.newFixedThreadPool(1);

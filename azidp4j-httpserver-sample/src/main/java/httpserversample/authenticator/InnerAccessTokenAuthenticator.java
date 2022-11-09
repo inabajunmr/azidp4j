@@ -3,16 +3,18 @@ package httpserversample.authenticator;
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpPrincipal;
-import org.azidp4j.token.accesstoken.AccessTokenService;
+import org.azidp4j.AzIdP;
+import org.azidp4j.introspection.request.IntrospectionRequest;
 
 import java.util.Arrays;
+import java.util.Map;
 
 public class InnerAccessTokenAuthenticator extends Authenticator {
 
-    private final AccessTokenService accessTokenService;
+    private final AzIdP azIdP;
 
-    public InnerAccessTokenAuthenticator(AccessTokenService accessTokenService) {
-        this.accessTokenService = accessTokenService;
+    public InnerAccessTokenAuthenticator(AzIdP azIdP) {
+        this.azIdP = azIdP;
     }
 
     @Override
@@ -21,12 +23,16 @@ public class InnerAccessTokenAuthenticator extends Authenticator {
         if (!authorization.startsWith("Bearer ")) {
             return new Failure(403);
         }
-        var token = accessTokenService.introspect(authorization.replaceAll("^Bearer ", ""));
-        if(token.isPresent()) {
-            if(Arrays.asList(token.get().getScope().split(" ")).contains("default")){
+        var res = azIdP.introspect(new IntrospectionRequest(
+                Map.of("token", authorization.replaceAll("^Bearer ", ""), "token_type_hint", "access_token")));
+        if (res.status != 200) {
+            return new Failure(403);
+        }
+        if (res.body.get("active") instanceof Boolean active && active) {
+            if(Arrays.asList(res.body.get("scope").toString().split(" ")).contains("default")) {
                 return new Success(
                         new HttpPrincipal(
-                                token.get().getSub(),
+                                res.body.get("sub").toString(),
                                 "client registration"));
             }
         }

@@ -34,7 +34,7 @@ public class Discovery {
                 "scopes_supported",
                 config.scopesSupported,
                 "response_types_supported",
-                config.responseTypeSupported, // TODO client registration validation
+                config.responseTypeSupported,
                 "response_modes_supported",
                 config.responseModesSupported,
                 "grant_types_supported",

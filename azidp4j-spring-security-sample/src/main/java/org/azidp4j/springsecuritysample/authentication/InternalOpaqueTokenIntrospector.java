@@ -25,7 +25,6 @@ public class InternalOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
 
     @Override
     public OAuth2AuthenticatedPrincipal introspect(String token) {
-        // TODO using spring impl
         var res =
                 azIdP.introspect(
                         new IntrospectionRequest(

@@ -78,8 +78,7 @@ public class AzIdPConfiguration {
                         .customClientValidator(new ClientValidator())
                         // integration test inject some type of service so don't use shortcut
                         // interface
-                        .customAuthorizationCodeService(
-                                authorizationCodeService) // TODO inMemory interface
+                        .customAuthorizationCodeService(authorizationCodeService)
                         .customScopeAudienceMapper(scopeAudienceMapper)
                         .customAccessTokenService(accessTokenService)
                         .customRefreshTokenService(refreshTokenService)
