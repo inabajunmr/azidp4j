@@ -75,7 +75,7 @@ DELETE /client/${client_id}
 Client Registration Endpoint is implemented at [DynamicClientRegistrationEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/DynamicClientRegistrationEndpointHandler.java#L16).
 Show details at inline comments.
 
-The Controller has endpoint for delete client also.
+The Controller has endpoint for deletion client also.
 Client deletion requires bearer token that issued at client registration.
 The implementation uses Spring Security for introspect bearer token.
 Show details at inline comments.

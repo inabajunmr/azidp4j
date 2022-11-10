@@ -2,7 +2,6 @@ plugins {
     id("java")
     id("java-library")
     id("com.diffplug.spotless") version "6.10.0"
-    id("maven-publish")
 }
 
 group = "org.example"
@@ -28,17 +27,5 @@ tasks.getByName<Test>("test") {
 spotless {
     java {
         googleJavaFormat("1.15.0").aosp().reflowLongStrings()
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "org.azidp4j"
-            artifactId = "library"
-            version = "1.1"
-
-            from(components["java"])
-        }
     }
 }
