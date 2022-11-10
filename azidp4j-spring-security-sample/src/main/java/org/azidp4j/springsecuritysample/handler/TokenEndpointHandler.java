@@ -35,14 +35,21 @@ public class TokenEndpointHandler {
     public ResponseEntity<Map> tokenEndpoint(
             HttpServletRequest request, @RequestParam MultiValueMap<String, Object> body) {
         LOGGER.info(TokenEndpointHandler.class.getName());
+
+        // When client is unauthenticated, azidp4j accepts null as authenticatedClientId.
+        // If client isn't public client, azidp4j returns error.
         String authenticatedClientId = null;
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null
                 && auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CLIENT"))) {
             authenticatedClientId = auth.getName();
         }
+
+        // Token Request
         var response =
                 azIdP.issueToken(new TokenRequest(authenticatedClientId, body.toSingleValueMap()));
+
+        // azidp4j responses status code and response body.
         return ResponseEntity.status(response.status).body(response.body);
     }
 }

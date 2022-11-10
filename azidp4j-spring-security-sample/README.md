@@ -35,7 +35,7 @@ GET /authorize
 ```
 
 Authorization Endpoint is implemented at [AuthorizationEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/AuthorizationEndpointHandler.java#L38).
-Show details at Java inline comments. 
+Show details at inline comments. 
 
 #### [by Spring Security] Login
 
@@ -55,25 +55,85 @@ POST /token
 ```
 
 Token Endpoint is implemented at [TokenEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/TokenEndpointHandler.java#L35).
-Show details at Java inline comments.
+Show details at inline comments.
 
-// TODO add inline comments
+#### [by azidp4j] Client Registration Endpoint
 
-#### Client Registration Endpoint
+```
+POST /client
+DELETE /client/${client_id}
+```
+
+Client Registration Endpoint is implemented at [DynamicClientRegistrationEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/DynamicClientRegistrationEndpointHandler.java#L16).
+Show details at inline comments.
+
+The Controller has endpoint for delete client also.
+Client deletion requires bearer token that issued at client registration.
+The implementation uses Spring Security for introspect bearer token.
+Show details at inline comments.
 
 #### UserInfo Endpoint
 
+```
+GET or POST /userinfo
+```
+
+azidp4j doesn't support UserInfo endpoint so the implementation supports it by itself.
+The endpoint is implemented at [UserInfoEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/UserInfoEndpointHandler.java#L16).
+
+Show details at inline comments.
+
 #### JWKs Endpoint
 
-#### Introspection Endpoint
+```
+GET /.well-known/jwks.json
+```
 
-#### Revocation Endpoint
+azidp4j doesn't support JWKs endpoint.
+[JwksEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/JwksEndpointHandler.java#L12) just returns JWKSet.
+
+#### [by azidp4j] Discovery Endpoint
+
+#### [by azidp4j] Introspection Endpoint
+
+Introspection Endpoint is implemented at [IntrospectionEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/IntrospectionEndpointHandler.java#L22).
+Show details at inline comments.
+
+#### [by azidp4j] Revocation Endpoint
+
+Revocation Endpoint is implemented at [RevocationHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/RevocationHandler.java#L22).
+Show details at inline comments.
 
 ### Authentication/Authorization
 
+Some endpoints require authentication or authorization.
+
 #### Client authentication
 
-#### Bearer Token Introspection
+Following endpoints always require client authentication.
+
+* Revocation Endpoint
+* Introspection Endpoint
+
+Following endpoints require client authentication when client is confidential.
+
+* Token Endpoint
+
+azidp4j doesn't support client authentication so application needs to implement it.
+This sample's client authentication is implemented at [ClientAuthenticationFilter](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/authentication/ClientAuthenticationFilter.java) and [ClientAuthenticator](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/authentication/ClientAuthenticator.java).
+
+#### Bearer Token authorization
+
+Following endpoints always require client authentication.
+
+* UserInfo Endpoint
+* Client Deletion Endpoint
+
+azidp4j support token introspection.
+The implementation use Spring Security Resource Server but Token Introspection is implemented by itself.
+
+Spring Security Resource Server configuration is defined at [SecurityConfiguration](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/SecurityConfiguration.java#L24).
+Introspection is implemented at [InternalOpaqueTokenIntrospector](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/authentication/InternalOpaqueTokenIntrospector.java#L18).
 
 ## Deploy for conformance test
 

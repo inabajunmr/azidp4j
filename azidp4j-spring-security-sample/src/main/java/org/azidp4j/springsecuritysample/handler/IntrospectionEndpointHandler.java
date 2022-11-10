@@ -4,7 +4,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.AzIdP;
 import org.azidp4j.introspection.request.IntrospectionRequest;
-import org.azidp4j.springsecuritysample.authentication.ClientAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +23,6 @@ public class IntrospectionEndpointHandler {
     private static final Logger LOGGER =
             LoggerFactory.getLogger(IntrospectionEndpointHandler.class);
 
-    @Autowired ClientAuthenticator clientAuthenticator;
-
     @Autowired AzIdP azIdP;
 
     @RequestMapping(
@@ -37,11 +34,18 @@ public class IntrospectionEndpointHandler {
             @RequestParam MultiValueMap<String, Object> body,
             Authentication authentication) {
         LOGGER.info(IntrospectionEndpointHandler.class.getName());
+
+        // Introspection endpoint requires client authentication.
+        // ref. org.azidp4j.springsecuritysample.authentication.ClientAuthenticationFilter
+        // ref. org.azidp4j.springsecuritysample.authentication.ClientAuthenticator
         if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CLIENT"))) {
             return ResponseEntity.status(401).build();
         }
 
+        // Introspection Request
         var response = azIdP.introspect(new IntrospectionRequest(body.toSingleValueMap()));
+
+        // azidp4j responses status code and response body.
         return ResponseEntity.status(response.status).body(response.body);
     }
 }
