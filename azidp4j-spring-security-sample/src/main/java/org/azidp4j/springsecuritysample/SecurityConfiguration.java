@@ -3,7 +3,6 @@ package org.azidp4j.springsecuritysample;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 import org.azidp4j.AzIdP;
-// import org.azidp4j.springsecuritysample.authentication.BearerTokenBodyAuthenticationFilter;
 import org.azidp4j.springsecuritysample.authentication.InternalOpaqueTokenIntrospector;
 import org.azidp4j.springsecuritysample.user.UserInfo;
 import org.azidp4j.springsecuritysample.user.UserStore;

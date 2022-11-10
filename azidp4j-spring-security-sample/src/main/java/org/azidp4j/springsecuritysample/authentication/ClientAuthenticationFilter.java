@@ -22,8 +22,11 @@ public class ClientAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+        // authenticate client
         var clientOpt = clientAuthenticator.authenticateClient(request);
+
         if (clientOpt.isPresent()) {
+            // set client as Spring Authentication
             var client = clientOpt.get();
             SecurityContextHolder.getContext()
                     .setAuthentication(

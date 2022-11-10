@@ -38,16 +38,24 @@ public class AzIdPConfiguration {
             AuthorizationCodeService authorizationCodeService,
             AccessTokenService accessTokenService,
             RefreshTokenService refreshTokenService) {
+
+        // The mapper is used for decision of JWT aud claims
         ScopeAudienceMapper scopeAudienceMapper = scope -> Set.of("rs.example.com");
+
+        // Configure endpoints.
         var discoveryConfig =
                 DiscoveryConfig.builder()
                         .authorizationEndpoint(endpoint + "/authorize")
                         .tokenEndpoint(endpoint + "/token")
                         .jwksEndpoint(endpoint + "/.well-known/jwks.json")
                         .clientRegistrationEndpoint(endpoint + "/client")
+                        // This is used for Dynamic Client Registration response.
                         .clientConfigurationEndpointPattern(endpoint + "/client/{CLIENT_ID}")
                         .userInfoEndpoint(endpoint + "/userinfo")
                         .build();
+
+        // The verifier is used for Resource Owner Password Credential Grant.
+        // If the service doesn't support the grant, it isn't required.
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -60,12 +68,14 @@ public class AzIdPConfiguration {
                         };
                     }
                 };
+
+        // Initialize azidp4j.
         var azIdp =
                 AzIdP.init()
                         .issuer(endpoint)
                         .jwkSet(jwkSet)
                         .idTokenKidSupplier(new IdTokenKidSupplier(jwkSet))
-                        .scopesSupported(Set.of("openid", "scope1", "scope2", "default"))
+                        .scopesSupported(Set.of("openid", "scope1", "scope2", "client", "default"))
                         .defaultScopes(Set.of("openid", "scope1"))
                         .grantTypesSupported(
                                 Set.of(
@@ -76,8 +86,8 @@ public class AzIdPConfiguration {
                                         GrantType.refresh_token))
                         .customClientStore(clientStore)
                         .customClientValidator(new ClientValidator())
-                        // integration test inject some type of service so don't use shortcut
-                        // interface
+                        // integration test inject some type of service
+                        // so don't use shortcut interface
                         .customAuthorizationCodeService(authorizationCodeService)
                         .customScopeAudienceMapper(scopeAudienceMapper)
                         .customAccessTokenService(accessTokenService)
@@ -85,13 +95,15 @@ public class AzIdPConfiguration {
                         .userPasswordVerifier(userPasswordVerifier)
                         .discovery(discoveryConfig)
                         .build();
+
+        // Register initial client.
         var clientRegistration =
                 new ClientRequest(
                         Map.of(
                                 "redirect_uris",
                                         (Set.of(
-                                                "http://client.example.com/callback1",
-                                                "http://client.example.com/callback2")),
+                                                "https://client.example.com/callback1",
+                                                "https://client.example.com/callback2")),
                                 "grant_types",
                                         (Set.of(
                                                 "authorization_code",
@@ -102,6 +114,8 @@ public class AzIdPConfiguration {
                                 "response_types", (Set.of("code", "token", "id_token")),
                                 "token_endpoint_auth_method", "client_secret_basic"));
         var client = azIdp.registerClient(clientRegistration);
+
+        // print client info / authorization request sample / token request sample.
         System.out.println(client.body);
         System.out.println(
                 endpoint
@@ -126,13 +140,14 @@ public class AzIdPConfiguration {
 
     @Bean
     public JWKSet jwkSet() throws JOSEException {
+        // The implementation supports RS256/ES256
+        var rs256 =
+                new RSAKeyGenerator(2048).keyID("abc").algorithm(new Algorithm("RS256")).generate();
         var es256 =
                 new ECKeyGenerator(Curve.P_256)
                         .keyID("123")
                         .algorithm(new Algorithm("ES256"))
                         .generate();
-        var rs256 =
-                new RSAKeyGenerator(2048).keyID("abc").algorithm(new Algorithm("RS256")).generate();
-        return new JWKSet(List.of(es256, rs256));
+        return new JWKSet(List.of(rs256, es256));
     }
 }

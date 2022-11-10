@@ -19,9 +19,18 @@ public class UserInfoEndpointHandler {
 
     @Autowired UserStore userStore;
 
+    /**
+     * @see <a
+     *     href="https://openid.net/specs/openid-connect-core-1_0.html#UserInfo">https://openid.net/specs/openid-connect-core-1_0.html#UserInfo</a>
+     */
     @RequestMapping("/userinfo")
     public ResponseEntity<Map<String, Object>> userinfo() {
         LOGGER.info(UserInfoEndpointHandler.class.getName());
+
+        // The endpoint requires authorization by bearer token.
+        // Authorization is supported by Spring Security.
+        // ref. org.azidp4j.springsecuritysample.SecurityConfiguration
+        // ref. org.azidp4j.springsecuritysample.authentication.InternalOpaqueTokenIntrospector
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth instanceof BearerTokenAuthentication) {
             var scopes =
@@ -29,8 +38,12 @@ public class UserInfoEndpointHandler {
                             .map(GrantedAuthority::getAuthority)
                             .filter(a -> a.matches("^SCOPE_.*"))
                             .collect(Collectors.toSet());
+
+            // `openid` scope is required for the endpoint.
             if (scopes.contains("SCOPE_openid")) {
+                // IdP can get username as sub from introspection.
                 var username = auth.getName();
+                // azidp4j doesn't support UserInfo endpoint so construct response by itself.
                 return ResponseEntity.status(200)
                         .body(
                                 userStore.find(username).entrySet().stream()

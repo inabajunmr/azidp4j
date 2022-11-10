@@ -107,3 +107,8 @@ var response =
         azIdP.issueToken(new TokenRequest(authenticatedClientId, params));
 // TODO construct http response by response.status and response.body
 ```
+
+## Sample applications
+
+* [with com.sun.net.httpserver.HTTPServer](azidp4j-httpserver-sample/README.md)
+* [with Spring Boot and Spring Security](azidp4j-spring-security-sample/README.md)

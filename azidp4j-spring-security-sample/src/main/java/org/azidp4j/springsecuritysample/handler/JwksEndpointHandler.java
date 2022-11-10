@@ -15,6 +15,10 @@ public class JwksEndpointHandler {
 
     @Autowired JWKSet jwkSet;
 
+    /**
+     * @see <a
+     *     href="https://www.rfc-editor.org/rfc/rfc7517">https://www.rfc-editor.org/rfc/rfc7517</a>
+     */
     @GetMapping("/.well-known/jwks.json")
     public Map<String, Object> jwks() {
         LOGGER.info(JwksEndpointHandler.class.getName());
