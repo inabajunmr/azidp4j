@@ -24,6 +24,12 @@ public class DynamicClientRegistrationEndpointHandler {
 
     @Autowired AzIdP azIdP;
 
+    /**
+     * @see <a
+     *     href="https://openid.net/specs/openid-connect-registration-1_0.html">https://openid.net/specs/openid-connect-registration-1_0.html</a>
+     * @see <a
+     *     href="https://www.rfc-editor.org/rfc/rfc7591">https://www.rfc-editor.org/rfc/rfc7591</a>
+     */
     @PostMapping("/client")
     public ResponseEntity<Map<String, Object>> register(
             @RequestBody Map<String, Object> requestBody) {

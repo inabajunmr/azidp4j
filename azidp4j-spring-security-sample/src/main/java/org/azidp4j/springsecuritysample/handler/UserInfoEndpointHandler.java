@@ -19,6 +19,10 @@ public class UserInfoEndpointHandler {
 
     @Autowired UserStore userStore;
 
+    /**
+     * @see <a
+     *     href="https://openid.net/specs/openid-connect-core-1_0.html#UserInfo">https://openid.net/specs/openid-connect-core-1_0.html#UserInfo</a>
+     */
     @RequestMapping("/userinfo")
     public ResponseEntity<Map<String, Object>> userinfo() {
         LOGGER.info(UserInfoEndpointHandler.class.getName());

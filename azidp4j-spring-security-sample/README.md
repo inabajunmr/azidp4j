@@ -43,6 +43,14 @@ User login is served by Spring Security.
 User store is [in Memory](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/SecurityConfiguration.java#L65) and signup is unsupported.
 Watch the [SecurityConfiguration](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/SecurityConfiguration.java#L48) also.
 
+Following tables are initial creted users.
+
+| username | password  |
+|----------|-----------|
+| user1    | password1 |
+| user2    | password2 |
+| user3    | password3 |
+
 #### Consent
 
 Consent page is served at [ConsentHandler](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/ConsentHandler.java#L28).
@@ -93,6 +101,13 @@ azidp4j doesn't support JWKs endpoint.
 [JwksEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/JwksEndpointHandler.java#L12) just returns JWKSet.
 
 #### [by azidp4j] Discovery Endpoint
+
+```
+GET /.well-known/openid-configuration
+```
+
+Discovery Endpoint is implemented at [DiscoveryEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/DiscoveryEndpointHandler.java).
+azidp4j publishes metadata by configuration.
 
 #### [by azidp4j] Introspection Endpoint
 

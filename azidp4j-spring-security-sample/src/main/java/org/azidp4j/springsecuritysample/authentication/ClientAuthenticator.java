@@ -17,6 +17,10 @@ public class ClientAuthenticator {
     private final BasicAuthenticationConverter authenticationConverter =
             new BasicAuthenticationConverter();
 
+    /**
+     * @see <a
+     *     href="https://datatracker.ietf.org/doc/html/rfc6749#section-2.3">https://datatracker.ietf.org/doc/html/rfc6749#section-2.3</a>
+     */
     public Optional<Client> authenticateClient(HttpServletRequest request) {
         // attempt basic authentication
         {

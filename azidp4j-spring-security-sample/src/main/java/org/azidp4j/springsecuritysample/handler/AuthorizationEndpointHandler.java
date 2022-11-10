@@ -34,6 +34,14 @@ public class AuthorizationEndpointHandler {
 
     @Autowired UserStore userStore;
 
+    /**
+     * @see <a
+     *     href="https://datatracker.ietf.org/doc/html/rfc6749#section-3.1">https://datatracker.ietf.org/doc/html/rfc6749#section-3.1</a>
+     * @see <a
+     *     href="https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint">https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint</a>
+     * @see <a
+     *     href="https://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthRequest">https://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthRequest</a>
+     */
     @GetMapping("/authorize")
     public String authorizationEndpoint(
             @RequestParam Map<String, String> params, HttpServletRequest req) {

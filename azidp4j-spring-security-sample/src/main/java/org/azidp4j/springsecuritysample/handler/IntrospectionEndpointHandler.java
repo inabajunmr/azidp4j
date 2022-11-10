@@ -1,7 +1,6 @@
 package org.azidp4j.springsecuritysample.handler;
 
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.AzIdP;
 import org.azidp4j.introspection.request.IntrospectionRequest;
 import org.slf4j.Logger;
@@ -25,14 +24,16 @@ public class IntrospectionEndpointHandler {
 
     @Autowired AzIdP azIdP;
 
+    /**
+     * @see <a
+     *     href="https://datatracker.ietf.org/doc/html/rfc7662">https://datatracker.ietf.org/doc/html/rfc7662</a>
+     */
     @RequestMapping(
             value = "/introspect",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Map<String, Object>> introspect(
-            HttpServletRequest request,
-            @RequestParam MultiValueMap<String, Object> body,
-            Authentication authentication) {
+            @RequestParam MultiValueMap<String, Object> body, Authentication authentication) {
         LOGGER.info(IntrospectionEndpointHandler.class.getName());
 
         // Introspection endpoint requires client authentication.

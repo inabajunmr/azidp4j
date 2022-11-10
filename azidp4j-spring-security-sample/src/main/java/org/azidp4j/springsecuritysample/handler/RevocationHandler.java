@@ -1,7 +1,6 @@
 package org.azidp4j.springsecuritysample.handler;
 
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.AzIdP;
 import org.azidp4j.revocation.request.RevocationRequest;
 import org.slf4j.Logger;
@@ -24,14 +23,16 @@ public class RevocationHandler {
 
     @Autowired AzIdP azIdP;
 
+    /**
+     * @see <a
+     *     href="https://www.rfc-editor.org/rfc/rfc7009">https://www.rfc-editor.org/rfc/rfc7009</a>
+     */
     @RequestMapping(
             value = "/revoke",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Map> revoke(
-            HttpServletRequest request,
-            @RequestParam MultiValueMap<String, Object> body,
-            Authentication authentication) {
+            @RequestParam MultiValueMap<String, Object> body, Authentication authentication) {
         LOGGER.info(RevocationHandler.class.getName());
 
         // When client is unauthenticated, azidp4j accepts null as authenticatedClientId.

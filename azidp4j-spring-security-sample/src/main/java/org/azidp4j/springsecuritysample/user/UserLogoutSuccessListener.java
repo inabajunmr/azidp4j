@@ -5,6 +5,7 @@ import org.springframework.security.authentication.event.LogoutSuccessEvent;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+/** Listner for removing user authentication time */
 @Service
 public class UserLogoutSuccessListener implements ApplicationListener<LogoutSuccessEvent> {
 
@@ -18,6 +19,6 @@ public class UserLogoutSuccessListener implements ApplicationListener<LogoutSucc
     public void onApplicationEvent(LogoutSuccessEvent event) {
         String userName = ((UserDetails) event.getAuthentication().getPrincipal()).getUsername();
         var user = userStore.find(userName);
-        user.put("auth_time_sec", null);
+        user.remove("auth_time_sec");
     }
 }

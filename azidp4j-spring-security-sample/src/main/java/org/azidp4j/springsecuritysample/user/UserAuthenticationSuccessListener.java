@@ -6,6 +6,7 @@ import org.springframework.security.authentication.event.AuthenticationSuccessEv
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+/** Listner for saving user authentication time */
 @Service
 public class UserAuthenticationSuccessListener
         implements ApplicationListener<AuthenticationSuccessEvent> {

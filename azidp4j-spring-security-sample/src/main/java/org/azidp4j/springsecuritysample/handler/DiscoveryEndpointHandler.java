@@ -15,6 +15,12 @@ public class DiscoveryEndpointHandler {
 
     @Autowired AzIdP azIdP;
 
+    /**
+     * @see <a
+     *     href="https://openid.net/specs/openid-connect-discovery-1_0.html">https://openid.net/specs/openid-connect-discovery-1_0.html</a>
+     * @see <a
+     *     href="https://datatracker.ietf.org/doc/html/draft-ietf-oauth-discovery-10">https://datatracker.ietf.org/doc/html/draft-ietf-oauth-discovery-10</a>
+     */
     @GetMapping("/.well-known/openid-configuration")
     public Map<String, Object> discover() {
         LOGGER.info(DiscoveryEndpointHandler.class.getName());
