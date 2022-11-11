@@ -341,11 +341,6 @@ public class AzIdPBuilder {
             return;
         }
 
-        if (!grantTypesSupported.contains(GrantType.implicit)) {
-            responseTypesSupported = Set.of(Set.of(ResponseType.code));
-            return;
-        }
-
         if (scopesSupported != null && scopesSupported.contains("openid")) {
             responseTypesSupported =
                     Set.of(
@@ -353,8 +348,10 @@ public class AzIdPBuilder {
                             Set.of(ResponseType.token),
                             Set.of(ResponseType.id_token),
                             Set.of(ResponseType.token, ResponseType.id_token));
+            return;
         } else {
             responseTypesSupported = Set.of(Set.of(ResponseType.code), Set.of(ResponseType.token));
+            return;
         }
     }
 

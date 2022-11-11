@@ -96,6 +96,43 @@ var response =
 // TODO construct http response by response.status and response.body
 ```
 
+## Documentation 
+
+### Initializations
+
+All of azidp4j functions are defined at [AzIdP]().
+For initialize AzIdP instance, use AzIdP#init or AzIdp#initInMemory(for using inMemory stores), AzIdp#initJwt(for using jwt tokens).
+
+These methods return builder so application can configure authorization server or identity provider like this.
+
+```java
+var azIdp =
+        AzIdP.initInMemory()
+                .issuer(endpoint)
+                .jwkSet(jwkSet)
+                .idTokenKidSupplier(new IdTokenKidSupplier(jwkSet))
+                .scopesSupported(Set.of("openid", "user:read"))
+                .defaultScopes(Set.of("openid", "scope1"))
+                .grantTypesSupported(
+                        Set.of(
+                                GrantType.authorization_code,
+                                GrantType.client_credentials,
+                                GrantType.refresh_token))
+                .discovery(discoveryConfig)
+                .build();
+```
+
+#### Fields
+
+| name   | optional | description                                                                                                                                                                                              | value                                                                                                       |                                                   | example                 |
+|--------|----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|---------------------------------------------------|-------------------------|
+| issuer | required | Identifier of identity provider. The value is used for like JWT iss claim, introspection result.                                                                                                         | see [OpenID Provider Metadata](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata) | https://idp.example.com |
+| jwkSet | optional | [JwkSet](https://www.javadoc.io/doc/com.nimbusds/nimbus-jose-jwt/2.13.1/com/nimbusds/jose/jwk/JWKSet.html) is keys for signing token like ID Token. The parameter is required when using `openid` scope. | see [JWKSet](https://www.javadoc.io/doc/com.nimbusds/nimbus-jose-jwt/2.13.1/com/nimbusds/jose/jwk/JWKSet.html) |                         |
+
+// TODO https://docs.google.com/spreadsheets/d/1MulCF7UbLvtroGYlv-U1cIPEJrRmWptGpmpfrC9gSFM/edit#gid=0
+  
+
+
 ## Sample applications
 
 * [with Spring Boot and Spring Security](azidp4j-spring-security-sample)
