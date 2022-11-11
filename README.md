@@ -110,5 +110,5 @@ var response =
 
 ## Sample applications
 
-* [with com.sun.net.httpserver.HTTPServer](azidp4j-httpserver-sample/README.md)
-* [with Spring Boot and Spring Security](azidp4j-spring-security-sample/README.md)
+* [with Spring Boot and Spring Security](azidp4j-spring-security-sample)
+* [with com.sun.net.httpserver.HTTPServer](azidp4j-httpserver-sample)

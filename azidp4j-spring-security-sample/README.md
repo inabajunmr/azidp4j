@@ -24,7 +24,7 @@ curl -X POST -u 1289972c-c33e-4c75-a044-98cbbc5094ea:e84e38a6-8742-4380-bcdf-f6b
 
 ### Initializations
 
-The application initialize AzIdP at [AzIdPConfiguration](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/AzIdPConfiguration.java#L35) as Spring Bean.
+The application initialize AzIdP at [AzIdPConfiguration](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/AzIdPConfiguration.java#L35) as Spring Bean.
 
 ### Endpoints
 
@@ -34,14 +34,14 @@ The application initialize AzIdP at [AzIdPConfiguration](https://github.com/inab
 GET /authorize
 ```
 
-Authorization Endpoint is implemented at [AuthorizationEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/AuthorizationEndpointHandler.java#L38).
+Authorization Endpoint is implemented at [AuthorizationEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/AuthorizationEndpointHandler.java#L46).
 Show details at inline comments. 
 
 #### [by Spring Security] Login
 
 User login is served by Spring Security.
 User store is [in Memory](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/SecurityConfiguration.java#L65) and signup is unsupported.
-Watch the [SecurityConfiguration](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/SecurityConfiguration.java#L48) also.
+See the [SecurityConfiguration](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/SecurityConfiguration.java#L47) also.
 
 Following tables are initial creted users.
 
@@ -53,8 +53,8 @@ Following tables are initial creted users.
 
 #### Consent
 
-Consent page is served at [ConsentHandler](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/ConsentHandler.java#L28).
-User consents scopes, [InMemoryUserConsentStore](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/ConsentHandler.java#L43) stores consented scopes.
+Consent page is served at [ConsentHandler](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/ConsentHandler.java#L28).
+User consents scopes, [InMemoryUserConsentStore](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/ConsentHandler.java#L43) stores consented scopes.
 
 #### [by azidp4j] Token Endpoint
 
@@ -62,7 +62,7 @@ User consents scopes, [InMemoryUserConsentStore](https://github.com/inabajunmr/a
 POST /token
 ```
 
-Token Endpoint is implemented at [TokenEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/TokenEndpointHandler.java#L35).
+Token Endpoint is implemented at [TokenEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/TokenEndpointHandler.java#L33).
 Show details at inline comments.
 
 #### [by azidp4j] Client Registration Endpoint
@@ -72,7 +72,7 @@ POST /client
 DELETE /client/${client_id}
 ```
 
-Client Registration Endpoint is implemented at [DynamicClientRegistrationEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/DynamicClientRegistrationEndpointHandler.java#L16).
+Client Registration Endpoint is implemented at [DynamicClientRegistrationEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/DynamicClientRegistrationEndpointHandler.java#L34).
 Show details at inline comments.
 
 The Controller has endpoint for deletion client also.
@@ -87,7 +87,7 @@ GET or POST /userinfo
 ```
 
 azidp4j doesn't support UserInfo endpoint so the implementation supports it by itself.
-The endpoint is implemented at [UserInfoEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/UserInfoEndpointHandler.java#L16).
+The endpoint is implemented at [UserInfoEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/UserInfoEndpointHandler.java#L27).
 
 Show details at inline comments.
 
@@ -98,7 +98,7 @@ GET /.well-known/jwks.json
 ```
 
 azidp4j doesn't support JWKs endpoint.
-[JwksEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/JwksEndpointHandler.java#L12) just returns JWKSet.
+[JwksEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/JwksEndpointHandler.java#L23) just returns JWKSet.
 
 #### [by azidp4j] Discovery Endpoint
 
@@ -106,17 +106,17 @@ azidp4j doesn't support JWKs endpoint.
 GET /.well-known/openid-configuration
 ```
 
-Discovery Endpoint is implemented at [DiscoveryEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/DiscoveryEndpointHandler.java).
+Discovery Endpoint is implemented at [DiscoveryEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/DiscoveryEndpointHandler.java#L25).
 azidp4j publishes metadata by configuration.
 
 #### [by azidp4j] Introspection Endpoint
 
-Introspection Endpoint is implemented at [IntrospectionEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/IntrospectionEndpointHandler.java#L22).
+Introspection Endpoint is implemented at [IntrospectionEndpointHandler](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/IntrospectionEndpointHandler.java#L35).
 Show details at inline comments.
 
 #### [by azidp4j] Revocation Endpoint
 
-Revocation Endpoint is implemented at [RevocationHandler](https://github.com/inabajunmr/azidp4j/blob/d3acca4b9c09a77d0ca05a8389a94e53135978d4/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/RevocationHandler.java#L22).
+Revocation Endpoint is implemented at [RevocationHandler](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/RevocationHandler.java#L34).
 Show details at inline comments.
 
 ### Authentication/Authorization
@@ -135,7 +135,7 @@ Following endpoints require client authentication when client is confidential.
 * Token Endpoint
 
 azidp4j doesn't support client authentication so application needs to implement it.
-This sample's client authentication is implemented at [ClientAuthenticationFilter](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/authentication/ClientAuthenticationFilter.java) and [ClientAuthenticator](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/authentication/ClientAuthenticator.java).
+This sample's client authentication is implemented at [ClientAuthenticationFilter](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/authentication/ClientAuthenticationFilter.java) and [ClientAuthenticator](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/authentication/ClientAuthenticator.java).
 
 #### Bearer Token authorization
 
@@ -147,8 +147,8 @@ Following endpoints always require client authentication.
 azidp4j support token introspection.
 The implementation use Spring Security Resource Server but Token Introspection is implemented by itself.
 
-Spring Security Resource Server configuration is defined at [SecurityConfiguration](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/SecurityConfiguration.java#L24).
-Introspection is implemented at [InternalOpaqueTokenIntrospector](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/authentication/InternalOpaqueTokenIntrospector.java#L18).
+Spring Security Resource Server configuration is defined at [SecurityConfiguration](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/SecurityConfiguration.java#L48).
+Introspection is implemented at [InternalOpaqueTokenIntrospector](https://github.com/inabajunmr/azidp4j/blob/f402ee91901900cc7f0db36d5288622516e47d19/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/authentication/InternalOpaqueTokenIntrospector.java).
 
 ## Deploy for conformance test
 
