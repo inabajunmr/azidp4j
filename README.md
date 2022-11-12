@@ -126,28 +126,28 @@ var azIdp =
 
 <!-- https://docs.google.com/spreadsheets/d/1MulCF7UbLvtroGYlv-U1cIPEJrRmWptGpmpfrC9gSFM/edit#gid=0 -->
 
-| name | optional | description | value | example |
-| --- | --- | --- | --- | --- |
-| issuer | required | Identifier of identity provider. The value is used for like JWT iss claim, introspection result. | See OpenID Provider Metadata | https://idp.example.com |
-| jwkSet | openid required | JwkSet is keys for signing token like ID Token. The parameter is required when using openid scope. |  | TODO |
-| idTokenKidSupplier | openid required | For choosing which JWK using. The parameter is required when using openid scope. |  | TODO |
-| scopesSupported | required | Supported scopes for the service. When supporting OpenID Connect, requires `openid` scope. |  | Set.of("openid", "user:read") |
-| defaultScopes | optional | Scopes for no scope authorization request. |  | Set.of("openid", "user:read") |
-| authorizationCodeExpiration | optional | Expiration time for authorization code. Default is 1min. |  | Duration.ofDays(1) |
-| accessTokenExpiration | optional | Expiration time for access token. Default is 10min. |  | Duration.ofDays(1) |
-| idTokenExpiration | optional | Expiration time for id token. Default is 10min. |  | Duration.ofDays(1) |
-| refreshTokenExpiration | optional | Expiration time for refresh token Default is 1day. |  | Duration.ofDays(1) |
+| name | optional | description                                                                                               | value | example |
+| --- | --- |-----------------------------------------------------------------------------------------------------------| --- | --- |
+| issuer | required | Identifier of identity provider. The value is used for like JWT iss claim, introspection result.          | See OpenID Provider Metadata | https://idp.example.com |
+| jwkSet | openid required | JwkSet is keys for signing token like ID Token. The parameter is required when using openid scope.        |  | TODO |
+| idTokenKidSupplier | openid required | For choosing which JWK using. The parameter is required when using openid scope.                          |  | TODO |
+| scopesSupported | required | Supported scopes for the service. When supporting OpenID Connect, requires `openid` scope.                |  | Set.of("openid", "user:read") |
+| defaultScopes | optional | Scopes for no scope authorization request.                                                                |  | Set.of("openid", "user:read") |
+| authorizationCodeExpiration | optional | Expiration time for authorization code. Default is 1min.                                                  |  | Duration.ofDays(1) |
+| accessTokenExpiration | optional | Expiration time for access token. Default is 10min.                                                       |  | Duration.ofDays(1) |
+| idTokenExpiration | optional | Expiration time for id token. Default is 10min.                                                           |  | Duration.ofDays(1) |
+| refreshTokenExpiration | optional | Expiration time for refresh token Default is 1day.                                                        |  | Duration.ofDays(1) |
 | grantTypesSupported | optional | Supported grant types by Authorization Server. Default variables are `authorization_code` and `implicit`. | `authorization_code` / `implicit` / `password` / `client_credential` / `refresh_token` | Set.of(GrantType.authorization_code) |
-| responseTypesSupported | optional | Supported response types by Authorization Server. | `code` / `token` / `id_token` / `none` | Set.of(Set.of(ResponseType.code), Set.of(ResponseType.token) |
-| responseModesSupported | optional | Supported response modes by Authorization Server. | `query` / `fragment` | Set.of(ResponseMode.query) |
-| clientStore | required | See ClientStore. |  |  |
-| clientValidator | optional | See ClientValidator. // TODO |  |  |
-| authorizationCodeService | required | See Store Configuration. // TODO |  |  |
-| scopeAudienceMapper | required | Mapping scopes to audience. Using for introspection result and JWT aud claim except for ID Token. |  | scope -> Set.of("rs.example.com") |
-| accessTokenService | required | See Store Configuration. // TODO |  |  |
-| refreshTokenService | required | See Store Configuration. // TODO |  |  |
-| discoveryConfig | required | See Discovery Configuration. |  |  |
-| userPasswordVerifier | optional | See Password Grant. // TODO |  |  |
+| responseTypesSupported | optional | Supported response types by Authorization Server.                                                         | `code` / `token` / `id_token` / `none` | Set.of(Set.of(ResponseType.code), Set.of(ResponseType.token) |
+| responseModesSupported | optional | Supported response modes by Authorization Server.                                                         | `query` / `fragment` | Set.of(ResponseMode.query) |
+| clientStore | required | See ClientStore.                                                                                          |  |  |
+| clientValidator | optional | See ClientValidator. // TODO                                                                              |  |  |
+| authorizationCodeService | required | See Token Stores Configuration. // TODO not required                                                      |  |  |
+| scopeAudienceMapper | required | Mapping scopes to audience. Using for introspection result and JWT aud claim except for ID Token.         |  | scope -> Set.of("rs.example.com") |
+| accessTokenService | required | See Token Stores Configuration. // TODO                                                                   |  |  |
+| refreshTokenService | required | See Token Stores Configuration. // TODO                                                                   |  |  |
+| discoveryConfig | required | See Discovery Configuration.                                                                              |  |  |
+| userPasswordVerifier | optional | See Password Grant. // TODO                                                                               |  |  |
 
 #### ClientStore
 
@@ -199,9 +199,49 @@ AzIdP.init()
     .build();
 ```
 
-#### Store Configuration
+#### Token Stores Configuration
 
-// TODO
+AzIdp4J provides in-memory or JWT token services.
+But former isn't practical and later has restriction that can't support token revocation or.
+If service want to store tokens on service specific data store, you can use your service specific implementation.
+
+AzIdp4J has the following services.
+See these class's javadoc for implementation requirement.
+
+* AuthorizationCodeService
+* AccessTokenService
+* RefreshTokenService
+
+These implementations can configure like this.
+
+```java
+var authorizationCodeService = new YourAuthorizationCodeService();
+var accessTokenService = new YourAccessTokenService();
+var refreshTokenService = new YourRefreshTokenService();
+
+AzIdP.init()
+    .customAuthorizationCodeService(authorizationCodeService)
+    .customAccessTokenService(accessTokenService)
+    .customRefreshTokenService(refreshTokenService)
+    ...
+    .build();
+```
+
+If you want to use JWT implementations, configure like this.
+
+```java
+AzIdP.initJwt()
+    .customAuthorizationCodeService(authorizationCodeService)
+    ...
+    .build();
+
+// If you want to specify only custom authorizationCodeService.
+AzIdP.initJwt()
+    .customAuthorizationCodeService(authorizationCodeService)
+    ...
+    .build();
+```
+
 
 #### Discovery Configuration
 
