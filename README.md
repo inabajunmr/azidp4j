@@ -126,29 +126,27 @@ var azIdp =
 
 <!-- https://docs.google.com/spreadsheets/d/1MulCF7UbLvtroGYlv-U1cIPEJrRmWptGpmpfrC9gSFM/edit#gid=0 -->
 
-| name | optional | description                                                                                               | value | example |
-| --- | --- |-----------------------------------------------------------------------------------------------------------| --- | --- |
-| issuer | required | Identifier of identity provider. The value is used for like JWT iss claim, introspection result.          | See OpenID Provider Metadata | https://idp.example.com |
-| jwkSet | openid required | JwkSet is keys for signing token like ID Token. The parameter is required when using openid scope.        |  | TODO |
-| idTokenKidSupplier | openid required | For choosing which JWK using. The parameter is required when using openid scope.                          |  | TODO |
-| scopesSupported | required | Supported scopes for the service. When supporting OpenID Connect, requires `openid` scope.                |  | Set.of("openid", "user:read") |
-| defaultScopes | optional | Scopes for no scope authorization request.                                                                |  | Set.of("openid", "user:read") |
-| authorizationCodeExpiration | optional | Expiration time for authorization code. Default is 1min.                                                  |  | Duration.ofDays(1) |
-| accessTokenExpiration | optional | Expiration time for access token. Default is 10min.                                                       |  | Duration.ofDays(1) |
-| idTokenExpiration | optional | Expiration time for id token. Default is 10min.                                                           |  | Duration.ofDays(1) |
-| refreshTokenExpiration | optional | Expiration time for refresh token Default is 1day.                                                        |  | Duration.ofDays(1) |
-| grantTypesSupported | optional | Supported grant types by Authorization Server. Default variables are `authorization_code` and `implicit`. | `authorization_code` / `implicit` / `password` / `client_credential` / `refresh_token` | Set.of(GrantType.authorization_code) |
-| responseTypesSupported | optional | Supported response types by Authorization Server.                                                         | `code` / `token` / `id_token` / `none` | Set.of(Set.of(ResponseType.code), Set.of(ResponseType.token) |
-| responseModesSupported | optional | Supported response modes by Authorization Server.                                                         | `query` / `fragment` | Set.of(ResponseMode.query) |
-| clientStore | required | See [ClientStore](#clientstore).                                                                                      |  |  |
-| clientValidator | optional | See ClientValidator.                                                                                      |  |  |
-| authorizationCodeService | optional | See Store Configuration. When supporting `authorization_code grant type, the value is required.           |  |  |
-| scopeAudienceMapper | required | Mapping scopes to audience. Using for introspection result and JWT aud claim except for ID Token.         |  | scope -> Set.of("rs.example.com") |
-| accessTokenService | required | See Store Configuration.                                                                                  |  |  |
-| refreshTokenService | optional | See Store Configuration. When supporting `refresh_token` grant type, the value is required.               |  |  |
-| discoveryConfig | required | See Discovery Configuration.                                                                              |  |  |
-| userPasswordVerifier | optional | See Password Grant.  When supporting `password` grant type, the value is required.                        |  |  |
-
+name	optional	description	value	example
+issuer	required	Identifier of identity provider. The value is used for like JWT iss claim, introspection result.	See OpenID Provider Metadata	https://idp.example.com
+jwkSet	openid required	JwkSet is keys for signing token like ID Token. The parameter is required when using openid scope.	See [Nimbus JOSE documentation](https://www.javadoc.io/doc/com.nimbusds/nimbus-jose-jwt/2.13.1/com/nimbusds/jose/jwk/JWKSet.html).	see [sample implementation](https://github.com/inabajunmr/azidp4j/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/AzIdPConfiguration.java#L142)
+idTokenKidSupplier	openid required	For choosing which JWK using. The parameter is required when using openid scope.		see [sample implementation](https://github.com/inabajunmr/azidp4j/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/IdTokenKidSupplier.java#L8)
+scopesSupported	required	Supported scopes for the service. When supporting OpenID Connect, requires `openid` scope.		Set.of("openid", "user:read")
+defaultScopes	optional	Scopes for no scope authorization request.		Set.of("openid", "user:read")
+authorizationCodeExpiration	optional	Expiration time for authorization code. Default is 1min.		Duration.ofDays(1)
+accessTokenExpiration	optional	Expiration time for access token. Default is 10min.		Duration.ofDays(1)
+idTokenExpiration	optional	Expiration time for id token. Default is 10min.		Duration.ofDays(1)
+refreshTokenExpiration	optional	Expiration time for refresh token Default is 1day.		Duration.ofDays(1)
+grantTypesSupported	optional	Supported grant types by Authorization Server. Default variables are `authorization_code` and `implicit`.	`authorization_code` / `implicit` / `password` / `client_credential` / `refresh_token`	Set.of(GrantType.authorization_code)
+responseTypesSupported	optional	Supported response types by Authorization Server.	`code` / `token` / `id_token` / `none`	Set.of(Set.of(ResponseType.code), Set.of(ResponseType.token)
+responseModesSupported	optional	Supported response modes by Authorization Server.	`query` / `fragment`	Set.of(ResponseMode.query)
+clientStore	required	See [ClientStore](#clientstore).		
+clientValidator	optional	See [ClientValidator](#clientvalidator).		
+authorizationCodeService	optional	See [Token Stores Configuration](token-stores-configuration). When supporting `authorization_code grant type, the value is required.		
+scopeAudienceMapper	required	Mapping scopes to audience. Using for introspection result and JWT aud claim except for ID Token.		scope -> Set.of("rs.example.com")
+accessTokenService	required	See [Token Stores Configuration](token-stores-configuration).		
+refreshTokenService	optional	See [Token Stores Configuration](token-stores-configuration). When supporting `refresh_token` grant type, the value is required.		
+discoveryConfig	required	See [Discovery Configuration](#discovery-configuration).		
+userPasswordVerifier	optional	See [Password Grant](#password-grant).  When supporting `password` grant type, the value is required.
 
 #### ClientStore
 
@@ -257,7 +255,7 @@ var discoveryConfig =
                 .clientRegistrationEndpoint(endpoint + "/client")
                 .userInfoEndpoint(endpoint + "/userinfo")
                 .build();
-AzIdP.initJwt()
+AzIdP.init()
     .discoveryConfig(discoveryConfig)
     ...
     .build();
@@ -272,10 +270,33 @@ var discoveryConfig =
                 .authorizationEndpoint(endpoint + "/authorize")
                 .tokenEndpoint(endpoint + "/token")
                 .build();
-AzIdP.initJwt()
+AzIdP.init()
     .discoveryConfig(discoveryConfig)
     ...
     .build();
+```
+
+#### Password Grant
+
+If service supports resource owner password grant, azidp4j doesn't support user authentication so needs to configure userPasswordVerifier.
+
+```java
+var userPasswordVerifier =
+        new UserPasswordVerifier() {
+            @Override
+            public boolean verify(String username, String password) {
+                return switch (username) {
+                    case "user1" -> password.equals("password1");
+                    case "user2" -> password.equals("password2");
+                    case "user3" -> password.equals("password3");
+                    default -> false;
+                };
+            }
+        };
+AzIdP.init()
+  .userPasswordVerifier(userPasswordVerifier)
+  ...
+  .build();
 ```
 
 ## Sample applications
