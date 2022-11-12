@@ -302,7 +302,6 @@ public class AzIdPBuilder {
         if (grantTypesSupported.contains(GrantType.authorization_code)) {
             required(errors, "authorizationCodeService", authorizationCodeService);
         }
-        required(errors, "accessTokenService", accessTokenService);
         if (grantTypesSupported.contains(GrantType.refresh_token)) {
             required(errors, "refreshTokenService", refreshTokenService);
         }
