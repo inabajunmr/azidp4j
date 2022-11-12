@@ -234,7 +234,6 @@ public class AzIdPBuilder {
         required(errors, "refreshTokenExpiration", refreshTokenExpiration);
         required(errors, "grantTypesSupported", grantTypesSupported);
         required(errors, "responseModesSupported", responseModesSupported);
-        required(errors, "discoveryConfig", discoveryConfig);
         required(errors, "clientStore", clientStore);
         required(errors, "scopeAudienceMapper", scopeAudienceMapper);
         if (grantTypesSupported != null && grantTypesSupported.contains(GrantType.password)) {

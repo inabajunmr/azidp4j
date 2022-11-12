@@ -36,15 +36,6 @@ Application needs to implement...
 ### Initialization
 
 ```java
-
-var discovery =
-        DiscoveryConfig.builder()
-                .authorizationEndpoint("https://example.com/authorize")
-                .tokenEndpoint("https://example.com/token")
-                .userInfoEndpoint("https://example.com/userinfo")
-                .clientRegistrationEndpoint("https://example.com/client")
-                .jwksEndpoint("https://example.com/jwks")
-                .build();
 var rs256 =
         new RSAKeyGenerator(2048)
                 .keyID("rs256key")
@@ -55,8 +46,7 @@ var azIdP = AzIdP.initInMemory()
         .jwkSet(new JWKSet(List.of(rs256)))
         .idTokenKidSupplier((alg) -> rs256.getKeyID())
         .staticScopeAudienceMapper("audience")
-        .scopesSupported(Set.of("openid"))
-        .discovery(discovery).build();
+        .scopesSupported(Set.of("openid")).build();
 ```
 
 ### Authorization Endpoint

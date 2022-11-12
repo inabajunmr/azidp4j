@@ -18,6 +18,9 @@ public class Discovery {
     }
 
     public Map<String, Object> metadata() {
+        if (discoveryConfig == null) {
+            throw new AssertionError("Requires DiscoveryConfig for init AzIdp.");
+        }
         return MapUtil.nullRemovedMap(
                 "issuer",
                 config.issuer,
