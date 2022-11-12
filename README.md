@@ -43,8 +43,6 @@ var discovery =
                 .tokenEndpoint("https://example.com/token")
                 .userInfoEndpoint("https://example.com/userinfo")
                 .clientRegistrationEndpoint("https://example.com/client")
-                .clientConfigurationEndpointPattern(
-                        "https://example.com/client/{CLIENT_ID}")
                 .jwksEndpoint("https://example.com/jwks")
                 .build();
 var rs256 =

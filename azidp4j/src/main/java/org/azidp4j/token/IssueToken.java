@@ -143,7 +143,9 @@ public class IssueToken {
                                 Instant.now().getEpochSecond()
                                         + config.accessTokenExpiration.toSeconds(),
                                 Instant.now().getEpochSecond(),
-                                scopeAudienceMapper.map(authorizationCode.scope),
+                                scopeAudienceMapper.map(
+                                        authorizationCode
+                                                .scope), // TODO scopeAudienceMapper is used for JWT
                                 authorizationCode.code);
                 var rt =
                         refreshTokenService.issue(

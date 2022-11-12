@@ -49,8 +49,6 @@ public class AzIdPConfiguration {
                         .tokenEndpoint(endpoint + "/token")
                         .jwksEndpoint(endpoint + "/.well-known/jwks.json")
                         .clientRegistrationEndpoint(endpoint + "/client")
-                        // This is used for Dynamic Client Registration response.
-                        .clientConfigurationEndpointPattern(endpoint + "/client/{CLIENT_ID}")
                         .userInfoEndpoint(endpoint + "/userinfo")
                         .build();
 
@@ -86,6 +84,8 @@ public class AzIdPConfiguration {
                                         GrantType.refresh_token))
                         .customClientStore(clientStore)
                         .customClientValidator(new ClientValidator())
+                        .clientConfigurationEndpointIssuer(
+                                (clientId) -> endpoint + "/client/" + clientId)
                         // integration test inject some type of service
                         // so don't use shortcut interface
                         .customAuthorizationCodeService(authorizationCodeService)

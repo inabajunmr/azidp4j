@@ -6,7 +6,6 @@ public class DiscoveryConfigBuilder {
     private String tokenEndpoint;
     private String jwksEndpoint;
     private String clientRegistrationEndpoint;
-    private String clientConfigurationEndpointPattern;
     private String userInfoEndpoint;
 
     public DiscoveryConfigBuilder authorizationEndpoint(String authorizationEndpoint) {
@@ -29,13 +28,6 @@ public class DiscoveryConfigBuilder {
         return this;
     }
 
-    /** ex. http://localhost:8080/client/{CLIENT_ID} */
-    public DiscoveryConfigBuilder clientConfigurationEndpointPattern(
-            String clientConfigurationEndpointPattern) {
-        this.clientConfigurationEndpointPattern = clientConfigurationEndpointPattern;
-        return this;
-    }
-
     public DiscoveryConfigBuilder userInfoEndpoint(String userInfoEndpoint) {
         this.userInfoEndpoint = userInfoEndpoint;
         return this;
@@ -47,7 +39,6 @@ public class DiscoveryConfigBuilder {
                 this.tokenEndpoint,
                 this.jwksEndpoint,
                 this.clientRegistrationEndpoint,
-                this.clientConfigurationEndpointPattern,
                 this.userInfoEndpoint);
     }
 }

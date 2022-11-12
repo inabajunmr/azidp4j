@@ -32,7 +32,8 @@ class DynamicClientRegistrationTest_register {
                         Fixtures.discoveryConfig(),
                         new InMemoryClientStore(),
                         null,
-                        new InMemoryAccessTokenService(accessTokenStore));
+                        new InMemoryAccessTokenService(accessTokenStore),
+                        (clientId) -> "http://localhost:8080/client/" + clientId);
         var req =
                 new ClientRequest(
                         MapUtil.ofNullable(
@@ -148,7 +149,8 @@ class DynamicClientRegistrationTest_register {
                         Fixtures.discoveryConfig(),
                         new InMemoryClientStore(),
                         null,
-                        new InMemoryAccessTokenService(accessTokenStore));
+                        new InMemoryAccessTokenService(accessTokenStore),
+                        (clientId) -> "http://localhost:8080/client/" + clientId);
         var req =
                 new ClientRequest(
                         MapUtil.ofNullable(
@@ -263,7 +265,8 @@ class DynamicClientRegistrationTest_register {
                         Fixtures.discoveryConfig(),
                         new InMemoryClientStore(),
                         null,
-                        new InMemoryAccessTokenService(accessTokenStore));
+                        new InMemoryAccessTokenService(accessTokenStore),
+                        (clientId) -> "http://localhost:8080/client/" + clientId);
 
         // exercise
         var response = registration.register(new ClientRequest(Map.of()));

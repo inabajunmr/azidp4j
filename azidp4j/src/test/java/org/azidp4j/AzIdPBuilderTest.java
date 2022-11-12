@@ -35,8 +35,6 @@ class AzIdPBuilderTest {
                         .tokenEndpoint("https://example.com/token")
                         .userInfoEndpoint("https://example.com/userinfo")
                         .clientRegistrationEndpoint("https://example.com/client")
-                        .clientConfigurationEndpointPattern(
-                                "https://example.com/client/{CLIENT_ID}")
                         .jwksEndpoint("https://example.com/jwks")
                         .build();
         return AzIdP.initInMemory()
@@ -59,8 +57,6 @@ class AzIdPBuilderTest {
                         .tokenEndpoint("https://example.com/token")
                         .userInfoEndpoint("https://example.com/userinfo")
                         .clientRegistrationEndpoint("https://example.com/client")
-                        .clientConfigurationEndpointPattern(
-                                "https://example.com/client/{CLIENT_ID}")
                         .jwksEndpoint("https://example.com/jwks")
                         .build();
         AzIdP.initInMemory()

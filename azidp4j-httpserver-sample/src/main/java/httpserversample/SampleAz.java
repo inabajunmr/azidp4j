@@ -45,7 +45,6 @@ public class SampleAz {
                 .tokenEndpoint("http://localhost:8080/token")
                 .jwksEndpoint("http://localhost:8080/jwks")
                 .clientRegistrationEndpoint("http://localhost:8080/client")
-                .clientConfigurationEndpointPattern("http://localhost:8080/client/{CLIENT_ID}")
                 .userInfoEndpoint("http://localhost:8080/userinfo").build();
         clientStore = new InMemoryClientStore();
         var userPasswordVerifier =

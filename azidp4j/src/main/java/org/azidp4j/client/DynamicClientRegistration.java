@@ -2,6 +2,7 @@ package org.azidp4j.client;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.request.ResponseType;
@@ -23,13 +24,15 @@ public class DynamicClientRegistration {
     private final InternalClientValidator clientValidator;
     private final ClientValidator customizableClientValidator;
     private final ClientRequestParser clientRequestParser = new ClientRequestParser();
+    private final Function<String, String> clientConfigurationEndpointIssuer;
 
     public DynamicClientRegistration(
             AzIdPConfig config,
             DiscoveryConfig discoveryConfig,
             ClientStore clientStore,
             ClientValidator customizableClientValidator,
-            AccessTokenService accessTokenService) {
+            AccessTokenService accessTokenService,
+            Function<String, String> clientConfigurationEndpointIssuer) {
         this.config = config;
         this.discoveryConfig = discoveryConfig;
         this.clientStore = clientStore;
@@ -37,6 +40,11 @@ public class DynamicClientRegistration {
         this.customizableClientValidator =
                 customizableClientValidator != null ? customizableClientValidator : client -> {};
         this.accessTokenService = accessTokenService;
+        if (clientConfigurationEndpointIssuer == null) {
+            this.clientConfigurationEndpointIssuer = (clientId) -> null;
+        } else {
+            this.clientConfigurationEndpointIssuer = clientConfigurationEndpointIssuer;
+        }
     }
 
     public ClientRegistrationResponse register(ClientRequest req) {
@@ -156,6 +164,7 @@ public class DynamicClientRegistration {
                         Instant.now().getEpochSecond(),
                         Set.of(config.issuer),
                         null);
+        var clientConfigurationEndpoint = clientConfigurationEndpointIssuer.apply(client.clientId);
         var res =
                 MapUtil.nullRemovedMap(
                         "client_id",
@@ -163,10 +172,9 @@ public class DynamicClientRegistration {
                         "client_secret",
                         client.clientSecret,
                         "registration_access_token",
-                        at.getToken(),
+                        clientConfigurationEndpoint != null ? at.getToken() : null,
                         "registration_client_uri",
-                        discoveryConfig.clientConfigurationEndpointPattern.replace(
-                                "{CLIENT_ID}", client.clientId),
+                        clientConfigurationEndpoint,
                         "redirect_uris",
                         client.redirectUris,
                         "grant_types",

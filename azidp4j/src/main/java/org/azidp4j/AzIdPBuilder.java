@@ -49,6 +49,7 @@ public class AzIdPBuilder {
             Set.of(ResponseMode.query, ResponseMode.fragment);
     private ClientStore clientStore = null;
     private ClientValidator clientValidator = null;
+    private Function<String, String> clientConfigurationEndpointIssuer;
     private AuthorizationCodeService authorizationCodeService = null;
     private boolean isJwtAuthorizationCodeService = false;
     private Supplier<String> authorizationCodeServiceKidSupplier = null;
@@ -140,6 +141,12 @@ public class AzIdPBuilder {
 
     public AzIdPBuilder customClientValidator(ClientValidator clientValidator) {
         this.clientValidator = clientValidator;
+        return this;
+    }
+
+    public AzIdPBuilder clientConfigurationEndpointIssuer(
+            Function<String, String> clientConfigurationEndpointIssuer) {
+        this.clientConfigurationEndpointIssuer = clientConfigurationEndpointIssuer;
         return this;
     }
 
@@ -284,6 +291,7 @@ public class AzIdPBuilder {
                 idTokenKidSupplier,
                 clientStore,
                 clientValidator,
+                clientConfigurationEndpointIssuer,
                 authorizationCodeService,
                 accessTokenService,
                 refreshTokenService,

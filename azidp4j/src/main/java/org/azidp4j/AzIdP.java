@@ -70,6 +70,7 @@ public class AzIdP {
             Function<SigningAlgorithm, String> kidSupplier,
             ClientStore clientStore,
             ClientValidator clientValidator,
+            Function<String, String> clientConfigurationEndpointIssuer,
             AuthorizationCodeService authorizationCodeService,
             AccessTokenService accessTokenService,
             RefreshTokenService refreshTokenService,
@@ -101,7 +102,8 @@ public class AzIdP {
                         discoveryConfig,
                         clientStore,
                         clientValidator,
-                        accessTokenService);
+                        accessTokenService,
+                        clientConfigurationEndpointIssuer);
         this.introspect = new Introspect(accessTokenService, refreshTokenService, azIdPConfig);
         this.revocation = new Revocation(accessTokenService, refreshTokenService, clientStore);
     }
