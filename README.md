@@ -300,6 +300,129 @@ AzIdP.init()
   .build();
 ```
 
+### Authorization Request
+
+azidp4j process authorization request by AzIdP#authorize.
+
+#### Request
+
+AzIdP#authorize accept following parameters.
+
+* authenticatedUserId
+  * authenticated user who send authorization request. If no user authenticated, specify null. The value will be `sub` claim.
+* authTime
+  * Last user authenticated time. If no user authenticated, specify null. Epoch sec.
+* consentedScope
+  * Last user authenticated time. If no user authenticated, specify null.
+* queryParameters
+  * Authorization request query parameters map.
+
+```java
+// When user authenticated
+var authenticatedUserName = 'inabajun';
+var authTime = 1668270263L;
+var consentedScopes = Set.of("openid");
+var params = // convert http request query parameters to Map<String, String>;
+var authzReq =
+        new AuthorizationRequest(
+                authenticatedUserName,
+                authTime,
+                consentedScopes,
+                params);
+var response = azIdP.authorize(authzReq);
+
+// When no user authenticated
+        var params = // convert http request query parameters to Map<String, String>;
+        var authzReq = new AuthorizationRequest(null, null, null, params);
+        var response = azIdP.authorize(authzReq);
+```
+
+#### Response
+
+AzIdP#authorize returns AuthorizationResponse.
+AuthorizationResponse#next express service what should do next.
+
+```java
+var response = azIdP.authorize(authzReq);
+switch (response.next) {
+    case redirect -> {
+        // redirect to response.redirect.redirectTo;
+    }
+    case errorPage -> {
+        // Error but can't redirect as authorization response.
+        // show error page with response.errorPage.errorType
+    }
+    case additionalPage -> {
+        // When authorization request processing needs additional action by additionalPage.prompt.
+        // ex. user authentication or request consent.
+    }
+}
+```
+
+Following next parameters are defined.
+
+* redirect
+  * service just redirect to `response.redirect.redirectTo`
+* errorPage
+  * see [errorPage](#error-page)
+* additionalPage
+  * see [additionalPage](#additional-page)
+
+##### errorPage
+
+When authorization request is something wrong but can't redirect to client, AzIdP#authorize returns `errorPage`.
+In this case, `errorPage.errorType` will be set so show error page against each errorType.
+
+##### additionalPage
+
+When azidp4j requires additional action like user login, AzIdP#authorize returns `additionalPage`.
+The type of additionalPage is defined at `additionalPage.prompt`.
+
+Following types are defined as prompt.
+
+* login
+  * Required user login. Leading to login page generally.
+* consent
+  * Required user consent. Leading to consent page generally.
+* select_account
+  * Required select user account. Leading to account select page generally.
+  * If service doesn't support this, send to error page.
+
+`additionalPage` has following parameters so use them to show these pages.
+
+* display
+* clientId
+* scope
+
+After additional action, generally redirect to authorization request also.
+But when authorization request prompt parameter, same authorization request cause same action loop.
+AuthorizationRequest#removePrompt is used for removing prompt parameter to avoid this situation.
+
+```java
+switch (response.additionalPage.prompt) {
+    case login -> {
+        // use this parameters to re-authorization request after login
+        var redirectAfterLoginQueryParamters = "authzReq.removePrompt("login").queryParameters()
+        // send to login page
+        }
+    case consent -> {
+        // use this parameters to re-authorization request after consent
+        var redirectAfterConsentQueryParamters = authzReq.removePrompt("consent").queryParameters()
+        // send to consent page
+    }
+    case select_account -> {
+        // use this parameters to re-authorization request after account select
+        var redirectAfterAccountSelectQueryParamters = authzReq.removePrompt("select_account").queryParameters()
+        // send to login page
+    }
+```
+
+### Token Request
+### Discovery
+### Dynamic Client Registration
+### Introspection
+### Revocation
+
 ## Sample applications
 
 * [with Spring Boot and Spring Security](azidp4j-spring-security-sample)
