@@ -100,7 +100,7 @@ var response =
 
 ### Initializations
 
-All of AzIdP4J functions are defined at [AzIdP](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/AzIdP.java).
+All of AzIdP4J functions are defined at [AzIdP](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/AzIdP.java).
 For initialize AzIdP instance, use AzIdP#init or AzIdp#initInMemory(for using inMemory stores), AzIdp#initJwt(for using jwt tokens).
 
 These methods return builder so application can configure authorization server or identity provider like this.
@@ -150,7 +150,7 @@ var azIdp =
 | discoveryConfig | required | See [Discovery Configuration](#discovery-configuration). |  |  |
 | userPasswordVerifier | optional | See [Password Grant](#password-grant).  When supporting `password` grant type, the value is required. |  |  |
 
-#### [ClientStore](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/client/ClientStore.java)
+#### [ClientStore](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/ClientStore.java)
 
 AzIdP4J doesn't provide client persistence except for in-memory implementation.
 When application want to persist client information on another datastore, application needs to implement ClientStore interface by themselves and configure it like following example.
@@ -173,7 +173,7 @@ AzIdP.init()
     .build();
 ```
 
-#### [ClientValidator](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J-spring-security-sample/src/main/java/org/AzIdP4J/springsecuritysample/ClientValidator.java)
+#### [ClientValidator](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/ClientValidator.java)
 
 AzIdP4J validate client while client registration but service-specific restriction can be injected by ClientValidator.
 If your service want to accept only token_endpoint_auth_method=client_secret_basic, define like following example.
@@ -209,9 +209,9 @@ If service want to store tokens on service specific data store, you can use your
 AzIdP4J has the following services.
 See these class's javadoc for implementation requirement.
 
-* [AuthorizationCodeService](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/authorize/authorizationcode/AuthorizationCodeService.java)
-* [AccessTokenService](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/token/accesstoken/AccessTokenService.java)
-* [RefreshTokenService](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/token/refreshtoken/RefreshTokenService.java)
+* [AuthorizationCodeService](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/authorize/authorizationcode/AuthorizationCodeService.java)
+* [AccessTokenService](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/token/accesstoken/AccessTokenService.java)
+* [RefreshTokenService](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/token/refreshtoken/RefreshTokenService.java)
 
 These implementations can configure like this.
 
@@ -246,7 +246,7 @@ AzIdP.initJwt()
 #### Discovery Configuration
 
 If the service want to use AzIdp#discovery for Discovery Endpoint, needs to configure discoveryConfig.
-[DiscoveryConfigBuilder](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/discovery/DiscoveryConfigBuilder.java) the class for DiscoveryConfig initiation.
+[DiscoveryConfigBuilder](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/discovery/DiscoveryConfigBuilder.java) the class for DiscoveryConfig initiation.
 
 ```java
 var discoveryConfig =
@@ -347,7 +347,7 @@ var response = azIdP.authorize(authzReq);
 
 #### Response
 
-AzIdP#authorize returns [AuthorizationResponse](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/authorize/response/AuthorizationResponse.java).
+AzIdP#authorize returns [AuthorizationResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/authorize/response/AuthorizationResponse.java).
 AuthorizationResponse#next express service what should do next.
 
 ```java
@@ -448,7 +448,7 @@ AzIdP#issueToken accept following parameters.
 #### Response
 
 AzIdP#issueToken returns TokenResponse.
-[TokenResponse](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/token/response/TokenResponse.java) express http response.
+[TokenResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/token/response/TokenResponse.java) express http response.
 
 ```java
 var authenticatedClientId = xxxxxclient;
@@ -482,7 +482,7 @@ AzIdP4J supports client registration.
 Service can register new client by AzIdp#registerClient and delete client by AzIdp#deleteClient.
 But AzIdP4J doesn't manage client authentication or token authorization so service may implement it by itself.
 
-These methods return [ClientRegistrationResponse](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/client/response/ClientRegistrationResponse.java) or [ClientDeleteResponse](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/client/response/ClientDeleteResponse.java).
+These methods return [ClientRegistrationResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/response/ClientRegistrationResponse.java) or [ClientDeleteResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/response/ClientDeleteResponse.java).
 These classes express http response.
 
 ```java
@@ -551,7 +551,7 @@ All Requested metadata with following parameters are returned.
 
 #### Using Client
 
-When service want to use client for like client authentication, service can find registered client via [ClientStore](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/client/ClientStore.java).
+When service want to use client for like client authentication, service can find registered client via [ClientStore](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/ClientStore.java).
 ```
 var response = azIdP.registerClient(client);
 var client = clientStore.find(response.get("client_id"));
@@ -576,7 +576,7 @@ AzIdP#introspect accept following parameters.
 
 #### Response
 
-AzIdP#introspect returns [IntrospectionResponse](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/introspection/response/IntrospectionResponse.java).
+AzIdP#introspect returns [IntrospectionResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/introspection/response/IntrospectionResponse.java).
 IntrospectionResponse express http response.
 
 ```java
@@ -608,7 +608,7 @@ AzIdP#revoke accept following parameters.
 
 #### Response
 
-AzIdP#issueToken returns [RevocationResponse](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/revocation/response/RevocationResponse.java).
+AzIdP#issueToken returns [RevocationResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/revocation/response/RevocationResponse.java).
 RevocationResponse express http response.
 
 ```java
