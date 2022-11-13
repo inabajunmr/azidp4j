@@ -17,14 +17,15 @@ public class AuthorizationRequest {
     /** Authorization request query parameters. * */
     public final Map<String, String> queryParameters;
 
-    public AuthorizationRequest(
-            String authenticatedUserId, Long authTime, Map<String, String> queryParameters) {
-        this.authenticatedUserId = authenticatedUserId;
-        this.authTime = authTime;
-        this.consentedScope = Set.of();
-        this.queryParameters = queryParameters;
-    }
-
+    /**
+     * Authorization request.
+     *
+     * @param authenticatedUserId authenticated user who send authorization request. If no user
+     *     authenticated, specify null. The value will be `sub` claim.
+     * @param authTime Last user authenticated time. If no user authenticated, specify null.
+     * @param consentedScope Last user authenticated time. If no user authenticated, specify null.
+     * @param queryParameters Authorization request query parameters map.
+     */
     public AuthorizationRequest(
             String authenticatedUserId,
             Long authTime,
@@ -36,6 +37,12 @@ public class AuthorizationRequest {
         this.queryParameters = queryParameters;
     }
 
+    /**
+     * Clone AuthorizationRequest without specific prompt parameter.
+     *
+     * @param target removable target like `login`.
+     * @return cloned AuthorizationRequest
+     */
     public AuthorizationRequest removePrompt(String target) {
         var prompt = queryParameters.get("prompt");
         if (prompt == null) {
@@ -51,17 +58,24 @@ public class AuthorizationRequest {
                     queryParameters.entrySet().stream()
                             .filter(kv -> !kv.getKey().equals("prompt"))
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            return new AuthorizationRequest(this.authenticatedUserId, this.authTime, noPrompt);
+            return new AuthorizationRequest(
+                    this.authenticatedUserId, this.authTime, consentedScope, noPrompt);
         } else {
             var queryParameterWithNewPrompt = new HashMap<>(queryParameters);
             queryParameterWithNewPrompt.put("prompt", String.join(" ", after));
             return new AuthorizationRequest(
                     this.authenticatedUserId,
                     this.authTime,
+                    consentedScope,
                     Map.copyOf(queryParameterWithNewPrompt));
         }
     }
 
+    /**
+     * Return query parameters.
+     *
+     * @return query parameters
+     */
     public Map<String, String> queryParameters() {
         return Map.copyOf(queryParameters);
     }

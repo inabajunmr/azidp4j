@@ -59,7 +59,7 @@ public class DynamicClientRegistrationEndpointHandler {
         // ref. org.azidp4j.springsecuritysample.authentication.InternalOpaqueTokenIntrospector
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth instanceof BearerTokenAuthentication && auth.getName().equals(clientId)) {
-            var response = azIdP.delete(auth.getName());
+            var response = azIdP.deleteClient(auth.getName());
             return ResponseEntity.status(response.status).body(response.body);
         } else {
             return ResponseEntity.status(401).build();

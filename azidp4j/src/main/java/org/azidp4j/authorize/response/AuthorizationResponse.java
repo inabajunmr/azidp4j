@@ -8,9 +8,16 @@ import org.azidp4j.authorize.request.ResponseMode;
 
 public class AuthorizationResponse {
 
+    /** authorization server what should do next */
     public final NextAction next;
+
+    /** when next is additioanlPage, the parameter is specified. */
     public final AdditionalPage additionalPage;
+
+    /** when next is errorPage, the parameter is specified. */
     public final ErrorPage errorPage;
+
+    /** when next is redirect, the parameter is specified. */
     public final Redirect redirect;
 
     private AuthorizationResponse(
