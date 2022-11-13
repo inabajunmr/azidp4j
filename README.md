@@ -107,5 +107,5 @@ var response =
 
 ## Sample applications
 
-* [with Spring Boot and Spring Security](AzIdP4J-spring-security-sample)
-* [with com.sun.net.httpserver.HTTPServer](AzIdP4J-httpserver-sample)
+* [with Spring Boot and Spring Security](azidp4j-spring-security-sample)
+* [with com.sun.net.httpserver.HTTPServer](azidp4j-httpserver-sample)
