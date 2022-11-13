@@ -372,9 +372,9 @@ Following next parameters are defined.
 * redirect
   * service just redirect to `response.redirect.redirectTo`
 * errorPage
-  * see [errorPage](#error-page)
+  * see [errorPage](#errorpage)
 * additionalPage
-  * see [additionalPage](#additional-page)
+  * see [additionalPage](#additionalpage)
 
 ##### errorPage
 
@@ -587,8 +587,6 @@ var response = azIdP.issueToken(request);
 ```
 
 ### Revocation
-
-// TODO javadoc of reference clas
 
 AzIdP4J process token revocation request by AzIdP#revoke.
 But AzIdP4J doesn't manage client authentication so service must implement it by itself.
