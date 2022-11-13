@@ -540,6 +540,8 @@ All request parameters are optional.
 
 ##### Response
 
+All Requested metadata with following parameters are returned.
+
 | name | description | specification |
 | --- | --- | --- |
 | client_id | Client identifier. Key of  ClientStore. | * [OAuth 2.0](https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
