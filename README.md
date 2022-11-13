@@ -129,8 +129,8 @@ var azIdp =
 | name | optional | description | value | example |
 | --- | --- | --- | --- | --- |
 | issuer | required | Identifier of identity provider. The value is used for like JWT iss claim, introspection result. | See OpenID Provider Metadata | https://idp.example.com |
-| jwkSet | openid required | JwkSet is keys for signing token like ID Token. The parameter is required when using openid scope. | See [Nimbus JOSE documentation](https://www.javadoc.io/doc/com.nimbusds/nimbus-jose-jwt/2.13.1/com/nimbusds/jose/jwk/JWKSet.html). | see [sample implementation](https://github.com/inabajunmr/AzIdP4J/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/AzIdP4J-spring-security-sample/src/main/java/org/AzIdP4J/springsecuritysample/AzIdPConfiguration.java#L142) |
-| idTokenKidSupplier | openid required | For choosing which JWK using. The parameter is required when using openid scope. |  | see [sample implementation](https://github.com/inabajunmr/AzIdP4J/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/AzIdP4J-spring-security-sample/src/main/java/org/AzIdP4J/springsecuritysample/IdTokenKidSupplier.java#L8) |
+| jwkSet | openid required | JwkSet is keys for signing token like ID Token. The parameter is required when using openid scope. | See [Nimbus JOSE documentation](https://www.javadoc.io/doc/com.nimbusds/nimbus-jose-jwt/2.13.1/com/nimbusds/jose/jwk/JWKSet.html). | see [sample implementation](https://github.com/inabajunmr/azidp4j/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/AzIdPConfiguration.java#L142) |
+| idTokenKidSupplier | openid required | For choosing which JWK using. The parameter is required when using openid scope. |  | see [sample implementation](https://github.com/inabajunmr/azidp4j/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/IdTokenKidSupplier.java#L8) |
 | scopesSupported | required | Supported scopes for the service. When supporting OpenID Connect, requires `openid` scope. |  | Set.of("openid", "user:read") |
 | defaultScopes | optional | Scopes for no scope authorization request. |  | Set.of("openid", "user:read") |
 | authorizationCodeExpiration | optional | Expiration time for authorization code. Default is 1min. |  | Duration.ofDays(1) |
@@ -142,6 +142,7 @@ var azIdp =
 | responseModesSupported | optional | Supported response modes by Authorization Server. | `query` / `fragment` | Set.of(ResponseMode.query) |
 | clientStore | required | See [ClientStore](#clientstore). |  |  |
 | clientValidator | optional | See [ClientValidator](#clientvalidator). |  |  |
+| clientConfigurationEndpointIssuer | optioanl | Issuing client configuration endpoint. When the value is configured, client registration response has registration_access_token and registration_client_uri. |  |  |
 | authorizationCodeService | optional | See [Token Stores Configuration](token-stores-configuration). When supporting `authorization_code grant type, the value is required. |  |  |
 | scopeAudienceMapper | required | Mapping scopes to audience. Using for introspection result and JWT aud claim except for ID Token. |  | scope -> Set.of("rs.example.com") |
 | accessTokenService | required | See [Token Stores Configuration](token-stores-configuration). |  |  |
@@ -509,7 +510,42 @@ azIdP.deleteClient(response.get("client_id"));
 
 #### Client parameters
 
-// TODO
+##### Request
+
+All request parameters are optional.
+
+| name | description | specification |
+| --- | --- | --- |
+| redirect_uris | AzIdP4J allows only registered redirect_uri of Authorization Request. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| token_endpoint_auth_method | AzIdP4J doesn't support client authentication. The parameter is for only client metadata. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| grant_types | AzIdP4J allows only registered grant_type. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| application_type | Just client metadata. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| response_types | AzIdP4J allows only registered response_type of Authorization Request. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| client_name | Just client metadata. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| client_uri | Just client metadata. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| logo_uri | Just client metadata. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| scope | Scopes that client can issue. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591) |
+| contacts | Just client metadata. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| tos_uri | Just client metadata. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| policy_uri | Just client metadata. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| jwks_uri | AzIdP4J doesn't use client jwks. It's just for service implementations about like client authentication. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| jwks | AzIdP4J doesn't use client jwks. It's just for service implementations about like client authentication. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| software_id | Just client metadata. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| software_version | Just client metadata. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| id_token_signed_response_alg | Signing algorithm of ID Token for the client. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| token_endpoint_auth_signing_alg | AzIdP4J doesn't support client authentication. The parameter is for only client metadata. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| default_max_age | Default max_age for Authorization Request. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| require_auth_time | AzIdP4J always returns auth_time claim. It's just client metadata. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| initiate_login_uri | Just client metadata. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+
+##### Response
+
+| name | description | specification |
+| --- | --- | --- |
+| client_id | Client identifier. Key of  ClientStore. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| client_secret | Client secret for client authetnication. But AzIdP4J doesn't support client authentication. The value is refered via ClientStore. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| registration_access_token | Access token for client configuration endpoint. But AzIdP4J doesn't support authorization. The token can be introspected by AzIdP#introspect. The value is returend only clientConfigurationEndpointIssuer configured. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| registration_client_uri | Client configuration endpoint. But AzIdP4J doesn't support web endpoint. The value is decided by clientConfigurationEndpointIssuer. The value is returend only clientConfigurationEndpointIssuer configured. | * [OAuth 2.0](OAuth 2.0<br>https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 
 #### Using Client
 
