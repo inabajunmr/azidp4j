@@ -1,6 +1,6 @@
-# [wip] azidp4j
+# [wip] AzIdP4J
 
-azidp4j is library for Java OAuth 2.0 Authorization Server & OpenID Connect Identity Provider.
+AzIdP4J is library for Java OAuth 2.0 Authorization Server & OpenID Connect Identity Provider.
 
 ## Supported Functions
 
@@ -8,10 +8,10 @@ azidp4j is library for Java OAuth 2.0 Authorization Server & OpenID Connect Iden
 
 * [The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749)
 * [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)
-  * azidp4j doesn't support
+  * AzIdP4J doesn't support
     * UserInfo endpoint
     * ID Token claims
-      * azidp4j issue ID Token that has only sub
+      * AzIdP4J issue ID Token that has only sub
     * Request object
     * PPID
     * Encrypted ID Token
@@ -22,7 +22,7 @@ azidp4j is library for Java OAuth 2.0 Authorization Server & OpenID Connect Iden
 * [OAuth 2.0 Dynamic Client Registration Protocol](https://www.rfc-editor.org/rfc/rfc7591)
 * [OpenID Connect Dynamic Client Registration 1.0](https://openid.net/specs/openid-connect-registration-1_0.html)
 
-### azidp4j doesn't support
+### AzIdP4J doesn't support
 
 Application needs to implement...
 
@@ -100,7 +100,7 @@ var response =
 
 ### Initializations
 
-All of azidp4j functions are defined at [AzIdP](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/AzIdP.java).
+All of AzIdP4J functions are defined at [AzIdP](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/AzIdP.java).
 For initialize AzIdP instance, use AzIdP#init or AzIdp#initInMemory(for using inMemory stores), AzIdp#initJwt(for using jwt tokens).
 
 These methods return builder so application can configure authorization server or identity provider like this.
@@ -129,8 +129,8 @@ var azIdp =
 | name | optional | description | value | example |
 | --- | --- | --- | --- | --- |
 | issuer | required | Identifier of identity provider. The value is used for like JWT iss claim, introspection result. | See OpenID Provider Metadata | https://idp.example.com |
-| jwkSet | openid required | JwkSet is keys for signing token like ID Token. The parameter is required when using openid scope. | See [Nimbus JOSE documentation](https://www.javadoc.io/doc/com.nimbusds/nimbus-jose-jwt/2.13.1/com/nimbusds/jose/jwk/JWKSet.html). | see [sample implementation](https://github.com/inabajunmr/azidp4j/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/AzIdPConfiguration.java#L142) |
-| idTokenKidSupplier | openid required | For choosing which JWK using. The parameter is required when using openid scope. |  | see [sample implementation](https://github.com/inabajunmr/azidp4j/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/IdTokenKidSupplier.java#L8) |
+| jwkSet | openid required | JwkSet is keys for signing token like ID Token. The parameter is required when using openid scope. | See [Nimbus JOSE documentation](https://www.javadoc.io/doc/com.nimbusds/nimbus-jose-jwt/2.13.1/com/nimbusds/jose/jwk/JWKSet.html). | see [sample implementation](https://github.com/inabajunmr/AzIdP4J/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/AzIdP4J-spring-security-sample/src/main/java/org/AzIdP4J/springsecuritysample/AzIdPConfiguration.java#L142) |
+| idTokenKidSupplier | openid required | For choosing which JWK using. The parameter is required when using openid scope. |  | see [sample implementation](https://github.com/inabajunmr/AzIdP4J/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/AzIdP4J-spring-security-sample/src/main/java/org/AzIdP4J/springsecuritysample/IdTokenKidSupplier.java#L8) |
 | scopesSupported | required | Supported scopes for the service. When supporting OpenID Connect, requires `openid` scope. |  | Set.of("openid", "user:read") |
 | defaultScopes | optional | Scopes for no scope authorization request. |  | Set.of("openid", "user:read") |
 | authorizationCodeExpiration | optional | Expiration time for authorization code. Default is 1min. |  | Duration.ofDays(1) |
@@ -149,9 +149,9 @@ var azIdp =
 | discoveryConfig | required | See [Discovery Configuration](#discovery-configuration). |  |  |
 | userPasswordVerifier | optional | See [Password Grant](#password-grant).  When supporting `password` grant type, the value is required. |  |  |
 
-#### [ClientStore](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/ClientStore.java)
+#### [ClientStore](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/client/ClientStore.java)
 
-azidp4j doesn't provide client persistence except for in-memory implementation.
+AzIdP4J doesn't provide client persistence except for in-memory implementation.
 When application want to persist client information on another datastore, application needs to implement ClientStore interface by themselves and configure it like following example.
 
 ```java
@@ -172,7 +172,7 @@ AzIdP.init()
     .build();
 ```
 
-#### [ClientValidator](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/ClientValidator.java)
+#### [ClientValidator](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J-spring-security-sample/src/main/java/org/AzIdP4J/springsecuritysample/ClientValidator.java)
 
 AzIdP4J validate client while client registration but service-specific restriction can be injected by ClientValidator.
 If your service want to accept only token_endpoint_auth_method=client_secret_basic, define like following example.
@@ -201,16 +201,16 @@ AzIdP.init()
 
 #### Token Stores Configuration
 
-AzIdp4J provides in-memory or JWT token services.
+AzIdP4J provides in-memory or JWT token services.
 But former isn't practical and later has restriction that can't support token revocation or.
 If service want to store tokens on service specific data store, you can use your service specific implementation.
 
-AzIdp4J has the following services.
+AzIdP4J has the following services.
 See these class's javadoc for implementation requirement.
 
-* [AuthorizationCodeService](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/authorize/authorizationcode/AuthorizationCodeService.java)
-* [AccessTokenService](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/token/accesstoken/AccessTokenService.java)
-* [RefreshTokenService](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/token/refreshtoken/RefreshTokenService.java)
+* [AuthorizationCodeService](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/authorize/authorizationcode/AuthorizationCodeService.java)
+* [AccessTokenService](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/token/accesstoken/AccessTokenService.java)
+* [RefreshTokenService](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/token/refreshtoken/RefreshTokenService.java)
 
 These implementations can configure like this.
 
@@ -245,7 +245,7 @@ AzIdP.initJwt()
 #### Discovery Configuration
 
 If the service want to use AzIdp#discovery for Discovery Endpoint, needs to configure discoveryConfig.
-[DiscoveryConfigBuilder](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/discovery/DiscoveryConfigBuilder.java) the class for DiscoveryConfig initiation.
+[DiscoveryConfigBuilder](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/discovery/DiscoveryConfigBuilder.java) the class for DiscoveryConfig initiation.
 
 ```java
 var discoveryConfig =
@@ -279,7 +279,7 @@ AzIdP.init()
 
 #### Password Grant
 
-If service supports resource owner password grant, azidp4j doesn't support user authentication so needs to configure userPasswordVerifier.
+If service supports resource owner password grant, AzIdP4J doesn't support user authentication so needs to configure userPasswordVerifier.
 
 ```java
 var userPasswordVerifier =
@@ -302,8 +302,14 @@ AzIdP.init()
 
 ### Authorization Request
 
-azidp4j process authorization request by AzIdP#authorize.
-But azidp4j doesn't manage user authentication and consent so service must implement these function by itself.
+AzIdP4J process authorization request by AzIdP#authorize.
+But AzIdP4J doesn't manage user authentication and consent so service must implement these function by itself.
+
+#### Specification
+
+* [The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749#section-3.1)
+* [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint)
+* [Proof Key for Code Exchange by OAuth Public Clients](https://datatracker.ietf.org/doc/html/rfc7636)
 
 #### Request
 
@@ -340,7 +346,7 @@ var response = azIdP.authorize(authzReq);
 
 #### Response
 
-AzIdP#authorize returns [AuthorizationResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/authorize/response/AuthorizationResponse.java).
+AzIdP#authorize returns [AuthorizationResponse](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/authorize/response/AuthorizationResponse.java).
 AuthorizationResponse#next express service what should do next.
 
 ```java
@@ -376,7 +382,7 @@ In this case, `errorPage.errorType` will be set so show error page against each 
 
 ##### additionalPage
 
-When azidp4j requires additional action like user login, AzIdP#authorize returns `additionalPage`.
+When AzIdP4J requires additional action like user login, AzIdP#authorize returns `additionalPage`.
 The type of additionalPage is defined at `additionalPage.prompt`.
 
 Following types are defined as prompt.
@@ -420,8 +426,14 @@ switch (response.additionalPage.prompt) {
 
 ### Token Request
 
-azidp4j process token request by AzIdP#issueToken.
-But azidp4j doesn't manage client authentication so service must implement it by itself.
+AzIdP4J process token request by AzIdP#issueToken.
+But AzIdP4J doesn't manage client authentication so service must implement it by itself.
+
+#### Specification
+
+* [The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749#section-3.2)
+* [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint)
+* [Proof Key for Code Exchange by OAuth Public Clients](https://datatracker.ietf.org/doc/html/rfc7636)
 
 #### Request
 
@@ -435,7 +447,7 @@ AzIdP#issueToken accept following parameters.
 #### Response
 
 AzIdP#issueToken returns TokenResponse.
-[TokenResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/token/response/TokenResponse.java) express http response.
+[TokenResponse](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/token/response/TokenResponse.java) express http response.
 
 ```java
 var authenticatedClientId = xxxxxclient;
@@ -450,7 +462,7 @@ var response = azIdP.issueToken(tokenReq);
 
 ### Discovery
 
-azidp4j issue metadata for discovery endpoint against configuration.
+AzIdP4J issue metadata for discovery endpoint against configuration.
 AzIdP#discovery returns metadata as Map<String, Object>.
 
 ```java
@@ -458,13 +470,18 @@ var metadata = azIdP.discovery();
 // return http response by metadata.
 ```
 
+#### Specification
+
+* [OAuth 2.0 Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414.html)
+* [OpenID Connect Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html)
+
 ### Dynamic Client Registration
 
-azidp4j supports client registration.
+AzIdP4J supports client registration.
 Service can register new client by AzIdp#registerClient and delete client by AzIdp#deleteClient.
-But azidp4j doesn't manage client authentication or token authorization so service may implement it by itself.
+But AzIdP4J doesn't manage client authentication or token authorization so service may implement it by itself.
 
-These methods return [ClientRegistrationResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/response/ClientRegistrationResponse.java) or [ClientDeleteResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/response/ClientDeleteResponse.java).
+These methods return [ClientRegistrationResponse](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/client/response/ClientRegistrationResponse.java) or [ClientDeleteResponse](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/client/response/ClientDeleteResponse.java).
 These classes express http response.
 
 ```java
@@ -485,14 +502,18 @@ var response = azIdP.registerClient(client);
 azIdP.deleteClient(response.get("client_id"));
 ```
 
+#### Specification
+
+* [OAuth 2.0 Dynamic Client Registration Protocol](https://www.rfc-editor.org/rfc/rfc7591)
+* [OpenID Connect Dynamic Client Registration 1.0](https://openid.net/specs/openid-connect-registration-1_0.html)
+
 #### Client parameters
 
 // TODO
 
-
 #### Using Client
 
-When service want to use client for like client authentication, service can find registered client via [ClientStore](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/ClientStore.java).
+When service want to use client for like client authentication, service can find registered client via [ClientStore](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/client/ClientStore.java).
 ```
 var response = azIdP.registerClient(client);
 var client = clientStore.find(response.get("client_id"));
@@ -501,8 +522,12 @@ var client = clientStore.find(response.get("client_id"));
 
 ### Introspection
 
-azidp4j supports introspection request.
-But azidp4j doesn't manage client authentication or token authorization so service must implement it by itself.
+AzIdP4J supports introspection request.
+But AzIdP4J doesn't manage client authentication or token authorization so service must implement it by itself.
+
+#### Specification
+
+* [OAuth 2.0 Token Introspection](https://datatracker.ietf.org/doc/html/rfc7662)
 
 #### Request
 
@@ -513,7 +538,7 @@ AzIdP#introspect accept following parameters.
 
 #### Response
 
-AzIdP#introspect returns [IntrospectionResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/introspection/response/IntrospectionResponse.java).
+AzIdP#introspect returns [IntrospectionResponse](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/introspection/response/IntrospectionResponse.java).
 IntrospectionResponse express http response.
 
 ```java
@@ -525,12 +550,14 @@ var response = azIdP.issueToken(request);
 
 ### Revocation
 
-// TODO link to specification
-// TODO link to these class
 // TODO javadoc of reference clas
 
-azidp4j process token revocation request by AzIdP#revoke.
-But azidp4j doesn't manage client authentication so service must implement it by itself.
+AzIdP4J process token revocation request by AzIdP#revoke.
+But AzIdP4J doesn't manage client authentication so service must implement it by itself.
+
+#### Specification
+
+* [OAuth 2.0 Token Revocation](https://www.rfc-editor.org/rfc/rfc7009)
 
 #### Request
 
@@ -543,7 +570,7 @@ AzIdP#revoke accept following parameters.
 
 #### Response
 
-AzIdP#issueToken returns [RevocationResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/revocation/response/RevocationResponse.java).
+AzIdP#issueToken returns [RevocationResponse](https://github.com/inabajunmr/AzIdP4J/blob/main/AzIdP4J/src/main/java/org/AzIdP4J/revocation/response/RevocationResponse.java).
 RevocationResponse express http response.
 
 ```java
@@ -559,5 +586,5 @@ var response = azIdP.revoke(request);
 
 ## Sample applications
 
-* [with Spring Boot and Spring Security](azidp4j-spring-security-sample)
-* [with com.sun.net.httpserver.HTTPServer](azidp4j-httpserver-sample)
+* [with Spring Boot and Spring Security](AzIdP4J-spring-security-sample)
+* [with com.sun.net.httpserver.HTTPServer](AzIdP4J-httpserver-sample)
