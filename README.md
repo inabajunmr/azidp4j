@@ -303,6 +303,7 @@ AzIdP.init()
 ### Authorization Request
 
 azidp4j process authorization request by AzIdP#authorize.
+But azidp4j doesn't manage user authentication and consent so service must implement these function by itself.
 
 #### Request
 
@@ -418,10 +419,143 @@ switch (response.additionalPage.prompt) {
 ```
 
 ### Token Request
+
+azidp4j process token request by AzIdP#issueToken.
+But azidp4j doesn't manage client authentication so service must implement it by itself.
+
+#### Request
+
+AzIdP#issueToken accept following parameters.
+
+* authenticatedClientId
+  * Authenticated client that send token request. If no client authenticated, specify null.
+* bodyParameters
+  * Token request body parameters map.
+
+#### Response
+
+AzIdP#issueToken returns TokenResponse.
+TokenResponse express http response.
+
+```java
+var authenticatedClientId = xxxxxclient;
+var authenticatedClientId = // convert http request body parameters to Map<String, Object>;
+var tokenReq =
+        new TokenRequest(
+                authenticatedClientId,
+                params);
+var response = azIdP.issueToken(tokenReq);
+// return http response by response.status and response.body.
+```
+
 ### Discovery
+
+azidp4j issue metadata for discovery endpoint against configuration.
+AzIdP#discovery returns metadata as Map<String, Object>.
+
+```java
+var metadata = azIdP.discovery();
+// return http response by metadata.
+```
+
 ### Dynamic Client Registration
+
+azidp4j supports client registration.
+Service can register new client by AzIdp#registerClient and delete client by AzIdp#deleteClient.
+But azidp4j doesn't manage client authentication or token authorization so service may implement it by itself.
+
+These methods return ClientRegistrationResponse or ClientDeleteResponse.
+These classes express http response.
+
+```java
+// If service required authentication or authorization, it must process before AzIdp#registerClient.
+var client = new ClientRequest(
+        Map.of(
+          "redirect_uris",
+          Set.of("https://client.example.com/callback"),
+          "grant_types",
+          Set.of("authorization_code","implicit"),
+          "response_types", Set.of("code", "token", "id_token"),
+          "scope", "openid",
+          "token_endpoint_auth_method", "client_secret_basic",
+          "id_token_signed_response_alg", "RS256"));
+var response = azIdP.registerClient(client);
+
+// If service required authentication or authorization, it must process before AzIdp#deleteClient.
+azIdP.deleteClient(response.get("client_id"));
+```
+
+#### Client parameters
+
+// TODO
+
+
+#### Using Client
+
+When service want to use client for like client authentication, service can find registered client via ClientStore.
+```
+var response = azIdP.registerClient(client);
+var client = clientStore.find(response.get("client_id"));
+// using client for service specific requirements
+```
+
 ### Introspection
+
+azidp4j supports introspection request.
+But azidp4j doesn't manage client authentication or token authorization so service must implement it by itself.
+
+#### Request
+
+AzIdP#introspect accept following parameters.
+
+* bodyParameters
+  * Token request body parameters map.
+
+#### Response
+
+AzIdP#introspect returns IntrospectionResponse.
+IntrospectionResponse express http response.
+
+```java
+// client authentication or bearer token authorization
+var request = new IntrospectionRequest(params);
+var response = azIdP.issueToken(request);
+// return http response by response.status and response.body.
+```
+
 ### Revocation
+
+// TODO link to specification
+// TODO link to these class
+// TODO javadoc of reference clas
+
+azidp4j process token revocation request by AzIdP#revoke.
+But azidp4j doesn't manage client authentication so service must implement it by itself.
+
+#### Request
+
+AzIdP#revoke accept following parameters.
+
+* authenticatedClientId
+  * Authenticated client that send token request. If no client authenticated, specify null.
+* bodyParameters
+  * Token request body parameters map.
+
+#### Response
+
+AzIdP#issueToken returns RevocationResponse.
+RevocationResponse express http response.
+
+```java
+var authenticatedClientId = xxxxxclient;
+var authenticatedClientId = // convert http request body parameters to Map<String, Object>;
+var request =
+        new RevocationRequest(
+                authenticatedClientId,
+                params);
+var response = azIdP.revoke(request);
+// return http response by response.status and response.body.
+```
 
 ## Sample applications
 

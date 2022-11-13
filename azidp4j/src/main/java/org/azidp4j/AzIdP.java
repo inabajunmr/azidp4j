@@ -108,6 +108,12 @@ public class AzIdP {
         this.revocation = new Revocation(accessTokenService, refreshTokenService, clientStore);
     }
 
+    /**
+     * Process authorization request
+     *
+     * @param authorizationRequest authorizationRequest
+     * @return what should do next
+     */
     public AuthorizationResponse authorize(AuthorizationRequest authorizationRequest) {
         var parsed = authorizationRequestParser.parse(authorizationRequest);
         return authorize.authorize(parsed);
@@ -121,9 +127,11 @@ public class AzIdP {
         return clientRegistration.register(request);
     }
 
-    public ClientDeleteResponse delete(String clientId) {
+    public ClientDeleteResponse deleteClient(String clientId) {
         return clientRegistration.delete(clientId);
     }
+
+    // TODO readClient
 
     public IntrospectionResponse introspect(IntrospectionRequest request) {
         return introspect.introspect(request);
