@@ -33,6 +33,12 @@ Application needs to implement...
 
 ## Quickstart
 
+### Installation
+
+```
+https://search.maven.org/artifact/io.github.inabajunmr/AzIdP4J/0.0.0-alpha%2B001/jar
+```
+
 ### Configuration
 
 ```java
