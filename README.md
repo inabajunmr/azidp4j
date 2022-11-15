@@ -1,5 +1,7 @@
 # [wip] AzIdP4J
 
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.inabajunmr/AzIdP4J.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.inabajunmr%22%20AND%20a:%22AzIdP4J%22)
+
 AzIdP4J is library for Java OAuth 2.0 Authorization Server & OpenID Connect Identity Provider.
 
 ## Supported Functions
