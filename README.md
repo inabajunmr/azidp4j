@@ -115,3 +115,26 @@ var response =
 
 * [with Spring Boot and Spring Security](azidp4j-spring-security-sample)
 * [with com.sun.net.httpserver.HTTPServer](azidp4j-httpserver-sample)
+
+## Release
+
+### gradle.properties
+
+```
+signing.keyId=xxx
+signing.password=xxx
+signing.secretKeyRingFile=/Users/xxx/.gnupg/xxx
+
+sonatypeUsername=xxx
+sonatypePassword=xxx
+```
+
+### version
+
+at azidp4j/build.gradle.kts version
+
+### publish
+
+```
+./gradlew azidp4j:publish
+```
