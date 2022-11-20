@@ -50,59 +50,76 @@ var rs256 =
                 .keyID("rs256key")
                 .algorithm(new Algorithm("RS256"))
                 .generate();
-var azIdP = AzIdP.initInMemory()
-        .issuer("https://example.com")
-        .jwkSet(new JWKSet(List.of(rs256)))
-        .idTokenKidSupplier((alg) -> rs256.getKeyID())
-        .staticScopeAudienceMapper("audience")
-        .scopesSupported(Set.of("openid")).build();
+var jwks = new JWKSet(rs256);
+var azidp =
+        AzIdP.initInMemory()
+                .jwkSet(jwks)
+                .idTokenKidSupplier((alg) -> jwks.getKeys().get(0).getKeyID())
+                .issuer("https://idp.example.com")
+                .grantTypesSupported(
+                        Set.of(GrantType.authorization_code, GrantType.client_credentials))
+                .scopesSupported(Set.of("openid", "item:read"))
+                .customScopeAudienceMapper((scope) -> Set.of("https://rs.example.com"))
+                .build();
+```
+
+### Client Registration
+
+```java
+var clientRequest =
+        new ClientRequest(
+                Map.of(
+                        "redirect_uris",
+                        Set.of("https://client.example.com/callback"),
+                        "grant_types",
+                        Set.of("authorization_code", "client_credentials"),
+                        "scope",
+                        "openid item:read"));
+var clientResponse = azidp.registerClient(clientRequest);
+System.out.println(clientResponse.body);
+// {grant_types=[client_credentials, authorization_code], application_type=web, scope=openid item:read, require_auth_time=false, client_secret=f13b412b-f5b6-4432-9764-ffa891ef5ae9, redirect_uris=[https://client.example.com/callback], client_id=b9b60f89-97f3-4537-9604-a638d58df4d4, token_endpoint_auth_method=client_secret_basic, response_types=[code], id_token_signed_response_alg=RS256}
 ```
 
 ### Authorization Endpoint
 
 ```java
-var authenticatedUserName = 'inabajun';
-var authTime = 1667152734;
-var consentedScopes = Set.of("user:read");
-var params = authorization request parameters from your web application.
-var authzReq =
+// This is constructed via http request generally.
+var authorizationRequestQueryParameterMap =
+        Map.of(
+                "scope", "openid item:read",
+                "response_type", "code",
+                "client_id", clientResponse.body.get("client_id").toString(),
+                "redirect_uri", "https://client.example.com/callback",
+                "state", "abc",
+                "nonce", "xyz");
+var authorizationRequest =
         new AuthorizationRequest(
-                authenticatedUserName,
-                authTime,
-                consentedScopes,
-                params);
-var response = azIdP.authorize(authzReq);
-switch (response.next) {
-    case redirect -> {
-        // TODO redirect to response.redirect.redirectTo
-    }
-    case errorPage -> {
-        // TODO show error page
-    }
-    case additionalPage -> {
-        switch (additionalPage.prompt) {
-        case login -> {
-            // TODO show login page
-        }
-        case consent -> {
-            // TODO show consent page
-            // construct consent page by additionalPage.scope and additionalPage.clientId
-        }
-        case select_account -> {
-            // TODO show select account page
-        }
-    }
-}
+                "inabajun", // authenticated user
+                Instant.now().getEpochSecond(),
+                Set.of("openid", "item:read"),
+                authorizationRequestQueryParameterMap);
+var authorizationResponse = azidp.authorize(authorizationRequest);
+System.out.println(authorizationResponse.redirect.redirectTo);
+// https://client.example.com/callback?code=890d9cca-11a2-47b8-b879-1f584fdb0354&state=abc
 ```
 
 ### Token Endpoint
 ```java
-// you need to implement client authentication
-var authenticatedClientId = client id from your implementation;
-var params = token request parameters from your web application.
-var response =
-        azIdP.issueToken(new TokenRequest(authenticatedClientId, params));
-// TODO construct http response by response.status and response.body
+var code = authorizationResponse.redirect.redirectTo.replaceAll(".*code=([^&]+).*", "$1");
+var tokenRequest =
+        new TokenRequest(
+                clientResponse.body.get("client_id").toString(),
+                // This is constructed via http request generally.
+                Map.of(
+                        "code",
+                        code,
+                        "grant_type",
+                        "authorization_code",
+                        "redirect_uri",
+                        "https://client.example.com/callback"));
+var tokenResponse = azidp.issueToken(tokenRequest);
+System.out.println(tokenResponse.body);
+// {access_token=2100bccf-6428-435d-bbac-6849bf1c28fc, refresh_token=50ecc0bd-a48a-4df4-a62e-768896ba4f24, scope=openid item:read, id_token=eyJraWQiOiJyczI1NmtleSIsImFsZyI6IlJTMjU2In0.eyJhdF9oYXNoIjoiZHZDcXhOQ3lNNG9kdWhfS1EwU0trZyIsInN1YiI6ImluYWJhanVuIiwiYXVkIjoiNGUzMWViZDItNTZmNy00MDM0LWIwNjEtNjcyNGEzNzUwYTEwIiwiYXpwIjoiNGUzMWViZDItNTZmNy00MDM0LWIwNjEtNjcyNGEzNzUwYTEwIiwiYXV0aF90aW1lIjoxNjY4OTMzNDU5LCJpc3MiOiJodHRwczovL2lkcC5leGFtcGxlLmNvbSIsImV4cCI6MTY2ODkzNDA1OSwiaWF0IjoxNjY4OTMzNDU5LCJub25jZSI6Inh5eiIsImp0aSI6ImY0YjhlMGUyLWIwMTktNDI1ZC1hMmRkLTdmZWUwNzFmYzM3NSJ9.n-YJnhe-NlQdzydRoPq2I0bSsWD-iyx3DHYToZvmUHnncgcpjEvNA2QGsWnSPShJickAAh3sJ53d4LenMJDpGzhJbeAYq3Fh6UgC_NsH5yYimbCFg1i6nVySV-ntbC6tmvAz1Ey1QsIHmZO5azGzbIbjm47jfl-NhZHbH4pg7lBbQ3_KmOy3kfmOil14Qyz8sNrT4LX_5T4nK3YjrPWDsCYlGm_cXHL5zwPnwZkWifU-D6ro-j9yK3E30kQ2qEsj_bhjzcpLem7-y67EfzuJTAhQbxPaasToh_lcPXaXS9krVodU1pPkk6aFs4IDurbqsoUGZH28YEOW4oowbSoyyw, state=abc, token_type=bearer, expires_in=600}
 ```
 
 ## Documentation
