@@ -101,8 +101,7 @@ public class Authorize {
         try {
             redirectUri = URI.create(authorizationRequest.redirectUri);
         } catch (IllegalArgumentException e) {
-            return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri);
+            throw new AssertionError("Client has illegal redirect_uris.", e);
         }
         if (authorizationRequest.request != null) {
             return AuthorizationResponse.redirect(
@@ -209,7 +208,7 @@ public class Authorize {
         }
 
         var prompt = Prompt.parse(authorizationRequest.prompt);
-        if (prompt == null) {
+        if (prompt.isEmpty()) {
             // prompt is invalid
             return AuthorizationResponse.redirect(
                     redirectUri,

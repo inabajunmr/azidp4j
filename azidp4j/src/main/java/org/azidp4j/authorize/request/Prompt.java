@@ -15,7 +15,7 @@ public enum Prompt {
 
     public static Set<Prompt> parse(String prompt) {
         if (prompt == null) {
-            return Set.of();
+            return Set.of(no_prompt);
         }
         return Arrays.stream(prompt.split(" "))
                 .map(Prompt::of)
@@ -24,9 +24,6 @@ public enum Prompt {
     }
 
     private static Prompt of(String prompt) {
-        if (prompt == null) {
-            return no_prompt;
-        }
         return switch (prompt) {
             case "none" -> none;
             case "login" -> login;

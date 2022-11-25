@@ -4,6 +4,7 @@ plugins {
     id("com.diffplug.spotless") version "6.10.0"
     id("maven-publish")
     id("signing")
+    id("jacoco")
 }
 
 group = "io.github.inabajunmr"
@@ -24,6 +25,19 @@ dependencies {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
+}
+
+// For Jacoco
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test) // tests are required to run before generating the report
 }
 
 spotless {
