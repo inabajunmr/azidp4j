@@ -145,16 +145,21 @@ public class IssueToken {
                                 Instant.now().getEpochSecond(),
                                 scopeAudienceMapper.map(authorizationCode.scope),
                                 authorizationCode.code);
-                var rt =
-                        refreshTokenService.issue(
-                                authorizationCode.sub,
-                                authorizationCode.scope,
-                                authorizationCode.clientId,
-                                Instant.now().getEpochSecond()
-                                        + config.refreshTokenExpiration.toSeconds(),
-                                Instant.now().getEpochSecond(),
-                                scopeAudienceMapper.map(authorizationCode.scope),
-                                authorizationCode.code);
+                String rt = null;
+                if (client.grantTypes.contains(GrantType.refresh_token)) {
+                    rt =
+                            refreshTokenService.issue(
+                                            authorizationCode.sub,
+                                            authorizationCode.scope,
+                                            authorizationCode.clientId,
+                                            Instant.now().getEpochSecond()
+                                                    + config.refreshTokenExpiration.toSeconds(),
+                                            Instant.now().getEpochSecond(),
+                                            scopeAudienceMapper.map(authorizationCode.scope),
+                                            authorizationCode.code)
+                                    .token;
+                }
+
                 if (scopeValidator.contains(authorizationCode.scope, "openid")) {
                     // OIDC
                     var idToken =
@@ -175,7 +180,7 @@ public class IssueToken {
                                         "id_token",
                                         idToken.serialize(),
                                         "refresh_token",
-                                        rt.token,
+                                        rt,
                                         "token_type",
                                         "bearer",
                                         "expires_in",
@@ -191,7 +196,7 @@ public class IssueToken {
                                     "id_token",
                                     idToken.serialize(),
                                     "refresh_token",
-                                    rt.token,
+                                    rt,
                                     "token_type",
                                     "bearer",
                                     "expires_in",
@@ -209,7 +214,7 @@ public class IssueToken {
                                     "access_token",
                                     at.getToken(),
                                     "refresh_token",
-                                    rt.token,
+                                    rt,
                                     "token_type",
                                     "bearer",
                                     "expires_in",
@@ -243,23 +248,27 @@ public class IssueToken {
                                     Instant.now().getEpochSecond(),
                                     scopeAudienceMapper.map(req.scope),
                                     null);
-                    var rt =
-                            new RefreshToken(
-                                    UUID.randomUUID().toString(),
-                                    req.username,
-                                    scope,
-                                    client.clientId,
-                                    scopeAudienceMapper.map(scope),
-                                    Instant.now().getEpochSecond()
-                                            + config.refreshTokenExpiration.toSeconds(),
-                                    Instant.now().getEpochSecond());
+                    String rt = null;
+                    if (client.grantTypes.contains(GrantType.refresh_token)) {
+                        rt =
+                                new RefreshToken(
+                                                UUID.randomUUID().toString(),
+                                                req.username,
+                                                scope,
+                                                client.clientId,
+                                                scopeAudienceMapper.map(scope),
+                                                Instant.now().getEpochSecond()
+                                                        + config.refreshTokenExpiration.toSeconds(),
+                                                Instant.now().getEpochSecond())
+                                        .token;
+                    }
                     return new TokenResponse(
                             200,
                             MapUtil.nullRemovedMap(
                                     "access_token",
                                     at.getToken(),
                                     "refresh_token",
-                                    rt.token,
+                                    rt,
                                     "token_type",
                                     "bearer",
                                     "expires_in",
@@ -272,9 +281,6 @@ public class IssueToken {
             }
             case client_credentials -> {
                 var scope = req.scope != null ? req.scope : String.join(" ", config.defaultScope);
-                if (scope == null) {
-                    return new TokenResponse(400, Map.of("error", "invalid_scope"));
-                }
                 if (client.tokenEndpointAuthMethod == TokenEndpointAuthMethod.none) {
                     return new TokenResponse(400, Map.of("error", "invalid_client"));
                 }
