@@ -22,7 +22,7 @@ import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
 
-class AuthorizeTest {
+class AuthorizeTest_AdditionalPage {
 
     final ClientStore clientStore = new InMemoryClientStore();
     final Client client = Fixtures.confidentialClient();
@@ -42,7 +42,7 @@ class AuthorizeTest {
                     new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
                     config);
 
-    public AuthorizeTest() {
+    public AuthorizeTest_AdditionalPage() {
         clientStore.save(client);
         clientStore.save(noGrantTypesClient);
         clientStore.save(noResponseTypesClient);
@@ -217,6 +217,54 @@ class AuthorizeTest {
                             .prompt("login consent")
                             .authenticatedUserId("username")
                             .consentedScope(Set.of("rs:scope1 rs:scope2"))
+                            .state("xyz")
+                            .build();
+
+            // exercise
+            var response = sut.authorize(authorizationRequest);
+
+            // verify
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.login, response.additionalPage.prompt);
+            assertEquals(Display.page, response.additionalPage.display);
+        }
+
+        // prompt=select_account
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .authTime(Instant.now().getEpochSecond())
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .redirectUri("http://rp1.example.com")
+                            .scope("rs:scope1 rs:scope2")
+                            .prompt("select_account")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of("rs:scope1 rs:scope2"))
+                            .state("xyz")
+                            .build();
+
+            // exercise
+            var response = sut.authorize(authorizationRequest);
+
+            // verify
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.select_account, response.additionalPage.prompt);
+            assertEquals(Display.page, response.additionalPage.display);
+        }
+
+        // user logined but over max age
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("code")
+                            .clientId(client.clientId)
+                            .authTime(Instant.now().getEpochSecond() - 11)
+                            .maxAge("10")
+                            .redirectUri("http://rp1.example.com")
+                            .scope("openid")
+                            .authenticatedUserId("username")
+                            .consentedScope(Set.of("openid"))
                             .state("xyz")
                             .build();
 

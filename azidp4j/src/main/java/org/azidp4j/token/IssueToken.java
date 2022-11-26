@@ -109,6 +109,9 @@ public class IssueToken {
                     return new TokenResponse(400, Map.of("error", "invalid_grant"));
                 }
                 if (authorizationCode.codeChallengeMethod != null) {
+                    if (req.codeVerifier == null) {
+                        return new TokenResponse(400, Map.of("error", "invalid_grant"));
+                    }
                     switch (authorizationCode.codeChallengeMethod) {
                         case PLAIN -> {
                             if (!authorizationCode.codeChallenge.equals(req.codeVerifier)) {

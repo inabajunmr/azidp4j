@@ -27,10 +27,11 @@ import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.junit.jupiter.api.Test;
 
-class AuthorizeTest_validationError {
+class AuthorizeTest_ValidationError {
 
     final ClientStore clientStore = new InMemoryClientStore();
     final Client client = Fixtures.confidentialClient();
+    final Client authorizationCodeClient = Fixtures.authorizationCodeClient();
     final Client noGrantTypesClient = Fixtures.noGrantTypeClient();
     final Client noResponseTypesClient = Fixtures.noResponseTypeClient();
     final AzIdPConfig config = Fixtures.azIdPConfig("kid");
@@ -45,9 +46,10 @@ class AuthorizeTest_validationError {
                     new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
                     config);
 
-    public AuthorizeTest_validationError() {
+    public AuthorizeTest_ValidationError() {
         clientStore.save(client);
         clientStore.save(noGrantTypesClient);
+        clientStore.save(authorizationCodeClient);
         clientStore.save(noResponseTypesClient);
     }
 
@@ -235,11 +237,11 @@ class AuthorizeTest_validationError {
     }
 
     @Test
-    void responseTypeNotSupportedClient_ImplicitGrant() {
+    void responseTypeNotSupportedClientImplicitGrant() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .authTime(Instant.now().getEpochSecond())
-                        .responseType("code")
+                        .responseType("token")
                         .clientId(noResponseTypesClient.clientId)
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
@@ -252,7 +254,7 @@ class AuthorizeTest_validationError {
         var location = URI.create(response.redirect.redirectTo);
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
-                Arrays.stream(location.getQuery().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("unsupported_response_type", queryMap.get("error"));
@@ -284,19 +286,51 @@ class AuthorizeTest_validationError {
     }
 
     @Test
+    void illegalPrompt() {
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("code")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("rs:scope1")
+                        .prompt("illegal")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.next, NextAction.redirect);
+        var location = response.redirect.redirectTo;
+        var queryMap =
+                Arrays.stream(URI.create(location).getQuery().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals("invalid_request", queryMap.get("error"));
+    }
+
+    @Test
     void promptIsNoneButUserNotAuthenticated() {
+
+        // setup
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("code")
                         .clientId(client.clientId)
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
-                        .maxAge("invalid")
                         .prompt("none")
                         .consentedScope(Set.of())
                         .state("xyz")
                         .build();
+
+        // exercise
         var response = sut.authorize(authorizationRequest);
+
+        // verify
         assertEquals(response.next, NextAction.redirect);
         var location = URI.create(response.redirect.redirectTo);
         assertEquals("rp1.example.com", location.getHost());
@@ -316,7 +350,6 @@ class AuthorizeTest_validationError {
                         .clientId(client.clientId)
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
-                        .maxAge("invalid")
                         .prompt("none")
                         .authenticatedUserId("username")
                         .consentedScope(Set.of())
@@ -342,7 +375,6 @@ class AuthorizeTest_validationError {
                         .clientId(client.clientId)
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
-                        .maxAge("invalid")
                         .prompt("none login")
                         .authenticatedUserId("username")
                         .consentedScope(Set.of())
@@ -360,19 +392,18 @@ class AuthorizeTest_validationError {
     }
 
     @Test
-    void authenticationTimeOverMaxAge() {
+    void authenticationTimeOverMaxAgeAndPromptIsNone() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("code")
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond() - 11)
                         .maxAge("10")
+                        .prompt("none")
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
-                        .maxAge("invalid")
-                        .prompt("none login")
                         .authenticatedUserId("username")
-                        .consentedScope(Set.of())
+                        .consentedScope(Set.of("openid"))
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
@@ -383,7 +414,7 @@ class AuthorizeTest_validationError {
                 Arrays.stream(location.getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
-        assertEquals("invalid_request", queryMap.get("error"));
+        assertEquals("login_required", queryMap.get("error"));
     }
 
     @Test
@@ -396,7 +427,6 @@ class AuthorizeTest_validationError {
                         .maxAge("10")
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
-                        .maxAge("invalid")
                         .prompt("none login")
                         .authenticatedUserId("username")
                         .consentedScope(Set.of())
@@ -424,8 +454,7 @@ class AuthorizeTest_validationError {
                         .maxAge("10")
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
-                        .maxAge("invalid")
-                        .prompt("none login")
+                        .prompt("none")
                         .authenticatedUserId("username")
                         .consentedScope(Set.of())
                         .state("xyz")
@@ -556,20 +585,74 @@ class AuthorizeTest_validationError {
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
-                        .responseType("code")
+                        .responseType("token")
                         .authTime(Instant.now().getEpochSecond())
                         .clientId(client.clientId)
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .responseMode("fragment")
+                        .consentedScope(Set.of("rs:scope1"))
+                        .responseMode("query")
                         .authenticatedUserId("username")
                         .state("xyz")
                         .build();
+
+        // exercise
         var response = sut.authorize(authorizationRequest);
+
+        // verify
         assertEquals(response.next, NextAction.errorPage);
         assertEquals(
                 response.errorPage.errorType,
-                AuthorizationErrorTypeWithoutRedirect.unsupported_response_mode);
+                AuthorizationErrorTypeWithoutRedirect.unsupported_response_type);
+    }
+
+    @Test
+    void responseTypeIsTokenButNotSupportImplicit() {
+        // setup
+        var config =
+                new AzIdPConfig(
+                        "http://localhost:8080",
+                        Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
+                        Set.of("openid", "rs:scope1"),
+                        Set.of(GrantType.authorization_code),
+                        Set.of(Set.of(ResponseType.code), Set.of(ResponseType.token)),
+                        Set.of(ResponseMode.query, ResponseMode.fragment),
+                        Set.of(),
+                        Duration.ofSeconds(3600),
+                        Duration.ofSeconds(600),
+                        Duration.ofSeconds(604800),
+                        Duration.ofSeconds(3600));
+        final Authorize sut =
+                new Authorize(
+                        clientStore,
+                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
+                        scopeAudienceMapper,
+                        new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                        config);
+
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("token")
+                        .clientId(authorizationCodeClient.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("rs:scope1")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.next, NextAction.redirect);
+        var location = URI.create(response.redirect.redirectTo);
+        assertEquals("rp1.example.com", location.getHost());
+        var queryMap =
+                Arrays.stream(location.getFragment().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals("unsupported_response_type", queryMap.get("error"));
     }
 
     @Test
@@ -585,7 +668,11 @@ class AuthorizeTest_validationError {
                         .authenticatedUserId("username")
                         .state("xyz")
                         .build();
+
+        // exercise
         var response = sut.authorize(authorizationRequest);
+
+        // verify
         assertEquals(response.next, NextAction.redirect);
         var location = URI.create(response.redirect.redirectTo);
         assertEquals("rp1.example.com", location.getHost());
@@ -594,5 +681,92 @@ class AuthorizeTest_validationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("invalid_request", queryMap.get("error"));
+    }
+
+    @Test
+    void codeChallengeMethodWithoutCodeChallenge() {
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .codeChallengeMethod("PLAIN")
+                        .responseType("code")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("rs:scope1")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.next, NextAction.redirect);
+        var location = URI.create(response.redirect.redirectTo);
+        assertEquals("rp1.example.com", location.getHost());
+        var queryMap =
+                Arrays.stream(location.getQuery().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals("invalid_request", queryMap.get("error"));
+    }
+
+    @Test
+    void illegalCodeChallengeMethod() {
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .codeChallenge("xyz")
+                        .codeChallengeMethod("illegal")
+                        .responseType("code")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("rs:scope1")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.next, NextAction.redirect);
+        var location = URI.create(response.redirect.redirectTo);
+        assertEquals("rp1.example.com", location.getHost());
+        var queryMap =
+                Arrays.stream(location.getQuery().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals("invalid_request", queryMap.get("error"));
+    }
+
+    @Test
+    void responseTypeIsIdTokenButNoOpenIdScope() {
+
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("token")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .responseType("id_token")
+                        .scope("rs:scope1")
+                        .nonce("xyz")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("rs:scope1"))
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.next, NextAction.redirect);
+        var location = URI.create(response.redirect.redirectTo);
+        assertEquals("rp1.example.com", location.getHost());
+        var queryMap =
+                Arrays.stream(location.getFragment().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals("invalid_scope", queryMap.get("error"));
     }
 }

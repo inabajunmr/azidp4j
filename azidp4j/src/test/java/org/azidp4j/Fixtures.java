@@ -72,7 +72,7 @@ public class Fixtures {
         return new Client(
                 "public",
                 null,
-                null,
+                Set.of("http://rp1.example.com", "http://rp2.example.com"),
                 Set.of(
                         Set.of(ResponseType.code),
                         Set.of(ResponseType.token),
@@ -167,6 +167,33 @@ public class Fixtures {
                 null,
                 null,
                 "scope1 scope2",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                TokenEndpointAuthMethod.client_secret_basic,
+                null,
+                SigningAlgorithm.ES256,
+                null,
+                null,
+                null);
+    }
+
+    public static Client authorizationCodeClient() {
+        return new Client(
+                "noResponseTypeClient",
+                "secret",
+                Set.of("http://rp1.example.com", "http://rp2.example.com"),
+                Set.of(),
+                ApplicationType.WEB,
+                Set.of(GrantType.authorization_code),
+                null,
+                null,
+                null,
+                "rs:scope1 rs:scope2 openid",
                 null,
                 null,
                 null,
