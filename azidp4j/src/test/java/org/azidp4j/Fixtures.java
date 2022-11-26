@@ -72,7 +72,7 @@ public class Fixtures {
         return new Client(
                 "public",
                 null,
-                null,
+                Set.of("http://rp1.example.com", "http://rp2.example.com"),
                 Set.of(
                         Set.of(ResponseType.code),
                         Set.of(ResponseType.token),
