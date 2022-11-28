@@ -156,11 +156,11 @@ If the service want to use AzIdp#discovery for Discovery Endpoint, needs to conf
 ```java
 var discoveryConfig =
         DiscoveryConfig.builder()
-                .authorizationEndpoint(endpoint + "/authorize")
-                .tokenEndpoint(endpoint + "/token")
-                .jwksEndpoint(endpoint + "/.well-known/jwks.json")
-                .clientRegistrationEndpoint(endpoint + "/client")
-                .userInfoEndpoint(endpoint + "/userinfo")
+                .authorizationEndpoint("https://idp.example.com/authorize")
+                .tokenEndpoint("https://idp.example.com/token")
+                .jwksEndpoint("https://idp.example.com/.well-known/jwks.json")
+                .clientRegistrationEndpoint("https://idp.example.com/client")
+                .userInfoEndpoint("https://idp.example.com/userinfo")
                 .build();
 AzIdP.init()
     .discoveryConfig(discoveryConfig)
@@ -174,8 +174,8 @@ If the service only supports authorization endpoint and token endpoint, configur
 ```java
 var discoveryConfig =
         DiscoveryConfig.builder()
-                .authorizationEndpoint(endpoint + "/authorize")
-                .tokenEndpoint(endpoint + "/token")
+                .authorizationEndpoint("https://idp.example.com/authorize")
+                .tokenEndpoint("https://idp.example.com/token")
                 .build();
 AzIdP.init()
     .discoveryConfig(discoveryConfig)
