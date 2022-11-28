@@ -95,38 +95,11 @@ class DynamicClientRegistrationTest_register {
 
         // verify
         assertEquals(201, response.status);
-        assertEquals(
-                response.body.get("redirect_uris"),
-                Set.of(
-                        "https://client.example.com/callback1",
-                        "https://client.example.com/callback2"));
-        assertEquals(
-                response.body.get("grant_types"),
-                Set.of("authorization_code", "implicit", "refresh_token", "client_credentials"));
-        assertEquals(response.body.get("application_type"), "web");
-        assertEquals(response.body.get("response_types"), Set.of("code", "token", "id_token"));
-        assertEquals(response.body.get("client_name"), "client");
-        assertEquals(response.body.get("client_name#ja"), "クライアント");
-        assertEquals(response.body.get("client_uri"), "http://client.example.com");
-        assertEquals(response.body.get("logo_uri"), "http://client.example.com/logo");
-        assertEquals(response.body.get("scope"), "rs:scope1 rs:scope2");
-        assertEquals(response.body.get("contacts"), List.of("hello", "world"));
-        assertEquals(response.body.get("tos_uri"), "http://client.example.com/tos");
-        assertEquals(response.body.get("tos_uri#ja"), "http://client.example.com/tos/ja");
-        assertEquals(response.body.get("policy_uri"), "http://client.example.com/policy");
-        assertEquals(response.body.get("policy_uri#ja"), "http://client.example.com/policy/ja");
+        assertClientAll(response.body);
         assertEquals(response.body.get("jwks_uri"), "http://client.example.com/jwks");
-        assertEquals(response.body.get("software_id"), "azidp");
-        assertEquals(response.body.get("software_version"), "1.0.0");
-        assertEquals(response.body.get("token_endpoint_auth_method"), "client_secret_basic");
         assertEquals(
                 response.body.get("registration_client_uri"),
                 "http://localhost:8080/client/" + response.body.get("client_id"));
-        assertEquals(response.body.get("token_endpoint_auth_signing_alg"), "RS256");
-        assertEquals(response.body.get("id_token_signed_response_alg"), "RS256");
-        assertEquals(response.body.get("default_max_age"), 100L);
-        assertEquals(response.body.get("require_auth_time"), true);
-        assertEquals(response.body.get("initiate_login_uri"), "https://example.com");
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
                 accessTokenStore.find((String) at).get(),
@@ -135,6 +108,12 @@ class DynamicClientRegistrationTest_register {
                 (String) response.body.get("client_id"),
                 "configure",
                 Instant.now().getEpochSecond() + 3600);
+
+        // read
+        var read = registration.read((String) response.body.get("client_id"));
+        assertEquals(read.status, 200);
+        assertClientAll(read.body);
+        assertEquals(read.body.get("jwks_uri"), "http://client.example.com/jwks");
     }
 
     @Test
@@ -212,37 +191,11 @@ class DynamicClientRegistrationTest_register {
 
         // verify
         assertEquals(201, response.status);
-        assertEquals(
-                response.body.get("redirect_uris"),
-                Set.of(
-                        "https://client.example.com/callback1",
-                        "https://client.example.com/callback2"));
-        assertEquals(
-                response.body.get("grant_types"),
-                Set.of("authorization_code", "implicit", "refresh_token", "client_credentials"));
-        assertEquals(response.body.get("response_types"), Set.of("code", "token", "id_token"));
-        assertEquals(response.body.get("client_name"), "client");
-        assertEquals(response.body.get("client_name#ja"), "クライアント");
-        assertEquals(response.body.get("client_uri"), "http://client.example.com");
-        assertEquals(response.body.get("logo_uri"), "http://client.example.com/logo");
-        assertEquals(response.body.get("scope"), "rs:scope1 rs:scope2");
-        assertEquals(response.body.get("contacts"), List.of("hello", "world"));
-        assertEquals(response.body.get("tos_uri"), "http://client.example.com/tos");
-        assertEquals(response.body.get("tos_uri#ja"), "http://client.example.com/tos/ja");
-        assertEquals(response.body.get("policy_uri"), "http://client.example.com/policy");
-        assertEquals(response.body.get("policy_uri#ja"), "http://client.example.com/policy/ja");
+        assertClientAll(response.body);
         assertEquals(response.body.get("jwks"), Fixtures.jwkSet().toJSONObject());
-        assertEquals(response.body.get("software_id"), "azidp");
-        assertEquals(response.body.get("software_version"), "1.0.0");
-        assertEquals(response.body.get("token_endpoint_auth_method"), "client_secret_basic");
         assertEquals(
                 response.body.get("registration_client_uri"),
                 "http://localhost:8080/client/" + response.body.get("client_id"));
-        assertEquals(response.body.get("token_endpoint_auth_signing_alg"), "RS256");
-        assertEquals(response.body.get("id_token_signed_response_alg"), "RS256");
-        assertEquals(response.body.get("default_max_age"), 100L);
-        assertEquals(response.body.get("require_auth_time"), true);
-        assertEquals(response.body.get("initiate_login_uri"), "https://example.com");
         var at = response.body.get("registration_access_token");
         AccessTokenAssert.assertAccessToken(
                 accessTokenStore.find((String) at).get(),
@@ -251,6 +204,43 @@ class DynamicClientRegistrationTest_register {
                 (String) response.body.get("client_id"),
                 "configure",
                 Instant.now().getEpochSecond() + 3600);
+
+        // read
+        var read = registration.read((String) response.body.get("client_id"));
+        assertEquals(read.status, 200);
+        assertClientAll(read.body);
+        assertEquals(read.body.get("jwks"), Fixtures.jwkSet().toJSONObject());
+    }
+
+    void assertClientAll(Map<String, Object> responseBody) {
+        assertEquals(
+                responseBody.get("redirect_uris"),
+                Set.of(
+                        "https://client.example.com/callback1",
+                        "https://client.example.com/callback2"));
+        assertEquals(
+                responseBody.get("grant_types"),
+                Set.of("authorization_code", "implicit", "refresh_token", "client_credentials"));
+        assertEquals(responseBody.get("application_type"), "web");
+        assertEquals(responseBody.get("response_types"), Set.of("code", "token", "id_token"));
+        assertEquals(responseBody.get("client_name"), "client");
+        assertEquals(responseBody.get("client_name#ja"), "クライアント");
+        assertEquals(responseBody.get("client_uri"), "http://client.example.com");
+        assertEquals(responseBody.get("logo_uri"), "http://client.example.com/logo");
+        assertEquals(responseBody.get("scope"), "rs:scope1 rs:scope2");
+        assertEquals(responseBody.get("contacts"), List.of("hello", "world"));
+        assertEquals(responseBody.get("tos_uri"), "http://client.example.com/tos");
+        assertEquals(responseBody.get("tos_uri#ja"), "http://client.example.com/tos/ja");
+        assertEquals(responseBody.get("policy_uri"), "http://client.example.com/policy");
+        assertEquals(responseBody.get("policy_uri#ja"), "http://client.example.com/policy/ja");
+        assertEquals(responseBody.get("software_id"), "azidp");
+        assertEquals(responseBody.get("software_version"), "1.0.0");
+        assertEquals(responseBody.get("token_endpoint_auth_method"), "client_secret_basic");
+        assertEquals(responseBody.get("token_endpoint_auth_signing_alg"), "RS256");
+        assertEquals(responseBody.get("id_token_signed_response_alg"), "RS256");
+        assertEquals(responseBody.get("default_max_age"), 100L);
+        assertEquals(responseBody.get("require_auth_time"), true);
+        assertEquals(responseBody.get("initiate_login_uri"), "https://example.com");
     }
 
     @Test

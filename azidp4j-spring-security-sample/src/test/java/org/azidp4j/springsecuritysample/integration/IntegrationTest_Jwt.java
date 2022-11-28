@@ -131,6 +131,17 @@ public class IntegrationTest_Jwt {
         var configurationUri =
                 (String) clientRegistrationResponse.getBody().get("registration_client_uri");
 
+        // read client
+        {
+            var clientReadEntity =
+                    RequestEntity.get(configurationUri)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .header("Authorization", "Bearer " + configurationToken)
+                            .build();
+            var clientReadResponse = testRestTemplate.exchange(clientReadEntity, Map.class);
+            assertThat(clientReadResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        }
+
         // authorization request
         var state = UUID.randomUUID().toString();
         var authorizationRequest =

@@ -12,6 +12,7 @@ import org.azidp4j.authorize.response.AuthorizationResponse;
 import org.azidp4j.client.*;
 import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.client.response.ClientDeleteResponse;
+import org.azidp4j.client.response.ClientReadResponse;
 import org.azidp4j.client.response.ClientRegistrationResponse;
 import org.azidp4j.discovery.Discovery;
 import org.azidp4j.discovery.DiscoveryConfig;
@@ -131,7 +132,9 @@ public class AzIdP {
         return clientRegistration.delete(clientId);
     }
 
-    // TODO readClient
+    public ClientReadResponse readClient(String clientId) {
+        return clientRegistration.read(clientId);
+    }
 
     public IntrospectionResponse introspect(IntrospectionRequest request) {
         return introspect.introspect(request);

@@ -10,6 +10,7 @@ import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.client.request.ClientRequestParser;
 import org.azidp4j.client.request.InternalClientRequest;
 import org.azidp4j.client.response.ClientDeleteResponse;
+import org.azidp4j.client.response.ClientReadResponse;
 import org.azidp4j.client.response.ClientRegistrationResponse;
 import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.token.accesstoken.AccessTokenService;
@@ -229,5 +230,68 @@ public class DynamicClientRegistration {
     public ClientDeleteResponse delete(String clientId) {
         clientStore.remove(clientId);
         return new ClientDeleteResponse(204, null);
+    }
+
+    public ClientReadResponse read(String clientId) {
+        var clientOpt = clientStore.find(clientId);
+        if (!clientOpt.isPresent()) {
+            return new ClientReadResponse(404, null);
+        }
+        var client = clientOpt.get();
+        var res =
+                MapUtil.nullRemovedMap(
+                        "client_id",
+                        client.clientId,
+                        "client_secret",
+                        client.clientSecret,
+                        "redirect_uris",
+                        client.redirectUris,
+                        "grant_types",
+                        client.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
+                        "response_types",
+                        client.responseTypes.stream()
+                                .map(
+                                        r -> {
+                                            var joiner = new StringJoiner(" ");
+                                            r.forEach(v -> joiner.add(v.name()));
+                                            return joiner.toString();
+                                        })
+                                .collect(Collectors.toSet()),
+                        "application_type",
+                        client.applicationType.name().toLowerCase(),
+                        "client_uri",
+                        client.clientUri,
+                        "logo_uri",
+                        client.logoUri,
+                        "scope",
+                        client.scope,
+                        "contacts",
+                        client.contacts,
+                        "jwks_uri",
+                        client.jwksUri,
+                        "jwks",
+                        client.jwks != null ? client.jwks.toJSONObject() : null,
+                        "software_id",
+                        client.softwareId,
+                        "software_version",
+                        client.softwareVersion,
+                        "token_endpoint_auth_method",
+                        client.tokenEndpointAuthMethod.name(),
+                        "token_endpoint_auth_signing_alg",
+                        client.tokenEndpointAuthSigningAlg != null
+                                ? client.tokenEndpointAuthSigningAlg.name()
+                                : null,
+                        "id_token_signed_response_alg",
+                        client.idTokenSignedResponseAlg.name(),
+                        "default_max_age",
+                        client.defaultMaxAge,
+                        "require_auth_time",
+                        client.requireAuthTime,
+                        "initiate_login_uri",
+                        client.initiateLoginUri);
+        Optional.ofNullable(client.clientName).ifPresent(v -> res.putAll(v.toMap()));
+        Optional.ofNullable(client.tosUri).ifPresent(v -> res.putAll(v.toMap()));
+        Optional.ofNullable(client.policyUri).ifPresent(v -> res.putAll(v.toMap()));
+        return new ClientReadResponse(200, res);
     }
 }

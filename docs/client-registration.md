@@ -21,6 +21,9 @@ var client = new ClientRequest(
           "id_token_signed_response_alg", "RS256"));
 var response = azIdP.registerClient(client);
 
+// If service required authentication or authorization, it must process before AzIdp#readClient.
+azIdP.readClient(response.get("client_id"));
+
 // If service required authentication or authorization, it must process before AzIdp#deleteClient.
 azIdP.deleteClient(response.get("client_id"));
 ```

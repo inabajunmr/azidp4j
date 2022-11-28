@@ -65,4 +65,21 @@ public class DynamicClientRegistrationEndpointHandler {
             return ResponseEntity.status(401).build();
         }
     }
+
+    @GetMapping("/client/{client_id}")
+    public ResponseEntity<Map<String, Object>> get(@PathVariable("client_id") String clientId) {
+        LOGGER.info(DynamicClientRegistrationEndpointHandler.class.getName() + " get");
+
+        // The endpoint requires authorization by bearer token.
+        // Authorization is supported by Spring Security.
+        // ref. org.azidp4j.springsecuritysample.SecurityConfiguration
+        // ref. org.azidp4j.springsecuritysample.authentication.InternalOpaqueTokenIntrospector
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth instanceof BearerTokenAuthentication && auth.getName().equals(clientId)) {
+            var response = azIdP.readClient(auth.getName());
+            return ResponseEntity.status(response.status).body(response.body);
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+    }
 }
