@@ -312,6 +312,10 @@ public class AzIdPBuilder {
         if (!isOpenId()) {
             return;
         }
+        if (idTokenKidSupplier == null) {
+            errors.add("idTokenKidSupplier is required when service handle 'openid' scope.");
+            return;
+        }
         idTokenSigningAlgValuesSupported.forEach(
                 alg -> {
                     if (alg == SigningAlgorithm.none) {

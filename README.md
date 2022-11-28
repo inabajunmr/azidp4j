@@ -1,4 +1,4 @@
-# [wip] AzIdP4J
+# [alpha] AzIdP4J
 
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.inabajunmr/AzIdP4J.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.inabajunmr%22%20AND%20a:%22AzIdP4J%22)
 ![GitHub Actions](https://github.com/inabajunmr/azidp4j/actions/workflows/main.yml/badge.svg)
@@ -38,8 +38,28 @@ Application needs to implement...
 
 ### Installation
 
+[Maven Repository](https://mvnrepository.com/artifact/io.github.inabajunmr/AzIdP4J/0.0.0-alpha+001)
+
+#### Maven
+
 ```
-https://search.maven.org/artifact/io.github.inabajunmr/AzIdP4J/0.0.0-alpha%2B001/jar
+<dependency>
+    <groupId>io.github.inabajunmr</groupId>
+    <artifactId>AzIdP4J</artifactId>
+    <version>0.0.0-alpha+001</version>
+</dependency>
+```
+
+#### Gradle
+
+```
+implementation group: 'io.github.inabajunmr', name: 'AzIdP4J', version: '0.0.0-alpha+001'
+```
+
+#### Gralde(Kotlin)
+
+```
+implementation("io.github.inabajunmr:AzIdP4J:0.0.0-alpha+001")
 ```
 
 ### Configuration

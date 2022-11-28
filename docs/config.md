@@ -22,6 +22,11 @@ var azIdp =
                 .build();
 ```
 
+## Samples
+
+* [Basic OAuth 2.0 Authorization Server](https://github.com/inabajunmr/azidp4j/blob/cdd6ca73797efb7642e970f03d53ddc867dfe323/azidp4j/src/test/java/org/azidp4j/sample/OAuth2Sample.java#L27-L41)
+* [Basic OpenID Connect Identity Provider]()
+
 ## Fields
 
 <!-- https://docs.google.com/spreadsheets/d/1MulCF7UbLvtroGYlv-U1cIPEJrRmWptGpmpfrC9gSFM/edit#gid=0 -->
