@@ -21,6 +21,12 @@ But AzIdP4J doesn't manage user authentication and consent so service must imple
 * [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html#AuthorizationEndpoint)
 * [Proof Key for Code Exchange by OAuth Public Clients](https://datatracker.ietf.org/doc/html/rfc7636)
 
+### Samples
+
+* [Basic OAuth 2.0 Authorization Server](https://github.com/inabajunmr/azidp4j/blob/cdd6ca73797efb7642e970f03d53ddc867dfe323/azidp4j/src/test/java/org/azidp4j/sample/OAuth2Sample.java#L63-L87)
+* [Basic OpenID Connect Identity Provider](https://github.com/inabajunmr/azidp4j/blob/df3e550359b75823f489b3c6f1571b59ef59552b/azidp4j/src/test/java/org/azidp4j/sample/OidcSample.java#L78-L102)
+* [Spring Security Sample](https://github.com/inabajunmr/azidp4j/blob/df3e550359b75823f489b3c6f1571b59ef59552b/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/handler/AuthorizationEndpointHandler.java#L46)
+
 ### Request
 
 AzIdP#authorize accept following parameters.
@@ -139,6 +145,11 @@ switch (response.additionalPage.prompt) {
 AzIdP4J process token request by AzIdP#issueToken.
 But AzIdP4J doesn't manage client authentication so service must implement it by itself.
 
+### Samples
+
+* [Basic OAuth 2.0 Authorization Server](https://github.com/inabajunmr/azidp4j/blob/cdd6ca73797efb7642e970f03d53ddc867dfe323/azidp4j/src/test/java/org/azidp4j/sample/OAuth2Sample.java#L99-L113)
+* [Basic OpenID Connect Identity Provider](https://github.com/inabajunmr/azidp4j/blob/df3e550359b75823f489b3c6f1571b59ef59552b/azidp4j/src/test/java/org/azidp4j/sample/OidcSample.java#L114-L133)
+
 ### Specification
 
 * [The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749#section-3.2)
@@ -194,6 +205,11 @@ But AzIdP4J doesn't manage client authentication or token authorization so servi
 
 * [OAuth 2.0 Token Introspection](https://datatracker.ietf.org/doc/html/rfc7662)
 
+### Samples
+
+* [Basic OAuth 2.0 Authorization Server](https://github.com/inabajunmr/azidp4j/blob/cdd6ca73797efb7642e970f03d53ddc867dfe323/azidp4j/src/test/java/org/azidp4j/sample/OAuth2Sample.java#L133-L139)
+* [Basic OpenID Connect Identity Provider](https://github.com/inabajunmr/azidp4j/blob/df3e550359b75823f489b3c6f1571b59ef59552b/azidp4j/src/test/java/org/azidp4j/sample/OidcSample.java#L150-L156)
+
 ### Request
 
 AzIdP#introspect accept following parameters.
@@ -221,6 +237,11 @@ But AzIdP4J doesn't manage client authentication so service must implement it by
 ### Specification
 
 * [OAuth 2.0 Token Revocation](https://www.rfc-editor.org/rfc/rfc7009)
+
+### Samples
+
+* [Basic OAuth 2.0 Authorization Server](https://github.com/inabajunmr/azidp4j/blob/cdd6ca73797efb7642e970f03d53ddc867dfe323/azidp4j/src/test/java/org/azidp4j/sample/OAuth2Sample.java#L145-L157)
+* [Basic OpenID Connect Identity Provider](https://github.com/inabajunmr/azidp4j/blob/df3e550359b75823f489b3c6f1571b59ef59552b/azidp4j/src/test/java/org/azidp4j/sample/OidcSample.java#L162-L174)
 
 ### Request
 

@@ -30,6 +30,11 @@ azIdP.deleteClient(response.get("client_id"));
 * [OAuth 2.0 Dynamic Client Registration Protocol](https://www.rfc-editor.org/rfc/rfc7591)
 * [OpenID Connect Dynamic Client Registration 1.0](https://openid.net/specs/openid-connect-registration-1_0.html)
 
+### Samples
+
+* [Basic OAuth 2.0 Authorization Server](https://github.com/inabajunmr/azidp4j/blob/cdd6ca73797efb7642e970f03d53ddc867dfe323/azidp4j/src/test/java/org/azidp4j/sample/OAuth2Sample.java#L43-L60)
+* [Basic OpenID Connect Identity Provider](https://github.com/inabajunmr/azidp4j/blob/df3e550359b75823f489b3c6f1571b59ef59552b/azidp4j/src/test/java/org/azidp4j/sample/OidcSample.java#L58-L75)
+
 ## Client parameters
 
 ### Request
