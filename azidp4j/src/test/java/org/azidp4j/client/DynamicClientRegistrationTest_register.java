@@ -284,4 +284,27 @@ class DynamicClientRegistrationTest_register {
                 "configure",
                 Instant.now().getEpochSecond() + 3600);
     }
+
+    @Test
+    void failure_UnsupportedTokenEndpointAuthMethod() throws JOSEException {
+        // setup
+        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
+        var config = Fixtures.azIdPConfig(es256.getKeyID());
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        Fixtures.discoveryConfig(),
+                        new InMemoryClientStore(),
+                        null,
+                        new InMemoryAccessTokenService(accessTokenStore),
+                        (clientId) -> "http://localhost:8080/client/" + clientId);
+
+        var response =
+                registration.register(
+                        new ClientRequest(
+                                Map.of("token_endpoint_auth_method", "client_secret_post")));
+        assertEquals(400, response.status);
+        assertEquals("invalid_client_metadata", response.body.get("error"));
+    }
 }

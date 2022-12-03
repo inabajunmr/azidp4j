@@ -24,6 +24,7 @@ class InternalClientValidatorTest {
                         "http://localhost:8080",
                         Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
                         Set.of("openid", "rs:scope1"),
+                        Set.of(TokenEndpointAuthMethod.client_secret_basic),
                         Set.of(
                                 GrantType.authorization_code,
                                 GrantType.implicit,

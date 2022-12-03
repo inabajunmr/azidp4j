@@ -38,6 +38,7 @@ var azIdp =
 | idTokenKidSupplier | openid required | For choosing which JWK using. The parameter is required when using openid scope. |  | see [sample implementation](https://github.com/inabajunmr/azidp4j/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/IdTokenKidSupplier.java#L8) |
 | scopesSupported | required | Supported scopes for the service. When supporting OpenID Connect, requires `openid` scope. |  | Set.of("openid", "user:read") |
 | defaultScopes | optional | Scopes for no scope authorization request. |  | Set.of("openid", "user:read") |
+| tokenEndpointAuthMethodsSupported | optional | Suppoted client authentication method for token request. | `client_secret_post` / `client_secret_basic` / `client_secret_jwt` / `private_key_jwt` / `none` | Set.of(TokenEndpointAuthMethod.client_secret_basic) |
 | authorizationCodeExpiration | optional | Expiration time for authorization code. Default is 1min. |  | Duration.ofDays(1) |
 | accessTokenExpiration | optional | Expiration time for access token. Default is 10min. |  | Duration.ofDays(1) |
 | idTokenExpiration | optional | Expiration time for id token. Default is 10min. |  | Duration.ofDays(1) |

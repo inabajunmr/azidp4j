@@ -6,12 +6,14 @@ import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.SigningAlgorithm;
+import org.azidp4j.client.TokenEndpointAuthMethod;
 
 public class AzIdPConfig {
 
     public final String issuer;
     public final Set<String> scopesSupported;
     public final Set<String> defaultScope;
+    public final Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported;
     public final Set<GrantType> grantTypesSupported;
     public final Set<Set<ResponseType>> responseTypeSupported;
     public final Set<ResponseMode> responseModesSupported;
@@ -25,6 +27,7 @@ public class AzIdPConfig {
             String issuer,
             Set<String> scopesSupported,
             Set<String> defaultScope,
+            Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported,
             Set<GrantType> grantTypesSupported,
             Set<Set<ResponseType>> responseTypeSupported,
             Set<ResponseMode> responseModesSupported,
@@ -36,6 +39,7 @@ public class AzIdPConfig {
         this.issuer = issuer;
         this.scopesSupported = scopesSupported;
         this.defaultScope = defaultScope;
+        this.tokenEndpointAuthMethodsSupported = tokenEndpointAuthMethodsSupported;
         this.grantTypesSupported = grantTypesSupported;
         this.responseTypeSupported = responseTypeSupported;
         this.responseModesSupported = responseModesSupported;
