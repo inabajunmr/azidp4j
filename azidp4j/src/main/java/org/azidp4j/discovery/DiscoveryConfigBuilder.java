@@ -1,5 +1,8 @@
 package org.azidp4j.discovery;
 
+import java.util.Set;
+import org.azidp4j.authorize.request.Display;
+
 public class DiscoveryConfigBuilder {
 
     private String authorizationEndpoint;
@@ -7,6 +10,7 @@ public class DiscoveryConfigBuilder {
     private String jwksEndpoint;
     private String clientRegistrationEndpoint;
     private String userInfoEndpoint;
+    private Set<Display> displayValueSupported = Set.of(Display.page);
 
     public DiscoveryConfigBuilder authorizationEndpoint(String authorizationEndpoint) {
         this.authorizationEndpoint = authorizationEndpoint;
@@ -33,12 +37,18 @@ public class DiscoveryConfigBuilder {
         return this;
     }
 
+    public DiscoveryConfigBuilder displayValueSupported(Set<Display> displayValueSupported) {
+        this.displayValueSupported = displayValueSupported;
+        return this;
+    }
+
     public DiscoveryConfig build() {
         return new DiscoveryConfig(
                 this.authorizationEndpoint,
                 this.tokenEndpoint,
                 this.jwksEndpoint,
                 this.clientRegistrationEndpoint,
-                this.userInfoEndpoint);
+                this.userInfoEndpoint,
+                displayValueSupported);
     }
 }

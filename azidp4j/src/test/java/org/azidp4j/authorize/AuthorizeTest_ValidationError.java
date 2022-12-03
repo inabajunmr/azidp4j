@@ -652,7 +652,7 @@ class AuthorizeTest_ValidationError {
         var queryMap =
                 Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
-        assertEquals("unsupported_response_type", queryMap.get("error"));
+        assertEquals("unauthorized_client", queryMap.get("error"));
     }
 
     @Test

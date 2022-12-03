@@ -52,11 +52,11 @@ public class Discovery {
                 "id_token_encryption_enc_values_supported",
                 Set.of(),
                 "userinfo_signing_alg_values_supported",
-                Set.of(),
+                Set.of(), // TODO
                 "userinfo_encryption_alg_values_supported",
-                Set.of(),
+                Set.of(), // TODO
                 "userinfo_encryption_enc_values_supported",
-                Set.of(),
+                Set.of(), // TODO
                 "request_object_signing_alg_values_supported",
                 Set.of(),
                 "request_object_encryption_alg_values_supported",
@@ -70,13 +70,14 @@ public class Discovery {
                         "none"), // default is client_secret_basic // TODO make configureble and
                 // validate it against client registration
                 "token_endpoint_auth_signing_alg_values_supported",
-                Set.of(), // if jwt authentication is used, the value is required.
-                // "display_values_supported", null,
+                Set.of(), // if jwt authentication is used, the value is required. // TODO
+                "display_values_supported",
+                discoveryConfig.displayValueSupported,
                 // "claim_types_supported",  null,
                 // "claims_supported", null,
-                // "service_documentation", null,
+                // "service_documentation", null, // TODO
                 // "claims_locales_supported", null,
-                // "ui_locales_supported", null,
+                // "ui_locales_supported", null, // TODO
                 "claims_parameter_supported",
                 false,
                 "request_parameter_supported",
@@ -86,8 +87,8 @@ public class Discovery {
                 // false,
                 "require_request_uri_registration",
                 false,
-                // "op_policy_uri", null,
-                // "op_tos_uri", null
+                // "op_policy_uri", null,　// TODO
+                // "op_tos_uri", null // TODO
                 "code_challenge_methods_supported",
                 Set.of(CodeChallengeMethod.PLAIN.name(), CodeChallengeMethod.S256.name()));
     }

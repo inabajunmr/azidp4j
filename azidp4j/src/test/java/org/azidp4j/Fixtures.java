@@ -184,10 +184,10 @@ public class Fixtures {
 
     public static Client authorizationCodeClient() {
         return new Client(
-                "noResponseTypeClient",
+                "authorizationCodeClient",
                 "secret",
                 Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                Set.of(),
+                Set.of(Set.of(ResponseType.code)),
                 ApplicationType.WEB,
                 Set.of(GrantType.authorization_code),
                 null,
