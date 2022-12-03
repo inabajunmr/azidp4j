@@ -195,6 +195,20 @@ public class Authorize {
                     responseMode,
                     "client doesn't support enough scope");
         }
+
+        if (responseType.contains(ResponseType.id_token)) {
+            // validate scope
+            if (!scopeValidator.contains(scope, "openid")) {
+                return AuthorizationResponse.redirect(
+                        redirectUri,
+                        MapUtil.nullRemovedStringMap(
+                                "error", "invalid_scope", "state", authorizationRequest.state),
+                        responseMode,
+                        "authorization request contains id_token response_type but no openid"
+                                + " scope");
+            }
+        }
+
         if (authorizationRequest.codeChallenge == null
                 && authorizationRequest.codeChallengeMethod != null) {
             return AuthorizationResponse.redirect(
@@ -222,6 +236,18 @@ public class Authorize {
         var display = Display.of(authorizationRequest.display);
         if (display == null) {
             display = Display.page;
+        }
+
+        if (!client.responseTypes.contains(responseType)) {
+            return AuthorizationResponse.redirect(
+                    redirectUri,
+                    MapUtil.nullRemovedStringMap(
+                            "error",
+                            "unsupported_response_type",
+                            "state",
+                            authorizationRequest.state),
+                    responseMode,
+                    "client doesn't support response_type");
         }
 
         var prompt = Prompt.parse(authorizationRequest.prompt);
@@ -320,19 +346,6 @@ public class Authorize {
             }
         }
 
-        // TODO the validation should be before parsing prompt?
-        if (!client.responseTypes.contains(responseType)) {
-            return AuthorizationResponse.redirect(
-                    redirectUri,
-                    MapUtil.nullRemovedStringMap(
-                            "error",
-                            "unsupported_response_type",
-                            "state",
-                            authorizationRequest.state),
-                    responseMode,
-                    "client doesn't support response_type");
-        }
-
         if (responseType.contains(ResponseType.none)) {
             return AuthorizationResponse.redirect(
                     redirectUri,
@@ -384,17 +397,6 @@ public class Authorize {
 
         String idToken = null;
         if (responseType.contains(ResponseType.id_token)) {
-            // TODO the validation should be before prompt validation?
-            // validate scope
-            if (!scopeValidator.contains(scope, "openid")) {
-                return AuthorizationResponse.redirect(
-                        redirectUri,
-                        MapUtil.nullRemovedStringMap(
-                                "error", "invalid_scope", "state", authorizationRequest.state),
-                        responseMode,
-                        "authorization request contains id_token response_type but no openid"
-                                + " scope");
-            }
             idToken =
                     idTokenIssuer
                             .issue(
