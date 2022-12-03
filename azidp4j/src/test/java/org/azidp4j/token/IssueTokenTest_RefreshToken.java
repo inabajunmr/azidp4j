@@ -266,6 +266,7 @@ public class IssueTokenTest_RefreshToken {
                         "http://localhost:8080",
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
+                        Set.of(TokenEndpointAuthMethod.client_secret_basic),
                         Set.of(GrantType.refresh_token),
                         Set.of(),
                         Set.of(),

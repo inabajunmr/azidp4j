@@ -61,6 +61,7 @@ class AuthorizeTest_None {
                         "http://localhost:8080",
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
+                        Set.of(TokenEndpointAuthMethod.client_secret_basic),
                         Set.of(GrantType.authorization_code),
                         Set.of(Set.of(ResponseType.none)),
                         Set.of(ResponseMode.query, ResponseMode.fragment),

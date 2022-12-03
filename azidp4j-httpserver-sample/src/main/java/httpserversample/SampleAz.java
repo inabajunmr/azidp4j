@@ -17,10 +17,7 @@ import java.util.concurrent.Executors;
 import httpserversample.authenticator.InnerAccessTokenAuthenticator;
 import httpserversample.handler.*;
 import org.azidp4j.AzIdP;
-import org.azidp4j.client.ClientStore;
-import org.azidp4j.client.GrantType;
-import org.azidp4j.client.InMemoryClientStore;
-import org.azidp4j.client.SigningAlgorithm;
+import org.azidp4j.client.*;
 import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.token.UserPasswordVerifier;
@@ -80,6 +77,7 @@ public class SampleAz {
                                 GrantType.client_credentials))
                 .scopesSupported(Set.of("openid", "scope1", "scope2", "scope3", "default"))
                 .defaultScopes(Set.of("openid", "scope1"))
+                .tokenEndpointAuthMethodsSupported(Set.of(TokenEndpointAuthMethod.client_secret_basic, TokenEndpointAuthMethod.client_secret_post, TokenEndpointAuthMethod.none))
                 .customClientStore(clientStore)
                 .discovery(discoveryConfig)
                 .customScopeAudienceMapper(new SampleScopeAudienceMapper())

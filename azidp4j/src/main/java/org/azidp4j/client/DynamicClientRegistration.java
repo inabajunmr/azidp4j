@@ -103,6 +103,9 @@ public class DynamicClientRegistration {
             }
             tokenEndpointAuthMethod = tam;
         }
+        if (!config.tokenEndpointAuthMethodsSupported.contains(tokenEndpointAuthMethod)) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
+        }
 
         SigningAlgorithm tokenEndpointAuthSigningAlg = null;
         if (request.tokenEndpointAuthSigningAlg != null) {

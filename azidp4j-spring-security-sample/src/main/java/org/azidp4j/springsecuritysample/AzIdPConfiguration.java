@@ -15,6 +15,7 @@ import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
+import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.scope.ScopeAudienceMapper;
@@ -82,6 +83,11 @@ public class AzIdPConfiguration {
                                         GrantType.password,
                                         GrantType.client_credentials,
                                         GrantType.refresh_token))
+                        .tokenEndpointAuthMethodsSupported(
+                                Set.of(
+                                        TokenEndpointAuthMethod.client_secret_post,
+                                        TokenEndpointAuthMethod.client_secret_basic,
+                                        TokenEndpointAuthMethod.none))
                         .customClientStore(clientStore)
                         .customClientValidator(new ClientValidator())
                         .clientConfigurationEndpointIssuer(

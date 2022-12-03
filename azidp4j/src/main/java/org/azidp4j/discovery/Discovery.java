@@ -64,11 +64,7 @@ public class Discovery {
                 "request_object_encryption_enc_values_supported",
                 Set.of(),
                 "token_endpoint_auth_methods_supported",
-                Set.of(
-                        "client_secret_basic",
-                        "client_secret_post",
-                        "none"), // default is client_secret_basic // TODO make configureble and
-                // validate it against client registration
+                config.tokenEndpointAuthMethodsSupported,
                 "token_endpoint_auth_signing_alg_values_supported",
                 Set.of(), // if jwt authentication is used, the value is required. // TODO
                 "display_values_supported",

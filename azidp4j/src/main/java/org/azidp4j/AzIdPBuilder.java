@@ -62,6 +62,8 @@ public class AzIdPBuilder {
     private Supplier<String> refreshTokenServiceKidSupplier = null;
     private DiscoveryConfig discoveryConfig = null;
     private UserPasswordVerifier userPasswordVerifier = null;
+    private Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported =
+            Set.of(TokenEndpointAuthMethod.client_secret_basic);
 
     public AzIdPBuilder issuer(String issuer) {
         this.issuer = issuer;
@@ -220,6 +222,12 @@ public class AzIdPBuilder {
         return this;
     }
 
+    public AzIdPBuilder tokenEndpointAuthMethodsSupported(
+            Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported) {
+        this.tokenEndpointAuthMethodsSupported = tokenEndpointAuthMethodsSupported;
+        return this;
+    }
+
     public AzIdP build() {
 
         // validate
@@ -236,6 +244,7 @@ public class AzIdPBuilder {
         required(errors, "responseModesSupported", responseModesSupported);
         required(errors, "clientStore", clientStore);
         required(errors, "scopeAudienceMapper", scopeAudienceMapper);
+        required(errors, "tokenEndpointAuthMethodsSupported", tokenEndpointAuthMethodsSupported);
         if (grantTypesSupported != null && grantTypesSupported.contains(GrantType.password)) {
             required(errors, "userPasswordVerifier", userPasswordVerifier);
         }
@@ -275,6 +284,7 @@ public class AzIdPBuilder {
                         issuer,
                         scopesSupported,
                         defaultScopes,
+                        tokenEndpointAuthMethodsSupported,
                         grantTypesSupported,
                         responseTypesSupported,
                         responseModesSupported,
