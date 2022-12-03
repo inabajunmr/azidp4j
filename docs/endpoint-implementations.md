@@ -55,9 +55,9 @@ var authzReq =
 var response = azIdP.authorize(authzReq);
 
 // When no user authenticated
-        var params = // convert http request query parameters to Map<String, String>;
-        var authzReq = new AuthorizationRequest(null, null, null, params);
-        var response = azIdP.authorize(authzReq);
+var params = // convert http request query parameters to Map<String, String>;
+var authzReq = new AuthorizationRequest(null, null, null, params);
+var response = azIdP.authorize(authzReq);
 ```
 
 ### Response
