@@ -43,7 +43,6 @@ class InternalClientValidatorTest {
                                         ResponseType.id_token)),
                         Set.of(ResponseMode.query, ResponseMode.fragment),
                         Set.of(),
-                        Set.of(),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),

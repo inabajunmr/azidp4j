@@ -4,7 +4,6 @@ import com.nimbusds.jose.jwk.JWKSet;
 import java.text.ParseException;
 import java.time.Duration;
 import java.util.Set;
-import org.azidp4j.authorize.request.Display;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
@@ -52,7 +51,6 @@ public class Fixtures {
                         Set.of(ResponseType.token, ResponseType.id_token),
                         Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token)),
                 Set.of(ResponseMode.query, ResponseMode.fragment),
-                Set.of(Display.page, Display.popup, Display.touch, Display.wap),
                 Set.of(SigningAlgorithm.ES256, SigningAlgorithm.RS256, SigningAlgorithm.none),
                 Duration.ofSeconds(3600),
                 Duration.ofSeconds(600),

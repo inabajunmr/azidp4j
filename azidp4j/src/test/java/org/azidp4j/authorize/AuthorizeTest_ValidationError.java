@@ -13,7 +13,6 @@ import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
-import org.azidp4j.authorize.request.Display;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
@@ -531,7 +530,6 @@ class AuthorizeTest_ValidationError {
                         Set.of(Set.of(ResponseType.code)),
                         Set.of(ResponseMode.query),
                         Set.of(),
-                        Set.of(),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
@@ -572,7 +570,6 @@ class AuthorizeTest_ValidationError {
                         Set.of(GrantType.authorization_code),
                         Set.of(Set.of(ResponseType.code)),
                         Set.of(ResponseMode.query),
-                        Set.of(),
                         Set.of(),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
@@ -620,7 +617,6 @@ class AuthorizeTest_ValidationError {
                         Set.of(GrantType.authorization_code),
                         Set.of(Set.of(ResponseType.code), Set.of(ResponseType.token)),
                         Set.of(ResponseMode.query, ResponseMode.fragment),
-                        Set.of(),
                         Set.of(),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
@@ -772,56 +768,5 @@ class AuthorizeTest_ValidationError {
                 Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("invalid_scope", queryMap.get("error"));
-    }
-
-    @Test
-    void unsupportedDisplayValue() {
-        // setup
-        var config =
-                new AzIdPConfig(
-                        "http://localhost:8080",
-                        Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
-                        Set.of("openid", "rs:scope1"),
-                        Set.of(GrantType.authorization_code),
-                        Set.of(Set.of(ResponseType.code), Set.of(ResponseType.token)),
-                        Set.of(ResponseMode.query, ResponseMode.fragment),
-                        Set.of(Display.page),
-                        Set.of(),
-                        Duration.ofSeconds(3600),
-                        Duration.ofSeconds(600),
-                        Duration.ofSeconds(604800),
-                        Duration.ofSeconds(3600));
-        final Authorize sut =
-                new Authorize(
-                        clientStore,
-                        new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
-                        scopeAudienceMapper,
-                        new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
-                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
-                        config);
-
-        var authorizationRequest =
-                InternalAuthorizationRequest.builder()
-                        .responseType("code")
-                        .clientId(authorizationCodeClient.clientId)
-                        .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
-                        .scope("rs:scope1")
-                        .display("popup")
-                        .authenticatedUserId("username")
-                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
-                        .build();
-
-        // exercise
-        var response = sut.authorize(authorizationRequest);
-
-        // verify
-        assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
-        assertEquals("rp1.example.com", location.getHost());
-        var queryMap =
-                Arrays.stream(location.getQuery().split("&"))
-                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
-        assertEquals("invalid_request", queryMap.get("error"));
     }
 }

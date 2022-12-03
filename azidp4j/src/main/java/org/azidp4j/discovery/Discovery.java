@@ -71,7 +71,8 @@ public class Discovery {
                 // validate it against client registration
                 "token_endpoint_auth_signing_alg_values_supported",
                 Set.of(), // if jwt authentication is used, the value is required. // TODO
-                 "display_values_supported", config.displayValueSupported,
+                "display_values_supported",
+                discoveryConfig.displayValueSupported,
                 // "claim_types_supported",  null,
                 // "claims_supported", null,
                 // "service_documentation", null, // TODO

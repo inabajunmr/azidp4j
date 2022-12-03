@@ -15,7 +15,6 @@ import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.authorizationcode.jwt.JwtAuthorizationCodeService;
-import org.azidp4j.authorize.request.Display;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
@@ -63,7 +62,6 @@ public class AzIdPBuilder {
     private Supplier<String> refreshTokenServiceKidSupplier = null;
     private DiscoveryConfig discoveryConfig = null;
     private UserPasswordVerifier userPasswordVerifier = null;
-    private Set<Display> displayValueSupported = Set.of();
 
     public AzIdPBuilder issuer(String issuer) {
         this.issuer = issuer;
@@ -212,11 +210,6 @@ public class AzIdPBuilder {
         return this;
     }
 
-    public AzIdPBuilder displayValueSupported(Set<Display> displayValueSupported) {
-        this.displayValueSupported = displayValueSupported;
-        return this;
-    }
-
     public AzIdPBuilder discovery(DiscoveryConfig discoveryConfig) {
         this.discoveryConfig = discoveryConfig;
         return this;
@@ -285,7 +278,6 @@ public class AzIdPBuilder {
                         grantTypesSupported,
                         responseTypesSupported,
                         responseModesSupported,
-                        displayValueSupported,
                         idTokenSigningAlgValuesSupported,
                         accessTokenExpiration,
                         authorizationCodeExpiration,
