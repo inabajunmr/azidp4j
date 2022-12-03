@@ -161,6 +161,7 @@ var discoveryConfig =
                 .jwksEndpoint("https://idp.example.com/.well-known/jwks.json")
                 .clientRegistrationEndpoint("https://idp.example.com/client")
                 .userInfoEndpoint("https://idp.example.com/userinfo")
+                .displayValueSupported(Set.of(Display.page, Display.popup))
                 .build();
 AzIdP.init()
     .discoveryConfig(discoveryConfig)
