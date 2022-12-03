@@ -2,6 +2,7 @@ package org.azidp4j;
 
 import java.time.Duration;
 import java.util.Set;
+import org.azidp4j.authorize.request.Display;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.GrantType;
@@ -20,6 +21,7 @@ public class AzIdPConfig {
     public final Duration accessTokenExpiration;
     public final Duration idTokenExpiration;
     public final Duration refreshTokenExpiration;
+    public final Set<Display> displayValueSupported;
 
     public AzIdPConfig(
             String issuer,
@@ -28,6 +30,7 @@ public class AzIdPConfig {
             Set<GrantType> grantTypesSupported,
             Set<Set<ResponseType>> responseTypeSupported,
             Set<ResponseMode> responseModesSupported,
+            Set<Display> displayValueSupported,
             Set<SigningAlgorithm> idTokenSigningAlgValuesSupported,
             Duration accessTokenExpiration,
             Duration authorizationCodeExpiration,
@@ -39,6 +42,7 @@ public class AzIdPConfig {
         this.grantTypesSupported = grantTypesSupported;
         this.responseTypeSupported = responseTypeSupported;
         this.responseModesSupported = responseModesSupported;
+        this.displayValueSupported = displayValueSupported;
         this.idTokenSigningAlgValuesSupported = idTokenSigningAlgValuesSupported;
         this.accessTokenExpiration = accessTokenExpiration;
         this.authorizationCodeExpiration = authorizationCodeExpiration;

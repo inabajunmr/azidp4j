@@ -64,6 +64,7 @@ class AuthorizeTest_None {
                         Set.of(GrantType.authorization_code),
                         Set.of(Set.of(ResponseType.none)),
                         Set.of(ResponseMode.query, ResponseMode.fragment),
+                        Set.of(),
                         Set.of(SigningAlgorithm.none),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),

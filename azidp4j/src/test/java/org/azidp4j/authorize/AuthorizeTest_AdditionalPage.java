@@ -76,6 +76,7 @@ class AuthorizeTest_AdditionalPage {
                     InternalAuthorizationRequest.builder()
                             .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
+                            .display("popup")
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
                             .scope("rs:scope1")
@@ -90,7 +91,7 @@ class AuthorizeTest_AdditionalPage {
             // verify
             assertEquals(NextAction.additionalPage, response.next);
             assertEquals(Prompt.consent, response.additionalPage.prompt);
-            assertEquals(Display.page, response.additionalPage.display);
+            assertEquals(Display.popup, response.additionalPage.display);
         }
         // no enough scope consented
         {

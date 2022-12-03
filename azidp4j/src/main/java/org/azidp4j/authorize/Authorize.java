@@ -203,6 +203,14 @@ public class Authorize {
         }
 
         var display = Display.of(authorizationRequest.display);
+        if (display != null && !config.displayValueSupported.contains(display)) {
+            // unsupported display value
+            return AuthorizationResponse.redirect(
+                    redirectUri,
+                    MapUtil.nullRemovedStringMap(
+                            "error", "invalid_request", "state", authorizationRequest.state),
+                    responseMode);
+        }
         if (display == null) {
             display = Display.page;
         }
