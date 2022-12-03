@@ -58,32 +58,36 @@ public class Authorize {
         var responseType = ResponseType.parse(authorizationRequest.responseType);
         if (responseType == null) {
             return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
+                    AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
+                    "response_type parse error");
         }
         if (!config.responseTypeSupported.contains(responseType)) {
             return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.unsupported_response_type);
+                    AuthorizationErrorTypeWithoutRedirect.unsupported_response_type,
+                    "azidp doesn't support response_type");
         }
 
         var responseMode = ResponseMode.of(authorizationRequest.responseMode, responseType);
         if (responseMode == null) {
             return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.invalid_response_mode);
+                    AuthorizationErrorTypeWithoutRedirect.invalid_response_mode,
+                    "response_mode parse error");
         }
         if (!config.responseModesSupported.contains(responseMode)) {
             return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.unsupported_response_mode);
+                    AuthorizationErrorTypeWithoutRedirect.unsupported_response_mode,
+                    "azidp doesn't support response_mode");
         }
 
         // validate client
         if (authorizationRequest.clientId == null) {
             return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.client_id_required);
+                    AuthorizationErrorTypeWithoutRedirect.client_id_required, "client_id required");
         }
         var clientOpt = clientStore.find(authorizationRequest.clientId);
         if (clientOpt.isEmpty()) {
             return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.client_not_found);
+                    AuthorizationErrorTypeWithoutRedirect.client_not_found, "client not found");
         }
 
         var client = clientOpt.get();
@@ -91,11 +95,13 @@ public class Authorize {
         // validate redirect urls
         if (authorizationRequest.redirectUri == null) {
             return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri);
+                    AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri,
+                    "redirect_uri required");
         }
         if (!client.redirectUris.contains(authorizationRequest.redirectUri)) {
             return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.redirect_uri_not_allowed);
+                    AuthorizationErrorTypeWithoutRedirect.redirect_uri_not_allowed,
+                    "client doesn't allow redirect_uri");
         }
         URI redirectUri;
         try {
@@ -108,7 +114,8 @@ public class Authorize {
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error", "request_not_supported", "state", authorizationRequest.state),
-                    responseMode);
+                    responseMode,
+                    "request not supported");
         }
         if (authorizationRequest.requestUri != null) {
             return AuthorizationResponse.redirect(
@@ -118,7 +125,8 @@ public class Authorize {
                             "request_uri_not_supported",
                             "state",
                             authorizationRequest.state),
-                    responseMode);
+                    responseMode,
+                    "request_uri not supported");
         }
         if (authorizationRequest.registration != null) {
             return AuthorizationResponse.redirect(
@@ -128,7 +136,8 @@ public class Authorize {
                             "registration_not_supported",
                             "state",
                             authorizationRequest.state),
-                    responseMode);
+                    responseMode,
+                    "registration not supported");
         }
         // https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
         if (responseType.contains(ResponseType.code)) {
@@ -143,7 +152,9 @@ public class Authorize {
                                 "unauthorized_client",
                                 "state",
                                 authorizationRequest.state),
-                        responseMode);
+                        responseMode,
+                        "response_type is code but client doesn't support authorization_code"
+                                + " grant_type");
             }
         }
 
@@ -158,7 +169,9 @@ public class Authorize {
                                 "unauthorized_client",
                                 "state",
                                 authorizationRequest.state),
-                        responseMode);
+                        responseMode,
+                        "response_type is token or id_token but client doesn't support implicit"
+                                + " grant_type");
             }
         }
 
@@ -169,7 +182,8 @@ public class Authorize {
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_request", "state", authorizationRequest.state),
-                    responseMode);
+                    responseMode,
+                    "response_type is id_token but nonce not found");
         }
 
         // validate scope
@@ -178,7 +192,8 @@ public class Authorize {
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_scope", "state", authorizationRequest.state),
-                    responseMode);
+                    responseMode,
+                    "client doesn't support enough scope");
         }
         if (authorizationRequest.codeChallenge == null
                 && authorizationRequest.codeChallengeMethod != null) {
@@ -186,7 +201,8 @@ public class Authorize {
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_request", "state", authorizationRequest.state),
-                    responseMode);
+                    responseMode,
+                    "code_challenge_method specified but no code_challenge");
         }
         CodeChallengeMethod codeChallengeMethod = null;
         if (authorizationRequest.codeChallengeMethod != null) {
@@ -196,7 +212,8 @@ public class Authorize {
                         redirectUri,
                         MapUtil.nullRemovedStringMap(
                                 "error", "invalid_request", "state", authorizationRequest.state),
-                        responseMode);
+                        responseMode,
+                        "code_challenge_method parse error");
             }
         } else if (authorizationRequest.codeChallenge != null) {
             codeChallengeMethod = CodeChallengeMethod.S256;
@@ -214,7 +231,8 @@ public class Authorize {
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_request", "state", authorizationRequest.state),
-                    responseMode);
+                    responseMode,
+                    "prompt parse error");
         }
         if (prompt.contains(Prompt.none) && prompt.size() != 1) {
             // none with other prompt is invalid
@@ -222,7 +240,8 @@ public class Authorize {
                     redirectUri,
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_request", "state", authorizationRequest.state),
-                    responseMode);
+                    responseMode,
+                    "prompt contains none and another");
         } else {
             if (prompt.contains(Prompt.none)) {
                 if (authorizationRequest.authenticatedUserId == null) {
@@ -230,7 +249,8 @@ public class Authorize {
                             redirectUri,
                             MapUtil.nullRemovedStringMap(
                                     "error", "login_required", "state", authorizationRequest.state),
-                            responseMode);
+                            responseMode,
+                            "prompt is none but user not authenticated");
                 }
                 if (!authorizationRequest.allScopeConsented()) {
                     return AuthorizationResponse.redirect(
@@ -240,16 +260,17 @@ public class Authorize {
                                     "consent_required",
                                     "state",
                                     authorizationRequest.state),
-                            responseMode);
+                            responseMode,
+                            "prompt is none but user doesn't consent enough scope");
                 }
             }
             if (prompt.contains(Prompt.login)) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.login, display, client.clientId, scope);
+                        Prompt.login, display, client.clientId, scope, null);
             }
             if (authorizationRequest.authenticatedUserId == null) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.login, display, client.clientId, scope);
+                        Prompt.login, display, client.clientId, scope, null);
             }
             if (authorizationRequest.maxAge != null || client.defaultMaxAge != null) {
                 try {
@@ -266,10 +287,11 @@ public class Authorize {
                                             "login_required",
                                             "state",
                                             authorizationRequest.state),
-                                    responseMode);
+                                    responseMode,
+                                    "prompt is none but authTime over");
                         } else {
                             return AuthorizationResponse.additionalPage(
-                                    Prompt.login, display, client.clientId, scope);
+                                    Prompt.login, display, client.clientId, scope, null);
                         }
                     }
                 } catch (NumberFormatException e) {
@@ -280,23 +302,25 @@ public class Authorize {
                                     "invalid_request",
                                     "state",
                                     authorizationRequest.state),
-                            responseMode);
+                            responseMode,
+                            "max_age is not number");
                 }
             }
             if (prompt.contains(Prompt.consent)) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.consent, display, client.clientId, scope);
+                        Prompt.consent, display, client.clientId, scope, null);
             }
             if (prompt.contains(Prompt.select_account)) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.select_account, display, client.clientId, scope);
+                        Prompt.select_account, display, client.clientId, scope, null);
             }
             if (!authorizationRequest.allScopeConsented()) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.consent, display, client.clientId, scope);
+                        Prompt.consent, display, client.clientId, scope, null);
             }
         }
 
+        // TODO the validation should be before parsing prompt?
         if (!client.responseTypes.contains(responseType)) {
             return AuthorizationResponse.redirect(
                     redirectUri,
@@ -305,14 +329,16 @@ public class Authorize {
                             "unsupported_response_type",
                             "state",
                             authorizationRequest.state),
-                    responseMode);
+                    responseMode,
+                    "client doesn't support response_type");
         }
 
         if (responseType.contains(ResponseType.none)) {
             return AuthorizationResponse.redirect(
                     redirectUri,
                     MapUtil.nullRemovedStringMap("state", authorizationRequest.state),
-                    responseMode);
+                    responseMode,
+                    null);
         }
 
         String accessToken = null;
@@ -358,13 +384,16 @@ public class Authorize {
 
         String idToken = null;
         if (responseType.contains(ResponseType.id_token)) {
+            // TODO the validation should be before prompt validation?
             // validate scope
             if (!scopeValidator.contains(scope, "openid")) {
                 return AuthorizationResponse.redirect(
                         redirectUri,
                         MapUtil.nullRemovedStringMap(
                                 "error", "invalid_scope", "state", authorizationRequest.state),
-                        responseMode);
+                        responseMode,
+                        "authorization request contains id_token response_type but no openid"
+                                + " scope");
             }
             idToken =
                     idTokenIssuer
@@ -396,6 +425,7 @@ public class Authorize {
                         responseScope,
                         "state",
                         authorizationRequest.state),
-                responseMode);
+                responseMode,
+                null);
     }
 }

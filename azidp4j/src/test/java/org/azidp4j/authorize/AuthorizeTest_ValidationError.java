@@ -69,6 +69,7 @@ class AuthorizeTest_ValidationError {
         assertEquals(
                 response.errorPage.errorType,
                 AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
+        assertEquals(response.errorDescription, "response_type parse error");
     }
 
     @Test
@@ -88,6 +89,7 @@ class AuthorizeTest_ValidationError {
         assertEquals(
                 response.errorPage.errorType,
                 AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
+        assertEquals(response.errorDescription, "response_type parse error");
     }
 
     @Test
@@ -106,6 +108,7 @@ class AuthorizeTest_ValidationError {
         assertEquals(
                 response.errorPage.errorType,
                 AuthorizationErrorTypeWithoutRedirect.client_id_required);
+        assertEquals(response.errorDescription, "client_id required");
     }
 
     @Test
@@ -125,6 +128,7 @@ class AuthorizeTest_ValidationError {
         assertEquals(
                 response.errorPage.errorType,
                 AuthorizationErrorTypeWithoutRedirect.client_not_found);
+        assertEquals(response.errorDescription, "client not found");
     }
 
     @Test
@@ -144,6 +148,7 @@ class AuthorizeTest_ValidationError {
         assertEquals(
                 response.errorPage.errorType,
                 AuthorizationErrorTypeWithoutRedirect.redirect_uri_not_allowed);
+        assertEquals(response.errorDescription, "client doesn't allow redirect_uri");
     }
 
     @Test
@@ -162,6 +167,7 @@ class AuthorizeTest_ValidationError {
         assertEquals(
                 response.errorPage.errorType,
                 AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri);
+        assertEquals(response.errorDescription, "redirect_uri required");
     }
 
     @Test
@@ -186,6 +192,7 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("invalid_scope", queryMap.get("error"));
+        assertEquals(response.errorDescription, "client doesn't support enough scope");
     }
 
     @Test
@@ -210,10 +217,13 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("unauthorized_client", queryMap.get("error"));
+        assertEquals(
+                response.errorDescription,
+                "response_type is code but client doesn't support authorization_code grant_type");
     }
 
     @Test
-    void responseTypeNotSupportedClient_AuthorizationCodeGrant() {
+    void responseTypeIsCodeButClientNotSupportIt() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .authTime(Instant.now().getEpochSecond())
@@ -234,10 +244,11 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("unsupported_response_type", queryMap.get("error"));
+        assertEquals(response.errorDescription, "client doesn't support response_type");
     }
 
     @Test
-    void responseTypeNotSupportedClientImplicitGrant() {
+    void responseTypeIsTokenButClientNotSupportIt() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .authTime(Instant.now().getEpochSecond())
@@ -258,6 +269,7 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("unsupported_response_type", queryMap.get("error"));
+        assertEquals(response.errorDescription, "client doesn't support response_type");
     }
 
     @Test
@@ -283,6 +295,7 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("invalid_request", queryMap.get("error"));
+        assertEquals(response.errorDescription, "max_age is not number");
     }
 
     @Test
@@ -310,6 +323,7 @@ class AuthorizeTest_ValidationError {
                 Arrays.stream(URI.create(location).getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("invalid_request", queryMap.get("error"));
+        assertEquals(response.errorDescription, "prompt parse error");
     }
 
     @Test
@@ -339,6 +353,7 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("login_required", queryMap.get("error"));
+        assertEquals(response.errorDescription, "prompt is none but user not authenticated");
     }
 
     @Test
@@ -364,6 +379,8 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("consent_required", queryMap.get("error"));
+        assertEquals(
+                response.errorDescription, "prompt is none but user doesn't consent enough scope");
     }
 
     @Test
@@ -389,6 +406,7 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("invalid_request", queryMap.get("error"));
+        assertEquals(response.errorDescription, "prompt contains none and another");
     }
 
     @Test
@@ -415,6 +433,7 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("login_required", queryMap.get("error"));
+        assertEquals(response.errorDescription, "prompt is none but authTime over");
     }
 
     @Test
@@ -442,6 +461,7 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("request_not_supported", queryMap.get("error"));
+        assertEquals(response.errorDescription, "request not supported");
     }
 
     @Test
@@ -469,6 +489,7 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("request_uri_not_supported", queryMap.get("error"));
+        assertEquals(response.errorDescription, "request_uri not supported");
     }
 
     @Test
@@ -495,6 +516,7 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("registration_not_supported", queryMap.get("error"));
+        assertEquals(response.errorDescription, "registration not supported");
     }
 
     @Test
@@ -517,6 +539,7 @@ class AuthorizeTest_ValidationError {
         assertEquals(
                 response.errorPage.errorType,
                 AuthorizationErrorTypeWithoutRedirect.invalid_response_mode);
+        assertEquals(response.errorDescription, "response_mode parse error");
     }
 
     @Test
@@ -558,6 +581,7 @@ class AuthorizeTest_ValidationError {
         assertEquals(
                 response.errorPage.errorType,
                 AuthorizationErrorTypeWithoutRedirect.unsupported_response_mode);
+        assertEquals(response.errorDescription, "azidp doesn't support response_mode");
     }
 
     @Test
@@ -604,6 +628,7 @@ class AuthorizeTest_ValidationError {
         assertEquals(
                 response.errorPage.errorType,
                 AuthorizationErrorTypeWithoutRedirect.unsupported_response_type);
+        assertEquals(response.errorDescription, "azidp doesn't support response_type");
     }
 
     @Test
@@ -653,6 +678,10 @@ class AuthorizeTest_ValidationError {
                 Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("unauthorized_client", queryMap.get("error"));
+        assertEquals(
+                response.errorDescription,
+                "response_type is token or id_token but client doesn't support implicit"
+                        + " grant_type");
     }
 
     @Test
@@ -681,6 +710,7 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("xyz", queryMap.get("state"));
         assertEquals("invalid_request", queryMap.get("error"));
+        assertEquals(response.errorDescription, "response_type is id_token but nonce not found");
     }
 
     @Test
@@ -709,6 +739,8 @@ class AuthorizeTest_ValidationError {
                 Arrays.stream(location.getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("invalid_request", queryMap.get("error"));
+        assertEquals(
+                response.errorDescription, "code_challenge_method specified but no code_challenge");
     }
 
     @Test
@@ -738,6 +770,7 @@ class AuthorizeTest_ValidationError {
                 Arrays.stream(location.getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("invalid_request", queryMap.get("error"));
+        assertEquals(response.errorDescription, "code_challenge_method parse error");
     }
 
     @Test
@@ -768,5 +801,8 @@ class AuthorizeTest_ValidationError {
                 Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("invalid_scope", queryMap.get("error"));
+        assertEquals(
+                response.errorDescription,
+                "authorization request contains id_token response_type but no openid scope");
     }
 }
