@@ -65,6 +65,9 @@ public class IssueToken {
         }
 
         GrantType grantType;
+        if (req.grantType == null) {
+            return new TokenResponse(400, Map.of("error", "invalid_request"));
+        }
         try {
             grantType = GrantType.of(req.grantType);
         } catch (IllegalArgumentException e) {

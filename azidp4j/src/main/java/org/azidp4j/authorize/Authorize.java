@@ -245,19 +245,18 @@ public class Authorize {
             codeChallengeMethod = CodeChallengeMethod.S256;
         }
 
-        Display display;
-        try {
-            display = Display.of(authorizationRequest.display);
-        } catch (IllegalArgumentException e) {
-            return AuthorizationResponse.redirect(
-                    redirectUri,
-                    MapUtil.nullRemovedStringMap(
-                            "error", "invalid_request", "state", authorizationRequest.state),
-                    responseMode,
-                    "display parse error");
-        }
-        if (display == null) {
-            display = Display.page;
+        var display = Display.page;
+        if (authorizationRequest.display != null) {
+            try {
+                display = Display.of(authorizationRequest.display);
+            } catch (IllegalArgumentException e) {
+                return AuthorizationResponse.redirect(
+                        redirectUri,
+                        MapUtil.nullRemovedStringMap(
+                                "error", "invalid_request", "state", authorizationRequest.state),
+                        responseMode,
+                        "display parse error");
+            }
         }
 
         if (!client.responseTypes.contains(responseType)) {

@@ -57,6 +57,10 @@ public class DynamicClientRegistration {
             grantTypes.add(GrantType.authorization_code);
         } else {
             for (String g : request.grantTypes) {
+                if (g == null) {
+                    return new ClientRegistrationResponse(
+                            400, Map.of("error", "invalid_client_metadata"));
+                }
                 try {
                     var grantType = GrantType.of(g);
                     grantTypes.add(grantType);
