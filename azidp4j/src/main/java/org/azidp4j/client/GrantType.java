@@ -17,7 +17,7 @@ public enum GrantType {
             case "password" -> password;
             case "client_credentials" -> client_credentials;
             case "refresh_token" -> refresh_token;
-            default -> null;
+            default -> throw new IllegalArgumentException(value + " is not supported");
         };
     }
 }

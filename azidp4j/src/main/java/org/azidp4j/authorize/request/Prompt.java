@@ -29,7 +29,7 @@ public enum Prompt {
             case "login" -> login;
             case "consent" -> consent;
             case "select_account" -> select_account;
-            default -> null;
+            default -> throw new IllegalArgumentException(prompt + " is not undefined.");
         };
     }
 }

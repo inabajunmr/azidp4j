@@ -2,6 +2,7 @@ package org.azidp4j.authorize;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.*;
@@ -55,8 +56,15 @@ public class Authorize {
                 && authorizationRequest.authTime == null) {
             throw new AssertionError("When user is authenticated, must set authTime.");
         }
-        var responseType = ResponseType.parse(authorizationRequest.responseType);
-        if (responseType == null) {
+        Set<ResponseType> responseType;
+        try {
+            responseType = ResponseType.parse(authorizationRequest.responseType);
+        } catch (IllegalArgumentException e) {
+            return AuthorizationResponse.errorPage(
+                    AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
+                    "response_type parse error");
+        }
+        if (responseType.isEmpty()) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
                     "response_type parse error");
@@ -67,8 +75,10 @@ public class Authorize {
                     "azidp doesn't support response_type");
         }
 
-        var responseMode = ResponseMode.of(authorizationRequest.responseMode, responseType);
-        if (responseMode == null) {
+        ResponseMode responseMode;
+        try {
+            responseMode = ResponseMode.of(authorizationRequest.responseMode, responseType);
+        } catch (IllegalArgumentException e) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_mode,
                     "response_mode parse error");
@@ -220,8 +230,10 @@ public class Authorize {
         }
         CodeChallengeMethod codeChallengeMethod = null;
         if (authorizationRequest.codeChallengeMethod != null) {
-            codeChallengeMethod = CodeChallengeMethod.of(authorizationRequest.codeChallengeMethod);
-            if (codeChallengeMethod == null) {
+            try {
+                codeChallengeMethod =
+                        CodeChallengeMethod.of(authorizationRequest.codeChallengeMethod);
+            } catch (IllegalArgumentException e) {
                 return AuthorizationResponse.redirect(
                         redirectUri,
                         MapUtil.nullRemovedStringMap(
@@ -233,9 +245,18 @@ public class Authorize {
             codeChallengeMethod = CodeChallengeMethod.S256;
         }
 
-        var display = Display.of(authorizationRequest.display);
-        if (display == null) {
-            display = Display.page;
+        var display = Display.page;
+        if (authorizationRequest.display != null) {
+            try {
+                display = Display.of(authorizationRequest.display);
+            } catch (IllegalArgumentException e) {
+                return AuthorizationResponse.redirect(
+                        redirectUri,
+                        MapUtil.nullRemovedStringMap(
+                                "error", "invalid_request", "state", authorizationRequest.state),
+                        responseMode,
+                        "display parse error");
+            }
         }
 
         if (!client.responseTypes.contains(responseType)) {
@@ -250,8 +271,10 @@ public class Authorize {
                     "client doesn't support response_type");
         }
 
-        var prompt = Prompt.parse(authorizationRequest.prompt);
-        if (prompt.isEmpty()) {
+        Set<Prompt> prompt;
+        try {
+            prompt = Prompt.parse(authorizationRequest.prompt);
+        } catch (IllegalArgumentException e) {
             // prompt is invalid
             return AuthorizationResponse.redirect(
                     redirectUri,

@@ -15,7 +15,7 @@ public enum Display {
             case "popup" -> popup;
             case "touch" -> touch;
             case "wap" -> wap;
-            default -> null;
+            default -> throw new IllegalArgumentException(display + " is not supported.");
         };
     }
 }

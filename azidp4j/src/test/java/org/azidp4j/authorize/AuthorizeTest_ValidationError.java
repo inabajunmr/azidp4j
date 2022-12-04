@@ -93,6 +93,35 @@ class AuthorizeTest_ValidationError {
     }
 
     @Test
+    void illegalDisplay() {
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("code")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("rs:scope1")
+                        .display("invalid")
+                        .authenticatedUserId("username")
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.next, NextAction.redirect);
+        var location = URI.create(response.redirect.redirectTo);
+        assertEquals("rp1.example.com", location.getHost());
+        var queryMap =
+                Arrays.stream(location.getQuery().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals("invalid_request", queryMap.get("error"));
+        assertEquals(response.errorDescription, "display parse error");
+    }
+
+    @Test
     void clientIdIsNull() {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()

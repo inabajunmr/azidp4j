@@ -24,7 +24,12 @@ class ResponseTypeTest {
 
     @Test
     void parseSingleIllegal() {
-        assertNull(ResponseType.parse("illegal"));
+        try {
+            ResponseType.parse("illegal");
+            fail();
+        } catch (IllegalArgumentException e) {
+
+        }
     }
 
     @Test
@@ -36,6 +41,11 @@ class ResponseTypeTest {
 
     @Test
     void parseDoubleIllegal() {
-        assertNull(ResponseType.parse("code illegal"));
+        try {
+            assertNull(ResponseType.parse("code illegal"));
+            fail();
+        } catch (IllegalArgumentException e) {
+
+        }
     }
 }

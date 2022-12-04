@@ -13,7 +13,7 @@ public enum SigningAlgorithm {
             case "RS256" -> RS256;
             case "ES256" -> ES256;
             case "none" -> none;
-            default -> null;
+            default -> throw new IllegalArgumentException(alg + " is not supported");
         };
     }
 }

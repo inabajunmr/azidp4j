@@ -17,7 +17,7 @@ public enum TokenEndpointAuthMethod {
             case "client_secret_jwt" -> client_secret_jwt;
             case "private_key_jwt" -> private_key_jwt;
             case "none" -> none;
-            default -> null;
+            default -> throw new IllegalArgumentException(value + " is not supported");
         };
     }
 }

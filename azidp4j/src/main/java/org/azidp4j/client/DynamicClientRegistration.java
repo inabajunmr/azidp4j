@@ -57,12 +57,17 @@ public class DynamicClientRegistration {
             grantTypes.add(GrantType.authorization_code);
         } else {
             for (String g : request.grantTypes) {
-                var grantType = GrantType.of(g);
-                if (grantType == null) {
+                if (g == null) {
                     return new ClientRegistrationResponse(
                             400, Map.of("error", "invalid_client_metadata"));
                 }
-                grantTypes.add(grantType);
+                try {
+                    var grantType = GrantType.of(g);
+                    grantTypes.add(grantType);
+                } catch (IllegalArgumentException e) {
+                    return new ClientRegistrationResponse(
+                            400, Map.of("error", "invalid_client_metadata"));
+                }
             }
         }
 
@@ -72,19 +77,21 @@ public class DynamicClientRegistration {
             responseTypes.add(Set.of(ResponseType.code));
         } else {
             for (String r : request.responseTypes) {
-                var responseType = ResponseType.parse(r);
-                if (responseType == null) {
+                try {
+                    var responseType = ResponseType.parse(r);
+                    responseTypes.add(responseType);
+                } catch (IllegalArgumentException e) {
                     return new ClientRegistrationResponse(
                             400, Map.of("error", "invalid_client_metadata"));
                 }
-                responseTypes.add(responseType);
             }
         }
 
         var applicationType = ApplicationType.WEB;
         if (request.applicationType != null) {
-            applicationType = ApplicationType.of(request.applicationType);
-            if (applicationType == null) {
+            try {
+                applicationType = ApplicationType.of(request.applicationType);
+            } catch (IllegalArgumentException e) {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_client_metadata"));
             }
@@ -92,12 +99,13 @@ public class DynamicClientRegistration {
 
         var tokenEndpointAuthMethod = TokenEndpointAuthMethod.client_secret_basic;
         if (request.tokenEndpointAuthMethod != null) {
-            var tam = TokenEndpointAuthMethod.of(request.tokenEndpointAuthMethod);
-            if (tam == null) {
+            try {
+                var tam = TokenEndpointAuthMethod.of(request.tokenEndpointAuthMethod);
+                tokenEndpointAuthMethod = tam;
+            } catch (IllegalArgumentException e) {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_client_metadata"));
             }
-            tokenEndpointAuthMethod = tam;
         }
         if (!config.tokenEndpointAuthMethodsSupported.contains(tokenEndpointAuthMethod)) {
             return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
@@ -118,8 +126,9 @@ public class DynamicClientRegistration {
 
         var idTokenSignedResponseAlg = SigningAlgorithm.RS256;
         if (request.idTokenSignedResponseAlg != null) {
-            idTokenSignedResponseAlg = SigningAlgorithm.of(request.idTokenSignedResponseAlg);
-            if (idTokenSignedResponseAlg == null) {
+            try {
+                idTokenSignedResponseAlg = SigningAlgorithm.of(request.idTokenSignedResponseAlg);
+            } catch (IllegalArgumentException e) {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_client_metadata"));
             }

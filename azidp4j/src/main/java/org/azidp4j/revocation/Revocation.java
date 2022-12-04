@@ -41,10 +41,11 @@ public class Revocation {
         }
         var hint = TokenTypeHint.access_token;
         if (req.tokenTypeHint != null) {
-            hint = TokenTypeHint.of(req.tokenTypeHint);
-        }
-        if (hint == null) {
-            return new RevocationResponse(400, Map.of("error", "unsupported_token_type"));
+            try {
+                hint = TokenTypeHint.of(req.tokenTypeHint);
+            } catch (IllegalArgumentException e) {
+                return new RevocationResponse(400, Map.of("error", "invalid_request"));
+            }
         }
         if (req.token == null) {
             return new RevocationResponse(200, Map.of());

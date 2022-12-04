@@ -12,29 +12,26 @@ public enum ResponseType {
 
     public static Set<ResponseType> parse(String responseType) {
         if (responseType == null) {
-            return null;
+            return Set.of();
         }
         var responseTypes =
                 Arrays.stream(responseType.split(" "))
                         .map(ResponseType::of)
                         .collect(Collectors.toSet());
-        if (responseTypes.contains(null)) {
-            return null;
-        }
 
         return responseTypes;
     }
 
-    public static ResponseType of(String responseType) {
+    private static ResponseType of(String responseType) {
         if (responseType == null) {
-            return null;
+            throw new IllegalArgumentException("responseType is null.");
         }
         return switch (responseType) {
             case "code" -> code;
             case "token" -> token;
             case "id_token" -> id_token;
             case "none" -> none;
-            default -> null;
+            default -> throw new IllegalArgumentException(responseType + " is not supported.");
         };
     }
 }

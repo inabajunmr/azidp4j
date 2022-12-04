@@ -10,6 +10,7 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import java.util.List;
 import java.util.Set;
+import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.discovery.DiscoveryConfig;
 import org.junit.jupiter.api.Test;
@@ -145,6 +146,24 @@ class AzIdPBuilderTest {
             // NOP
         } catch (JOSEException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    void build_ResponseTypesSupportedHasNoneAndOther() {
+        try {
+            AzIdP.initInMemory()
+                    .issuer("https://example.com")
+                    .jwkSet(new JWKSet())
+                    .idTokenKidSupplier((alg) -> "kid")
+                    .staticScopeAudienceMapper("audience")
+                    .scopesSupported(Set.of("openid"))
+                    .defaultScopes(Set.of())
+                    .responseTypesSupported(Set.of(Set.of(ResponseType.none, ResponseType.code)))
+                    .build();
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), "none response_type and others can't be combined");
         }
     }
 }

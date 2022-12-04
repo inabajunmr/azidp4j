@@ -12,7 +12,7 @@ public enum ApplicationType {
         return switch (value) {
             case "web" -> WEB;
             case "native" -> NATIVE;
-            default -> null;
+            default -> throw new IllegalArgumentException(value + " is not supported");
         };
     }
 }

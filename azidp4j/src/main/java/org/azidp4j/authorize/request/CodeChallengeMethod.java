@@ -11,7 +11,7 @@ public enum CodeChallengeMethod {
         return switch (codeChallengeMethod) {
             case "PLAIN" -> PLAIN;
             case "S256" -> S256;
-            default -> null;
+            default -> throw new IllegalArgumentException(codeChallengeMethod + " is not defined.");
         };
     }
 }

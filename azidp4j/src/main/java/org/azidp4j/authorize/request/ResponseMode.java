@@ -6,24 +6,9 @@ public enum ResponseMode {
     query,
     fragment;
 
-    private static ResponseMode of(String responseMode) {
-        if (responseMode == null) {
-            return null;
-        }
-        return switch (responseMode) {
-            case "fragment" -> fragment;
-            case "query" -> query;
-            default -> null;
-        };
-    }
-
     public static ResponseMode of(
             String requestedResponseMode, Set<ResponseType> requestedResponseTypes) {
         var defaultResponseMode = defaultValue(requestedResponseTypes);
-        if (requestedResponseTypes.isEmpty()) {
-            // illegal
-            return null;
-        }
         if (requestedResponseMode == null) {
             // default
             return defaultResponseMode;
@@ -38,23 +23,31 @@ public enum ResponseMode {
             }
         }
 
-        // multiple response type and id_token are only allowed "fragment"
-        if (of(requestedResponseMode) == defaultResponseMode) {
+        // multiple response or response type is single 'id_token'
+        // these case are only allowed "fragment"
+        if (of(requestedResponseMode) == fragment) {
             // multiple
             return defaultResponseMode;
         } else {
             // illegal
+            throw new IllegalArgumentException(
+                    "multiple response types or id_token response type are only allowed fragment");
+        }
+    }
+
+    private static ResponseMode of(String responseMode) {
+        if (responseMode == null) {
             return null;
         }
+        return switch (responseMode) {
+            case "fragment" -> fragment;
+            case "query" -> query;
+            default -> throw new IllegalArgumentException(responseMode + " is not supported");
+        };
     }
 
     private static ResponseMode defaultValue(Set<ResponseType> requestedResponseTypes) {
         // default
-        if (requestedResponseTypes.contains(ResponseType.none)
-                && requestedResponseTypes.size() != 1) {
-            // illegal
-            return null;
-        }
         if (requestedResponseTypes.contains(ResponseType.token)
                 || requestedResponseTypes.contains(ResponseType.id_token)) {
             return fragment;
