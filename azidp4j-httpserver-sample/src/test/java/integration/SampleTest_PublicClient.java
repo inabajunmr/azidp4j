@@ -209,8 +209,6 @@ public class SampleTest_PublicClient {
                             .map(kv -> kv.split("="))
                             .collect(Collectors.toMap(kv -> kv[0], kv -> kv[1]));
             // verify token
-            // signature
-            var jwks = JWKSet.load(new URL("http://localhost:8080/jwks"));
             assertNotNull(fragmentMap.get("access_token"));
         }
 
@@ -237,7 +235,6 @@ public class SampleTest_PublicClient {
                             .textValue();
             // verify token
             assertNotNull(userAccessToken);
-            var jwks = JWKSet.load(new URL("http://localhost:8080/jwks"));
         }
 
         // shutdown authorization server

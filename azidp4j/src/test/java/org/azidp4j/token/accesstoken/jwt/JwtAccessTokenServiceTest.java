@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
-import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.util.MapUtil;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +25,6 @@ class JwtAccessTokenServiceTest {
                     .algorithm(new Algorithm("ES256"))
                     .generate();
     final JWKSet jwks = new JWKSet(List.of(rs256, es256));
-    final JWSIssuer jwsIssuer = new JWSIssuer(jwks);
     final Supplier<String> kidSupplier = () -> "abc";
     final JwtAccessTokenService sut = new JwtAccessTokenService(jwks, "issuer", kidSupplier);
 

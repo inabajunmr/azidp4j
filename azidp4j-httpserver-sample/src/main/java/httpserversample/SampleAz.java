@@ -19,11 +19,7 @@ import httpserversample.handler.*;
 import org.azidp4j.AzIdP;
 import org.azidp4j.client.*;
 import org.azidp4j.discovery.DiscoveryConfig;
-import org.azidp4j.jwt.JWSIssuer;
 import org.azidp4j.token.UserPasswordVerifier;
-import org.azidp4j.token.accesstoken.AccessTokenService;
-import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
-import org.azidp4j.token.refreshtoken.jwt.JwtRefreshTokenService;
 
 public class SampleAz {
 

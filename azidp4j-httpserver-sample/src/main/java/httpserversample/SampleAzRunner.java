@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.request.ClientRequest;
-import org.azidp4j.client.request.InternalClientRequest;
 import org.azidp4j.client.GrantType;
 
 public class SampleAzRunner {
