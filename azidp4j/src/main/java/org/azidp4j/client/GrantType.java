@@ -1,6 +1,6 @@
 package org.azidp4j.client;
 
-public enum GrantType { // TODO
+public enum GrantType {
     authorization_code,
     implicit,
     password,
@@ -17,7 +17,7 @@ public enum GrantType { // TODO
             case "password" -> password;
             case "client_credentials" -> client_credentials;
             case "refresh_token" -> refresh_token;
-            default -> null;
+            default -> throw new IllegalArgumentException(value + " is not supported");
         };
     }
 }
