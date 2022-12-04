@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public enum Prompt { // TODO
+public enum Prompt {
     none,
     login,
     consent,
@@ -29,7 +29,7 @@ public enum Prompt { // TODO
             case "login" -> login;
             case "consent" -> consent;
             case "select_account" -> select_account;
-            default -> null;
+            default -> throw new IllegalArgumentException(prompt + " is not undefined.");
         };
     }
 }

@@ -260,8 +260,10 @@ public class Authorize {
                     "client doesn't support response_type");
         }
 
-        var prompt = Prompt.parse(authorizationRequest.prompt);
-        if (prompt.isEmpty()) {
+        Set<Prompt> prompt;
+        try {
+            prompt = Prompt.parse(authorizationRequest.prompt);
+        } catch (IllegalArgumentException e) {
             // prompt is invalid
             return AuthorizationResponse.redirect(
                     redirectUri,
