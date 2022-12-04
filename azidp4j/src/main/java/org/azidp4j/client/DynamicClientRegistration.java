@@ -84,8 +84,9 @@ public class DynamicClientRegistration {
 
         var applicationType = ApplicationType.WEB;
         if (request.applicationType != null) {
-            applicationType = ApplicationType.of(request.applicationType);
-            if (applicationType == null) {
+            try {
+                applicationType = ApplicationType.of(request.applicationType);
+            } catch (IllegalArgumentException e) {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_client_metadata"));
             }
