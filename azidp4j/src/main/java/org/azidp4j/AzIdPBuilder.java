@@ -260,6 +260,18 @@ public class AzIdPBuilder {
             }
         }
 
+        if (responseTypesSupported != null) {
+            responseTypesSupported.forEach(
+                    set -> {
+                        if (set.contains(ResponseType.none) && set.size() != 1) {
+                            // https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html#none
+                            // The Response Type none SHOULD NOT be combined with other Response
+                            // Types.
+                            errors.add("none response_type and others can't be combined");
+                        }
+                    });
+        }
+
         defaultResponseTypesSupported();
 
         if (isOpenId()) {

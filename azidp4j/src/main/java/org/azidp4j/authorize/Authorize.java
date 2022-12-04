@@ -75,8 +75,10 @@ public class Authorize {
                     "azidp doesn't support response_type");
         }
 
-        var responseMode = ResponseMode.of(authorizationRequest.responseMode, responseType);
-        if (responseMode == null) {
+        ResponseMode responseMode;
+        try {
+            responseMode = ResponseMode.of(authorizationRequest.responseMode, responseType);
+        } catch (IllegalArgumentException e) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_mode,
                     "response_mode parse error");

@@ -13,8 +13,11 @@ class ResponseModeTest {
 
     @Test
     void illegal() {
-        assertNull(ResponseMode.of("invalid", Set.of(ResponseType.code)));
-        assertNull(ResponseMode.of(null, Set.of(ResponseType.code, ResponseType.none)));
+        try {
+            ResponseMode.of("invalid", Set.of(ResponseType.code));
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     @ParameterizedTest
@@ -28,16 +31,27 @@ class ResponseModeTest {
         "query   , code,     query",
         "query   , none,     query",
         "query   , token,    query",
-        "query   , id_token,",
         "fragment, code,     fragment",
         "fragment, none,     fragment",
     })
-    void testSingle(
+    void testSingle_Valid(
             String requestedResponseMode,
             ResponseType responseType,
             ResponseMode resultResponseMode) {
         assertEquals(
                 resultResponseMode, ResponseMode.of(requestedResponseMode, Set.of(responseType)));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "query   , id_token",
+    })
+    void testSingle_InValid(String requestedResponseMode, ResponseType responseType) {
+        try {
+            ResponseMode.of(requestedResponseMode, Set.of(responseType));
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     @ParameterizedTest
@@ -48,11 +62,8 @@ class ResponseModeTest {
         "fragment, code, token,          fragment",
         "fragment, code, id_token,       fragment",
         "fragment, id_token, token,      fragment",
-        "query   , code, token,          ",
-        "query   , code, id_token,       ",
-        "query   , id_token, token,      ",
     })
-    void testDouble(
+    void testDouble_Valid(
             String requestedResponseMode,
             ResponseType responseType1,
             ResponseType responseType2,
@@ -64,11 +75,25 @@ class ResponseModeTest {
 
     @ParameterizedTest
     @CsvSource({
+        "query   , code, token",
+        "query   , code, id_token",
+        "query   , id_token, token",
+    })
+    void testDouble_Invalid(
+            String requestedResponseMode, ResponseType responseType1, ResponseType responseType2) {
+        try {
+            ResponseMode.of(requestedResponseMode, Set.of(responseType1, responseType2));
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
         "        , code, id_token, token, fragment",
         "fragment, code, id_token, token, fragment",
-        "query   , code, id_token, token, ",
     })
-    void testTriple(
+    void testTriple_Valid(
             String requestedResponseMode,
             ResponseType responseType1,
             ResponseType responseType2,
@@ -79,5 +104,22 @@ class ResponseModeTest {
                 ResponseMode.of(
                         requestedResponseMode,
                         Set.of(responseType1, responseType2, responseType3)));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "query   , code, id_token, token, ",
+    })
+    void testTriple_InValid(
+            String requestedResponseMode,
+            ResponseType responseType1,
+            ResponseType responseType2,
+            ResponseType responseType3) {
+        try {
+            ResponseMode.of(
+                    requestedResponseMode, Set.of(responseType1, responseType2, responseType3));
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
     }
 }
