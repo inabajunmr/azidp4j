@@ -1,6 +1,6 @@
 package org.azidp4j.authorize.request;
 
-public enum Display { // TODO
+public enum Display {
     page,
     popup,
     touch,
@@ -15,7 +15,7 @@ public enum Display { // TODO
             case "popup" -> popup;
             case "touch" -> touch;
             case "wap" -> wap;
-            default -> null;
+            default -> throw new IllegalArgumentException(display + " is not supported.");
         };
     }
 }
