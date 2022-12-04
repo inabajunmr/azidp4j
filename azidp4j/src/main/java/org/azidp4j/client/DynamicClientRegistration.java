@@ -95,12 +95,13 @@ public class DynamicClientRegistration {
 
         var tokenEndpointAuthMethod = TokenEndpointAuthMethod.client_secret_basic;
         if (request.tokenEndpointAuthMethod != null) {
-            var tam = TokenEndpointAuthMethod.of(request.tokenEndpointAuthMethod);
-            if (tam == null) {
+            try {
+                var tam = TokenEndpointAuthMethod.of(request.tokenEndpointAuthMethod);
+                tokenEndpointAuthMethod = tam;
+            } catch (IllegalArgumentException e) {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_client_metadata"));
             }
-            tokenEndpointAuthMethod = tam;
         }
         if (!config.tokenEndpointAuthMethodsSupported.contains(tokenEndpointAuthMethod)) {
             return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));

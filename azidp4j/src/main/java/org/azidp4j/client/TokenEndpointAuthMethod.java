@@ -1,6 +1,6 @@
 package org.azidp4j.client;
 
-public enum TokenEndpointAuthMethod { // TODO
+public enum TokenEndpointAuthMethod {
     client_secret_post,
     client_secret_basic,
     client_secret_jwt,
@@ -17,7 +17,7 @@ public enum TokenEndpointAuthMethod { // TODO
             case "client_secret_jwt" -> client_secret_jwt;
             case "private_key_jwt" -> private_key_jwt;
             case "none" -> none;
-            default -> null;
+            default -> throw new IllegalArgumentException(value + " is not supported");
         };
     }
 }
