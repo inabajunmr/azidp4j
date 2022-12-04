@@ -14,8 +14,7 @@ public class AzIdPConfig {
     public final Set<String> scopesSupported;
     public final Set<String> defaultScope;
     public final Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported;
-    public final Set<String>
-            tokenEndpointAuthSigningAlgValuesSupported; // TODO client registration validate
+    public final Set<String> tokenEndpointAuthSigningAlgValuesSupported;
     public final Set<GrantType> grantTypesSupported;
     public final Set<Set<ResponseType>> responseTypeSupported;
     public final Set<ResponseMode> responseModesSupported;

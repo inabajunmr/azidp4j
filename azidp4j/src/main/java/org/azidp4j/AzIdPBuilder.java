@@ -316,6 +316,8 @@ public class AzIdPBuilder {
 
     private void validateTokenEndpointAuthMethods(List<String> errors) {
         required(errors, "tokenEndpointAuthMethodsSupported", tokenEndpointAuthMethodsSupported);
+        // tokenEndpointAuthMethodsSupported is xxx_jwt, required
+        // tokenEndpointAuthSigningAlgValuesSupported
         if (tokenEndpointAuthMethodsSupported != null
                         && tokenEndpointAuthMethodsSupported.contains(
                                 TokenEndpointAuthMethod.private_key_jwt)
