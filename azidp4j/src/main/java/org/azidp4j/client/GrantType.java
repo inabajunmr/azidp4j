@@ -1,6 +1,6 @@
 package org.azidp4j.client;
 
-public enum GrantType {
+public enum GrantType { // TODO
     authorization_code,
     implicit,
     password,

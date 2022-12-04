@@ -1,6 +1,6 @@
 package org.azidp4j.authorize.request;
 
-public enum Display {
+public enum Display { // TODO
     page,
     popup,
     touch,

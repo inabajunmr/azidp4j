@@ -11,7 +11,7 @@ public enum TokenTypeHint {
         return switch (hint) {
             case "access_token" -> access_token;
             case "refresh_token" -> refresh_token;
-            default -> null;
+            default -> throw new IllegalArgumentException(hint + " is undefined");
         };
     }
 }

@@ -1,6 +1,6 @@
 package org.azidp4j.client;
 
-public enum SigningAlgorithm {
+public enum SigningAlgorithm { // TODO
     RS256,
     ES256,
     none;

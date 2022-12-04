@@ -220,8 +220,10 @@ public class Authorize {
         }
         CodeChallengeMethod codeChallengeMethod = null;
         if (authorizationRequest.codeChallengeMethod != null) {
-            codeChallengeMethod = CodeChallengeMethod.of(authorizationRequest.codeChallengeMethod);
-            if (codeChallengeMethod == null) {
+            try {
+                codeChallengeMethod =
+                        CodeChallengeMethod.of(authorizationRequest.codeChallengeMethod);
+            } catch (IllegalArgumentException e) {
                 return AuthorizationResponse.redirect(
                         redirectUri,
                         MapUtil.nullRemovedStringMap(

@@ -2,7 +2,7 @@ package org.azidp4j.authorize.request;
 
 import java.util.Set;
 
-public enum ResponseMode {
+public enum ResponseMode { // TODO
     query,
     fragment;
 

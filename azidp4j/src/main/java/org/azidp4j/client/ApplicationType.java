@@ -1,7 +1,7 @@
 package org.azidp4j.client;
 
 /** https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata */
-public enum ApplicationType {
+public enum ApplicationType { // TODO
     WEB,
     NATIVE;
 

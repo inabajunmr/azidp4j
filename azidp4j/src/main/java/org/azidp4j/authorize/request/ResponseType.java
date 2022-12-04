@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public enum ResponseType {
+public enum ResponseType { // TODO
     code,
     token,
     id_token,

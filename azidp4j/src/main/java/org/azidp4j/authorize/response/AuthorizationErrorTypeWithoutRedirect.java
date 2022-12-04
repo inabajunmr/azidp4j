@@ -1,6 +1,6 @@
 package org.azidp4j.authorize.response;
 
-public enum AuthorizationErrorTypeWithoutRedirect {
+public enum AuthorizationErrorTypeWithoutRedirect { // TODO
     invalid_response_type,
     invalid_response_mode,
     unsupported_response_type,

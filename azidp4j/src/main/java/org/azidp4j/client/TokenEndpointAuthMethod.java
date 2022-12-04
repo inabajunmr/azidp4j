@@ -1,6 +1,6 @@
 package org.azidp4j.client;
 
-public enum TokenEndpointAuthMethod {
+public enum TokenEndpointAuthMethod { // TODO
     client_secret_post,
     client_secret_basic,
     client_secret_jwt,

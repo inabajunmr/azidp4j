@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public enum Prompt {
+public enum Prompt { // TODO
     none,
     login,
     consent,

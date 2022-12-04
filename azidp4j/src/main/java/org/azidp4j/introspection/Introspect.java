@@ -44,7 +44,12 @@ public class Introspect {
         if (req.token == null) {
             return new IntrospectionResponse(400, Map.of());
         }
-        var hint = TokenTypeHint.of(req.tokenTypeHint);
+        TokenTypeHint hint;
+        try {
+            hint = TokenTypeHint.of(req.tokenTypeHint);
+        } catch (IllegalArgumentException e) {
+            return new IntrospectionResponse(400, Map.of());
+        }
         if (hint == null) {
             hint = TokenTypeHint.access_token;
         }
