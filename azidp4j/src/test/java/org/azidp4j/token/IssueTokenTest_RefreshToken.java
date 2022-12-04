@@ -39,7 +39,7 @@ public class IssueTokenTest_RefreshToken {
         var jwks = new JWKSet(key);
         var authorizationCodeService =
                 new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
-        var config = Fixtures.azIdPConfig(key.getKeyID());
+        var config = Fixtures.azIdPConfig();
         this.accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer = new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks));
         var clientStore = new InMemoryClientStore();
@@ -267,6 +267,7 @@ public class IssueTokenTest_RefreshToken {
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
                         Set.of(TokenEndpointAuthMethod.client_secret_basic),
+                        null,
                         Set.of(GrantType.refresh_token),
                         Set.of(),
                         Set.of(),

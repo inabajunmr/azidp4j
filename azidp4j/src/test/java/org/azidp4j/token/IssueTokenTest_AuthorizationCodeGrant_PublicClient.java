@@ -50,7 +50,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
 
     private IssueToken issueToken;
 
-    private final AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
+    private final AzIdPConfig config = Fixtures.azIdPConfig();
 
     private final Client client = Fixtures.publicClient();
 

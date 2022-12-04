@@ -12,8 +12,7 @@ import org.junit.jupiter.api.Test;
 
 class InternalClientValidatorTest {
 
-    private final InternalClientValidator sut =
-            new InternalClientValidator(Fixtures.azIdPConfig("kid"));
+    private final InternalClientValidator sut = new InternalClientValidator(Fixtures.azIdPConfig());
 
     @Test
     void validate_NotSupportedGrantType() {
@@ -25,6 +24,7 @@ class InternalClientValidatorTest {
                         Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
                         Set.of("openid", "rs:scope1"),
                         Set.of(TokenEndpointAuthMethod.client_secret_basic),
+                        null,
                         Set.of(
                                 GrantType.authorization_code,
                                 GrantType.implicit,

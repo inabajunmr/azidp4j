@@ -28,7 +28,7 @@ class AuthorizeTest_AdditionalPage {
     final Client client = Fixtures.confidentialClient();
     final Client noGrantTypesClient = Fixtures.noGrantTypeClient();
     final Client noResponseTypesClient = Fixtures.noResponseTypeClient();
-    final AzIdPConfig config = Fixtures.azIdPConfig("kid");
+    final AzIdPConfig config = Fixtures.azIdPConfig();
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
 
     final JWKSet jwks = new JWKSet();

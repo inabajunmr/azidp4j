@@ -45,7 +45,7 @@ public class IssueTokenTest {
                         null,
                         null,
                         Instant.now().getEpochSecond() + 600);
-        var config = Fixtures.azIdPConfig("kid");
+        var config = Fixtures.azIdPConfig();
         var clientStore = new InMemoryClientStore();
         var confidentialClient = Fixtures.confidentialClient();
         var noGrantTypeClient = Fixtures.noGrantTypeClient();

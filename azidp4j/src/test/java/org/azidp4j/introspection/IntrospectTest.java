@@ -25,7 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class IntrospectTest {
 
     final InMemoryRefreshTokenStore inMemoryRefreshTokenStore = new InMemoryRefreshTokenStore();
-    final AzIdPConfig config = Fixtures.azIdPConfig("test");
+    final AzIdPConfig config = Fixtures.azIdPConfig();
     final InMemoryAccessTokenStore accessTokenStore = new InMemoryAccessTokenStore();
     final AccessTokenService accessTokenService = new InMemoryAccessTokenService(accessTokenStore);
     final Introspect introspect =

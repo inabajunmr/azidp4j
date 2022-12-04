@@ -100,7 +100,6 @@ public class AzIdP {
         this.clientRegistration =
                 new DynamicClientRegistration(
                         azIdPConfig,
-                        discoveryConfig,
                         clientStore,
                         clientValidator,
                         accessTokenService,
