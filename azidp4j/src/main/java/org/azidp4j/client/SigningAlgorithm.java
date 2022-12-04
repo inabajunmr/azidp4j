@@ -1,6 +1,6 @@
 package org.azidp4j.client;
 
-public enum SigningAlgorithm { // TODO
+public enum SigningAlgorithm {
     RS256,
     ES256,
     none;
@@ -13,7 +13,7 @@ public enum SigningAlgorithm { // TODO
             case "RS256" -> RS256;
             case "ES256" -> ES256;
             case "none" -> none;
-            default -> null;
+            default -> throw new IllegalArgumentException(alg + " is not supported");
         };
     }
 }

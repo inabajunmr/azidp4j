@@ -1,6 +1,6 @@
 package org.azidp4j.authorize.response;
 
-public enum NextAction { // TODO
+public enum NextAction {
     /** Service should redirect. */
     redirect,
 

@@ -122,8 +122,9 @@ public class DynamicClientRegistration {
 
         var idTokenSignedResponseAlg = SigningAlgorithm.RS256;
         if (request.idTokenSignedResponseAlg != null) {
-            idTokenSignedResponseAlg = SigningAlgorithm.of(request.idTokenSignedResponseAlg);
-            if (idTokenSignedResponseAlg == null) {
+            try {
+                idTokenSignedResponseAlg = SigningAlgorithm.of(request.idTokenSignedResponseAlg);
+            } catch (IllegalArgumentException e) {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_client_metadata"));
             }

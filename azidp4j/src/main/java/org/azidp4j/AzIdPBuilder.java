@@ -279,10 +279,14 @@ public class AzIdPBuilder {
             required(errors, "idTokenKidSupplier", idTokenKidSupplier);
             required(errors, "idTokenExpiration", idTokenExpiration);
             if (idTokenSigningAlgValuesSupported == null) {
-                idTokenSigningAlgValuesSupported =
-                        jwkSet.getKeys().stream()
-                                .map(v -> SigningAlgorithm.of(v.getAlgorithm().getName()))
-                                .collect(Collectors.toSet());
+                try {
+                    idTokenSigningAlgValuesSupported =
+                            jwkSet.getKeys().stream()
+                                    .map(v -> SigningAlgorithm.of(v.getAlgorithm().getName()))
+                                    .collect(Collectors.toSet());
+                } catch (IllegalArgumentException e) {
+                    errors.add("jwkSet contains unsupported alg");
+                }
             }
         }
         validateIdTokenSigningAlgAndJwkSet(errors);
