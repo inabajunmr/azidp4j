@@ -72,12 +72,13 @@ public class DynamicClientRegistration {
             responseTypes.add(Set.of(ResponseType.code));
         } else {
             for (String r : request.responseTypes) {
-                var responseType = ResponseType.parse(r);
-                if (responseType == null) {
+                try {
+                    var responseType = ResponseType.parse(r);
+                    responseTypes.add(responseType);
+                } catch (IllegalArgumentException e) {
                     return new ClientRegistrationResponse(
                             400, Map.of("error", "invalid_client_metadata"));
                 }
-                responseTypes.add(responseType);
             }
         }
 

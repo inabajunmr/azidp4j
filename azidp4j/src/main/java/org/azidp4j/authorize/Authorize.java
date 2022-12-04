@@ -2,6 +2,7 @@ package org.azidp4j.authorize;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.*;
@@ -55,8 +56,15 @@ public class Authorize {
                 && authorizationRequest.authTime == null) {
             throw new AssertionError("When user is authenticated, must set authTime.");
         }
-        var responseType = ResponseType.parse(authorizationRequest.responseType);
-        if (responseType == null) {
+        Set<ResponseType> responseType;
+        try {
+            responseType = ResponseType.parse(authorizationRequest.responseType);
+        } catch (IllegalArgumentException e) {
+            return AuthorizationResponse.errorPage(
+                    AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
+                    "response_type parse error");
+        }
+        if (responseType.isEmpty()) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
                     "response_type parse error");
