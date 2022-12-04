@@ -5,12 +5,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.azidp4j.AccessTokenAssert;
+import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
+import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
@@ -24,12 +27,11 @@ class DynamicClientRegistrationTest_register {
     void success_All_JwksUri() throws JOSEException {
         // setup
         var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var config = Fixtures.azIdPConfig(es256.getKeyID());
+        var config = Fixtures.azIdPConfig();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
                 new DynamicClientRegistration(
                         config,
-                        Fixtures.discoveryConfig(),
                         new InMemoryClientStore(),
                         null,
                         new InMemoryAccessTokenService(accessTokenStore),
@@ -120,12 +122,11 @@ class DynamicClientRegistrationTest_register {
     void success_All_Jwks() throws JOSEException {
         // setup
         var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var config = Fixtures.azIdPConfig(es256.getKeyID());
+        var config = Fixtures.azIdPConfig();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
                 new DynamicClientRegistration(
                         config,
-                        Fixtures.discoveryConfig(),
                         new InMemoryClientStore(),
                         null,
                         new InMemoryAccessTokenService(accessTokenStore),
@@ -247,12 +248,11 @@ class DynamicClientRegistrationTest_register {
     void success_Default() throws JOSEException {
         // setup
         var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var config = Fixtures.azIdPConfig(es256.getKeyID());
+        var config = Fixtures.azIdPConfig();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
                 new DynamicClientRegistration(
                         config,
-                        Fixtures.discoveryConfig(),
                         new InMemoryClientStore(),
                         null,
                         new InMemoryAccessTokenService(accessTokenStore),
@@ -288,13 +288,11 @@ class DynamicClientRegistrationTest_register {
     @Test
     void failure_UnsupportedTokenEndpointAuthMethod() throws JOSEException {
         // setup
-        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
-        var config = Fixtures.azIdPConfig(es256.getKeyID());
+        var config = Fixtures.azIdPConfig();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
                 new DynamicClientRegistration(
                         config,
-                        Fixtures.discoveryConfig(),
                         new InMemoryClientStore(),
                         null,
                         new InMemoryAccessTokenService(accessTokenStore),
@@ -304,6 +302,89 @@ class DynamicClientRegistrationTest_register {
                 registration.register(
                         new ClientRequest(
                                 Map.of("token_endpoint_auth_method", "client_secret_post")));
+        assertEquals(400, response.status);
+        assertEquals("invalid_client_metadata", response.body.get("error"));
+    }
+
+    @Test
+    void failure_UnsupportedTokenEndpointAuthSigningAlg() {
+        // setup
+        var config =
+                new AzIdPConfig(
+                        "http://localhost:8080",
+                        Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
+                        Set.of("openid", "rs:scope1"),
+                        Set.of(TokenEndpointAuthMethod.client_secret_jwt),
+                        Set.of("ES256"),
+                        Set.of(GrantType.authorization_code),
+                        Set.of(Set.of(ResponseType.code)),
+                        Set.of(ResponseMode.query, ResponseMode.fragment),
+                        Set.of(
+                                SigningAlgorithm.ES256,
+                                SigningAlgorithm.RS256,
+                                SigningAlgorithm.none),
+                        Duration.ofSeconds(3600),
+                        Duration.ofSeconds(600),
+                        Duration.ofSeconds(604800),
+                        Duration.ofSeconds(3600));
+
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        null,
+                        new InMemoryAccessTokenService(accessTokenStore),
+                        (clientId) -> "http://localhost:8080/client/" + clientId);
+
+        var response =
+                registration.register(
+                        new ClientRequest(
+                                Map.of(
+                                        "token_endpoint_auth_method",
+                                        "client_secret_jwt",
+                                        "token_endpoint_auth_signing_alg",
+                                        "RS256")));
+        assertEquals(400, response.status);
+        assertEquals("invalid_client_metadata", response.body.get("error"));
+    }
+
+    @Test
+    void failure_RequiredTokenEndpointAuthSigningAlg() {
+        // setup
+        var config =
+                new AzIdPConfig(
+                        "http://localhost:8080",
+                        Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
+                        Set.of("openid", "rs:scope1"),
+                        Set.of(TokenEndpointAuthMethod.client_secret_jwt),
+                        Set.of("ES256"),
+                        Set.of(GrantType.authorization_code),
+                        Set.of(Set.of(ResponseType.code)),
+                        Set.of(ResponseMode.query, ResponseMode.fragment),
+                        Set.of(
+                                SigningAlgorithm.ES256,
+                                SigningAlgorithm.RS256,
+                                SigningAlgorithm.none),
+                        Duration.ofSeconds(3600),
+                        Duration.ofSeconds(600),
+                        Duration.ofSeconds(604800),
+                        Duration.ofSeconds(3600));
+
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        null,
+                        new InMemoryAccessTokenService(accessTokenStore),
+                        (clientId) -> "http://localhost:8080/client/" + clientId);
+
+        // client_secret_jwt but not signing alg
+        var response =
+                registration.register(
+                        new ClientRequest(
+                                Map.of("token_endpoint_auth_method", "client_secret_jwt")));
         assertEquals(400, response.status);
         assertEquals("invalid_client_metadata", response.body.get("error"));
     }

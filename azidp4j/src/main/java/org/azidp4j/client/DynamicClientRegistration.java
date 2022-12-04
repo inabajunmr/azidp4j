@@ -12,14 +12,12 @@ import org.azidp4j.client.request.InternalClientRequest;
 import org.azidp4j.client.response.ClientDeleteResponse;
 import org.azidp4j.client.response.ClientReadResponse;
 import org.azidp4j.client.response.ClientRegistrationResponse;
-import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.util.MapUtil;
 
 public class DynamicClientRegistration {
 
     private final AzIdPConfig config;
-    private final DiscoveryConfig discoveryConfig;
     private final ClientStore clientStore;
     private final AccessTokenService accessTokenService;
     private final InternalClientValidator clientValidator;
@@ -29,13 +27,11 @@ public class DynamicClientRegistration {
 
     public DynamicClientRegistration(
             AzIdPConfig config,
-            DiscoveryConfig discoveryConfig,
             ClientStore clientStore,
             ClientValidator customizableClientValidator,
             AccessTokenService accessTokenService,
             Function<String, String> clientConfigurationEndpointIssuer) {
         this.config = config;
-        this.discoveryConfig = discoveryConfig;
         this.clientStore = clientStore;
         this.clientValidator = new InternalClientValidator(config);
         this.customizableClientValidator =
@@ -106,13 +102,17 @@ public class DynamicClientRegistration {
         if (!config.tokenEndpointAuthMethodsSupported.contains(tokenEndpointAuthMethod)) {
             return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
-
-        SigningAlgorithm tokenEndpointAuthSigningAlg = null;
-        if (request.tokenEndpointAuthSigningAlg != null) {
-            tokenEndpointAuthSigningAlg = SigningAlgorithm.of(request.tokenEndpointAuthSigningAlg);
-            if (tokenEndpointAuthSigningAlg == null) {
+        if (tokenEndpointAuthMethod == TokenEndpointAuthMethod.private_key_jwt
+                || tokenEndpointAuthMethod == TokenEndpointAuthMethod.client_secret_jwt) {
+            if (request.tokenEndpointAuthSigningAlg == null) {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_client_metadata"));
+            } else {
+                if (!config.tokenEndpointAuthSigningAlgValuesSupported.contains(
+                        request.tokenEndpointAuthSigningAlg)) {
+                    return new ClientRegistrationResponse(
+                            400, Map.of("error", "invalid_client_metadata"));
+                }
             }
         }
 
@@ -147,7 +147,7 @@ public class DynamicClientRegistration {
                         request.softwareId,
                         request.softwareVersion,
                         tokenEndpointAuthMethod,
-                        tokenEndpointAuthSigningAlg,
+                        request.tokenEndpointAuthSigningAlg,
                         idTokenSignedResponseAlg,
                         request.defaultMaxAge,
                         request.requireAuthTime != null ? request.requireAuthTime : false,
@@ -213,9 +213,7 @@ public class DynamicClientRegistration {
                         "token_endpoint_auth_method",
                         client.tokenEndpointAuthMethod.name(),
                         "token_endpoint_auth_signing_alg",
-                        client.tokenEndpointAuthSigningAlg != null
-                                ? client.tokenEndpointAuthSigningAlg.name()
-                                : null,
+                        client.tokenEndpointAuthSigningAlg,
                         "id_token_signed_response_alg",
                         client.idTokenSignedResponseAlg.name(),
                         "default_max_age",
@@ -281,9 +279,7 @@ public class DynamicClientRegistration {
                         "token_endpoint_auth_method",
                         client.tokenEndpointAuthMethod.name(),
                         "token_endpoint_auth_signing_alg",
-                        client.tokenEndpointAuthSigningAlg != null
-                                ? client.tokenEndpointAuthSigningAlg.name()
-                                : null,
+                        client.tokenEndpointAuthSigningAlg,
                         "id_token_signed_response_alg",
                         client.idTokenSignedResponseAlg.name(),
                         "default_max_age",

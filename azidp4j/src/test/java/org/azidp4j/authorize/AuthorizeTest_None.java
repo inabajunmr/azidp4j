@@ -62,6 +62,7 @@ class AuthorizeTest_None {
                         Set.of("openid", "scope1", "scope2", "default"),
                         Set.of("openid", "scope1"),
                         Set.of(TokenEndpointAuthMethod.client_secret_basic),
+                        null,
                         Set.of(GrantType.authorization_code),
                         Set.of(Set.of(ResponseType.none)),
                         Set.of(ResponseMode.query, ResponseMode.fragment),

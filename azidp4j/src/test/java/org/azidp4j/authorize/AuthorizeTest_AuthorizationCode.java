@@ -29,7 +29,7 @@ class AuthorizeTest_AuthorizationCode {
     final Client client = Fixtures.confidentialClient();
     final Client noGrantTypesClient = Fixtures.noGrantTypeClient();
     final Client noResponseTypesClient = Fixtures.noResponseTypeClient();
-    final AzIdPConfig config = Fixtures.azIdPConfig("kid");
+    final AzIdPConfig config = Fixtures.azIdPConfig();
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
     final JWKSet jwks = new JWKSet();
     final Authorize sut =
@@ -79,7 +79,7 @@ class AuthorizeTest_AuthorizationCode {
         // setup
         var clientStore = new InMemoryClientStore();
         clientStore.save(client);
-        var config = Fixtures.azIdPConfig("kid");
+        var config = Fixtures.azIdPConfig();
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var sut =
                 new Authorize(
@@ -146,7 +146,7 @@ class AuthorizeTest_AuthorizationCode {
         // setup
         var clientStore = new InMemoryClientStore();
         clientStore.save(client);
-        var config = Fixtures.azIdPConfig("kid");
+        var config = Fixtures.azIdPConfig();
 
         var sut =
                 new Authorize(
@@ -187,7 +187,7 @@ class AuthorizeTest_AuthorizationCode {
         // setup
         var clientStore = new InMemoryClientStore();
         clientStore.save(client);
-        var config = Fixtures.azIdPConfig("kid");
+        var config = Fixtures.azIdPConfig();
         var sut =
                 new Authorize(
                         clientStore,

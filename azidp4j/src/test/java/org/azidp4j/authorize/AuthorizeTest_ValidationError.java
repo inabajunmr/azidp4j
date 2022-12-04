@@ -34,7 +34,7 @@ class AuthorizeTest_ValidationError {
     final Client authorizationCodeClient = Fixtures.authorizationCodeClient();
     final Client noGrantTypesClient = Fixtures.noGrantTypeClient();
     final Client noResponseTypesClient = Fixtures.noResponseTypeClient();
-    final AzIdPConfig config = Fixtures.azIdPConfig("kid");
+    final AzIdPConfig config = Fixtures.azIdPConfig();
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
     final JWKSet jwks = new JWKSet();
     final Authorize sut =
@@ -550,6 +550,7 @@ class AuthorizeTest_ValidationError {
                         Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
                         Set.of("openid", "rs:scope1"),
                         Set.of(TokenEndpointAuthMethod.client_secret_basic),
+                        null,
                         Set.of(GrantType.authorization_code),
                         Set.of(Set.of(ResponseType.code)),
                         Set.of(ResponseMode.query),
@@ -593,6 +594,7 @@ class AuthorizeTest_ValidationError {
                         Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
                         Set.of("openid", "rs:scope1"),
                         Set.of(TokenEndpointAuthMethod.client_secret_basic),
+                        null,
                         Set.of(GrantType.authorization_code),
                         Set.of(Set.of(ResponseType.code)),
                         Set.of(ResponseMode.query),
@@ -642,6 +644,7 @@ class AuthorizeTest_ValidationError {
                         Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
                         Set.of("openid", "rs:scope1"),
                         Set.of(TokenEndpointAuthMethod.client_secret_basic),
+                        null,
                         Set.of(GrantType.authorization_code),
                         Set.of(Set.of(ResponseType.code), Set.of(ResponseType.token)),
                         Set.of(ResponseMode.query, ResponseMode.fragment),

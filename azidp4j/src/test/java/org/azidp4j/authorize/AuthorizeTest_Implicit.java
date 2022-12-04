@@ -155,7 +155,7 @@ class AuthorizeTest_Implicit {
     final InMemoryAccessTokenStore accessTokenStore;
 
     public AuthorizeTest_Implicit() throws JOSEException {
-        var config = Fixtures.azIdPConfig(eckey.getKeyID());
+        var config = Fixtures.azIdPConfig();
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         this.accessTokenStore = new InMemoryAccessTokenStore();
         var jwks = new JWKSet(List.of(rsaKey, eckey));
@@ -379,7 +379,7 @@ class AuthorizeTest_Implicit {
                         .algorithm(new Algorithm("ES256"))
                         .generate();
         var jwks = new JWKSet(key);
-        var config = Fixtures.azIdPConfig(key.getKeyID());
+        var config = Fixtures.azIdPConfig();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var sut =

@@ -43,7 +43,7 @@ class AuthorizeTest_Hybrid {
                     .algorithm(new Algorithm("ES256"))
                     .generate();
     final JWKSet jwks = new JWKSet(key);
-    final AzIdPConfig config = Fixtures.azIdPConfig(key.getKeyID());
+    final AzIdPConfig config = Fixtures.azIdPConfig();
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
     final AccessTokenService accessTokenService =
             new InMemoryAccessTokenService(new InMemoryAccessTokenStore());

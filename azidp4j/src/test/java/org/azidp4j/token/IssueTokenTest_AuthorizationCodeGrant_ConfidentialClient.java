@@ -67,7 +67,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
 
     private IssueToken issueToken;
 
-    private final AzIdPConfig config = Fixtures.azIdPConfig(es256Key.getKeyID());
+    private final AzIdPConfig config = Fixtures.azIdPConfig();
 
     @BeforeEach
     void init() {

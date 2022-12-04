@@ -14,6 +14,7 @@ public class AzIdPConfig {
     public final Set<String> scopesSupported;
     public final Set<String> defaultScope;
     public final Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported;
+    public final Set<String> tokenEndpointAuthSigningAlgValuesSupported;
     public final Set<GrantType> grantTypesSupported;
     public final Set<Set<ResponseType>> responseTypeSupported;
     public final Set<ResponseMode> responseModesSupported;
@@ -28,6 +29,7 @@ public class AzIdPConfig {
             Set<String> scopesSupported,
             Set<String> defaultScope,
             Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported,
+            Set<String> tokenEndpointAuthSigningAlgValuesSupported,
             Set<GrantType> grantTypesSupported,
             Set<Set<ResponseType>> responseTypeSupported,
             Set<ResponseMode> responseModesSupported,
@@ -40,6 +42,8 @@ public class AzIdPConfig {
         this.scopesSupported = scopesSupported;
         this.defaultScope = defaultScope;
         this.tokenEndpointAuthMethodsSupported = tokenEndpointAuthMethodsSupported;
+        this.tokenEndpointAuthSigningAlgValuesSupported =
+                tokenEndpointAuthSigningAlgValuesSupported;
         this.grantTypesSupported = grantTypesSupported;
         this.responseTypeSupported = responseTypeSupported;
         this.responseModesSupported = responseModesSupported;

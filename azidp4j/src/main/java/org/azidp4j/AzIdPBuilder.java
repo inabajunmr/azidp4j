@@ -4,10 +4,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.StringJoiner;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -64,6 +61,7 @@ public class AzIdPBuilder {
     private UserPasswordVerifier userPasswordVerifier = null;
     private Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported =
             Set.of(TokenEndpointAuthMethod.client_secret_basic);
+    private Set<String> tokenEndpointAuthSigningAlgValuesSupported;
 
     public AzIdPBuilder issuer(String issuer) {
         this.issuer = issuer;
@@ -228,6 +226,13 @@ public class AzIdPBuilder {
         return this;
     }
 
+    public AzIdPBuilder tokenEndpointAuthSigningAlgValuesSupported(
+            Set<String> tokenEndpointAuthSigningAlgValuesSupported) {
+        this.tokenEndpointAuthSigningAlgValuesSupported =
+                tokenEndpointAuthSigningAlgValuesSupported;
+        return this;
+    }
+
     public AzIdP build() {
 
         // validate
@@ -244,7 +249,6 @@ public class AzIdPBuilder {
         required(errors, "responseModesSupported", responseModesSupported);
         required(errors, "clientStore", clientStore);
         required(errors, "scopeAudienceMapper", scopeAudienceMapper);
-        required(errors, "tokenEndpointAuthMethodsSupported", tokenEndpointAuthMethodsSupported);
         if (grantTypesSupported != null && grantTypesSupported.contains(GrantType.password)) {
             required(errors, "userPasswordVerifier", userPasswordVerifier);
         }
@@ -272,6 +276,7 @@ public class AzIdPBuilder {
         validateIdTokenSigningAlgAndJwkSet(errors);
         constructJwtServices();
         validateTokenServices(errors);
+        validateTokenEndpointAuthMethods(errors);
 
         if (!errors.isEmpty()) {
             var joiner = new StringJoiner("\n");
@@ -285,6 +290,7 @@ public class AzIdPBuilder {
                         scopesSupported,
                         defaultScopes,
                         tokenEndpointAuthMethodsSupported,
+                        tokenEndpointAuthSigningAlgValuesSupported,
                         grantTypesSupported,
                         responseTypesSupported,
                         responseModesSupported,
@@ -306,6 +312,32 @@ public class AzIdPBuilder {
                 refreshTokenService,
                 scopeAudienceMapper,
                 userPasswordVerifier);
+    }
+
+    private void validateTokenEndpointAuthMethods(List<String> errors) {
+        required(errors, "tokenEndpointAuthMethodsSupported", tokenEndpointAuthMethodsSupported);
+        // tokenEndpointAuthMethodsSupported is xxx_jwt, required
+        // tokenEndpointAuthSigningAlgValuesSupported
+        if (tokenEndpointAuthMethodsSupported != null
+                        && tokenEndpointAuthMethodsSupported.contains(
+                                TokenEndpointAuthMethod.private_key_jwt)
+                || tokenEndpointAuthMethodsSupported.contains(
+                        TokenEndpointAuthMethod.client_secret_jwt)) {
+
+            if (tokenEndpointAuthSigningAlgValuesSupported == null
+                    || tokenEndpointAuthSigningAlgValuesSupported.isEmpty()) {
+                errors.add(
+                        "When tokenEndpointAuthMethodsSupported is private_key_jwt or"
+                            + " client_secret_jwt, tokenEndpointAuthSigningAlgValuesSupported is"
+                            + " required.");
+                return;
+            }
+        }
+
+        if (tokenEndpointAuthSigningAlgValuesSupported != null
+                && tokenEndpointAuthSigningAlgValuesSupported.contains("none")) {
+            errors.add("tokenEndpointAuthSigningAlgValuesSupported is none is not allowed.");
+        }
     }
 
     private void validateTokenServices(List<String> errors) {
@@ -361,10 +393,8 @@ public class AzIdPBuilder {
                             Set.of(ResponseType.token),
                             Set.of(ResponseType.id_token),
                             Set.of(ResponseType.token, ResponseType.id_token));
-            return;
         } else {
             responseTypesSupported = Set.of(Set.of(ResponseType.code), Set.of(ResponseType.token));
-            return;
         }
     }
 
