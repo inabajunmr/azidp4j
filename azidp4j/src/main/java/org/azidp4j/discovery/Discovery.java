@@ -66,7 +66,8 @@ public class Discovery {
                 "token_endpoint_auth_methods_supported",
                 config.tokenEndpointAuthMethodsSupported,
                 "token_endpoint_auth_signing_alg_values_supported",
-                Set.of(), // if jwt authentication is used, the value is required. // TODO
+                config.tokenEndpointAuthSigningAlgValuesSupported,
+                // the value is required. // TODO
                 "display_values_supported",
                 discoveryConfig.displayValueSupported,
                 // "claim_types_supported",  null,
