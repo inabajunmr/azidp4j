@@ -9,6 +9,8 @@ public class DiscoveryConfig {
     public final String tokenEndpoint;
     public final String jwksEndpoint;
     public final String clientRegistrationEndpoint;
+    public final String revocationEndpoint;
+    public final String introspectionEndpoint;
     public final String userInfoEndpoint;
     public Set<Display> displayValueSupported;
     public Set<String> userinfoSigningAlgValuesSupported;
@@ -24,6 +26,8 @@ public class DiscoveryConfig {
             String tokenEndpoint,
             String jwksEndpoint,
             String clientRegistrationEndpoint,
+            String revocationEndpoint,
+            String introspectionEndpoint,
             String userInfoEndpoint,
             Set<Display> displayValueSupported,
             Set<String> userinfoSigningAlgValuesSupported,
@@ -36,6 +40,8 @@ public class DiscoveryConfig {
         this.authorizationEndpoint = authorizationEndpoint;
         this.tokenEndpoint = tokenEndpoint;
         this.jwksEndpoint = jwksEndpoint;
+        this.revocationEndpoint = revocationEndpoint;
+        this.introspectionEndpoint = introspectionEndpoint;
         this.clientRegistrationEndpoint = clientRegistrationEndpoint;
         this.userInfoEndpoint = userInfoEndpoint;
         this.displayValueSupported = displayValueSupported;

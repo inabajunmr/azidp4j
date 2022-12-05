@@ -62,6 +62,10 @@ public class AzIdPBuilder {
     private Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported =
             Set.of(TokenEndpointAuthMethod.client_secret_basic);
     private Set<String> tokenEndpointAuthSigningAlgValuesSupported;
+    private Set<TokenEndpointAuthMethod> introspectionEndpointAuthMethodsSupported;
+    private Set<String> introspectionEndpointAuthSigningAlgValuesSupported;
+    private Set<TokenEndpointAuthMethod> revocationEndpointAuthMethodsSupported;
+    private Set<String> revocationEndpointAuthSigningAlgValuesSupported;
 
     public AzIdPBuilder issuer(String issuer) {
         this.issuer = issuer;
@@ -233,6 +237,32 @@ public class AzIdPBuilder {
         return this;
     }
 
+    public AzIdPBuilder introspectionEndpointAuthMethodsSupported(
+            Set<TokenEndpointAuthMethod> introspectionEndpointAuthMethodsSupported) {
+        this.introspectionEndpointAuthMethodsSupported = introspectionEndpointAuthMethodsSupported;
+        return this;
+    }
+
+    public AzIdPBuilder introspectionEndpointAuthSigningAlgValuesSupported(
+            Set<String> introspectionEndpointAuthSigningAlgValuesSupported) {
+        this.introspectionEndpointAuthSigningAlgValuesSupported =
+                introspectionEndpointAuthSigningAlgValuesSupported;
+        return this;
+    }
+
+    public AzIdPBuilder revocationEndpointAuthMethodsSupported(
+            Set<TokenEndpointAuthMethod> revocationEndpointAuthMethodsSupported) {
+        this.revocationEndpointAuthMethodsSupported = revocationEndpointAuthMethodsSupported;
+        return this;
+    }
+
+    public AzIdPBuilder revocationEndpointAuthSigningAlgValuesSupported(
+            Set<String> revocationEndpointAuthSigningAlgValuesSupported) {
+        this.revocationEndpointAuthSigningAlgValuesSupported =
+                revocationEndpointAuthSigningAlgValuesSupported;
+        return this;
+    }
+
     public AzIdP build() {
 
         // validate
@@ -292,7 +322,22 @@ public class AzIdPBuilder {
         validateIdTokenSigningAlgAndJwkSet(errors);
         constructJwtServices();
         validateTokenServices(errors);
-        validateTokenEndpointAuthMethods(errors);
+        validateXxxEndpointAuthMethods(
+                "token",
+                tokenEndpointAuthMethodsSupported,
+                tokenEndpointAuthSigningAlgValuesSupported,
+                errors);
+        required(errors, "tokenEndpointAuthMethodsSupported", tokenEndpointAuthMethodsSupported);
+        validateXxxEndpointAuthMethods(
+                "introspection",
+                introspectionEndpointAuthMethodsSupported,
+                introspectionEndpointAuthSigningAlgValuesSupported,
+                errors);
+        validateXxxEndpointAuthMethods(
+                "revocation",
+                revocationEndpointAuthMethodsSupported,
+                revocationEndpointAuthSigningAlgValuesSupported,
+                errors);
 
         if (!errors.isEmpty()) {
             var joiner = new StringJoiner("\n");
@@ -307,6 +352,10 @@ public class AzIdPBuilder {
                         defaultScopes,
                         tokenEndpointAuthMethodsSupported,
                         tokenEndpointAuthSigningAlgValuesSupported,
+                        introspectionEndpointAuthMethodsSupported,
+                        introspectionEndpointAuthSigningAlgValuesSupported,
+                        revocationEndpointAuthMethodsSupported,
+                        revocationEndpointAuthSigningAlgValuesSupported,
                         grantTypesSupported,
                         responseTypesSupported,
                         responseModesSupported,
@@ -330,29 +379,39 @@ public class AzIdPBuilder {
                 userPasswordVerifier);
     }
 
-    private void validateTokenEndpointAuthMethods(List<String> errors) {
-        required(errors, "tokenEndpointAuthMethodsSupported", tokenEndpointAuthMethodsSupported);
+    private void validateXxxEndpointAuthMethods(
+            String type,
+            Set<TokenEndpointAuthMethod> xxxEndpointAuthMethodsSupported,
+            Set<String> xxxEndpointAuthSigningAlgValuesSupported,
+            List<String> errors) {
+        if (xxxEndpointAuthMethodsSupported == null) {
+            return;
+        }
         // tokenEndpointAuthMethodsSupported is xxx_jwt, required
         // tokenEndpointAuthSigningAlgValuesSupported
-        if (tokenEndpointAuthMethodsSupported != null
-                        && tokenEndpointAuthMethodsSupported.contains(
+        if (xxxEndpointAuthMethodsSupported != null
+                        && xxxEndpointAuthMethodsSupported.contains(
                                 TokenEndpointAuthMethod.private_key_jwt)
-                || tokenEndpointAuthMethodsSupported.contains(
+                || xxxEndpointAuthMethodsSupported.contains(
                         TokenEndpointAuthMethod.client_secret_jwt)) {
 
-            if (tokenEndpointAuthSigningAlgValuesSupported == null
-                    || tokenEndpointAuthSigningAlgValuesSupported.isEmpty()) {
+            if (xxxEndpointAuthSigningAlgValuesSupported == null
+                    || xxxEndpointAuthSigningAlgValuesSupported.isEmpty()) {
                 errors.add(
-                        "When tokenEndpointAuthMethodsSupported is private_key_jwt or"
-                            + " client_secret_jwt, tokenEndpointAuthSigningAlgValuesSupported is"
-                            + " required.");
+                        "When "
+                                + type
+                                + "EndpointAuthMethodsSupported is private_key_jwt or"
+                                + " client_secret_jwt, "
+                                + type
+                                + "EndpointAuthSigningAlgValuesSupported is"
+                                + " required");
                 return;
             }
         }
 
-        if (tokenEndpointAuthSigningAlgValuesSupported != null
-                && tokenEndpointAuthSigningAlgValuesSupported.contains("none")) {
-            errors.add("tokenEndpointAuthSigningAlgValuesSupported is none is not allowed.");
+        if (xxxEndpointAuthSigningAlgValuesSupported != null
+                && xxxEndpointAuthSigningAlgValuesSupported.contains("none")) {
+            errors.add("tokenEndpointAuthSigningAlgValuesSupported is none is not allowed");
         }
     }
 

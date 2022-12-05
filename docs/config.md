@@ -39,6 +39,11 @@ var azIdp =
 | scopesSupported | required | Supported scopes for the service. When supporting OpenID Connect, requires `openid` scope. |  | Set.of("openid", "user:read") |
 | defaultScopes | optional | Scopes for no scope authorization request. |  | Set.of("openid", "user:read") |
 | tokenEndpointAuthMethodsSupported | optional | Suppoted client authentication method for token request. | `client_secret_post` / `client_secret_basic` / `client_secret_jwt` / `private_key_jwt` / `none` | Set.of(TokenEndpointAuthMethod.client_secret_basic) |
+| tokenEndpointAuthSigningAlgValuesSupported | optional | Suppoted client authentication signing alg for token request. The value is required when tokenEndpointAuthMethodsSupported is `client_secret_jwt` or `private_key_jwt` |  | Set.of("RS256") |
+| introspectionEndpointAuthMethodsSupported | optional | Suppoted client authentication method for introspection request. | `client_secret_post` / `client_secret_basic` / `client_secret_jwt` / `private_key_jwt` / `none` | Set.of(TokenEndpointAuthMethod.client_secret_basic) |
+| introspectionEndpointAuthSigningAlgValuesSupported | optional | Suppoted client authentication signing alg for introspection request. The value is required when introspectionEndpointAuthMethodsSupported is `client_secret_jwt` or `private_key_jwt` |  | Set.of("RS256") |
+| revocationEndpointAuthMethodsSupported | optional | Suppoted client authentication method for introspection request. | `client_secret_post` / `client_secret_basic` / `client_secret_jwt` / `private_key_jwt` / `none` | Set.of(TokenEndpointAuthMethod.client_secret_basic) |
+| revocationEndpointAuthSigningAlgValuesSupported | optional | Suppoted client authentication signing alg for revocation request. The value is required when revocationEndpointAuthMethodsSupported is `client_secret_jwt` or `private_key_jwt` |  | Set.of("RS256") |
 | authorizationCodeExpiration | optional | Expiration time for authorization code. Default is 1min. |  | Duration.ofDays(1) |
 | accessTokenExpiration | optional | Expiration time for access token. Default is 10min. |  | Duration.ofDays(1) |
 | idTokenExpiration | optional | Expiration time for id token. Default is 10min. |  | Duration.ofDays(1) |
