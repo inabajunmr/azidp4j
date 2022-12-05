@@ -1,5 +1,6 @@
 package org.azidp4j.discovery;
 
+import java.util.List;
 import java.util.Set;
 import org.azidp4j.authorize.request.Display;
 
@@ -11,6 +12,13 @@ public class DiscoveryConfigBuilder {
     private String clientRegistrationEndpoint;
     private String userInfoEndpoint;
     private Set<Display> displayValueSupported = Set.of(Display.page);
+    private Set<String> userinfoSigningAlgValuesSupported;
+    private Set<String> userinfoEncryptionAlgValuesSupported;
+    private Set<String> userinfoEncryptionEncValuesSupported;
+    private String serviceDocumentation;
+    private List<String> uiLocalesSupported;
+    private String opPolicyUri;
+    private String opTosUri;
 
     public DiscoveryConfigBuilder authorizationEndpoint(String authorizationEndpoint) {
         this.authorizationEndpoint = authorizationEndpoint;
@@ -37,8 +45,41 @@ public class DiscoveryConfigBuilder {
         return this;
     }
 
-    public DiscoveryConfigBuilder displayValueSupported(Set<Display> displayValueSupported) {
-        this.displayValueSupported = displayValueSupported;
+    public DiscoveryConfigBuilder userinfoSigningAlgValuesSupported(
+            Set<String> userinfoSigningAlgValuesSupported) {
+        this.userinfoSigningAlgValuesSupported = userinfoSigningAlgValuesSupported;
+        return this;
+    }
+
+    public DiscoveryConfigBuilder userinfoEncryptionAlgValuesSupported(
+            Set<String> userinfoEncryptionAlgValuesSupported) {
+        this.userinfoEncryptionAlgValuesSupported = userinfoEncryptionAlgValuesSupported;
+        return this;
+    }
+
+    public DiscoveryConfigBuilder userinfoEncryptionEncValuesSupported(
+            Set<String> userinfoEncryptionEncValuesSupported) {
+        this.userinfoEncryptionEncValuesSupported = userinfoEncryptionEncValuesSupported;
+        return this;
+    }
+
+    public DiscoveryConfigBuilder serviceDocumentation(String serviceDocumentation) {
+        this.serviceDocumentation = serviceDocumentation;
+        return this;
+    }
+
+    public DiscoveryConfigBuilder uiLocalesSupported(List<String> uiLocalesSupported) {
+        this.uiLocalesSupported = uiLocalesSupported;
+        return this;
+    }
+
+    public DiscoveryConfigBuilder opPolicyUri(String opPolicyUri) {
+        this.opPolicyUri = opPolicyUri;
+        return this;
+    }
+
+    public DiscoveryConfigBuilder opTosUri(String opTosUri) {
+        this.opTosUri = opTosUri;
         return this;
     }
 
@@ -49,6 +90,13 @@ public class DiscoveryConfigBuilder {
                 this.jwksEndpoint,
                 this.clientRegistrationEndpoint,
                 this.userInfoEndpoint,
-                displayValueSupported);
+                displayValueSupported,
+                userinfoSigningAlgValuesSupported,
+                userinfoEncryptionAlgValuesSupported,
+                userinfoEncryptionEncValuesSupported,
+                serviceDocumentation,
+                uiLocalesSupported,
+                opPolicyUri,
+                opTosUri);
     }
 }

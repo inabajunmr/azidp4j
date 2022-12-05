@@ -42,7 +42,8 @@ public class Discovery {
                 config.responseModesSupported,
                 "grant_types_supported",
                 config.grantTypesSupported,
-                // "acr_values_supported", null,
+                "acr_values_supported",
+                null,
                 "subject_types_supported",
                 Set.of("public"),
                 "id_token_signing_alg_values_supported",
@@ -52,29 +53,33 @@ public class Discovery {
                 "id_token_encryption_enc_values_supported",
                 Set.of(),
                 "userinfo_signing_alg_values_supported",
-                Set.of(), // TODO
+                discoveryConfig.userinfoSigningAlgValuesSupported,
                 "userinfo_encryption_alg_values_supported",
-                Set.of(), // TODO
+                discoveryConfig.userinfoEncryptionAlgValuesSupported,
                 "userinfo_encryption_enc_values_supported",
-                Set.of(), // TODO
+                discoveryConfig.userinfoEncryptionEncValuesSupported,
                 "request_object_signing_alg_values_supported",
-                Set.of(),
+                null,
                 "request_object_encryption_alg_values_supported",
-                Set.of(),
+                null,
                 "request_object_encryption_enc_values_supported",
-                Set.of(),
+                null,
                 "token_endpoint_auth_methods_supported",
                 config.tokenEndpointAuthMethodsSupported,
                 "token_endpoint_auth_signing_alg_values_supported",
                 config.tokenEndpointAuthSigningAlgValuesSupported,
-                // the value is required. // TODO
                 "display_values_supported",
                 discoveryConfig.displayValueSupported,
-                // "claim_types_supported",  null,
-                // "claims_supported", null,
-                // "service_documentation", null, // TODO
-                // "claims_locales_supported", null,
-                // "ui_locales_supported", null, // TODO
+                "claim_types_supported",
+                null,
+                "claims_supported",
+                null,
+                "service_documentation",
+                discoveryConfig.serviceDocumentation,
+                "claims_locales_supported",
+                null,
+                "ui_locales_supported",
+                discoveryConfig.uiLocalesSupported,
                 "claims_parameter_supported",
                 false,
                 "request_parameter_supported",
@@ -84,8 +89,10 @@ public class Discovery {
                 // false,
                 "require_request_uri_registration",
                 false,
-                // "op_policy_uri", null,　// TODO
-                // "op_tos_uri", null // TODO
+                "op_policy_uri",
+                discoveryConfig.opPolicyUri,
+                "op_tos_uri",
+                discoveryConfig.opTosUri,
                 "code_challenge_methods_supported",
                 Set.of(CodeChallengeMethod.PLAIN.name(), CodeChallengeMethod.S256.name()));
     }
