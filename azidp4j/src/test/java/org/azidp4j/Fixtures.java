@@ -38,6 +38,10 @@ public class Fixtures {
                 Set.of("openid", "rs:scope1"),
                 Set.of(TokenEndpointAuthMethod.client_secret_basic),
                 null,
+                Set.of(TokenEndpointAuthMethod.client_secret_basic),
+                null,
+                Set.of(TokenEndpointAuthMethod.client_secret_basic),
+                null,
                 Set.of(
                         GrantType.authorization_code,
                         GrantType.implicit,

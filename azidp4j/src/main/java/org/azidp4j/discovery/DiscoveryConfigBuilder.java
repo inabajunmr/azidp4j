@@ -11,6 +11,8 @@ public class DiscoveryConfigBuilder {
     private String jwksEndpoint;
     private String clientRegistrationEndpoint;
     private String userInfoEndpoint;
+    private String introspectionEndpoint;
+    private String revocationEndpoint;
     private Set<Display> displayValueSupported = Set.of(Display.page);
     private Set<String> userinfoSigningAlgValuesSupported;
     private Set<String> userinfoEncryptionAlgValuesSupported;
@@ -40,8 +42,23 @@ public class DiscoveryConfigBuilder {
         return this;
     }
 
+    public DiscoveryConfigBuilder displayValueSupported(Set<Display> displayValueSupported) {
+        this.displayValueSupported = displayValueSupported;
+        return this;
+    }
+
     public DiscoveryConfigBuilder userInfoEndpoint(String userInfoEndpoint) {
         this.userInfoEndpoint = userInfoEndpoint;
+        return this;
+    }
+
+    public DiscoveryConfigBuilder revocationEndpoint(String revocationEndpoint) {
+        this.revocationEndpoint = revocationEndpoint;
+        return this;
+    }
+
+    public DiscoveryConfigBuilder introspectionEndpoint(String introspectionEndpoint) {
+        this.introspectionEndpoint = introspectionEndpoint;
         return this;
     }
 
@@ -89,14 +106,16 @@ public class DiscoveryConfigBuilder {
                 this.tokenEndpoint,
                 this.jwksEndpoint,
                 this.clientRegistrationEndpoint,
+                this.revocationEndpoint,
+                this.introspectionEndpoint,
                 this.userInfoEndpoint,
-                displayValueSupported,
-                userinfoSigningAlgValuesSupported,
-                userinfoEncryptionAlgValuesSupported,
-                userinfoEncryptionEncValuesSupported,
-                serviceDocumentation,
-                uiLocalesSupported,
-                opPolicyUri,
-                opTosUri);
+                this.displayValueSupported,
+                this.userinfoSigningAlgValuesSupported,
+                this.userinfoEncryptionAlgValuesSupported,
+                this.userinfoEncryptionEncValuesSupported,
+                this.serviceDocumentation,
+                this.uiLocalesSupported,
+                this.opPolicyUri,
+                this.opTosUri);
     }
 }

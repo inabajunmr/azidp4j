@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.SigningAlgorithm;
+import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.azidp4j.discovery.DiscoveryConfig;
 import org.junit.jupiter.api.Test;
 
@@ -164,6 +165,75 @@ class AzIdPBuilderTest {
             fail();
         } catch (IllegalArgumentException e) {
             assertEquals(e.getMessage(), "none response_type and others can't be combined");
+        }
+    }
+
+    @Test
+    void build_TokenEndpointAuthMethodsSupportedRequiredSigningAlg() {
+        try {
+            AzIdP.initInMemory()
+                    .tokenEndpointAuthMethodsSupported(
+                            Set.of(TokenEndpointAuthMethod.client_secret_jwt))
+                    .issuer("https://example.com")
+                    .jwkSet(new JWKSet())
+                    .idTokenKidSupplier((alg) -> "kid")
+                    .staticScopeAudienceMapper("audience")
+                    .scopesSupported(Set.of("openid"))
+                    .defaultScopes(Set.of())
+                    .build();
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals(
+                    e.getMessage(),
+                    "When tokenEndpointAuthMethodsSupported is private_key_jwt or"
+                            + " client_secret_jwt, tokenEndpointAuthSigningAlgValuesSupported is"
+                            + " required");
+        }
+    }
+
+    @Test
+    void build_IntrospectionEndpointAuthMethodsSupportedRequiredSigningAlg() {
+        try {
+            AzIdP.initInMemory()
+                    .introspectionEndpointAuthMethodsSupported(
+                            Set.of(TokenEndpointAuthMethod.client_secret_jwt))
+                    .issuer("https://example.com")
+                    .jwkSet(new JWKSet())
+                    .idTokenKidSupplier((alg) -> "kid")
+                    .staticScopeAudienceMapper("audience")
+                    .scopesSupported(Set.of("openid"))
+                    .defaultScopes(Set.of())
+                    .build();
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals(
+                    e.getMessage(),
+                    "When introspectionEndpointAuthMethodsSupported is private_key_jwt or"
+                        + " client_secret_jwt, introspectionEndpointAuthSigningAlgValuesSupported"
+                        + " is required");
+        }
+    }
+
+    @Test
+    void build_RevocationEndpointAuthMethodsSupportedRequiredSigningAlg() {
+        try {
+            AzIdP.initInMemory()
+                    .revocationEndpointAuthMethodsSupported(
+                            Set.of(TokenEndpointAuthMethod.client_secret_jwt))
+                    .issuer("https://example.com")
+                    .jwkSet(new JWKSet())
+                    .idTokenKidSupplier((alg) -> "kid")
+                    .staticScopeAudienceMapper("audience")
+                    .scopesSupported(Set.of("openid"))
+                    .defaultScopes(Set.of())
+                    .build();
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals(
+                    e.getMessage(),
+                    "When revocationEndpointAuthMethodsSupported is private_key_jwt or"
+                        + " client_secret_jwt, revocationEndpointAuthSigningAlgValuesSupported is"
+                        + " required");
         }
     }
 }

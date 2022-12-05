@@ -15,6 +15,10 @@ public class AzIdPConfig {
     public final Set<String> defaultScope;
     public final Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported;
     public final Set<String> tokenEndpointAuthSigningAlgValuesSupported;
+    public final Set<TokenEndpointAuthMethod> introspectionEndpointAuthMethodsSupported;
+    public final Set<String> introspectionEndpointAuthSigningAlgValuesSupported;
+    public final Set<TokenEndpointAuthMethod> revocationEndpointAuthMethodsSupported;
+    public final Set<String> revocationEndpointAuthSigningAlgValuesSupported;
     public final Set<GrantType> grantTypesSupported;
     public final Set<Set<ResponseType>> responseTypeSupported;
     public final Set<ResponseMode> responseModesSupported;
@@ -30,6 +34,10 @@ public class AzIdPConfig {
             Set<String> defaultScope,
             Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported,
             Set<String> tokenEndpointAuthSigningAlgValuesSupported,
+            Set<TokenEndpointAuthMethod> introspectionEndpointAuthMethodsSupported,
+            Set<String> introspectionEndpointAuthSigningAlgValuesSupported,
+            Set<TokenEndpointAuthMethod> revocationEndpointAuthMethodsSupported,
+            Set<String> revocationEndpointAuthSigningAlgValuesSupported,
             Set<GrantType> grantTypesSupported,
             Set<Set<ResponseType>> responseTypeSupported,
             Set<ResponseMode> responseModesSupported,
@@ -44,6 +52,12 @@ public class AzIdPConfig {
         this.tokenEndpointAuthMethodsSupported = tokenEndpointAuthMethodsSupported;
         this.tokenEndpointAuthSigningAlgValuesSupported =
                 tokenEndpointAuthSigningAlgValuesSupported;
+        this.introspectionEndpointAuthMethodsSupported = introspectionEndpointAuthMethodsSupported;
+        this.introspectionEndpointAuthSigningAlgValuesSupported =
+                introspectionEndpointAuthSigningAlgValuesSupported;
+        this.revocationEndpointAuthMethodsSupported = revocationEndpointAuthMethodsSupported;
+        this.revocationEndpointAuthSigningAlgValuesSupported =
+                revocationEndpointAuthSigningAlgValuesSupported;
         this.grantTypesSupported = grantTypesSupported;
         this.responseTypeSupported = responseTypeSupported;
         this.responseModesSupported = responseModesSupported;
