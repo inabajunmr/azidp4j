@@ -178,62 +178,11 @@ public class DynamicClientRegistration {
                         Set.of(config.issuer),
                         null);
         var clientConfigurationEndpoint = clientConfigurationEndpointIssuer.apply(client.clientId);
-        var res =
-                MapUtil.nullRemovedMap(
-                        "client_id",
-                        client.clientId,
-                        "client_secret",
-                        client.clientSecret,
-                        "registration_access_token",
-                        clientConfigurationEndpoint != null ? at.getToken() : null,
-                        "registration_client_uri",
-                        clientConfigurationEndpoint,
-                        "redirect_uris",
-                        client.redirectUris,
-                        "grant_types",
-                        client.grantTypes.stream().map(Enum::name).collect(Collectors.toSet()),
-                        "response_types",
-                        client.responseTypes.stream()
-                                .map(
-                                        r -> {
-                                            var joiner = new StringJoiner(" ");
-                                            r.forEach(v -> joiner.add(v.name()));
-                                            return joiner.toString();
-                                        })
-                                .collect(Collectors.toSet()),
-                        "application_type",
-                        client.applicationType.name().toLowerCase(),
-                        "client_uri",
-                        client.clientUri,
-                        "logo_uri",
-                        client.logoUri,
-                        "scope",
-                        client.scope,
-                        "contacts",
-                        client.contacts,
-                        "jwks_uri",
-                        client.jwksUri,
-                        "jwks",
-                        client.jwks != null ? client.jwks.toJSONObject() : null,
-                        "software_id",
-                        client.softwareId,
-                        "software_version",
-                        client.softwareVersion,
-                        "token_endpoint_auth_method",
-                        client.tokenEndpointAuthMethod.name(),
-                        "token_endpoint_auth_signing_alg",
-                        client.tokenEndpointAuthSigningAlg,
-                        "id_token_signed_response_alg",
-                        client.idTokenSignedResponseAlg.name(),
-                        "default_max_age",
-                        client.defaultMaxAge,
-                        "require_auth_time",
-                        client.requireAuthTime,
-                        "initiate_login_uri",
-                        client.initiateLoginUri);
-        Optional.ofNullable(client.clientName).ifPresent(v -> res.putAll(v.toMap()));
-        Optional.ofNullable(client.tosUri).ifPresent(v -> res.putAll(v.toMap()));
-        Optional.ofNullable(client.policyUri).ifPresent(v -> res.putAll(v.toMap()));
+        var res = response(client);
+        Optional.ofNullable(clientConfigurationEndpoint)
+                .ifPresent(v -> res.put("registration_client_uri", v));
+        Optional.ofNullable(clientConfigurationEndpoint)
+                .ifPresent(v -> res.put("registration_access_token", at.getToken()));
         return new ClientRegistrationResponse(201, res);
     }
 
@@ -244,10 +193,14 @@ public class DynamicClientRegistration {
 
     public ClientReadResponse read(String clientId) {
         var clientOpt = clientStore.find(clientId);
-        if (!clientOpt.isPresent()) {
+        if (clientOpt.isEmpty()) {
             return new ClientReadResponse(404, null);
         }
         var client = clientOpt.get();
+        return new ClientReadResponse(200, response(client));
+    }
+
+    private Map<String, Object> response(Client client) {
         var res =
                 MapUtil.nullRemovedMap(
                         "client_id",
@@ -300,6 +253,6 @@ public class DynamicClientRegistration {
         Optional.ofNullable(client.clientName).ifPresent(v -> res.putAll(v.toMap()));
         Optional.ofNullable(client.tosUri).ifPresent(v -> res.putAll(v.toMap()));
         Optional.ofNullable(client.policyUri).ifPresent(v -> res.putAll(v.toMap()));
-        return new ClientReadResponse(200, res);
+        return res;
     }
 }

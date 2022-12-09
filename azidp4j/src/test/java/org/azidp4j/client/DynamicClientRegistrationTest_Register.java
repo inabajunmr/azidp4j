@@ -3,8 +3,6 @@ package org.azidp4j.client;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.jwk.Curve;
-import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -21,12 +19,11 @@ import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.util.MapUtil;
 import org.junit.jupiter.api.Test;
 
-class DynamicClientRegistrationTest_register {
+class DynamicClientRegistrationTest_Register {
 
     @Test
     void success_All_JwksUri() throws JOSEException {
         // setup
-        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var config = Fixtures.azIdPConfig();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
@@ -121,7 +118,6 @@ class DynamicClientRegistrationTest_register {
     @Test
     void success_All_Jwks() throws JOSEException {
         // setup
-        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var config = Fixtures.azIdPConfig();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
@@ -247,7 +243,6 @@ class DynamicClientRegistrationTest_register {
     @Test
     void success_Default() throws JOSEException {
         // setup
-        var es256 = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var config = Fixtures.azIdPConfig();
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
@@ -286,7 +281,7 @@ class DynamicClientRegistrationTest_register {
     }
 
     @Test
-    void failure_UnsupportedTokenEndpointAuthMethod() throws JOSEException {
+    void failure_UnsupportedTokenEndpointAuthMethod() {
         // setup
         var config = Fixtures.azIdPConfig();
         var accessTokenStore = new InMemoryAccessTokenStore();
@@ -393,6 +388,147 @@ class DynamicClientRegistrationTest_register {
                 registration.register(
                         new ClientRequest(
                                 Map.of("token_endpoint_auth_method", "client_secret_jwt")));
+        assertEquals(400, response.status);
+        assertEquals("invalid_client_metadata", response.body.get("error"));
+    }
+
+    @Test
+    void failure_IllegalGrantType() {
+        // setup
+        var config = Fixtures.azIdPConfig();
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        null,
+                        new InMemoryAccessTokenService(accessTokenStore),
+                        (clientId) -> "http://localhost:8080/client/" + clientId);
+
+        // exercise
+        var response =
+                registration.register(
+                        new ClientRequest(
+                                Map.of(
+                                        "grant_types",
+                                        Set.of("authorization_code", "implicit", "illegal"))));
+
+        // verify
+        assertEquals(400, response.status);
+        assertEquals("invalid_client_metadata", response.body.get("error"));
+    }
+
+    @Test
+    void failure_IllegalResponseType() {
+        // setup
+        var config = Fixtures.azIdPConfig();
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        null,
+                        new InMemoryAccessTokenService(accessTokenStore),
+                        (clientId) -> "http://localhost:8080/client/" + clientId);
+
+        // exercise
+        var response =
+                registration.register(
+                        new ClientRequest(
+                                Map.of("response_types", Set.of("code", "token", "illegal"))));
+
+        // verify
+        assertEquals(400, response.status);
+        assertEquals("invalid_client_metadata", response.body.get("error"));
+    }
+
+    @Test
+    void failure_IllegalApplicationType() {
+        // setup
+        var config = Fixtures.azIdPConfig();
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        null,
+                        new InMemoryAccessTokenService(accessTokenStore),
+                        (clientId) -> "http://localhost:8080/client/" + clientId);
+
+        // exercise
+        var response =
+                registration.register(new ClientRequest(Map.of("application_type", "illegal")));
+
+        // verify
+        assertEquals(400, response.status);
+        assertEquals("invalid_client_metadata", response.body.get("error"));
+    }
+
+    @Test
+    void failure_TokenEndpointAuthMethod() {
+        // setup
+        var config = Fixtures.azIdPConfig();
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        null,
+                        new InMemoryAccessTokenService(accessTokenStore),
+                        (clientId) -> "http://localhost:8080/client/" + clientId);
+
+        // exercise
+        var response =
+                registration.register(
+                        new ClientRequest(Map.of("token_endpoint_auth_method", "illegal")));
+
+        // verify
+        assertEquals(400, response.status);
+        assertEquals("invalid_client_metadata", response.body.get("error"));
+    }
+
+    @Test
+    void failure_IllegalIdTokenSignedResponseAlg() {
+        // setup
+        var config = Fixtures.azIdPConfig();
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        null,
+                        new InMemoryAccessTokenService(accessTokenStore),
+                        (clientId) -> "http://localhost:8080/client/" + clientId);
+
+        // exercise
+        var response =
+                registration.register(
+                        new ClientRequest(Map.of("id_token_signed_response_alg", "illegal")));
+
+        // verify
+        assertEquals(400, response.status);
+        assertEquals("invalid_client_metadata", response.body.get("error"));
+    }
+
+    @Test
+    void failure_CustomizableClientValidatorError() {
+        // setup
+        var config = Fixtures.azIdPConfig();
+        var accessTokenStore = new InMemoryAccessTokenStore();
+        var registration =
+                new DynamicClientRegistration(
+                        config,
+                        new InMemoryClientStore(),
+                        client -> {
+                            throw new IllegalArgumentException();
+                        },
+                        new InMemoryAccessTokenService(accessTokenStore),
+                        (clientId) -> "http://localhost:8080/client/" + clientId);
+
+        // exercise
+        var response = registration.register(new ClientRequest(Map.of()));
+
+        // verify
         assertEquals(400, response.status);
         assertEquals("invalid_client_metadata", response.body.get("error"));
     }
