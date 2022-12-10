@@ -38,7 +38,7 @@ Application needs to implement...
 
 ### Installation
 
-[Maven Repository](https://mvnrepository.com/artifact/io.github.inabajunmr/AzIdP4J/0.0.0-alpha+001)
+[Maven Repository](https://mvnrepository.com/artifact/io.github.inabajunmr/AzIdP4J/0.0.0-alpha+002)
 
 #### Maven
 
@@ -46,20 +46,20 @@ Application needs to implement...
 <dependency>
     <groupId>io.github.inabajunmr</groupId>
     <artifactId>AzIdP4J</artifactId>
-    <version>0.0.0-alpha+001</version>
+    <version>0.0.0-alpha+002</version>
 </dependency>
 ```
 
 #### Gradle
 
 ```
-implementation group: 'io.github.inabajunmr', name: 'AzIdP4J', version: '0.0.0-alpha+001'
+implementation group: 'io.github.inabajunmr', name: 'AzIdP4J', version: '0.0.0-alpha+002'
 ```
 
 #### Gralde(Kotlin)
 
 ```
-implementation("io.github.inabajunmr:AzIdP4J:0.0.0-alpha+001")
+implementation("io.github.inabajunmr:AzIdP4J:0.0.0-alpha+002")
 ```
 
 ### Configuration

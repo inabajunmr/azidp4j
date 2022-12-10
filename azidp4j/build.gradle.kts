@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "io.github.inabajunmr"
-version = "0.0.0-alpha+001"
+version = "0.0.0-alpha+002"
 
 repositories {
     mavenCentral()
