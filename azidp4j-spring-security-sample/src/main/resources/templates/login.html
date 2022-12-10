@@ -5,7 +5,7 @@
 <body>
 <h1 th:text="#{login.header}">Login</h1>
 <div th:if="${param.error}">
-    Invalid username and password.
+    <p th:text="${#httpSession.getAttribute('SPRING_SECURITY_LAST_EXCEPTION').getMessage()}"></p>
 </div>
 <form th:action="@{/login}" method="post">
     <div class="form-group">

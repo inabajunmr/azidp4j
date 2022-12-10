@@ -91,7 +91,7 @@ public class AuthorizationEndpointHandler {
             case errorPage -> {
                 // Error but can't redirect as authorization response.
                 // ex. redirect_uri is not allowed.
-                return errorPage(req, response.errorPage);
+                return errorPage(req, res, response.errorPage);
             }
             case additionalPage -> {
                 // When authorization request processing needs additional action.
@@ -184,9 +184,10 @@ public class AuthorizationEndpointHandler {
         }
     }
 
-    private String errorPage(HttpServletRequest req, ErrorPage errorPage) {
+    private String errorPage(HttpServletRequest req, HttpServletResponse res, ErrorPage errorPage) {
         var session = req.getSession();
         var uiLocale = uiLocales(errorPage.uiLocales);
+        localeResolver.setLocale(req, res, uiLocale);
         var message =
                 messages.getMessage(
                         "exception.authorization_request.invalid",
@@ -194,18 +195,6 @@ public class AuthorizationEndpointHandler {
                         uiLocale);
         session.setAttribute(
                 WebAttributes.AUTHENTICATION_EXCEPTION, new InnerAuthenticationException(message));
-
-        switch (errorPage.errorType) {
-            case invalid_response_type -> session.setAttribute(
-                    WebAttributes.AUTHENTICATION_EXCEPTION,
-                    new InnerAuthenticationException(
-                            "RP send wrong authorization request. debug:" + " no_response_type"));
-            default -> session.setAttribute(
-                    WebAttributes.AUTHENTICATION_EXCEPTION,
-                    new InnerAuthenticationException(
-                            "RP send wrong authorization request. debug: "
-                                    + errorPage.errorType.name()));
-        }
         return "redirect:/login?error";
     }
 
