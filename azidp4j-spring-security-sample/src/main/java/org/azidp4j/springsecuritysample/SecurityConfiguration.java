@@ -44,7 +44,7 @@ public class SecurityConfiguration {
                                         .anyRequest()
                                         .authenticated())
                 .httpBasic(withDefaults())
-                .formLogin(withDefaults())
+                .formLogin((form) -> form.loginPage("/login").permitAll())
                 .oauth2ResourceServer(oauth2 -> oauth2.bearerTokenResolver(resolver).opaqueToken());
         http.httpBasic().disable();
         http.csrf()

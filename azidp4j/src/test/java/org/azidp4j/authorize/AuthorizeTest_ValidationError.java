@@ -7,6 +7,7 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
@@ -63,12 +64,14 @@ class AuthorizeTest_ValidationError {
                         .scope("rs:scope1")
                         .authenticatedUserId("username")
                         .state("xyz")
+                        .uiLocales("en ja")
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.errorPage);
         assertEquals(
                 response.errorPage.errorType,
                 AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
+        assertEquals(List.of("en", "ja"), response.errorPage.uiLocales);
         assertEquals(response.errorDescription, "response_type parse error");
     }
 

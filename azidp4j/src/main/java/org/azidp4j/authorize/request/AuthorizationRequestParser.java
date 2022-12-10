@@ -16,6 +16,7 @@ public class AuthorizationRequestParser {
         String responseMode = req.queryParameters.get("response_mode");
         String nonce = req.queryParameters.get("nonce");
         String maxAge = req.queryParameters.get("max_age");
+        String uiLocales = req.queryParameters.get("ui_locales");
         String request = req.queryParameters.get("request");
         String requestUri = req.queryParameters.get("request_uri");
         String registration = req.queryParameters.get("registration");
@@ -36,6 +37,7 @@ public class AuthorizationRequestParser {
                 .responseMode(responseMode)
                 .nonce(nonce)
                 .maxAge(maxAge)
+                .uiLocales(uiLocales)
                 .prompt(prompt)
                 .display(display)
                 .request(request)

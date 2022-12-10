@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.jwk.JWKSet;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
@@ -60,6 +61,7 @@ class AuthorizeTest_AdditionalPage {
                             .redirectUri("http://rp1.example.com")
                             .scope("rs:scope1")
                             .state("xyz")
+                            .uiLocales("ja en")
                             .build();
 
             // exercise
@@ -69,6 +71,7 @@ class AuthorizeTest_AdditionalPage {
             assertEquals(NextAction.additionalPage, response.next);
             assertEquals(Prompt.login, response.additionalPage.prompt);
             assertEquals(Display.page, response.additionalPage.display);
+            assertEquals(List.of("ja", "en"), response.additionalPage.uiLocales);
         }
         // no consented scope
         {

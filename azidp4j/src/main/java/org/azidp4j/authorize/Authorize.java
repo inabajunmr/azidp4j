@@ -2,6 +2,8 @@ package org.azidp4j.authorize;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
@@ -56,22 +58,26 @@ public class Authorize {
                 && authorizationRequest.authTime == null) {
             throw new AssertionError("When user is authenticated, must set authTime.");
         }
+        var locales = parseUiLocales(authorizationRequest.uiLocales);
         Set<ResponseType> responseType;
         try {
             responseType = ResponseType.parse(authorizationRequest.responseType);
         } catch (IllegalArgumentException e) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
+                    locales,
                     "response_type parse error");
         }
         if (responseType.isEmpty()) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
+                    locales,
                     "response_type parse error");
         }
         if (!config.responseTypeSupported.contains(responseType)) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.unsupported_response_type,
+                    locales,
                     "azidp doesn't support response_type");
         }
 
@@ -81,23 +87,29 @@ public class Authorize {
         } catch (IllegalArgumentException e) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_mode,
+                    locales,
                     "response_mode parse error");
         }
         if (!config.responseModesSupported.contains(responseMode)) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.unsupported_response_mode,
+                    locales,
                     "azidp doesn't support response_mode");
         }
 
         // validate client
         if (authorizationRequest.clientId == null) {
             return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.client_id_required, "client_id required");
+                    AuthorizationErrorTypeWithoutRedirect.client_id_required,
+                    locales,
+                    "client_id required");
         }
         var clientOpt = clientStore.find(authorizationRequest.clientId);
         if (clientOpt.isEmpty()) {
             return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.client_not_found, "client not found");
+                    AuthorizationErrorTypeWithoutRedirect.client_not_found,
+                    locales,
+                    "client not found");
         }
 
         var client = clientOpt.get();
@@ -106,11 +118,13 @@ public class Authorize {
         if (authorizationRequest.redirectUri == null) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri,
+                    locales,
                     "redirect_uri required");
         }
         if (!client.redirectUris.contains(authorizationRequest.redirectUri)) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.redirect_uri_not_allowed,
+                    locales,
                     "client doesn't allow redirect_uri");
         }
         URI redirectUri;
@@ -315,11 +329,11 @@ public class Authorize {
             }
             if (prompt.contains(Prompt.login)) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.login, display, client.clientId, scope, null);
+                        Prompt.login, display, client.clientId, scope, locales, null);
             }
             if (authorizationRequest.authenticatedUserId == null) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.login, display, client.clientId, scope, null);
+                        Prompt.login, display, client.clientId, scope, locales, null);
             }
             if (authorizationRequest.maxAge != null || client.defaultMaxAge != null) {
                 try {
@@ -340,7 +354,7 @@ public class Authorize {
                                     "prompt is none but authTime over");
                         } else {
                             return AuthorizationResponse.additionalPage(
-                                    Prompt.login, display, client.clientId, scope, null);
+                                    Prompt.login, display, client.clientId, scope, locales, null);
                         }
                     }
                 } catch (NumberFormatException e) {
@@ -357,15 +371,15 @@ public class Authorize {
             }
             if (prompt.contains(Prompt.consent)) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.consent, display, client.clientId, scope, null);
+                        Prompt.consent, display, client.clientId, scope, locales, null);
             }
             if (prompt.contains(Prompt.select_account)) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.select_account, display, client.clientId, scope, null);
+                        Prompt.select_account, display, client.clientId, scope, locales, null);
             }
             if (!authorizationRequest.allScopeConsented()) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.consent, display, client.clientId, scope, null);
+                        Prompt.consent, display, client.clientId, scope, locales, null);
             }
         }
 
@@ -452,5 +466,13 @@ public class Authorize {
                         authorizationRequest.state),
                 responseMode,
                 null);
+    }
+
+    private List<String> parseUiLocales(String uiLocales) {
+        if (uiLocales == null) {
+            return List.of();
+        }
+
+        return Arrays.stream(uiLocales.replaceAll(" +", " ").split(" ")).toList();
     }
 }

@@ -2,17 +2,21 @@ package org.azidp4j.springsecuritysample.handler;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.request.AuthorizationRequest;
 import org.azidp4j.authorize.response.AdditionalPage;
-import org.azidp4j.authorize.response.AuthorizationResponse;
+import org.azidp4j.authorize.response.ErrorPage;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.springsecuritysample.user.UserStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.savedrequest.SimpleSavedRequest;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Controller
@@ -34,6 +39,10 @@ public class AuthorizationEndpointHandler {
 
     @Autowired UserStore userStore;
 
+    @Autowired LocaleResolver localeResolver;
+
+    @Autowired MessageSource messages;
+
     /**
      * @see <a
      *     href="https://datatracker.ietf.org/doc/html/rfc6749#section-3.1">https://datatracker.ietf.org/doc/html/rfc6749#section-3.1</a>
@@ -44,7 +53,9 @@ public class AuthorizationEndpointHandler {
      */
     @GetMapping("/authorize")
     public String authorizationEndpoint(
-            @RequestParam Map<String, String> params, HttpServletRequest req) {
+            @RequestParam Map<String, String> params,
+            HttpServletRequest req,
+            HttpServletResponse res) {
         LOGGER.info(AuthorizationEndpointHandler.class.getName());
 
         // When user is unauthenticated, azidp4j accepts null as authenticatedUserName.
@@ -80,19 +91,24 @@ public class AuthorizationEndpointHandler {
             case errorPage -> {
                 // Error but can't redirect as authorization response.
                 // ex. redirect_uri is not allowed.
-                return errorPage(req, response);
+                return errorPage(req, res, response.errorPage);
             }
             case additionalPage -> {
                 // When authorization request processing needs additional action.
                 // ex. user authentication or request consent.
-                return additionalPage(req, authzReq, response.additionalPage);
+                return additionalPage(req, res, authzReq, response.additionalPage);
             }
             default -> throw new AssertionError();
         }
     }
 
-    private static String additionalPage(
-            HttpServletRequest req, AuthorizationRequest authzReq, AdditionalPage additionalPage) {
+    private String additionalPage(
+            HttpServletRequest req,
+            HttpServletResponse res,
+            AuthorizationRequest authzReq,
+            AdditionalPage additionalPage) {
+        var uiLocale = uiLocales(additionalPage.uiLocales);
+        localeResolver.setLocale(req, res, uiLocale);
         switch (additionalPage.prompt) {
             case login -> {
                 var queryParamsForSavedAuthorizationRequest =
@@ -168,20 +184,30 @@ public class AuthorizationEndpointHandler {
         }
     }
 
-    private static String errorPage(HttpServletRequest req, AuthorizationResponse response) {
+    private String errorPage(HttpServletRequest req, HttpServletResponse res, ErrorPage errorPage) {
         var session = req.getSession();
-        switch (response.errorPage.errorType) {
-            case invalid_response_type -> session.setAttribute(
-                    WebAttributes.AUTHENTICATION_EXCEPTION,
-                    new InnerAuthenticationException(
-                            "RP send wrong authorization request. debug:" + " no_response_type"));
-            default -> session.setAttribute(
-                    WebAttributes.AUTHENTICATION_EXCEPTION,
-                    new InnerAuthenticationException(
-                            "RP send wrong authorization request. debug: "
-                                    + response.errorPage.errorType.name()));
-        }
+        var uiLocale = uiLocales(errorPage.uiLocales);
+        localeResolver.setLocale(req, res, uiLocale);
+        var message =
+                messages.getMessage(
+                        "exception.authorization_request.invalid",
+                        new String[] {errorPage.errorType.name()},
+                        uiLocale);
+        session.setAttribute(
+                WebAttributes.AUTHENTICATION_EXCEPTION, new InnerAuthenticationException(message));
         return "redirect:/login?error";
+    }
+
+    private static Locale uiLocales(List<String> uiLocales) {
+        for (String uiLocale : uiLocales) {
+            if (uiLocale.startsWith("ja")) {
+                return Locale.JAPANESE;
+            }
+            if (uiLocale.startsWith("en")) {
+                return Locale.ENGLISH;
+            }
+        }
+        return Locale.ENGLISH;
     }
 }
 
