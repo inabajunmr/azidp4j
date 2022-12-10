@@ -16,6 +16,7 @@ import org.azidp4j.springsecuritysample.user.UserStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.savedrequest.SimpleSavedRequest;
@@ -39,6 +40,8 @@ public class AuthorizationEndpointHandler {
     @Autowired UserStore userStore;
 
     @Autowired LocaleResolver localeResolver;
+
+    @Autowired MessageSource messages;
 
     /**
      * @see <a
@@ -106,7 +109,6 @@ public class AuthorizationEndpointHandler {
             AdditionalPage additionalPage) {
         var uiLocale = uiLocales(additionalPage.uiLocales);
         localeResolver.setLocale(req, res, uiLocale);
-        // TODO login locale
         switch (additionalPage.prompt) {
             case login -> {
                 var queryParamsForSavedAuthorizationRequest =
@@ -184,11 +186,14 @@ public class AuthorizationEndpointHandler {
 
     private String errorPage(HttpServletRequest req, ErrorPage errorPage) {
         var session = req.getSession();
-        var locale = "ja";
         var uiLocale = uiLocales(errorPage.uiLocales);
-
-        // TODO locale？
-        // https://www.baeldung.com/java-localize-exception-messages
+        var message =
+                messages.getMessage(
+                        "exception.authorization_request.invalid",
+                        new String[] {errorPage.errorType.name()},
+                        uiLocale);
+        session.setAttribute(
+                WebAttributes.AUTHENTICATION_EXCEPTION, new InnerAuthenticationException(message));
 
         switch (errorPage.errorType) {
             case invalid_response_type -> session.setAttribute(
