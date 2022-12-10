@@ -129,15 +129,15 @@ public class AzIdPConfiguration {
                         + client.body.get("client_id")
                         + "&redirect_uri="
                         + URLEncoder.encode(
-                                "http://client.example.com/callback1", StandardCharsets.UTF_8)
-                        + "&scope=scope1");
+                                "https://client.example.com/callback1", StandardCharsets.UTF_8)
+                        + "&scope=scope1&ui_locales=ja");
         System.out.println(
                 "curl -X POST -u "
                         + client.body.get("client_id")
                         + ":"
                         + client.body.get("client_secret")
                         + " -d 'grant_type=authorization_code' -d"
-                        + " 'redirect_uri=http://client.example.com/callback1' -d 'code=xxx'"
+                        + " 'redirect_uri=https://client.example.com/callback1' -d 'code=xxx'"
                         + " "
                         + endpoint
                         + "token");
