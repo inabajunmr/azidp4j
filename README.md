@@ -178,3 +178,7 @@ at azidp4j/build.gradle.kts version
 ```
 ./gradlew azidp4j:publish
 ```
+
+### release
+
+https://s01.oss.sonatype.org/
