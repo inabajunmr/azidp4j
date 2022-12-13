@@ -39,6 +39,7 @@ AzIdP#authorize accept following parameters.
     * Last user authenticated time. If no user authenticated, specify null.
 * queryParameters
     * Authorization request query parameters map.
+    * see [Authorization Request Supported parameters](#authorization-request-supported-parameters)
 
 ```java
 // When user authenticated
@@ -59,6 +60,24 @@ var params = // convert http request query parameters to Map<String, String>;
 var authzReq = new AuthorizationRequest(null, null, null, params);
 var response = azIdP.authorize(authzReq);
 ```
+
+#### Authorization Request Supported parameters
+
+| name | optional | description |
+| --- | --- | --- |
+| response_type | required | code / token / id_token / code token / code id_token / id_token token / code id_token token |
+| client_id | required |  |
+| redirect_uri | required | AzIdP4J always requires redirect_uri and requires exactly match against registered. |
+| scope | optional | If the value is omitted, AzIdP4J uses defined [defaultScopes](config.md). |
+| state | optional |  |
+| response_mode | optional | query / fragment |
+| nonce | optional | The value is required when response_type contains id_token. |
+| prompt | optional | none / login / consent / select_account |
+| display | optional | page / popup / touch / wrap |
+| max_age | optional |  |
+| ui_locales | optional |  |
+| code_challenge | optional |  |
+| code_challenge_method | optional | S256 / plain |
 
 ### Response
 
