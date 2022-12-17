@@ -5,6 +5,7 @@ plugins {
     id("maven-publish")
     id("signing")
     id("jacoco")
+    id("pmd")
 }
 
 group = "io.github.inabajunmr"
@@ -44,6 +45,10 @@ spotless {
     java {
         googleJavaFormat("1.15.0").aosp().reflowLongStrings()
     }
+}
+
+pmd {
+    isIgnoreFailures = true
 }
 
 // https://docs.gradle.org/current/userguide/publishing_maven.html
