@@ -272,6 +272,14 @@ AzIdP#introspect accept following parameters.
 
 * bodyParameters
   * Token request body parameters map.
+  * see [Introspection Request Supported parameters](#introspection-request-supported-parameters)
+
+#### Introspection Request Supported parameters
+
+| name | optional | description |
+| --- | --- | --- |
+| token | required |  |
+| token_type_hint | optional |  |
 
 ### Response
 
@@ -307,6 +315,14 @@ AzIdP#revoke accept following parameters.
   * Authenticated client that send token request. If no client authenticated, specify null.
 * bodyParameters
   * Token request body parameters map.
+  * see [Revocation Request Supported parameters](#revocation-request-supported-parameters)
+
+#### Revocation Request Supported parameters
+
+| name | optional | description |
+| --- | --- | --- |
+| token | required |  |
+| token_type_hint | optional |  |
 
 ### Response
 
