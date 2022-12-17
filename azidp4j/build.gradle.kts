@@ -49,6 +49,7 @@ spotless {
 
 pmd {
     isIgnoreFailures = true
+    ruleSets = listOf("$rootDir/pmd/basic.xml")
 }
 
 // https://docs.gradle.org/current/userguide/publishing_maven.html
