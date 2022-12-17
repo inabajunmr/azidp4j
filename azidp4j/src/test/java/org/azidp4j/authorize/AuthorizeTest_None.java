@@ -92,7 +92,7 @@ class AuthorizeTest_None {
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .build();

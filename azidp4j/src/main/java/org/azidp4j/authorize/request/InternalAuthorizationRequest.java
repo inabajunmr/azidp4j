@@ -6,7 +6,7 @@ import java.util.Set;
 public class InternalAuthorizationRequest {
 
     /** Authenticated user identifier (not authorization request parameter) */
-    public final String authenticatedUserId;
+    public final String authenticatedUserSubject;
 
     /** User consented scope (not authorization request parameter) */
     public final Set<String> consentedScope;
@@ -87,7 +87,7 @@ public class InternalAuthorizationRequest {
     }
 
     private InternalAuthorizationRequest(
-            String authenticatedUserId,
+            String authenticatedUserSubject,
             Set<String> consentedScope,
             Long authTime,
             String responseType,
@@ -106,7 +106,7 @@ public class InternalAuthorizationRequest {
             String registration,
             String codeChallenge,
             String codeChallengeMethod) {
-        this.authenticatedUserId = authenticatedUserId;
+        this.authenticatedUserSubject = authenticatedUserSubject;
         this.consentedScope = consentedScope;
         this.authTime = authTime;
         this.responseType = responseType;
@@ -129,7 +129,7 @@ public class InternalAuthorizationRequest {
 
     public static class Builder {
 
-        private String authenticatedUserId;
+        private String authenticatedUserSubject;
         private Set<String> consentedScope;
         private Long authTime;
         private String responseType;
@@ -151,8 +151,8 @@ public class InternalAuthorizationRequest {
 
         private Builder() {}
 
-        public Builder authenticatedUserId(String authenticatedUserId) {
-            this.authenticatedUserId = authenticatedUserId;
+        public Builder authenticatedUserSubject(String authenticatedUserSubject) {
+            this.authenticatedUserSubject = authenticatedUserSubject;
             return this;
         }
 
@@ -248,7 +248,7 @@ public class InternalAuthorizationRequest {
 
         public InternalAuthorizationRequest build() {
             return new InternalAuthorizationRequest(
-                    authenticatedUserId,
+                    authenticatedUserSubject,
                     consentedScope,
                     authTime,
                     responseType,

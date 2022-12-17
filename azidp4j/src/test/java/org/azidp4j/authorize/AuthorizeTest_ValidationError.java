@@ -62,7 +62,7 @@ class AuthorizeTest_ValidationError {
                         .clientId(client.clientId)
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .uiLocales("en ja")
                         .build();
@@ -84,7 +84,7 @@ class AuthorizeTest_ValidationError {
                         .responseType("illegal")
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
@@ -106,7 +106,7 @@ class AuthorizeTest_ValidationError {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .display("invalid")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .build();
 
@@ -132,7 +132,7 @@ class AuthorizeTest_ValidationError {
                         .responseType("code")
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
@@ -152,7 +152,7 @@ class AuthorizeTest_ValidationError {
                         .clientId("unknown")
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
@@ -172,7 +172,7 @@ class AuthorizeTest_ValidationError {
                         .clientId(client.clientId)
                         .redirectUri("http://not.authorized.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
@@ -191,7 +191,7 @@ class AuthorizeTest_ValidationError {
                         .responseType("code")
                         .clientId(client.clientId)
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
@@ -211,7 +211,7 @@ class AuthorizeTest_ValidationError {
                         .clientId(client.clientId)
                         .redirectUri("http://rp1.example.com")
                         .scope("invalid")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("invalid"))
                         .state("xyz")
                         .build();
@@ -237,7 +237,7 @@ class AuthorizeTest_ValidationError {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .consentedScope(Set.of("rs:scope1"))
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
@@ -264,7 +264,7 @@ class AuthorizeTest_ValidationError {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .consentedScope(Set.of("rs:scope1"))
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
@@ -289,7 +289,7 @@ class AuthorizeTest_ValidationError {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .consentedScope(Set.of("rs:scope1"))
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
@@ -314,7 +314,7 @@ class AuthorizeTest_ValidationError {
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
                         .maxAge("invalid")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("openid"))
                         .state("xyz")
                         .build();
@@ -341,7 +341,7 @@ class AuthorizeTest_ValidationError {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .prompt("illegal")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .build();
 
@@ -398,7 +398,7 @@ class AuthorizeTest_ValidationError {
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
                         .prompt("none")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of())
                         .state("xyz")
                         .build();
@@ -425,7 +425,7 @@ class AuthorizeTest_ValidationError {
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
                         .prompt("none login")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of())
                         .state("xyz")
                         .build();
@@ -452,7 +452,7 @@ class AuthorizeTest_ValidationError {
                         .prompt("none")
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("openid"))
                         .state("xyz")
                         .build();
@@ -479,7 +479,7 @@ class AuthorizeTest_ValidationError {
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
                         .prompt("none login")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of())
                         .state("xyz")
                         .request("request")
@@ -507,7 +507,7 @@ class AuthorizeTest_ValidationError {
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
                         .prompt("none")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of())
                         .state("xyz")
                         .requestUri("request uri")
@@ -534,7 +534,7 @@ class AuthorizeTest_ValidationError {
                         .maxAge("10")
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of())
                         .state("xyz")
                         .registration("registration")
@@ -562,7 +562,7 @@ class AuthorizeTest_ValidationError {
                         .maxAge("10")
                         .redirectUri("http://rp1.example.com")
                         .scope("openid")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("openid"))
                         .state("xyz")
                         .build();
@@ -611,7 +611,7 @@ class AuthorizeTest_ValidationError {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .responseMode("fragment")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .build();
         var response = sut.authorize(authorizationRequest);
@@ -660,7 +660,7 @@ class AuthorizeTest_ValidationError {
                         .scope("rs:scope1")
                         .consentedScope(Set.of("rs:scope1"))
                         .responseMode("query")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .build();
 
@@ -713,7 +713,7 @@ class AuthorizeTest_ValidationError {
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .build();
 
@@ -744,7 +744,7 @@ class AuthorizeTest_ValidationError {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .responseMode("fragment")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .state("xyz")
                         .build();
 
@@ -774,7 +774,7 @@ class AuthorizeTest_ValidationError {
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .build();
 
@@ -805,7 +805,7 @@ class AuthorizeTest_ValidationError {
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .build();
 
@@ -836,7 +836,7 @@ class AuthorizeTest_ValidationError {
                         .responseType("id_token")
                         .scope("rs:scope1")
                         .nonce("xyz")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("rs:scope1"))
                         .build();
 
