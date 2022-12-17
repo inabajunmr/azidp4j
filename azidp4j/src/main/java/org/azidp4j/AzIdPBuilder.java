@@ -282,12 +282,10 @@ public class AzIdPBuilder {
         if (grantTypesSupported != null && grantTypesSupported.contains(GrantType.password)) {
             required(errors, "userPasswordVerifier", userPasswordVerifier);
         }
-        if (grantTypesSupported != null
-                && (grantTypesSupported.contains(GrantType.authorization_code)
-                        || grantTypesSupported.contains(GrantType.implicit))) {
-            if (responseModesSupported != null && responseModesSupported.size() == 0) {
-                errors.add("responseModesSupported is required");
-            }
+        if (requiresResponseMode()
+                && responseModesSupported != null
+                && responseModesSupported.size() == 0) {
+            errors.add("responseModesSupported is required");
         }
 
         if (responseTypesSupported != null) {
@@ -379,6 +377,12 @@ public class AzIdPBuilder {
                 userPasswordVerifier);
     }
 
+    private boolean requiresResponseMode() {
+        return grantTypesSupported != null
+                && (grantTypesSupported.contains(GrantType.authorization_code)
+                        || grantTypesSupported.contains(GrantType.implicit));
+    }
+
     private void validateXxxEndpointAuthMethods(
             String type,
             Set<TokenEndpointAuthMethod> xxxEndpointAuthMethodsSupported,
@@ -389,24 +393,25 @@ public class AzIdPBuilder {
         }
         // tokenEndpointAuthMethodsSupported is xxx_jwt, required
         // tokenEndpointAuthSigningAlgValuesSupported
-        if (xxxEndpointAuthMethodsSupported != null
-                        && xxxEndpointAuthMethodsSupported.contains(
-                                TokenEndpointAuthMethod.private_key_jwt)
-                || xxxEndpointAuthMethodsSupported.contains(
-                        TokenEndpointAuthMethod.client_secret_jwt)) {
+        var isJwtAuthMethod =
+                xxxEndpointAuthMethodsSupported != null
+                                && xxxEndpointAuthMethodsSupported.contains(
+                                        TokenEndpointAuthMethod.private_key_jwt)
+                        || xxxEndpointAuthMethodsSupported.contains(
+                                TokenEndpointAuthMethod.client_secret_jwt);
+        if (isJwtAuthMethod
+                && (xxxEndpointAuthSigningAlgValuesSupported == null
+                        || xxxEndpointAuthSigningAlgValuesSupported.isEmpty())) {
 
-            if (xxxEndpointAuthSigningAlgValuesSupported == null
-                    || xxxEndpointAuthSigningAlgValuesSupported.isEmpty()) {
-                errors.add(
-                        "When "
-                                + type
-                                + "EndpointAuthMethodsSupported is private_key_jwt or"
-                                + " client_secret_jwt, "
-                                + type
-                                + "EndpointAuthSigningAlgValuesSupported is"
-                                + " required");
-                return;
-            }
+            errors.add(
+                    "When "
+                            + type
+                            + "EndpointAuthMethodsSupported is private_key_jwt or"
+                            + " client_secret_jwt, "
+                            + type
+                            + "EndpointAuthSigningAlgValuesSupported is"
+                            + " required");
+            return;
         }
 
         if (xxxEndpointAuthSigningAlgValuesSupported != null
