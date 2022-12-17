@@ -26,7 +26,7 @@ public class AuthorizationRequestParser {
         String codeChallengeMethod = req.queryParameters.get("code_challenge_method");
 
         return InternalAuthorizationRequest.builder()
-                .authenticatedUserId(req.authenticatedUserId)
+                .authenticatedUserSubject(req.authenticatedUserSubject)
                 .consentedScope(req.consentedScope != null ? req.consentedScope : Set.of())
                 .authTime(req.authTime)
                 .responseType(responseType)

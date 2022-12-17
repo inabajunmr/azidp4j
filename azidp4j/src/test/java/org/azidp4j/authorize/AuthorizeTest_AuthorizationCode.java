@@ -57,7 +57,7 @@ class AuthorizeTest_AuthorizationCode {
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .build();
 
@@ -96,7 +96,7 @@ class AuthorizeTest_AuthorizationCode {
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .build();
@@ -124,7 +124,7 @@ class AuthorizeTest_AuthorizationCode {
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
                         .scope(null)
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("openid", "rs:scope1"))
                         .build();
 
@@ -164,7 +164,7 @@ class AuthorizeTest_AuthorizationCode {
                         .maxAge("10")
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .build();
@@ -205,7 +205,7 @@ class AuthorizeTest_AuthorizationCode {
                         .maxAge("10")
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
-                        .authenticatedUserId("username")
+                        .authenticatedUserSubject("username")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .build();

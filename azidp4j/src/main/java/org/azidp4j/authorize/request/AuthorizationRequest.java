@@ -8,8 +8,12 @@ import java.util.stream.Collectors;
 
 public class AuthorizationRequest {
 
-    /** Authenticated user identifier (not authorization request parameter) */
-    public final String authenticatedUserId;
+    /**
+     * Authenticated user identifier (not authorization request parameter)
+     *
+     * <p>The value is used as ID Token sub claim.
+     */
+    public final String authenticatedUserSubject;
     /** User consented scope (not authorization request parameter) */
     public final Set<String> consentedScope;
     /** Time when the End-User authentication occurred (not authorization request parameter) */
@@ -20,18 +24,18 @@ public class AuthorizationRequest {
     /**
      * Authorization request.
      *
-     * @param authenticatedUserId authenticated user who send authorization request. If no user
+     * @param authenticatedUserSubject authenticated user who send authorization request. If no user
      *     authenticated, specify null. The value will be `sub` claim.
      * @param authTime Last user authenticated time. If no user authenticated, specify null.
      * @param consentedScope Last user authenticated time. If no user authenticated, specify null.
      * @param queryParameters Authorization request query parameters map.
      */
     public AuthorizationRequest(
-            String authenticatedUserId,
+            String authenticatedUserSubject,
             Long authTime,
             Set<String> consentedScope,
             Map<String, String> queryParameters) {
-        this.authenticatedUserId = authenticatedUserId;
+        this.authenticatedUserSubject = authenticatedUserSubject;
         this.authTime = authTime;
         this.consentedScope = consentedScope;
         this.queryParameters = queryParameters;
@@ -59,12 +63,12 @@ public class AuthorizationRequest {
                             .filter(kv -> !kv.getKey().equals("prompt"))
                             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
             return new AuthorizationRequest(
-                    this.authenticatedUserId, this.authTime, consentedScope, noPrompt);
+                    this.authenticatedUserSubject, this.authTime, consentedScope, noPrompt);
         } else {
             var queryParameterWithNewPrompt = new HashMap<>(queryParameters);
             queryParameterWithNewPrompt.put("prompt", String.join(" ", after));
             return new AuthorizationRequest(
-                    this.authenticatedUserId,
+                    this.authenticatedUserSubject,
                     this.authTime,
                     consentedScope,
                     Map.copyOf(queryParameterWithNewPrompt));

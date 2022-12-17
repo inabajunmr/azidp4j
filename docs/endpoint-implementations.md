@@ -31,7 +31,7 @@ But AzIdP4J doesn't manage user authentication and consent so service must imple
 
 AzIdP#authorize accept following parameters.
 
-* authenticatedUserId
+* authenticatedUserSubject
     * authenticated user who send authorization request. If no user authenticated, specify null. The value will be `sub` claim.
 * authTime
     * Last user authenticated time. If no user authenticated, specify null. Epoch sec.

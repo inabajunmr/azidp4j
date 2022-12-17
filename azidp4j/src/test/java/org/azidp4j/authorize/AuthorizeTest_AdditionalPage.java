@@ -83,7 +83,7 @@ class AuthorizeTest_AdditionalPage {
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
                             .scope("rs:scope1")
-                            .authenticatedUserId("username")
+                            .authenticatedUserSubject("username")
                             .consentedScope(Set.of())
                             .state("xyz")
                             .build();
@@ -105,7 +105,7 @@ class AuthorizeTest_AdditionalPage {
                             .clientId(client.clientId)
                             .redirectUri("http://rp1.example.com")
                             .scope("rs:scope1 rs:scope2")
-                            .authenticatedUserId("username")
+                            .authenticatedUserSubject("username")
                             .consentedScope(Set.of("rs:scope1"))
                             .state("xyz")
                             .build();
@@ -128,7 +128,7 @@ class AuthorizeTest_AdditionalPage {
                             .redirectUri("http://rp1.example.com")
                             .scope("rs:scope1 rs:scope2")
                             .prompt("login")
-                            .authenticatedUserId("username")
+                            .authenticatedUserSubject("username")
                             .consentedScope(Set.of("rs:scope1 rs:scope2"))
                             .state("xyz")
                             .build();
@@ -152,7 +152,7 @@ class AuthorizeTest_AdditionalPage {
                             .scope("rs:scope1 rs:scope2")
                             .prompt("login")
                             .display("popup")
-                            .authenticatedUserId("username")
+                            .authenticatedUserSubject("username")
                             .consentedScope(Set.of("rs:scope1 rs:scope2"))
                             .state("xyz")
                             .build();
@@ -175,7 +175,7 @@ class AuthorizeTest_AdditionalPage {
                             .redirectUri("http://rp1.example.com")
                             .scope("rs:scope1 rs:scope2")
                             .prompt("consent")
-                            .authenticatedUserId("username")
+                            .authenticatedUserSubject("username")
                             .consentedScope(Set.of("rs:scope1 rs:scope2"))
                             .state("xyz")
                             .build();
@@ -219,7 +219,7 @@ class AuthorizeTest_AdditionalPage {
                             .redirectUri("http://rp1.example.com")
                             .scope("rs:scope1 rs:scope2")
                             .prompt("login consent")
-                            .authenticatedUserId("username")
+                            .authenticatedUserSubject("username")
                             .consentedScope(Set.of("rs:scope1 rs:scope2"))
                             .state("xyz")
                             .build();
@@ -243,7 +243,7 @@ class AuthorizeTest_AdditionalPage {
                             .redirectUri("http://rp1.example.com")
                             .scope("rs:scope1 rs:scope2")
                             .prompt("select_account")
-                            .authenticatedUserId("username")
+                            .authenticatedUserSubject("username")
                             .consentedScope(Set.of("rs:scope1 rs:scope2"))
                             .state("xyz")
                             .build();
@@ -267,7 +267,7 @@ class AuthorizeTest_AdditionalPage {
                             .maxAge("10")
                             .redirectUri("http://rp1.example.com")
                             .scope("openid")
-                            .authenticatedUserId("username")
+                            .authenticatedUserSubject("username")
                             .consentedScope(Set.of("openid"))
                             .state("xyz")
                             .build();

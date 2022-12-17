@@ -54,7 +54,7 @@ public class Authorize {
                 authorizationRequest.scope != null && !authorizationRequest.scope.isEmpty()
                         ? authorizationRequest.scope
                         : String.join(" ", config.defaultScope);
-        if (authorizationRequest.authenticatedUserId != null
+        if (authorizationRequest.authenticatedUserSubject != null
                 && authorizationRequest.authTime == null) {
             throw new AssertionError("When user is authenticated, must set authTime.");
         }
@@ -307,7 +307,7 @@ public class Authorize {
                     "prompt contains none and another");
         } else {
             if (prompt.contains(Prompt.none)) {
-                if (authorizationRequest.authenticatedUserId == null) {
+                if (authorizationRequest.authenticatedUserSubject == null) {
                     return AuthorizationResponse.redirect(
                             redirectUri,
                             MapUtil.nullRemovedStringMap(
@@ -331,7 +331,7 @@ public class Authorize {
                 return AuthorizationResponse.additionalPage(
                         Prompt.login, display, client.clientId, scope, locales, null);
             }
-            if (authorizationRequest.authenticatedUserId == null) {
+            if (authorizationRequest.authenticatedUserSubject == null) {
                 return AuthorizationResponse.additionalPage(
                         Prompt.login, display, client.clientId, scope, locales, null);
             }
@@ -400,7 +400,7 @@ public class Authorize {
             // issue access token
             var at =
                     accessTokenService.issue(
-                            authorizationRequest.authenticatedUserId,
+                            authorizationRequest.authenticatedUserSubject,
                             scope,
                             authorizationRequest.clientId,
                             Instant.now().getEpochSecond()
@@ -418,7 +418,7 @@ public class Authorize {
             // issue authorization code
             var code =
                     authorizationCodeService.issue(
-                            authorizationRequest.authenticatedUserId,
+                            authorizationRequest.authenticatedUserSubject,
                             scope,
                             authorizationRequest.clientId,
                             authorizationRequest.redirectUri,
@@ -437,7 +437,7 @@ public class Authorize {
             idToken =
                     idTokenIssuer
                             .issue(
-                                    authorizationRequest.authenticatedUserId,
+                                    authorizationRequest.authenticatedUserSubject,
                                     authorizationRequest.clientId,
                                     authorizationRequest.authTime,
                                     authorizationRequest.nonce,
