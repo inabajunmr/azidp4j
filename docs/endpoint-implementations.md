@@ -180,9 +180,46 @@ But AzIdP4J doesn't manage client authentication so service must implement it by
 AzIdP#issueToken accept following parameters.
 
 * authenticatedClientId
-    * Authenticated client that send token request. If no client authenticated, specify null.
+  * Authenticated client that send token request. If no client authenticated, specify null.
 * bodyParameters
-    * Token request body parameters map.
+  * Token request body parameters map.
+  * see [Token Request Supported parameters](#token-request-supported-parameters)
+
+#### Token Request Supported parameters
+
+##### Authorization Code Grant
+
+| name | optional | description |
+| --- | --- | --- |
+| code | required |  |
+| grant_type | required | `authorization_code` |
+| redirect_uri | required |  |
+| client_id | optional | required when authenticatedClientId is not specified. |
+| code_verifier | optional |  |
+
+##### Resource Owner Password Grant
+
+| name | optional | description |
+| --- | --- | --- |
+| grant_type | required | `password` |
+| scope | optional |  |
+| username | required |  |
+| password | required |  |
+
+##### Client Credentials Grant
+
+| name | optional | description |
+| --- | --- | --- |
+| grant_type | required | `client_credentials` |
+| scope | optional |  |
+
+##### Token Refresh
+
+| name | optional | description |
+| --- | --- | --- |
+| grant_type | required | `refresh_token` |
+| refresh_token | optional |  |
+| scope | optional |  |
 
 ### Response
 
