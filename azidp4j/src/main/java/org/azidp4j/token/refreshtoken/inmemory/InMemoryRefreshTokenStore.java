@@ -19,7 +19,7 @@ public class InMemoryRefreshTokenStore {
     }
 
     public Optional<RefreshToken> find(String token) {
-        return Optional.ofNullable(STORE.remove(token));
+        return Optional.ofNullable(STORE.get(token));
     }
 
     public synchronized Optional<RefreshToken> consume(String token) {

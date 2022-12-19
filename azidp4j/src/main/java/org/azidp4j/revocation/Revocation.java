@@ -74,10 +74,13 @@ public class Revocation {
             InternalRevocationRequest request, AccessToken at) {
         var client = clientStore.find(at.getClientId());
         if (client.isEmpty()) {
+            // no client token is useless
+            accessTokenService.revoke(request.token);
             return new RevocationResponse(200, Map.of());
         }
 
         if (!client.get().isConfidentialClient()) {
+            // public client doesn't require client authentication for revocation.
             accessTokenService.revoke(request.token);
             return new RevocationResponse(200, Map.of());
         }
@@ -92,6 +95,8 @@ public class Revocation {
             InternalRevocationRequest request, RefreshToken rt) {
         var client = clientStore.find(rt.clientId);
         if (client.isEmpty()) {
+            // no client token is useless
+            refreshTokenService.revoke(request.token);
             return new RevocationResponse(200, Map.of());
         }
 
