@@ -72,6 +72,35 @@ class RevocationTest {
 
     @ParameterizedTest
     @MethodSource("hints")
+    void accessToken_publicClient_success(String tokenTypeHint) {
+
+        // setup
+        var at =
+                accessTokenService.issue(
+                        "sub",
+                        "scope1 scope2",
+                        "public",
+                        Instant.now().getEpochSecond(),
+                        Instant.now().getEpochSecond(),
+                        Set.of("audience"),
+                        "code");
+        assertTrue(accessTokenService.introspect(at.getToken()).isPresent());
+
+        // exercise
+        var response =
+                sut.revoke(
+                        new RevocationRequest(
+                                "public",
+                                MapUtil.ofNullable(
+                                        "token", at.getToken(), "token_type_hint", tokenTypeHint)));
+
+        // verify
+        assertEquals(200, response.status);
+        assertFalse(accessTokenService.introspect(at.getToken()).isPresent());
+    }
+
+    @ParameterizedTest
+    @MethodSource("hints")
     void notFound(String tokenTypeHint) {
 
         // exercise
@@ -158,6 +187,65 @@ class RevocationTest {
         // verify
         assertEquals(200, response.status);
         assertFalse(refreshTokenService.introspect(rt.token).isPresent());
+    }
+
+    @Test
+    void accessToken_clientNotFound() {
+
+        // setup
+        var rt =
+                accessTokenService.issue(
+                        "sub",
+                        "scope1 scope2",
+                        "confidential",
+                        Instant.now().getEpochSecond(),
+                        Instant.now().getEpochSecond(),
+                        Set.of("audience"),
+                        "code");
+        assertTrue(accessTokenService.introspect(rt.getToken()).isPresent());
+        clientStore.remove("confidential");
+
+        // exercise
+        var response =
+                sut.revoke(
+                        new RevocationRequest(
+                                "confidential",
+                                MapUtil.ofNullable(
+                                        "token", rt.getToken(), "token_type_hint", null)));
+
+        // verify
+        assertEquals(200, response.status);
+        assertFalse(refreshTokenService.introspect(rt.getToken()).isPresent());
+        clientStore.save(Fixtures.confidentialClient());
+    }
+
+    @Test
+    void refreshToken_clientNotFound() {
+
+        // setup
+        var rt =
+                refreshTokenService.issue(
+                        "sub",
+                        "scope1 scope2",
+                        "confidential",
+                        Instant.now().getEpochSecond(),
+                        Instant.now().getEpochSecond(),
+                        Set.of("audience"),
+                        "code");
+        assertTrue(refreshTokenService.introspect(rt.token).isPresent());
+        clientStore.remove("confidential");
+
+        // exercise
+        var response =
+                sut.revoke(
+                        new RevocationRequest(
+                                "confidential",
+                                MapUtil.ofNullable("token", rt.token, "token_type_hint", null)));
+
+        // verify
+        assertEquals(200, response.status);
+        assertFalse(refreshTokenService.introspect(rt.token).isPresent());
+        clientStore.save(Fixtures.confidentialClient());
     }
 
     @Test

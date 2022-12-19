@@ -55,6 +55,7 @@ public class Introspect {
 
         if (Objects.equals(hint, TokenTypeHint.refresh_token)) {
             var rtOpt = refreshTokenService.introspect(req.token);
+            // TODO if issuer client is removed?
             if (rtOpt.isPresent()) {
                 return introspectRefreshToken(rtOpt.get());
             }
@@ -66,6 +67,7 @@ public class Introspect {
         }
 
         if (Objects.equals(hint, TokenTypeHint.refresh_token)) {
+            // token type hint is refresh_token but both at and rt not found.
             return new IntrospectionResponse(200, Map.of("active", false));
         }
 

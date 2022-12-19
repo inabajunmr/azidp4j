@@ -60,12 +60,13 @@ class IntrospectTest {
 
     @ParameterizedTest
     @MethodSource("hints")
-    void accessToken_notFound() {
+    void accessToken_notFound(String tokenTypeHint) {
         // exercise
         var actual =
                 introspect.introspect(
                         new IntrospectionRequest(
-                                MapUtil.ofNullable("token", "not found", "token_type_hint", null)));
+                                MapUtil.ofNullable(
+                                        "token", "not found", "token_type_hint", tokenTypeHint)));
 
         // verify
         assertEquals(actual.status, 200);
@@ -74,7 +75,7 @@ class IntrospectTest {
 
     @ParameterizedTest
     @MethodSource("hints")
-    void accessToken_expired() {
+    void accessToken_expired(String tokenTypeHint) {
         // setup
         Introspect sut =
                 new Introspect(
@@ -89,7 +90,7 @@ class IntrospectTest {
                 sut.introspect(
                         new IntrospectionRequest(
                                 MapUtil.ofNullable(
-                                        "token", at.getToken(), "token_type_hint", null)));
+                                        "token", at.getToken(), "token_type_hint", tokenTypeHint)));
 
         // verify
         assertEquals(actual.status, 200);
@@ -117,7 +118,7 @@ class IntrospectTest {
 
     @ParameterizedTest
     @MethodSource("hints")
-    void refreshToken_expired() {
+    void refreshToken_expired(String tokenTypeHint) {
         // setup
         var rt = saveTestRefreshToken(Instant.now().getEpochSecond() - 1);
 
@@ -125,7 +126,8 @@ class IntrospectTest {
         var actual =
                 introspect.introspect(
                         new IntrospectionRequest(
-                                MapUtil.ofNullable("token", rt.token, "token_type_hint", null)));
+                                MapUtil.ofNullable(
+                                        "token", rt.token, "token_type_hint", tokenTypeHint)));
 
         // verify
         assertEquals(actual.status, 200);
@@ -151,6 +153,21 @@ class IntrospectTest {
                 introspect.introspect(
                         new IntrospectionRequest(
                                 MapUtil.ofNullable("token", 100, "token_type_hint", null)));
+
+        // verify
+        assertEquals(actual.status, 400);
+    }
+
+    @Test
+    void illegalTokenTypeHint() {
+        var at = saveTestAccessToken(Instant.now().getEpochSecond() + 100);
+
+        // exercise
+        var actual =
+                introspect.introspect(
+                        new IntrospectionRequest(
+                                MapUtil.ofNullable(
+                                        "token", at.getToken(), "token_type_hint", "illegal")));
 
         // verify
         assertEquals(actual.status, 400);
