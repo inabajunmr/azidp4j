@@ -1,7 +1,7 @@
 # Configuration
 
 All of AzIdP4J functions are defined at [AzIdP](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/AzIdP.java).
-For initialize AzIdP instance, use AzIdP#init or AzIdp#initInMemory(for using inMemory stores), AzIdp#initJwt(for using jwt tokens).
+To initialize AzIdP instance, use AzIdP#init or AzIdp#initInMemory(for using in-memory stores), AzIdp#initJwt(for using jwt tokens).
 
 These methods return builder so application can configure authorization server or identity provider like this.
 
@@ -64,7 +64,7 @@ var azIdp =
 ## [ClientStore](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/ClientStore.java)
 
 AzIdP4J doesn't provide client persistence except for in-memory implementation.
-When application want to persist client information on another datastore, application needs to implement ClientStore interface by themselves and configure it like following example.
+When application wants to persist client information on another datastore, application needs to implement specific ClientStore interface and configure it like the following example.
 
 ```java
 var clientStore = new YourClientStore();
@@ -86,8 +86,8 @@ AzIdP.init()
 
 ## [ClientValidator](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/ClientValidator.java)
 
-AzIdP4J validate client while client registration but service-specific restriction can be injected by ClientValidator.
-If your service want to accept only token_endpoint_auth_method=client_secret_basic, define like following example.
+AzIdP4J validates client while client registration but service-specific restriction can be injected by ClientValidator.
+If your service wants to accept only token_endpoint_auth_method=client_secret_basic, define it like the following example.
 
 ```java
 public class YourClientValidator implements ClientValidator {
@@ -114,11 +114,11 @@ AzIdP.init()
 ## Token Stores Configuration
 
 AzIdP4J provides in-memory or JWT token services.
-But former isn't practical and later has restriction that can't support token revocation or.
-If service want to store tokens on service specific data store, you can use your service specific implementation.
+But former isn't practical and later has the restriction that can't support such as token revocation.
+If the service wants to store tokens on service specific data store, you can use your service specific implementation.
 
 AzIdP4J has the following services.
-See these class's javadoc for implementation requirement.
+See these class's javadoc for implementation requirements.
 
 * [AuthorizationCodeService](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/authorize/authorizationcode/AuthorizationCodeService.java)
 * [AccessTokenService](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/token/accesstoken/AccessTokenService.java)
@@ -156,7 +156,7 @@ AzIdP.initJwt()
 
 ## Discovery Configuration
 
-If the service want to use AzIdp#discovery for Discovery Endpoint, needs to configure discoveryConfig.
+If the service wants to use AzIdp#discovery for Discovery Endpoint, needs to configure discoveryConfig.
 [DiscoveryConfigBuilder](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/discovery/DiscoveryConfigBuilder.java) the class for DiscoveryConfig initiation.
 
 ```java
@@ -176,7 +176,7 @@ AzIdP.init()
 ```
 
 Service can only specify supported endpoint.
-If the service only supports authorization endpoint and token endpoint, configuration will be like following example.
+If the service only supports authorization endpoint and token endpoint, configuration will be like the following example.
 
 ```java
 var discoveryConfig =
@@ -192,7 +192,7 @@ AzIdP.init()
 
 ## Password Grant
 
-If service supports resource owner password grant, AzIdP4J doesn't support user authentication so needs to configure userPasswordVerifier.
+If the service supports resource owner password grant, AzIdP4J doesn't support user authentication so needs to configure userPasswordVerifier.
 
 ```java
 var userPasswordVerifier =

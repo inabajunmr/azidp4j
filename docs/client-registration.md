@@ -2,7 +2,7 @@
 
 AzIdP4J supports client registration.
 Service can register new client by AzIdp#registerClient and delete client by AzIdp#deleteClient.
-But AzIdP4J doesn't manage client authentication or token authorization so service may implement it by itself.
+But AzIdP4J doesn't manage client authentication or token authorization so the service may implement it by itself.
 
 These methods return [ClientRegistrationResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/response/ClientRegistrationResponse.java) or [ClientDeleteResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/response/ClientDeleteResponse.java).
 These classes express http response.
@@ -81,7 +81,7 @@ All Requested metadata with following parameters are returned.
 
 ## Using Client
 
-When service want to use client for like client authentication, service can find registered client via [ClientStore](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/ClientStore.java).
+When the service wants to use client for like client authentication, service can find the registered client via [ClientStore](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/ClientStore.java).
 ```
 var response = azIdP.registerClient(client);
 var client = clientStore.find(response.get("client_id"));

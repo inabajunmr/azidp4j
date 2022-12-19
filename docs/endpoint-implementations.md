@@ -1,8 +1,8 @@
 # Endpoint implementations
 
-AzIdP4J provide helper for authorization server and identity provider.
+AzIdP4J provides helpers for authorization server and identity provider.
 It means AzIdP4J doesn't provide HTTP endpoint directly.
-The documentations introduce what type of helper AzIdP4J provide and how to use. 
+The documentation introduce what type of helper AzIdP4J provides and how to use. 
 
 * [Authorization Request](#authorization-request)
 * [Token Request](#token-request)
@@ -13,7 +13,7 @@ The documentations introduce what type of helper AzIdP4J provide and how to use.
 ## Authorization Request
 
 AzIdP4J process authorization request by AzIdP#authorize.
-But AzIdP4J doesn't manage user authentication and consent so service must implement these function by itself.
+But AzIdP4J doesn't manage user authentication and consent so the service must implement these functions by itself.
 
 ### Specification
 
@@ -29,17 +29,17 @@ But AzIdP4J doesn't manage user authentication and consent so service must imple
 
 ### Request
 
-AzIdP#authorize accept following parameters.
+AzIdP#authorize accepts following parameters.
 
 * authenticatedUserSubject
-    * authenticated user who send authorization request. If no user authenticated, specify null. The value will be `sub` claim.
+    * authenticated user who sends authorization request. If no user is authenticated, specify null. The value will be `sub` claim.
 * authTime
-    * Last user authenticated time. If no user authenticated, specify null. Epoch sec.
+    * Last user authenticated time. If no user is authenticated, specify null. Epoch sec.
 * consentedScope
-    * Last user authenticated time. If no user authenticated, specify null.
+    * Last user authenticated time. If no user is authenticated, specify null.
 * queryParameters
     * Authorization request query parameters map.
-    * see [Authorization Request Supported parameters](#authorization-request-supported-parameters)
+    * See [Authorization Request Supported parameters](#authorization-request-supported-parameters)
 
 ```java
 // When user authenticated
@@ -112,8 +112,8 @@ Following next parameters are defined.
 
 #### errorPage
 
-When authorization request is something wrong but can't redirect to client, AzIdP#authorize returns `errorPage`.
-In this case, `errorPage.errorType` will be set so show error page against each errorType.
+When an authorization request is something wrong but can't redirect to the client, AzIdP#authorize returns `errorPage`.
+In this case, `errorPage.errorType` will be set to show the error page against each errorType.
 
 #### additionalPage
 
@@ -123,22 +123,22 @@ The type of additionalPage is defined at `additionalPage.prompt`.
 Following types are defined as prompt.
 
 * login
-    * Required user login. Leading to login page generally.
+    * Required user login. Leading to the login page generally.
 * consent
-    * Required user consent. Leading to consent page generally.
+    * Required user consent. Leading to the consent page generally.
 * select_account
-    * Required select user account. Leading to account select page generally.
-    * If service doesn't support this, send to error page.
+    * Required select user account. Leading to account the select page generally.
+    * If service doesn't support this, send to the error page.
 
-`additionalPage` has following parameters so use them to show these pages.
+`additionalPage` has the following parameters so use them to show these pages.
 
 * display
 * clientId
 * scope
 
 After additional action, generally redirect to authorization request also.
-But when authorization request prompt parameter, same authorization request cause same action loop.
-AuthorizationRequest#removePrompt is used for removing prompt parameter to avoid this situation.
+But when an authorization request has prompt parameter, the same authorization request cause the same action loop.
+AuthorizationRequest#removePrompt is used for removing the prompt parameter to avoid this situation.
 
 ```java
 switch (response.additionalPage.prompt) {
@@ -162,7 +162,7 @@ switch (response.additionalPage.prompt) {
 ## Token Request
 
 AzIdP4J process token request by AzIdP#issueToken.
-But AzIdP4J doesn't manage client authentication so service must implement it by itself.
+But AzIdP4J doesn't manage client authentication so the service must implement it by itself.
 
 ### Samples
 
@@ -177,13 +177,13 @@ But AzIdP4J doesn't manage client authentication so service must implement it by
 
 ### Request
 
-AzIdP#issueToken accept following parameters.
+AzIdP#issueToken accepts the following parameters.
 
 * authenticatedClientId
-  * Authenticated client that send token request. If no client authenticated, specify null.
+  * Authenticated client that sends the token request. If no client is authenticated, specify null.
 * bodyParameters
   * Token request body parameters map.
-  * see [Token Request Supported parameters](#token-request-supported-parameters)
+  * See [Token Request Supported parameters](#token-request-supported-parameters)
 
 #### Token Request Supported parameters
 
@@ -255,7 +255,7 @@ var metadata = azIdP.discovery();
 ## Introspection
 
 AzIdP4J supports introspection request.
-But AzIdP4J doesn't manage client authentication or token authorization so service must implement it by itself.
+But AzIdP4J doesn't manage client authentication or token authorization so the service must implement it by itself.
 
 ### Specification
 
@@ -268,11 +268,11 @@ But AzIdP4J doesn't manage client authentication or token authorization so servi
 
 ### Request
 
-AzIdP#introspect accept following parameters.
+AzIdP#introspect accepts following parameters.
 
 * bodyParameters
-  * Token request body parameters map.
-  * see [Introspection Request Supported parameters](#introspection-request-supported-parameters)
+  * Token Introspection request body parameters map.
+  * See [Introspection Request Supported parameters](#introspection-request-supported-parameters)
 
 #### Introspection Request Supported parameters
 
@@ -284,7 +284,7 @@ AzIdP#introspect accept following parameters.
 ### Response
 
 AzIdP#introspect returns [IntrospectionResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/introspection/response/IntrospectionResponse.java).
-IntrospectionResponse express http response.
+IntrospectionResponse expresses http response.
 
 ```java
 // client authentication or bearer token authorization
@@ -296,7 +296,7 @@ var response = azIdP.issueToken(request);
 ## Revocation
 
 AzIdP4J process token revocation request by AzIdP#revoke.
-But AzIdP4J doesn't manage client authentication so service must implement it by itself.
+But AzIdP4J doesn't manage client authentication so the service must implement it by itself.
 
 ### Specification
 
@@ -309,13 +309,13 @@ But AzIdP4J doesn't manage client authentication so service must implement it by
 
 ### Request
 
-AzIdP#revoke accept following parameters.
+AzIdP#revoke accepts the following parameters.
 
 * authenticatedClientId
-  * Authenticated client that send token request. If no client authenticated, specify null.
+  * Authenticated client that sends token revocation request. If no client is authenticated, specify null.
 * bodyParameters
-  * Token request body parameters map.
-  * see [Revocation Request Supported parameters](#revocation-request-supported-parameters)
+  * Token revocation request body parameters map.
+  * See [Revocation Request Supported parameters](#revocation-request-supported-parameters)
 
 #### Revocation Request Supported parameters
 
@@ -327,7 +327,7 @@ AzIdP#revoke accept following parameters.
 ### Response
 
 AzIdP#issueToken returns [RevocationResponse](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/revocation/response/RevocationResponse.java).
-RevocationResponse express http response.
+RevocationResponse expresses http response.
 
 ```java
 var authenticatedClientId = xxxxxclient;
