@@ -26,6 +26,7 @@ import org.azidp4j.token.SampleIdTokenKidSupplier;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenValidator;
 import org.junit.jupiter.api.Test;
 
 class AuthorizeTest_ValidationError {
@@ -45,6 +46,7 @@ class AuthorizeTest_ValidationError {
                     scopeAudienceMapper,
                     new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                     new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                    new IDTokenValidator(config, jwks),
                     config);
 
     public AuthorizeTest_ValidationError() {
@@ -122,6 +124,36 @@ class AuthorizeTest_ValidationError {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("invalid_request", queryMap.get("error"));
         assertEquals(response.errorDescription, "display parse error");
+    }
+
+    @Test
+    void illegalIdTokenHint() {
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("code")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("rs:scope1")
+                        .display("page")
+                        .authenticatedUserSubject("username")
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
+                        .idTokenHint("invalid")
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.next, NextAction.redirect);
+        var location = URI.create(response.redirect.redirectTo);
+        assertEquals("rp1.example.com", location.getHost());
+        var queryMap =
+                Arrays.stream(location.getQuery().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals("invalid_request", queryMap.get("error"));
+        assertEquals(response.errorDescription, "invalid id_token_hint");
     }
 
     @Test
@@ -602,6 +634,7 @@ class AuthorizeTest_ValidationError {
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                         new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                        new IDTokenValidator(config, jwks),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
@@ -650,6 +683,7 @@ class AuthorizeTest_ValidationError {
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                         new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                        new IDTokenValidator(config, jwks),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
@@ -704,6 +738,7 @@ class AuthorizeTest_ValidationError {
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                         new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                        new IDTokenValidator(config, jwks),
                         config);
 
         var authorizationRequest =

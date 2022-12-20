@@ -32,6 +32,7 @@ import org.azidp4j.token.SampleIdTokenKidSupplier;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenValidator;
 import org.junit.jupiter.api.Test;
 
 class AuthorizeTest_Implicit {
@@ -166,6 +167,7 @@ class AuthorizeTest_Implicit {
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                        new IDTokenValidator(config, jwks),
                         config);
 
         clientStore.save(clientEs256);
@@ -389,6 +391,7 @@ class AuthorizeTest_Implicit {
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(accessTokenStore),
                         new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                        new IDTokenValidator(config, jwks),
                         config);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()

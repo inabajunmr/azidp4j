@@ -10,13 +10,20 @@ public class AdditionalPage {
     public final String clientId;
     public final String scope;
     public List<String> uiLocales;
+    public String expectedUserSubject;
 
     public AdditionalPage(
-            Prompt prompt, Display display, String clientId, String scope, List<String> uiLocales) {
+            Prompt prompt,
+            Display display,
+            String clientId,
+            String scope,
+            List<String> uiLocales,
+            String expectedUserSubject) {
         this.prompt = prompt;
         this.display = display;
         this.clientId = clientId;
         this.scope = scope;
         this.uiLocales = uiLocales;
+        this.expectedUserSubject = expectedUserSubject;
     }
 }

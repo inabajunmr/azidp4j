@@ -16,6 +16,8 @@ import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.scope.ScopeValidator;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenValidator;
+import org.azidp4j.token.idtoken.InvalidIDTokenException;
 import org.azidp4j.util.MapUtil;
 
 public class Authorize {
@@ -30,6 +32,8 @@ public class Authorize {
 
     private final IDTokenIssuer idTokenIssuer;
 
+    private final IDTokenValidator idTokenValidator;
+
     private final AzIdPConfig config;
 
     private final ScopeValidator scopeValidator = new ScopeValidator();
@@ -40,12 +44,14 @@ public class Authorize {
             ScopeAudienceMapper scopeAudienceMapper,
             AccessTokenService accessTokenService,
             IDTokenIssuer idTokenIssuer,
+            IDTokenValidator idTokenValidator,
             AzIdPConfig config) {
         this.clientStore = clientStore;
         this.authorizationCodeService = authorizationCodeService;
         this.scopeAudienceMapper = scopeAudienceMapper;
         this.accessTokenService = accessTokenService;
         this.idTokenIssuer = idTokenIssuer;
+        this.idTokenValidator = idTokenValidator;
         this.config = config;
     }
 
@@ -285,6 +291,23 @@ public class Authorize {
                     "client doesn't support response_type");
         }
 
+        String idTokenHintSub = null;
+        if (authorizationRequest.idTokenHint != null) {
+            try {
+                var idTokenHint =
+                        idTokenValidator.validateForIdTokenHint(
+                                authorizationRequest.idTokenHint, client);
+                idTokenHintSub = idTokenHint.getPayload().toJSONObject().get("sub").toString();
+            } catch (InvalidIDTokenException e) {
+                return AuthorizationResponse.redirect(
+                        redirectUri,
+                        MapUtil.nullRemovedStringMap(
+                                "error", "invalid_request", "state", authorizationRequest.state),
+                        responseMode,
+                        "invalid id_token_hint");
+            }
+        }
+
         Set<Prompt> prompt;
         try {
             prompt = Prompt.parse(authorizationRequest.prompt);
@@ -329,11 +352,23 @@ public class Authorize {
             }
             if (prompt.contains(Prompt.login)) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.login, display, client.clientId, scope, locales, null);
+                        Prompt.login,
+                        display,
+                        client.clientId,
+                        scope,
+                        locales,
+                        idTokenHintSub,
+                        null);
             }
             if (authorizationRequest.authenticatedUserSubject == null) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.login, display, client.clientId, scope, locales, null);
+                        Prompt.login,
+                        display,
+                        client.clientId,
+                        scope,
+                        locales,
+                        idTokenHintSub,
+                        null);
             }
             if (authorizationRequest.maxAge != null || client.defaultMaxAge != null) {
                 try {
@@ -354,7 +389,13 @@ public class Authorize {
                                     "prompt is none but authTime over");
                         } else {
                             return AuthorizationResponse.additionalPage(
-                                    Prompt.login, display, client.clientId, scope, locales, null);
+                                    Prompt.login,
+                                    display,
+                                    client.clientId,
+                                    scope,
+                                    locales,
+                                    idTokenHintSub,
+                                    null);
                         }
                     }
                 } catch (NumberFormatException e) {
@@ -371,15 +412,33 @@ public class Authorize {
             }
             if (prompt.contains(Prompt.consent)) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.consent, display, client.clientId, scope, locales, null);
+                        Prompt.consent,
+                        display,
+                        client.clientId,
+                        scope,
+                        locales,
+                        idTokenHintSub,
+                        null);
             }
             if (prompt.contains(Prompt.select_account)) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.select_account, display, client.clientId, scope, locales, null);
+                        Prompt.select_account,
+                        display,
+                        client.clientId,
+                        scope,
+                        locales,
+                        idTokenHintSub,
+                        null);
             }
             if (!authorizationRequest.allScopeConsented()) {
                 return AuthorizationResponse.additionalPage(
-                        Prompt.consent, display, client.clientId, scope, locales, null);
+                        Prompt.consent,
+                        display,
+                        client.clientId,
+                        scope,
+                        locales,
+                        idTokenHintSub,
+                        null);
             }
         }
 
