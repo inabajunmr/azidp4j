@@ -9,11 +9,11 @@
 </div>
 <form th:action="@{/login}" method="post">
     <div class="form-group">
-        <label class="control-label" for="username" th:text="#{login.username}">Email</label>
-        <input  class="form-control" id="username" name="username" />
+        <label class="control-label" for="username" th:text="#{login.username}">Username</label>
+        <input  class="form-control" id="username" name="username" th:value="${#httpSession.getAttribute('EXPECTED_USER_SUBJECT')}" />
     </div>
     <div class="form-group">
-        <label class="control-label" for="password" th:text="#{login.password}">Email</label>
+        <label class="control-label" for="password" th:text="#{login.password}">Password</label>
         <input  class="form-control" id="password" name="password" />
     </div>
     <button type="submit" th:text="#{login.submit}">Login</button>

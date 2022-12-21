@@ -135,7 +135,8 @@ public class AuthorizationEndpointHandler {
                                                         queryParamsForSavedAuthorizationRequest)
                                                 .build()
                                                 .toUriString()));
-
+                req.getSession()
+                        .setAttribute("EXPECTED_USER_SUBJECT", additionalPage.expectedUserSubject);
                 // Redirect to Login page.
                 return "redirect:/login";
             }

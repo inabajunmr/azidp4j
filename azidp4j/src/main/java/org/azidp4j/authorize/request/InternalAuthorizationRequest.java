@@ -32,28 +32,28 @@ public class InternalAuthorizationRequest {
     /** OAuth 2.0 Multiple Response Type Encoding Practices */
     public final String responseMode;
 
-    /** OpenID Connect Core 1.0 "authorization code flow", "implicit flow" */
+    /** OpenID Connect Core 1.0 */
     public final String nonce;
 
-    /** OpenID Connect Core 1.0 "authorization code flow" */
+    /** OpenID Connect Core 1.0 */
     public final String prompt;
 
-    /** OpenID Connect Core 1.0 "authorization code flow" */
+    /** OpenID Connect Core 1.0 */
     public final String display;
 
-    /** OpenID Connect Core 1.0 "authorization code flow" */
+    /** OpenID Connect Core 1.0 */
     public final String maxAge;
 
-    /** OpenID Connect Core 1.0 "authorization code flow" */
+    /** OpenID Connect Core 1.0 */
     public final String uiLocales;
 
-    /** OpenID Connect Core 1.0 "authorization code flow" */
-    // TODO   final String idTokenHint;
+    /** OpenID Connect Core 1.0 */
+    public final String idTokenHint;
 
-    /** OpenID Connect Core 1.0 "authorization code flow" */
+    /** OpenID Connect Core 1.0 */
     // TODO   final String loginHint;
 
-    /** OpenID Connect Core 1.0 "authorization code flow" */
+    /** OpenID Connect Core 1.0 */
     // TODO   final String acrValues;
 
     /** OpenID Connect Core 1.0 "6. Passing Request Parameters as JWTs" */
@@ -99,6 +99,7 @@ public class InternalAuthorizationRequest {
             String nonce,
             String maxAge,
             String uiLocales,
+            String idTokenHint,
             String prompt,
             String display,
             String request,
@@ -117,6 +118,7 @@ public class InternalAuthorizationRequest {
         this.responseMode = responseMode;
         this.nonce = nonce;
         this.maxAge = maxAge;
+        this.idTokenHint = idTokenHint;
         this.uiLocales = uiLocales;
         this.prompt = prompt;
         this.display = display;
@@ -140,6 +142,7 @@ public class InternalAuthorizationRequest {
         private String responseMode;
         private String nonce;
         private String maxAge;
+        private String idTokenHint;
         private String uiLocales;
         private String prompt;
         private String display;
@@ -206,6 +209,11 @@ public class InternalAuthorizationRequest {
             return this;
         }
 
+        public Builder idTokenHint(String idTokenHint) {
+            this.idTokenHint = idTokenHint;
+            return this;
+        }
+
         public Builder uiLocales(String uiLocales) {
             this.uiLocales = uiLocales;
             return this;
@@ -260,6 +268,7 @@ public class InternalAuthorizationRequest {
                     nonce,
                     maxAge,
                     uiLocales,
+                    idTokenHint,
                     prompt,
                     display,
                     request,

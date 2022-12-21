@@ -17,6 +17,7 @@ public class AuthorizationRequestParser {
         String nonce = req.queryParameters.get("nonce");
         String maxAge = req.queryParameters.get("max_age");
         String uiLocales = req.queryParameters.get("ui_locales");
+        String idTokenHint = req.queryParameters.get("id_token_hint");
         String request = req.queryParameters.get("request");
         String requestUri = req.queryParameters.get("request_uri");
         String registration = req.queryParameters.get("registration");
@@ -38,6 +39,7 @@ public class AuthorizationRequestParser {
                 .nonce(nonce)
                 .maxAge(maxAge)
                 .uiLocales(uiLocales)
+                .idTokenHint(idTokenHint)
                 .prompt(prompt)
                 .display(display)
                 .request(request)

@@ -26,6 +26,7 @@ import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenValidator;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
 import org.azidp4j.token.request.TokenRequest;
 import org.azidp4j.token.response.TokenResponse;
@@ -86,6 +87,7 @@ public class AzIdP {
                         scopeAudienceMapper,
                         accessTokenService,
                         idTokenIssuer,
+                        new IDTokenValidator(azIdPConfig, jwkSet),
                         azIdPConfig);
         this.issueToken =
                 new IssueToken(

@@ -30,6 +30,7 @@ import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
+import org.azidp4j.token.idtoken.IDTokenValidator;
 import org.junit.jupiter.api.Test;
 
 class AuthorizeTest_Hybrid {
@@ -55,6 +56,7 @@ class AuthorizeTest_Hybrid {
                     scopeAudienceMapper,
                     accessTokenService,
                     new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                    new IDTokenValidator(config, jwks),
                     config);
 
     public AuthorizeTest_Hybrid() throws JOSEException {
