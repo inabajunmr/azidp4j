@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
+import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.client.TokenEndpointAuthMethod;
@@ -76,6 +77,18 @@ public class AzIdPConfiguration {
                         .idTokenKidSupplier(new IdTokenKidSupplier(jwkSet))
                         .scopesSupported(Set.of("openid", "scope1", "scope2", "client", "default"))
                         .defaultScopes(Set.of("openid", "scope1"))
+                        .responseTypesSupported(
+                                Set.of(
+                                        Set.of(ResponseType.code),
+                                        Set.of(ResponseType.token),
+                                        Set.of(ResponseType.id_token),
+                                        Set.of(ResponseType.code, ResponseType.token),
+                                        Set.of(ResponseType.code, ResponseType.id_token),
+                                        Set.of(ResponseType.token, ResponseType.id_token),
+                                        Set.of(
+                                                ResponseType.code,
+                                                ResponseType.token,
+                                                ResponseType.id_token)))
                         .grantTypesSupported(
                                 Set.of(
                                         GrantType.authorization_code,

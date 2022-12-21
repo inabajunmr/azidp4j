@@ -2,6 +2,7 @@ package org.azidp4j.discovery;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.request.CodeChallengeMethod;
 import org.azidp4j.util.MapUtil;
@@ -41,7 +42,10 @@ public class Discovery {
                 "scopes_supported",
                 config.scopesSupported,
                 "response_types_supported",
-                config.responseTypeSupported,
+                config.responseTypeSupported.stream()
+                        .map(r -> r.stream().map(Enum::name).collect(Collectors.toSet()))
+                        .map(r -> String.join(" ", r.toArray(new String[0])))
+                        .collect(Collectors.toSet()),
                 "response_modes_supported",
                 config.responseModesSupported,
                 "grant_types_supported",

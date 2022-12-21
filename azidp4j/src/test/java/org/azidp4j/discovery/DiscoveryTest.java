@@ -2,7 +2,6 @@ package org.azidp4j.discovery;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
@@ -24,7 +23,7 @@ import org.junit.jupiter.api.Test;
 class DiscoveryTest {
 
     @Test
-    void all() throws JsonProcessingException, JOSEException {
+    void all() throws JOSEException {
         // setup
         var discovery =
                 DiscoveryConfig.builder()
@@ -103,9 +102,7 @@ class DiscoveryTest {
         assertEquals(
                 Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
                 actual.get("scopes_supported"));
-        assertEquals(
-                Set.of(Set.of(ResponseType.none), Set.of(ResponseType.code, ResponseType.token)),
-                actual.get("response_types_supported"));
+        assertEquals(Set.of("none", "code token"), actual.get("response_types_supported"));
         assertEquals(Set.of(ResponseMode.query), actual.get("response_modes_supported"));
         assertEquals(
                 Set.of(

@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+
 plugins {
     id("java")
     id("java-library")
@@ -39,3 +41,10 @@ spotless {
         googleJavaFormat("1.15.0").aosp().reflowLongStrings()
     }
 }
+
+
+//tasks.named<BootBuildImage>("bootBuildImage") {
+//    docker {
+//        host = "unix:///Users/juninaba/.docker/run/docker.sock"
+//    }
+//}

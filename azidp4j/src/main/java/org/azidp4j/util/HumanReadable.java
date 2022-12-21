@@ -7,10 +7,9 @@ import java.util.Map;
 /**
  * Value with language tags.
  *
- * <p>Like following example. <ui>
- * <li>name=inaba
- * <li>name#ja=いなば
- * <li>name#en=inaba </ui>
+ * <p>Like following example.
+ *
+ * <p>name=inaba name#ja=いなば name#en=inaba
  *
  * @param <T>
  */
@@ -22,10 +21,11 @@ public class HumanReadable<T> {
     /**
      * Constructor.
      *
-     * <p>For following example, <ui>
-     * <li>name=inabadef
-     * <li>name#ja=いなばja
-     * <li>name#en=inabaen </ui> construct instance like <code>
+     * <p>For following example
+     *
+     * <p>name=inabadef name#ja=いなばja name#en=inabaen
+     *
+     * <p>construct instance like <code>
      *     new HumanReadable("name", "inaba", Map.of("ja", "いなばja", "en", "inabaen")</code>
      */
     public HumanReadable(String key, T defaultValue, Map<String, T> tags) {
