@@ -89,7 +89,7 @@ public class AzIdPConfiguration {
                                         TokenEndpointAuthMethod.client_secret_basic,
                                         TokenEndpointAuthMethod.none))
                         .customClientStore(clientStore)
-                        .customClientValidator(new ClientValidator())
+                        .customClientValidator(new JwtClientAuthNotAllowClientValidator())
                         .clientConfigurationEndpointIssuer(
                                 (clientId) -> endpoint + "/client/" + clientId)
                         // integration test inject some type of service

@@ -4,6 +4,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
@@ -265,6 +266,7 @@ public class Authorize {
             codeChallengeMethod = CodeChallengeMethod.S256;
         }
 
+        // parse display
         var display = Display.page;
         if (authorizationRequest.display != null) {
             try {
@@ -279,6 +281,7 @@ public class Authorize {
             }
         }
 
+        // check client supported requested response_type
         if (!client.responseTypes.contains(responseType)) {
             return AuthorizationResponse.redirect(
                     redirectUri,
@@ -291,6 +294,7 @@ public class Authorize {
                     "client doesn't support response_type");
         }
 
+        // parse id_token_hint
         String idTokenHintSub = null;
         if (authorizationRequest.idTokenHint != null) {
             try {
@@ -308,6 +312,19 @@ public class Authorize {
             }
         }
 
+        // check authenticated user subject and id_token_hint sub are same.
+        if (idTokenHintSub != null && authorizationRequest.authenticatedUserSubject != null) {
+            if (!Objects.equals(idTokenHintSub, authorizationRequest.authenticatedUserSubject)) {
+                return AuthorizationResponse.redirect(
+                        redirectUri,
+                        MapUtil.nullRemovedStringMap(
+                                "error", "login_required", "state", authorizationRequest.state),
+                        responseMode,
+                        "id_token_hint subject and authenticatedUser subject unmatched");
+            }
+        }
+
+        // parse prompt
         Set<Prompt> prompt;
         try {
             prompt = Prompt.parse(authorizationRequest.prompt);
@@ -331,6 +348,7 @@ public class Authorize {
         } else {
             if (prompt.contains(Prompt.none)) {
                 if (authorizationRequest.authenticatedUserSubject == null) {
+                    // prompt=none but user not authenticated
                     return AuthorizationResponse.redirect(
                             redirectUri,
                             MapUtil.nullRemovedStringMap(
@@ -339,6 +357,7 @@ public class Authorize {
                             "prompt is none but user not authenticated");
                 }
                 if (!authorizationRequest.allScopeConsented()) {
+                    // prompt=none but user doesn't consent enough scopes.
                     return AuthorizationResponse.redirect(
                             redirectUri,
                             MapUtil.nullRemovedStringMap(

@@ -4,6 +4,8 @@
 </head>
 <body>
 <h1>Hello Security!</h1>
-<a id="logout" th:href="@{/logout}">Log Out</a>
+<form th:action="@{/logout}" name="logout" method="POST">
+    <a href="javascript:logout.submit()">Log Out</a>
+</form>
 </body>
 </html>
