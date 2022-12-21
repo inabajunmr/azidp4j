@@ -75,6 +75,7 @@ var response = azIdP.authorize(authzReq);
 | prompt | optional | none / login / consent / select_account |
 | display | optional | page / popup / touch / wrap |
 | max_age | optional |  |
+| id_token_hint | optional |  |
 | ui_locales | optional |  |
 | code_challenge | optional |  |
 | code_challenge_method | optional | S256 / plain |
