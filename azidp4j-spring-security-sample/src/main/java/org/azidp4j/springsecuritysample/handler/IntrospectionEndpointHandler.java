@@ -11,10 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class IntrospectionEndpointHandler {
@@ -28,10 +25,7 @@ public class IntrospectionEndpointHandler {
      * @see <a
      *     href="https://datatracker.ietf.org/doc/html/rfc7662">https://datatracker.ietf.org/doc/html/rfc7662</a>
      */
-    @RequestMapping(
-            value = "/introspect",
-            method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @PostMapping(value = "introspect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Map<String, Object>> introspect(
             @RequestParam MultiValueMap<String, Object> body, Authentication authentication) {
         LOGGER.info(IntrospectionEndpointHandler.class.getName());

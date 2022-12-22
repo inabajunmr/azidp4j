@@ -11,10 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class RevocationHandler {
@@ -27,16 +24,14 @@ public class RevocationHandler {
      * @see <a
      *     href="https://www.rfc-editor.org/rfc/rfc7009">https://www.rfc-editor.org/rfc/rfc7009</a>
      */
-    @RequestMapping(
-            value = "/revoke",
-            method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @PostMapping(value = "revoke", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Map> revoke(
             @RequestParam MultiValueMap<String, Object> body, Authentication authentication) {
         LOGGER.info(RevocationHandler.class.getName());
 
         // When client is unauthenticated, azidp4j accepts null as authenticatedClientId.
-        // If client isn't public client, azidp4j returns error.
+        // If client isn't public client, azidp4j returns error against token revocation request
+        // without authenticated cilent.
         String clientId = null;
         if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CLIENT"))) {
             clientId = authentication.getName();

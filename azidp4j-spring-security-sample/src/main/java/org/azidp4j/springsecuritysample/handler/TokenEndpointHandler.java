@@ -26,15 +26,13 @@ public class TokenEndpointHandler {
      * @see <a
      *     href="https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint">https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint</a>
      */
-    @RequestMapping(
-            value = "/token",
-            method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @PostMapping(value = "token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Map> tokenEndpoint(@RequestParam MultiValueMap<String, Object> body) {
         LOGGER.info(TokenEndpointHandler.class.getName());
 
         // When client is unauthenticated, azidp4j accepts null as authenticatedClientId.
-        // If client isn't public client, azidp4j returns error.
+        // If client isn't public client, azidp4j returns error against token request without
+        // authenticated cilent.
         String authenticatedClientId = null;
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null
