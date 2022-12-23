@@ -35,7 +35,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig();
         this.accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks));
+        var idTokenIssuer =
+                new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null);
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override
@@ -140,7 +141,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig();
         var accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks));
+        var idTokenIssuer =
+                new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null);
         var userPasswordVerifier =
                 new UserPasswordVerifier() {
                     @Override

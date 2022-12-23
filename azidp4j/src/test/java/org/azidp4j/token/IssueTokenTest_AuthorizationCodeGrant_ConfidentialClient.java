@@ -181,7 +181,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         config,
                         authorizationCodeService,
                         accessTokenService,
-                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null),
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         null,

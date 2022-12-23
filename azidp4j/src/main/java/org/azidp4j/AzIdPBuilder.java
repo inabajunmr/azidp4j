@@ -22,6 +22,7 @@ import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenService;
 import org.azidp4j.token.accesstoken.inmemory.InMemoryAccessTokenStore;
 import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
+import org.azidp4j.token.idtoken.IDTokenClaimsAssembler;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenService;
 import org.azidp4j.token.refreshtoken.inmemory.InMemoryRefreshTokenStore;
@@ -33,6 +34,7 @@ public class AzIdPBuilder {
     private JWKSet jwkSet;
     private Set<SigningAlgorithm> idTokenSigningAlgValuesSupported;
     private Function<SigningAlgorithm, String> idTokenKidSupplier;
+    private IDTokenClaimsAssembler idTokenClaimsAssembler;
     private Set<String> scopesSupported = null;
     private Set<String> defaultScopes = null;
     private Duration authorizationCodeExpiration = Duration.ofSeconds(60);
@@ -85,6 +87,11 @@ public class AzIdPBuilder {
 
     public AzIdPBuilder idTokenKidSupplier(Function<SigningAlgorithm, String> idTokenKidSupplier) {
         this.idTokenKidSupplier = idTokenKidSupplier;
+        return this;
+    }
+
+    public AzIdPBuilder idTokenClaimsAssembler(IDTokenClaimsAssembler idTokenClaimsAssembler) {
+        this.idTokenClaimsAssembler = idTokenClaimsAssembler;
         return this;
     }
 
@@ -367,6 +374,7 @@ public class AzIdPBuilder {
                 discoveryConfig,
                 jwkSet,
                 idTokenKidSupplier,
+                idTokenClaimsAssembler,
                 clientStore,
                 clientValidator,
                 clientConfigurationEndpointIssuer,

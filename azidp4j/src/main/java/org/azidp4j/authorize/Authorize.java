@@ -527,7 +527,8 @@ public class Authorize {
                                     authorizationRequest.nonce,
                                     accessToken,
                                     authorizationCode,
-                                    client.idTokenSignedResponseAlg)
+                                    client.idTokenSignedResponseAlg,
+                                    scope)
                             .serialize();
         }
 

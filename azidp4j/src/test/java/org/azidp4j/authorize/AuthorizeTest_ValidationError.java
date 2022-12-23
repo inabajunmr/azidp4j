@@ -57,7 +57,7 @@ class AuthorizeTest_ValidationError {
                     new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                     scopeAudienceMapper,
                     new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
-                    new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                    new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null),
                     new IDTokenValidator(config, jwks),
                     config);
 
@@ -691,7 +691,7 @@ class AuthorizeTest_ValidationError {
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
-                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null),
                         new IDTokenValidator(config, jwks),
                         config);
         var authorizationRequest =
@@ -740,7 +740,7 @@ class AuthorizeTest_ValidationError {
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
-                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null),
                         new IDTokenValidator(config, jwks),
                         config);
         var authorizationRequest =
@@ -795,7 +795,7 @@ class AuthorizeTest_ValidationError {
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
-                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null),
                         new IDTokenValidator(config, jwks),
                         config);
 

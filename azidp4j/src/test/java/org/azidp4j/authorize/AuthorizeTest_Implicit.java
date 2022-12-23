@@ -166,7 +166,7 @@ class AuthorizeTest_Implicit {
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(accessTokenStore),
-                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null),
                         new IDTokenValidator(config, jwks),
                         config);
 
@@ -390,7 +390,7 @@ class AuthorizeTest_Implicit {
                         new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                         scopeAudienceMapper,
                         new InMemoryAccessTokenService(accessTokenStore),
-                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                        new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null),
                         new IDTokenValidator(config, jwks),
                         config);
         var authorizationRequest =

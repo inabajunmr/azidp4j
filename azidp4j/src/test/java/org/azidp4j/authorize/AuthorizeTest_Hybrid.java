@@ -55,7 +55,7 @@ class AuthorizeTest_Hybrid {
                     new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                     scopeAudienceMapper,
                     accessTokenService,
-                    new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                    new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null),
                     new IDTokenValidator(config, jwks),
                     config);
 

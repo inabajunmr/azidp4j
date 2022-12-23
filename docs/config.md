@@ -36,7 +36,8 @@ var azIdp =
 | issuer | required | Identifier of identity provider. The value is used for like JWT iss claim, introspection result. | See OpenID Provider Metadata | https://idp.example.com |
 | jwkSet | openid required | JwkSet is keys for signing token like ID Token. The parameter is required when using openid scope. | See [Nimbus JOSE documentation](https://www.javadoc.io/doc/com.nimbusds/nimbus-jose-jwt/2.13.1/com/nimbusds/jose/jwk/JWKSet.html). | see [sample implementation](https://github.com/inabajunmr/azidp4j/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/AzIdPConfiguration.java#L142) |
 | idTokenKidSupplier | openid required | For choosing which JWK using. The parameter is required when using openid scope. |  | see [sample implementation](https://github.com/inabajunmr/azidp4j/blob/4e60de6ad7bb534b32c0747945f68edaf837620d/azidp4j-spring-security-sample/src/main/java/org/azidp4j/springsecuritysample/IdTokenKidSupplier.java#L8) |
-| scopesSupported | required | Supported scopes for the service. When supporting OpenID Connect, requires `openid` scope. |  | Set.of("openid", "user:read") |
+| idTokenClaimsAssembler | optional | See [Custom ID Token claims](#custom-id-token-claims). |  |  |
+| scopesSupported | required | Supported scopes for the service. When supporting OpenID Connect, requires `openid` scope. |  |  |
 | defaultScopes | optional | Scopes for no scope authorization request. |  | Set.of("openid", "user:read") |
 | tokenEndpointAuthMethodsSupported | optional | Suppoted client authentication method for token request. | `client_secret_post` / `client_secret_basic` / `client_secret_jwt` / `private_key_jwt` / `none` | Set.of(TokenEndpointAuthMethod.client_secret_basic) |
 | tokenEndpointAuthSigningAlgValuesSupported | optional | Suppoted client authentication signing alg for token request. The value is required when tokenEndpointAuthMethodsSupported is `client_secret_jwt` or `private_key_jwt` |  | Set.of("RS256") |
@@ -152,6 +153,49 @@ AzIdP.initJwt()
     .customAuthorizationCodeService(authorizationCodeService)
     ...
     .build();
+```
+
+## Custom ID Token claims
+
+If the service needs to issue ID Token that has application-specific claims, needs to configure idTokenClaimsAssembler.
+You need to implement [IDTokenClaimsAssembler#assemble](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/token/idtoken/IDTokenClaimsAssembler.java) interface.
+The returned value will be merged in issued ID Token.
+
+```java
+/** https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims */
+@Override
+public Map<String, Object> assemble(String sub, Set<String> scopes) {
+    var user = userStore.find(sub);
+    var claims = new HashMap<String, Object>();
+    if (scopes.contains("profile")) {
+        claims.put("name", user.get("name"));
+        claims.put("family_name", user.get("family_name"));
+        claims.put("given_name", user.get("given_name"));
+        claims.put("middle_name", user.get("middle_name"));
+        claims.put("nickname", user.get("nickname"));
+        claims.put("preferred_username", user.get("preferred_username"));
+        claims.put("profile", user.get("profile"));
+        claims.put("picture", user.get("picture"));
+        claims.put("website", user.get("website"));
+        claims.put("gender", user.get("gender"));
+        claims.put("birthdate", user.get("birthdate"));
+        claims.put("zoneinfo", user.get("zoneinfo"));
+        claims.put("locale", user.get("locale"));
+    }
+    if (scopes.contains("email")) {
+        claims.put("email", user.get("email"));
+        claims.put("email_verified", user.get("email_verified"));
+    }
+    if (scopes.contains("address")) {
+        claims.put("address", user.get("address"));
+    }
+    if (scopes.contains("phone")) {
+        claims.put("phone_number", user.get("phone_number"));
+        claims.put("phone_number_verified", user.get("phone_number_verified"));
+    }
+    claims.put("updated_at", user.get("updated_at"));
+    return claims;
+}
 ```
 
 ## Discovery Configuration
