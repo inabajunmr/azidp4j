@@ -55,7 +55,7 @@ class RevocationTest {
                         Instant.now().getEpochSecond(),
                         Set.of("audience"),
                         "code");
-        assertTrue(accessTokenService.introspect(at.getToken()).isPresent());
+        assertTrue(accessTokenService.introspect(at.token).isPresent());
 
         // exercise
         var response =
@@ -63,11 +63,11 @@ class RevocationTest {
                         new RevocationRequest(
                                 "confidential",
                                 MapUtil.ofNullable(
-                                        "token", at.getToken(), "token_type_hint", tokenTypeHint)));
+                                        "token", at.token, "token_type_hint", tokenTypeHint)));
 
         // verify
         assertEquals(200, response.status);
-        assertFalse(accessTokenService.introspect(at.getToken()).isPresent());
+        assertFalse(accessTokenService.introspect(at.token).isPresent());
     }
 
     @ParameterizedTest
@@ -84,7 +84,7 @@ class RevocationTest {
                         Instant.now().getEpochSecond(),
                         Set.of("audience"),
                         "code");
-        assertTrue(accessTokenService.introspect(at.getToken()).isPresent());
+        assertTrue(accessTokenService.introspect(at.token).isPresent());
 
         // exercise
         var response =
@@ -92,11 +92,11 @@ class RevocationTest {
                         new RevocationRequest(
                                 "public",
                                 MapUtil.ofNullable(
-                                        "token", at.getToken(), "token_type_hint", tokenTypeHint)));
+                                        "token", at.token, "token_type_hint", tokenTypeHint)));
 
         // verify
         assertEquals(200, response.status);
-        assertFalse(accessTokenService.introspect(at.getToken()).isPresent());
+        assertFalse(accessTokenService.introspect(at.token).isPresent());
     }
 
     @ParameterizedTest
@@ -202,7 +202,7 @@ class RevocationTest {
                         Instant.now().getEpochSecond(),
                         Set.of("audience"),
                         "code");
-        assertTrue(accessTokenService.introspect(rt.getToken()).isPresent());
+        assertTrue(accessTokenService.introspect(rt.token).isPresent());
         clientStore.remove("confidential");
 
         // exercise
@@ -210,12 +210,11 @@ class RevocationTest {
                 sut.revoke(
                         new RevocationRequest(
                                 "confidential",
-                                MapUtil.ofNullable(
-                                        "token", rt.getToken(), "token_type_hint", null)));
+                                MapUtil.ofNullable("token", rt.token, "token_type_hint", null)));
 
         // verify
         assertEquals(200, response.status);
-        assertFalse(refreshTokenService.introspect(rt.getToken()).isPresent());
+        assertFalse(refreshTokenService.introspect(rt.token).isPresent());
         clientStore.save(Fixtures.confidentialClient());
     }
 

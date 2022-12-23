@@ -37,22 +37,22 @@ class JwtAccessTokenServiceTest {
         var issued =
                 sut.issue(
                         "sub", "scope1 scope2", "client id", exp, iat, Set.of("audience"), "code");
-        assertEquals("sub", issued.getSub());
-        assertEquals("scope1 scope2", issued.getScope());
-        assertEquals("client id", issued.getClientId());
-        assertEquals(Set.of("audience"), issued.getAudience());
-        assertEquals(exp, issued.getExpiresAtEpochSec());
-        assertEquals(iat, issued.getIssuedAtEpochSec());
-        assertEquals("code", issued.getAuthorizationCode());
+        assertEquals("sub", issued.sub);
+        assertEquals("scope1 scope2", issued.scope);
+        assertEquals("client id", issued.clientId);
+        assertEquals(Set.of("audience"), issued.audience);
+        assertEquals(exp, issued.expiresAtEpochSec);
+        assertEquals(iat, issued.issuedAtEpochSec);
+        assertEquals("code", issued.authorizationCode);
 
-        var introspected = sut.introspect(issued.getToken()).get();
-        assertEquals("sub", introspected.getSub());
-        assertEquals("scope1 scope2", introspected.getScope());
-        assertEquals("client id", introspected.getClientId());
-        assertEquals(Set.of("audience"), introspected.getAudience());
-        assertEquals(exp, introspected.getExpiresAtEpochSec());
-        assertEquals(iat, introspected.getIssuedAtEpochSec());
-        assertEquals("code", introspected.getAuthorizationCode());
+        var introspected = sut.introspect(issued.token).get();
+        assertEquals("sub", introspected.sub);
+        assertEquals("scope1 scope2", introspected.scope);
+        assertEquals("client id", introspected.clientId);
+        assertEquals(Set.of("audience"), introspected.audience);
+        assertEquals(exp, introspected.expiresAtEpochSec);
+        assertEquals(iat, introspected.issuedAtEpochSec);
+        assertEquals("code", introspected.authorizationCode);
     }
 
     @Test
@@ -137,18 +137,18 @@ class JwtAccessTokenServiceTest {
         var issued =
                 sut.issue(
                         "sub", "scope1 scope2", "client id", exp, iat, Set.of("audience"), "code");
-        assertEquals("sub", issued.getSub());
-        assertEquals("scope1 scope2", issued.getScope());
-        assertEquals("client id", issued.getClientId());
-        assertEquals(Set.of("audience"), issued.getAudience());
-        assertEquals(exp, issued.getExpiresAtEpochSec());
-        assertEquals(iat, issued.getIssuedAtEpochSec());
-        assertEquals("code", issued.getAuthorizationCode());
+        assertEquals("sub", issued.sub);
+        assertEquals("scope1 scope2", issued.scope);
+        assertEquals("client id", issued.clientId);
+        assertEquals(Set.of("audience"), issued.audience);
+        assertEquals(exp, issued.expiresAtEpochSec);
+        assertEquals(iat, issued.issuedAtEpochSec);
+        assertEquals("code", issued.authorizationCode);
         JwtAccessTokenService wrongKeyService =
                 new JwtAccessTokenService(new JWKSet(List.of(es256)), "issuer", () -> "abc");
 
         // exercise
-        var introspected = wrongKeyService.introspect(issued.getToken());
+        var introspected = wrongKeyService.introspect(issued.token);
 
         // verify
         assertFalse(introspected.isPresent());
@@ -162,15 +162,15 @@ class JwtAccessTokenServiceTest {
         var issued =
                 sut.issue(
                         "sub", "scope1 scope2", "client id", exp, iat, Set.of("audience"), "code");
-        assertEquals("sub", issued.getSub());
-        assertEquals("scope1 scope2", issued.getScope());
-        assertEquals("client id", issued.getClientId());
-        assertEquals(Set.of("audience"), issued.getAudience());
-        assertEquals(exp, issued.getExpiresAtEpochSec());
-        assertEquals(iat, issued.getIssuedAtEpochSec());
-        assertEquals("code", issued.getAuthorizationCode());
+        assertEquals("sub", issued.sub);
+        assertEquals("scope1 scope2", issued.scope);
+        assertEquals("client id", issued.clientId);
+        assertEquals(Set.of("audience"), issued.audience);
+        assertEquals(exp, issued.expiresAtEpochSec);
+        assertEquals(iat, issued.issuedAtEpochSec);
+        assertEquals("code", issued.authorizationCode);
 
-        var introspected = sut.introspect(issued.getToken());
+        var introspected = sut.introspect(issued.token);
         assertFalse(introspected.isPresent());
     }
 
@@ -184,15 +184,15 @@ class JwtAccessTokenServiceTest {
         var issued =
                 service.issue(
                         "sub", "scope1 scope2", "client id", exp, iat, Set.of("audience"), "code");
-        assertEquals("sub", issued.getSub());
-        assertEquals("scope1 scope2", issued.getScope());
-        assertEquals("client id", issued.getClientId());
-        assertEquals(Set.of("audience"), issued.getAudience());
-        assertEquals(exp, issued.getExpiresAtEpochSec());
-        assertEquals(iat, issued.getIssuedAtEpochSec());
-        assertEquals("code", issued.getAuthorizationCode());
+        assertEquals("sub", issued.sub);
+        assertEquals("scope1 scope2", issued.scope);
+        assertEquals("client id", issued.clientId);
+        assertEquals(Set.of("audience"), issued.audience);
+        assertEquals(exp, issued.expiresAtEpochSec);
+        assertEquals(iat, issued.issuedAtEpochSec);
+        assertEquals("code", issued.authorizationCode);
 
-        var introspected = sut.introspect(issued.getToken());
+        var introspected = sut.introspect(issued.token);
         assertFalse(introspected.isPresent());
     }
 }

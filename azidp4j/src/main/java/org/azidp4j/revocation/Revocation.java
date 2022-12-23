@@ -72,7 +72,7 @@ public class Revocation {
 
     private RevocationResponse revokeAccessToken(
             InternalRevocationRequest request, AccessToken at) {
-        var client = clientStore.find(at.getClientId());
+        var client = clientStore.find(at.clientId);
         if (client.isEmpty()) {
             // no client token is useless
             accessTokenService.revoke(request.token);
@@ -85,7 +85,7 @@ public class Revocation {
             return new RevocationResponse(200, Map.of());
         }
 
-        if (Objects.equals(at.getClientId(), request.authenticatedClientId)) {
+        if (Objects.equals(at.clientId, request.authenticatedClientId)) {
             accessTokenService.revoke(request.token);
         }
         return new RevocationResponse(200, Map.of());

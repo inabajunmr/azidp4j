@@ -492,7 +492,7 @@ public class Authorize {
                             Instant.now().getEpochSecond(),
                             scopeAudienceMapper.map(scope),
                             null);
-            accessToken = at.getToken();
+            accessToken = at.token;
             tokenType = "bearer";
             expiresIn = String.valueOf(config.accessTokenExpiration.getSeconds());
         }

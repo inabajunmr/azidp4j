@@ -9,12 +9,12 @@ public class AccessTokenAssert {
     public static void assertAccessToken(
             AccessToken actual, String sub, String aud, String clientId, String scope, long exp) {
 
-        assertEquals(actual.getSub(), sub);
-        assertEquals(actual.getAudience().size(), 1);
-        assertEquals(actual.getAudience().stream().findAny().get(), aud);
-        assertEquals(actual.getClientId(), clientId);
-        assertEquals(actual.getScope(), scope);
-        assertTrue(actual.getExpiresAtEpochSec() > exp - 10);
-        assertTrue(actual.getExpiresAtEpochSec() < exp + 10);
+        assertEquals(actual.sub, sub);
+        assertEquals(actual.audience.size(), 1);
+        assertEquals(actual.audience.stream().findAny().get(), aud);
+        assertEquals(actual.clientId, clientId);
+        assertEquals(actual.scope, scope);
+        assertTrue(actual.expiresAtEpochSec > exp - 10);
+        assertTrue(actual.expiresAtEpochSec < exp + 10);
     }
 }
