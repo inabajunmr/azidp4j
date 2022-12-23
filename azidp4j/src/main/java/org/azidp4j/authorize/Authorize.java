@@ -377,6 +377,7 @@ public class Authorize {
                         scope,
                         locales,
                         idTokenHintSub,
+                        authorizationRequest.loginHint,
                         null);
             }
             if (authorizationRequest.authenticatedUserSubject == null) {
@@ -387,6 +388,7 @@ public class Authorize {
                         scope,
                         locales,
                         idTokenHintSub,
+                        authorizationRequest.loginHint,
                         null);
             }
             if (authorizationRequest.maxAge != null || client.defaultMaxAge != null) {
@@ -414,6 +416,7 @@ public class Authorize {
                                     scope,
                                     locales,
                                     idTokenHintSub,
+                                    authorizationRequest.loginHint,
                                     null);
                         }
                     }
@@ -437,6 +440,7 @@ public class Authorize {
                         scope,
                         locales,
                         idTokenHintSub,
+                        authorizationRequest.loginHint,
                         null);
             }
             if (prompt.contains(Prompt.select_account)) {
@@ -447,6 +451,7 @@ public class Authorize {
                         scope,
                         locales,
                         idTokenHintSub,
+                        authorizationRequest.loginHint,
                         null);
             }
             if (!authorizationRequest.allScopeConsented()) {
@@ -457,6 +462,7 @@ public class Authorize {
                         scope,
                         locales,
                         idTokenHintSub,
+                        authorizationRequest.loginHint,
                         null);
             }
         }
