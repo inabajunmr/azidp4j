@@ -51,7 +51,7 @@ class IntrospectTest {
                 introspect.introspect(
                         new IntrospectionRequest(
                                 MapUtil.ofNullable(
-                                        "token", at.getToken(), "token_type_hint", tokenTypeHint)));
+                                        "token", at.token, "token_type_hint", tokenTypeHint)));
 
         // verify
         assertEquals(actual.status, 200);
@@ -90,7 +90,7 @@ class IntrospectTest {
                 sut.introspect(
                         new IntrospectionRequest(
                                 MapUtil.ofNullable(
-                                        "token", at.getToken(), "token_type_hint", tokenTypeHint)));
+                                        "token", at.token, "token_type_hint", tokenTypeHint)));
 
         // verify
         assertEquals(actual.status, 200);
@@ -167,7 +167,7 @@ class IntrospectTest {
                 introspect.introspect(
                         new IntrospectionRequest(
                                 MapUtil.ofNullable(
-                                        "token", at.getToken(), "token_type_hint", "illegal")));
+                                        "token", at.token, "token_type_hint", "illegal")));
 
         // verify
         assertEquals(actual.status, 400);
@@ -204,13 +204,13 @@ class IntrospectTest {
     private void assertAccessTokenIntrospectionResult(
             AccessToken expected, Map<String, Object> actualResponse) {
         assertEquals(true, actualResponse.get("active"));
-        assertEquals(expected.getScope(), actualResponse.get("scope"));
-        assertEquals(expected.getClientId(), actualResponse.get("client_id"));
+        assertEquals(expected.scope, actualResponse.get("scope"));
+        assertEquals(expected.clientId, actualResponse.get("client_id"));
         assertEquals("bearer", actualResponse.get("token_type"));
-        assertEquals(expected.getExpiresAtEpochSec(), actualResponse.get("exp"));
-        assertEquals(expected.getIssuedAtEpochSec(), actualResponse.get("iat"));
-        assertEquals(expected.getSub(), actualResponse.get("sub"));
-        assertEquals(expected.getAudience(), actualResponse.get("aud"));
+        assertEquals(expected.expiresAtEpochSec, actualResponse.get("exp"));
+        assertEquals(expected.issuedAtEpochSec, actualResponse.get("iat"));
+        assertEquals(expected.sub, actualResponse.get("sub"));
+        assertEquals(expected.audience, actualResponse.get("aud"));
         assertEquals(config.issuer, actualResponse.get("iss"));
     }
 

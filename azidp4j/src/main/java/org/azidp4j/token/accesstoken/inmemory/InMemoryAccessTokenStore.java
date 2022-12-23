@@ -14,9 +14,9 @@ public class InMemoryAccessTokenStore {
     static final Map<String, AccessToken> STORE_BY_AUTHORIZATION_CODE = new ConcurrentHashMap<>();
 
     public synchronized void save(AccessToken token) {
-        STORE.put(token.getToken(), token);
-        if (token.getAuthorizationCode() != null) {
-            STORE_BY_AUTHORIZATION_CODE.put(token.getAuthorizationCode(), token);
+        STORE.put(token.token, token);
+        if (token.authorizationCode != null) {
+            STORE_BY_AUTHORIZATION_CODE.put(token.authorizationCode, token);
         }
     }
 
@@ -26,14 +26,14 @@ public class InMemoryAccessTokenStore {
 
     public synchronized void remove(String token) {
         var at = STORE.remove(token);
-        if (at.getAuthorizationCode() == null) {
+        if (at.authorizationCode == null) {
             return;
         }
-        STORE_BY_AUTHORIZATION_CODE.remove(at.getAuthorizationCode());
+        STORE_BY_AUTHORIZATION_CODE.remove(at.authorizationCode);
     }
 
     public synchronized void removeByAuthorizationCode(String code) {
         var at = STORE_BY_AUTHORIZATION_CODE.remove(code);
-        STORE.remove(at.getToken());
+        STORE.remove(at.token);
     }
 }

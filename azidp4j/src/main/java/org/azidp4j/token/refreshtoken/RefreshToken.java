@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.Set;
 
 public class RefreshToken {
-    // TODO アクセサ経由にする？
     public final String token;
     public final String sub;
     public final String scope;

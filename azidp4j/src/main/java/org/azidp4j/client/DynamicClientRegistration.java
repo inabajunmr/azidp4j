@@ -182,7 +182,7 @@ public class DynamicClientRegistration {
         Optional.ofNullable(clientConfigurationEndpoint)
                 .ifPresent(v -> res.put("registration_client_uri", v));
         Optional.ofNullable(clientConfigurationEndpoint)
-                .ifPresent(v -> res.put("registration_access_token", at.getToken()));
+                .ifPresent(v -> res.put("registration_access_token", at.token));
         return new ClientRegistrationResponse(201, res);
     }
 

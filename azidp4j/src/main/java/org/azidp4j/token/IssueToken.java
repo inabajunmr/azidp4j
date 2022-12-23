@@ -177,7 +177,7 @@ public class IssueToken {
                                     client.clientId,
                                     authorizationCode.authTime,
                                     authorizationCode.nonce,
-                                    at.getToken(),
+                                    at.token,
                                     null,
                                     client.idTokenSignedResponseAlg);
                     if (authorizationCode.state == null) {
@@ -185,7 +185,7 @@ public class IssueToken {
                                 200,
                                 MapUtil.nullRemovedMap(
                                         "access_token",
-                                        at.getToken(),
+                                        at.token,
                                         "id_token",
                                         idToken.serialize(),
                                         "refresh_token",
@@ -201,7 +201,7 @@ public class IssueToken {
                             200,
                             MapUtil.nullRemovedMap(
                                     "access_token",
-                                    at.getToken(),
+                                    at.token,
                                     "id_token",
                                     idToken.serialize(),
                                     "refresh_token",
@@ -221,7 +221,7 @@ public class IssueToken {
                             200,
                             MapUtil.nullRemovedMap(
                                     "access_token",
-                                    at.getToken(),
+                                    at.token,
                                     "refresh_token",
                                     rt,
                                     "token_type",
@@ -275,7 +275,7 @@ public class IssueToken {
                             200,
                             MapUtil.nullRemovedMap(
                                     "access_token",
-                                    at.getToken(),
+                                    at.token,
                                     "refresh_token",
                                     rt,
                                     "token_type",
@@ -311,7 +311,7 @@ public class IssueToken {
                         200,
                         MapUtil.nullRemovedMap(
                                 "access_token",
-                                at.getToken(),
+                                at.token,
                                 "token_type",
                                 "bearer",
                                 "expires_in",
@@ -362,7 +362,7 @@ public class IssueToken {
                         200,
                         MapUtil.nullRemovedMap(
                                 "access_token",
-                                at.getToken(),
+                                at.token,
                                 "refresh_token",
                                 newRt.token,
                                 "token_type",

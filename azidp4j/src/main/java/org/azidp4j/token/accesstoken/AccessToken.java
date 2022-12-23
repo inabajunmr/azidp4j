@@ -4,49 +4,17 @@ import java.time.Instant;
 import java.util.Set;
 
 public class AccessToken {
-    private final String token;
-    private final String sub;
-    private final String scope;
-    private final String clientId;
-    private final Set<String> audience;
-    private final long expiresAtEpochSec;
-    private final long issuedAtEpochSec;
-    private final String authorizationCode;
-
-    public String getToken() {
-        return token;
-    }
-
-    public String getSub() {
-        return sub;
-    }
-
-    public String getScope() {
-        return scope;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public Set<String> getAudience() {
-        return audience;
-    }
-
-    public long getExpiresAtEpochSec() {
-        return expiresAtEpochSec;
-    }
-
-    public long getIssuedAtEpochSec() {
-        return issuedAtEpochSec;
-    }
-
-    public String getAuthorizationCode() {
-        return authorizationCode;
-    }
+    public final String token;
+    public final String sub;
+    public final String scope;
+    public final String clientId;
+    public final Set<String> audience;
+    public final long expiresAtEpochSec;
+    public final long issuedAtEpochSec;
+    public final String authorizationCode;
 
     public boolean expired() {
-        return this.getExpiresAtEpochSec() < Instant.now().getEpochSecond();
+        return this.expiresAtEpochSec < Instant.now().getEpochSecond();
     }
 
     public AccessToken(
