@@ -44,10 +44,17 @@ public class AuthorizationResponse {
             String scope,
             List<String> uiLocales,
             String expectedUserSubject,
+            String loginHint,
             String errorDescription) {
         var page =
                 new AdditionalPage(
-                        prompt, display, clientId, scope, uiLocales, expectedUserSubject);
+                        prompt,
+                        display,
+                        clientId,
+                        scope,
+                        uiLocales,
+                        expectedUserSubject,
+                        loginHint);
         return new AuthorizationResponse(
                 NextAction.additionalPage, null, page, null, errorDescription);
     }

@@ -11,6 +11,7 @@ public class AdditionalPage {
     public final String scope;
     public List<String> uiLocales;
     public String expectedUserSubject;
+    public String loginHint;
 
     public AdditionalPage(
             Prompt prompt,
@@ -18,12 +19,14 @@ public class AdditionalPage {
             String clientId,
             String scope,
             List<String> uiLocales,
-            String expectedUserSubject) {
+            String expectedUserSubject,
+            String loginHint) {
         this.prompt = prompt;
         this.display = display;
         this.clientId = clientId;
         this.scope = scope;
         this.uiLocales = uiLocales;
         this.expectedUserSubject = expectedUserSubject;
+        this.loginHint = loginHint;
     }
 }
