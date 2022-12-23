@@ -57,7 +57,7 @@ public class IssueTokenTest {
                         config,
                         authorizationCodeService,
                         new InMemoryAccessTokenService(accessTokenStore),
-                        new IDTokenIssuer(config, jwks, (alg) -> "123"),
+                        new IDTokenIssuer(config, jwks, (alg) -> "123", null),
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         new SampleScopeAudienceMapper(),
                         null,

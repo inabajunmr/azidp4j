@@ -67,7 +67,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                         config,
                         authorizationCodeService,
                         accessTokenService,
-                        new IDTokenIssuer(config, jwks, (alg) -> "123"),
+                        new IDTokenIssuer(config, jwks, (alg) -> "123", null),
                         new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore()),
                         scopeAudienceMapper,
                         null,

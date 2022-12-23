@@ -41,7 +41,8 @@ public class IssueTokenTest_RefreshToken {
                 new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
         var config = Fixtures.azIdPConfig();
         this.accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks));
+        var idTokenIssuer =
+                new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null);
         var clientStore = new InMemoryClientStore();
         clientStore.save(Fixtures.confidentialClient());
         clientStore.save(Fixtures.publicClient());
@@ -281,7 +282,8 @@ public class IssueTokenTest_RefreshToken {
                         Duration.ofSeconds(-1), // always issuing expired
                         Duration.ofSeconds(604800));
         var accessTokenStore = new InMemoryAccessTokenStore();
-        var idTokenIssuer = new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks));
+        var idTokenIssuer =
+                new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null);
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
         clientStore.save(Fixtures.confidentialClient());

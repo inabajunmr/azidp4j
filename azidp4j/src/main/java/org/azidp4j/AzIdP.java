@@ -25,6 +25,7 @@ import org.azidp4j.revocation.response.RevocationResponse;
 import org.azidp4j.scope.ScopeAudienceMapper;
 import org.azidp4j.token.*;
 import org.azidp4j.token.accesstoken.AccessTokenService;
+import org.azidp4j.token.idtoken.IDTokenClaimsAssembler;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenValidator;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
@@ -70,6 +71,7 @@ public class AzIdP {
             DiscoveryConfig discoveryConfig,
             JWKSet jwkSet,
             Function<SigningAlgorithm, String> kidSupplier,
+            IDTokenClaimsAssembler idTokenClaimsAssembler,
             ClientStore clientStore,
             ClientValidator clientValidator,
             Function<String, String> clientConfigurationEndpointIssuer,
@@ -79,7 +81,8 @@ public class AzIdP {
             ScopeAudienceMapper scopeAudienceMapper,
             UserPasswordVerifier userPasswordVerifier) {
         this.discovery = new Discovery(azIdPConfig, discoveryConfig);
-        var idTokenIssuer = new IDTokenIssuer(azIdPConfig, jwkSet, kidSupplier);
+        var idTokenIssuer =
+                new IDTokenIssuer(azIdPConfig, jwkSet, kidSupplier, idTokenClaimsAssembler);
         this.authorize =
                 new Authorize(
                         clientStore,

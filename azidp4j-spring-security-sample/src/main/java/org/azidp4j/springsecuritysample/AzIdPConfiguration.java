@@ -39,7 +39,8 @@ public class AzIdPConfiguration {
             JWKSet jwkSet,
             AuthorizationCodeService authorizationCodeService,
             AccessTokenService accessTokenService,
-            RefreshTokenService refreshTokenService) {
+            RefreshTokenService refreshTokenService,
+            IdTokenClaimsAssembler idTokenClaimsAssembler) {
 
         // The mapper is used for decision of JWT aud claims
         ScopeAudienceMapper scopeAudienceMapper = scope -> Set.of("rs.example.com");
@@ -75,7 +76,11 @@ public class AzIdPConfiguration {
                         .issuer(endpoint)
                         .jwkSet(jwkSet)
                         .idTokenKidSupplier(new IdTokenKidSupplier(jwkSet))
-                        .scopesSupported(Set.of("openid", "scope1", "scope2", "client", "default"))
+                        .idTokenClaimsAssembler(idTokenClaimsAssembler)
+                        .scopesSupported(
+                                Set.of(
+                                        "openid", "profile", "email", "address", "phone", "scope1",
+                                        "scope2", "client", "default"))
                         .defaultScopes(Set.of("openid", "scope1"))
                         .responseTypesSupported(
                                 Set.of(
@@ -129,7 +134,8 @@ public class AzIdPConfiguration {
                                                 "implicit",
                                                 "refresh_token",
                                                 "client_credentials")),
-                                "scope", ("scope1 scope2 openid client"),
+                                "scope",
+                                        ("scope1 scope2 openid profile email address phone client"),
                                 "response_types", (Set.of("code", "token", "id_token")),
                                 "token_endpoint_auth_method", "client_secret_basic"));
         var client = azIdp.registerClient(clientRegistration);

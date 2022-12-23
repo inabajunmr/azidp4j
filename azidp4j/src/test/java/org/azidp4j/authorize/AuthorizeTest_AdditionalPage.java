@@ -52,7 +52,7 @@ class AuthorizeTest_AdditionalPage {
                     new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
                     scopeAudienceMapper,
                     new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
-                    new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks)),
+                    new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null),
                     new IDTokenValidator(config, jwks),
                     config);
 

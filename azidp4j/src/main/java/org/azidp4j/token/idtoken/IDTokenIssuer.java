@@ -9,9 +9,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.jwt.JWSIssuer;
@@ -25,11 +27,17 @@ public class IDTokenIssuer {
 
     private final Function<SigningAlgorithm, String> kidSupplier;
 
+    private final IDTokenClaimsAssembler idTokenClaimsAssembler;
+
     public IDTokenIssuer(
-            AzIdPConfig config, JWKSet jwkSet, Function<SigningAlgorithm, String> kidSupplier) {
+            AzIdPConfig config,
+            JWKSet jwkSet,
+            Function<SigningAlgorithm, String> kidSupplier,
+            IDTokenClaimsAssembler idTokenClaimsAssembler) {
         this.config = config;
         this.jwsIssuer = new JWSIssuer(jwkSet);
         this.kidSupplier = kidSupplier;
+        this.idTokenClaimsAssembler = idTokenClaimsAssembler;
     }
 
     public JOSEObject issue(
@@ -39,7 +47,8 @@ public class IDTokenIssuer {
             String nonce,
             String accessToken,
             String authorizationCode,
-            SigningAlgorithm alg) {
+            SigningAlgorithm alg,
+            String scope) {
         var jti = UUID.randomUUID().toString();
         var atHash = accessToken != null ? calculateXHash(accessToken) : null;
         var cHash = authorizationCode != null ? calculateXHash(authorizationCode) : null;
@@ -67,6 +76,20 @@ public class IDTokenIssuer {
                         atHash,
                         "c_hash",
                         cHash);
+        if (idTokenClaimsAssembler != null) {
+            var profiles =
+                    idTokenClaimsAssembler.assemble(
+                            sub,
+                            Arrays.stream(scope.split(" "))
+                                    .map(String::trim)
+                                    .collect(Collectors.toSet()));
+            if (profiles != null) {
+                // merge
+                var mutableProfiles = new HashMap<>(profiles);
+                mutableProfiles.putAll(claims);
+                claims = mutableProfiles;
+            }
+        }
         if (alg.equals(SigningAlgorithm.none)) {
             return new PlainObject(new Payload(claims));
         }

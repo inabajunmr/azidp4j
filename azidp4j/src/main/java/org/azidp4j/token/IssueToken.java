@@ -179,7 +179,8 @@ public class IssueToken {
                                     authorizationCode.nonce,
                                     at.token,
                                     null,
-                                    client.idTokenSignedResponseAlg);
+                                    client.idTokenSignedResponseAlg,
+                                    authorizationCode.scope);
                     if (authorizationCode.state == null) {
                         return new TokenResponse(
                                 200,
