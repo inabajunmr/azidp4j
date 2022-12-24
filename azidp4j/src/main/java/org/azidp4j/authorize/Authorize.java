@@ -9,6 +9,7 @@ import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.*;
+import org.azidp4j.authorize.request.claims.ClaimsRequestParser;
 import org.azidp4j.authorize.response.AuthorizationErrorTypeWithoutRedirect;
 import org.azidp4j.authorize.response.AuthorizationResponse;
 import org.azidp4j.client.ClientStore;
@@ -34,6 +35,8 @@ public class Authorize {
     private final IDTokenIssuer idTokenIssuer;
 
     private final IDTokenValidator idTokenValidator;
+
+    prvate final ClaimsRequestParser claimsRequestParser;
 
     private final AzIdPConfig config;
 
@@ -324,6 +327,11 @@ public class Authorize {
             }
         }
 
+        // TODO parse claims
+        // TODO パースしたくないので一旦認可リクエストごと caller にわたすモデルで考える
+        // 本来 consent なんだけど、acr claims によって追加の認証を返すようなケースをどう表現する？
+        // TODO consent を claims とともに返すしか無い気がする
+
         // parse prompt
         Set<Prompt> prompt;
         try {
@@ -474,6 +482,12 @@ public class Authorize {
                     responseMode,
                     null);
         }
+
+        // TODO claims を見て次のアクションを caller がコントロールできる機構
+        // TODO 例えばこの claims だったら追加の同意が必要だから同意画面を出す、みたいな？
+        // TODO 例えば追加の認証が必要である、といったケースで、ここで inject するロジックでセッションをどう使えばいいんだ？
+        // TODO inject するんじゃなくてここで一旦 return して、caller がよしなに処理したらその後 authorizationResponse.redirect() でトークンを払い出して URL 組み立て、とかのがいいんじゃない？
+        // TODO return するときにパース済みの認可リクエストを返してあげて、もしなんか追加処理が必要ならそこでよしなにしてもらう感じ
 
         String accessToken = null;
         String tokenType = null;

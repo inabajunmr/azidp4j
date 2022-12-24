@@ -24,6 +24,7 @@ public class AuthorizationRequestParser {
         String registration = req.queryParameters.get("registration");
         String prompt = req.queryParameters.get("prompt");
         String display = req.queryParameters.get("display");
+        String claims = req.queryParameters.get("claims");
         String codeChallenge = req.queryParameters.get("code_challenge");
         String codeChallengeMethod = req.queryParameters.get("code_challenge_method");
 
@@ -44,6 +45,7 @@ public class AuthorizationRequestParser {
                 .loginHint(loginHint)
                 .prompt(prompt)
                 .display(display)
+                .claims(claims)
                 .request(request)
                 .requestUri(requestUri)
                 .registration(registration)

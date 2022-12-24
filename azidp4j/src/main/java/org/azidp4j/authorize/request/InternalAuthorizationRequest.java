@@ -56,6 +56,9 @@ public class InternalAuthorizationRequest {
     /** OpenID Connect Core 1.0 */
     // TODO   final String acrValues;
 
+    /** OpenID Connect Core 1.0 */
+    public final String claims;
+
     /** OpenID Connect Core 1.0 "6. Passing Request Parameters as JWTs" */
     public final String request;
 
@@ -103,6 +106,7 @@ public class InternalAuthorizationRequest {
             String loginHint,
             String prompt,
             String display,
+            String claims,
             String request,
             String requestUri,
             String registration,
@@ -124,6 +128,7 @@ public class InternalAuthorizationRequest {
         this.uiLocales = uiLocales;
         this.prompt = prompt;
         this.display = display;
+        this.claims = claims;
         this.request = request;
         this.requestUri = requestUri;
         this.registration = registration;
@@ -149,6 +154,7 @@ public class InternalAuthorizationRequest {
         private String uiLocales;
         private String prompt;
         private String display;
+        private String claims;
         private String request;
         private String requestUri;
         private String registration;
@@ -237,6 +243,11 @@ public class InternalAuthorizationRequest {
             return this;
         }
 
+        public Builder claims(String claims) {
+            this.claims = claims;
+            return this;
+        }
+
         public Builder request(String request) {
             this.request = request;
             return this;
@@ -280,6 +291,7 @@ public class InternalAuthorizationRequest {
                     loginHint,
                     prompt,
                     display,
+                    claims,
                     request,
                     requestUri,
                     registration,

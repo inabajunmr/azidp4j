@@ -86,6 +86,10 @@ public class AuthorizationEndpointHandler {
         // azidp4j responses what authorization should do next.
         switch (response.next) {
             case redirect -> {
+                var parsedAuthorizationRequest = response.authorizationRequest;
+                if(requiresXXXAcr(parsedAuthorizationRequest.claims, userAcr)) {
+                    // TODO 認可リクエストの claims パラメーターを見て、追加の認証が必要であれば例えば /login にリダイレクト
+                }
                 return "redirect:" + response.redirect.redirectTo;
             }
             case errorPage -> {
@@ -96,6 +100,7 @@ public class AuthorizationEndpointHandler {
             case additionalPage -> {
                 // When authorization request processing needs additional action.
                 // ex. user authentication or request consent.
+                // TODO response.authorizationRequest かなんかでパース済みの認可リクエストが参照できて、例えば claims の acr を見て追加認証が必要なら /login にリダイレクト
                 return additionalPage(req, res, authzReq, response.additionalPage);
             }
             default -> throw new AssertionError();
