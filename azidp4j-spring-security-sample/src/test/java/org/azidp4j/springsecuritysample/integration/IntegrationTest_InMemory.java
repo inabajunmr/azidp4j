@@ -287,13 +287,16 @@ public class IntegrationTest_InMemory {
 
         // userinfo endpoint(post with body bearer token)
         {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            // DefaultBearerTokenResolver doesn't accept x-www-form-urlencoded; charset=UTF8 but
-            // RestTemplate add it so using String
-            HttpEntity<String> entity = new HttpEntity<>("access_token=" + accessToken, headers);
+            MultiValueMap<String, String> introspectionRequest = new LinkedMultiValueMap<>();
+            introspectionRequest.add("access_token", accessToken);
+            var introspectionRequestEntity =
+                    RequestEntity.post("/userinfo")
+                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                            .accept(MediaType.APPLICATION_JSON)
+                            .body(introspectionRequest);
             var userinfo =
-                    testRestTemplate.postForEntity(endpoint + "/userinfo", entity, Map.class);
+                    testRestTemplate.postForEntity(
+                            endpoint + "/userinfo", introspectionRequestEntity, Map.class);
             assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
         }
