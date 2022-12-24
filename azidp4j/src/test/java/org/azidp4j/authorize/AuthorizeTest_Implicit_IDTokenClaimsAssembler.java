@@ -58,6 +58,7 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
                     Set.of("http://rp1.example.com", "http://rp2.example.com"),
                     Set.of(
                             Set.of(ResponseType.token),
+                            Set.of(ResponseType.id_token),
                             Set.of(ResponseType.token, ResponseType.id_token)),
                     ApplicationType.WEB,
                     Set.of(GrantType.authorization_code, GrantType.implicit),
@@ -132,7 +133,7 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
     }
 
     @Test
-    void implicitGrant_oidc_es256_withState() throws JOSEException, ParseException {
+    void implicitGrant_oidc_es256_withState_tokenAndIDToken() throws JOSEException, ParseException {
         // setup
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
@@ -166,6 +167,50 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(fragmentMap.get("token_type"), "bearer");
         assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
+        IdTokenAssert.assertIdTokenES256(
+                fragmentMap.get("id_token"),
+                eckey,
+                "username",
+                clientEs256.clientId,
+                "http://localhost:8080",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond(),
+                Instant.now().getEpochSecond(),
+                "abc",
+                fragmentMap.get("access_token"),
+                null);
+        // verify claims from idTokenClaimsAssembler
+        var idToken = JWSObject.parse(fragmentMap.get("id_token"));
+        // access token was issued so claims will be gained via userinfo endpoint
+        assertNull(idToken.getPayload().toJSONObject().get("key1"));
+    }
+
+    @Test
+    void implicitGrant_oidc_es256_withState_onlyIDToken() throws JOSEException, ParseException {
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("id_token")
+                        .clientId(clientEs256.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("openid rs:scope1")
+                        .authenticatedUserSubject("username")
+                        .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
+                        .state("xyz")
+                        .nonce("abc")
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.next, NextAction.redirect);
+        var location = response.redirect.redirectTo;
+        var fragmentMap =
+                Arrays.stream(URI.create(location).getFragment().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals(fragmentMap.get("state"), "xyz");
         IdTokenAssert.assertIdTokenES256(
                 fragmentMap.get("id_token"),
                 eckey,
