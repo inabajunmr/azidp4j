@@ -38,7 +38,7 @@ public class DynamicClientRegistrationEndpointHandler {
         if (!requestBody.containsKey("scope")) {
             // OIDC Conformance test only supports OIDC registration so insert openid scope
             requestWithScope = new HashMap<>(requestBody);
-            requestWithScope.put("scope", "openid");
+            requestWithScope.put("scope", "openid profile email address phone");
         }
 
         // Client Registration Request

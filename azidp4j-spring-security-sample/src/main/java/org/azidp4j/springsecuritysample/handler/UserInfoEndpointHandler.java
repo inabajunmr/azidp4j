@@ -37,20 +37,16 @@ public class UserInfoEndpointHandler {
                     auth.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority)
                             .filter(a -> a.matches("^SCOPE_.*"))
+                            .map(a -> a.replace("SCOPE_", ""))
                             .collect(Collectors.toSet());
 
             // `openid` scope is required for the endpoint.
-            if (scopes.contains("SCOPE_openid")) {
+            if (scopes.contains("openid")) {
                 // IdP can get username as sub from introspection.
                 var username = auth.getName();
                 // azidp4j doesn't support UserInfo endpoint so construct response by itself.
                 return ResponseEntity.status(200)
-                        .body(
-                                userStore.find(username).entrySet().stream()
-                                        .filter(v -> !v.getKey().equals("auth_time_sec"))
-                                        .collect(
-                                                Collectors.toMap(
-                                                        Map.Entry::getKey, Map.Entry::getValue)));
+                        .body(userStore.find(username).filterByScopes(scopes));
             } else {
                 return ResponseEntity.status(401).build();
             }

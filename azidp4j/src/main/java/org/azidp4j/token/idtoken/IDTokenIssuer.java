@@ -48,7 +48,8 @@ public class IDTokenIssuer {
             String accessToken,
             String authorizationCode,
             SigningAlgorithm alg,
-            String scope) {
+            String scope,
+            boolean accessTokenWillIssued) {
         var jti = UUID.randomUUID().toString();
         var atHash = accessToken != null ? calculateXHash(accessToken) : null;
         var cHash = authorizationCode != null ? calculateXHash(authorizationCode) : null;
@@ -76,7 +77,7 @@ public class IDTokenIssuer {
                         atHash,
                         "c_hash",
                         cHash);
-        if (idTokenClaimsAssembler != null) {
+        if (idTokenClaimsAssembler != null && !accessTokenWillIssued) {
             var profiles =
                     idTokenClaimsAssembler.assemble(
                             sub,

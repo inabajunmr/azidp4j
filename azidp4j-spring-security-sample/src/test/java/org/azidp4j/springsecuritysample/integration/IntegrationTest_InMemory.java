@@ -72,7 +72,7 @@ public class IntegrationTest_InMemory {
                         "response_types",
                         Set.of(ResponseType.code.name(), ResponseType.token.name()),
                         "scope",
-                        "scope1 scope2 openid",
+                        "scope1 scope2 openid profile email address phone",
                         "id_token_signed_response_alg",
                         "RS256",
                         "token_endpoint_auth_method",
@@ -112,7 +112,7 @@ public class IntegrationTest_InMemory {
                         .queryParam("response_type", "code")
                         .queryParam("client_id", clientId)
                         .queryParam("redirect_uri", redirectUri)
-                        .queryParam("scope", "scope1 openid")
+                        .queryParam("scope", "scope1 openid email")
                         .queryParam("state", state)
                         .build();
         var authorizationResponseRedirectToLoginPage =
@@ -269,6 +269,7 @@ public class IntegrationTest_InMemory {
             var userinfo = testRestTemplate.exchange(userInfoRequest, Map.class);
             assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
+            assertThat(userinfo.getBody().get("email")).isEqualTo("user1@example.com");
         }
 
         // userinfo endpoint(post with header bearer token)
@@ -281,6 +282,7 @@ public class IntegrationTest_InMemory {
             var userinfo = testRestTemplate.exchange(userInfoRequest, Map.class);
             assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
+            assertThat(userinfo.getBody().get("email")).isEqualTo("user1@example.com");
         }
 
         // userinfo endpoint(post with body bearer token)
