@@ -3,6 +3,7 @@ package org.azidp4j.authorize.response;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import org.azidp4j.authorize.request.Display;
 import org.azidp4j.authorize.request.Prompt;
 import org.azidp4j.authorize.request.ResponseMode;
@@ -21,12 +22,15 @@ public class AuthorizationResponse {
     /** when next is redirect, the parameter is specified. */
     public final Redirect redirect;
 
+    public final Supplier<Redirect> redirectSupplier;
+
     /** error description for developer * */
     public final String errorDescription;
 
     private AuthorizationResponse(
             NextAction next,
             Redirect redirect,
+            Supplier<Redirect> redirectSupplier,
             AdditionalPage additionalPage,
             ErrorPage errorPage,
             String errorDescription) {
@@ -34,6 +38,7 @@ public class AuthorizationResponse {
         this.additionalPage = additionalPage;
         this.errorPage = errorPage;
         this.redirect = redirect;
+        this.redirectSupplier = redirectSupplier;
         this.errorDescription = errorDescription;
     }
 
@@ -56,7 +61,7 @@ public class AuthorizationResponse {
                         expectedUserSubject,
                         loginHint);
         return new AuthorizationResponse(
-                NextAction.additionalPage, null, page, null, errorDescription);
+                NextAction.additionalPage, null, null, page, null, errorDescription);
     }
 
     public static AuthorizationResponse errorPage(
@@ -65,6 +70,7 @@ public class AuthorizationResponse {
             String errorDescription) {
         return new AuthorizationResponse(
                 NextAction.errorPage,
+                null,
                 null,
                 null,
                 new ErrorPage(error, uiLocales),
@@ -78,6 +84,12 @@ public class AuthorizationResponse {
             String errorDescription) {
         var redirect = new Redirect(redirectUri, params, responseMode);
         return new AuthorizationResponse(
-                NextAction.redirect, redirect, null, null, errorDescription);
+                NextAction.redirect, redirect, null, null, null, errorDescription);
+    }
+
+    public static AuthorizationResponse successRedirect(
+            Supplier<Redirect> redirectSupplier, String errorDescription) {
+        return new AuthorizationResponse(
+                NextAction.redirect, null, redirectSupplier, null, null, errorDescription);
     }
 }

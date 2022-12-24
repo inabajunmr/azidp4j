@@ -11,6 +11,7 @@ import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.*;
 import org.azidp4j.authorize.response.AuthorizationErrorTypeWithoutRedirect;
 import org.azidp4j.authorize.response.AuthorizationResponse;
+import org.azidp4j.authorize.response.Redirect;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.scope.ScopeAudienceMapper;
@@ -475,92 +476,99 @@ public class Authorize {
                     null);
         }
 
-        String accessToken = null;
-        String tokenType = null;
-        String expiresIn = null;
-        String responseScope = null;
-        if (responseType.contains(ResponseType.token)) {
-            responseScope = scope;
-            // issue access token
-            var at =
-                    accessTokenService.issue(
-                            authorizationRequest.authenticatedUserSubject,
-                            scope,
-                            authorizationRequest.clientId,
-                            Instant.now().getEpochSecond()
-                                    + config.accessTokenExpiration.toSeconds(),
-                            Instant.now().getEpochSecond(),
-                            scopeAudienceMapper.map(scope),
-                            null);
-            accessToken = at.token;
-            tokenType = "bearer";
-            expiresIn = String.valueOf(config.accessTokenExpiration.getSeconds());
-        }
+        var c = codeChallengeMethod;
+        return AuthorizationResponse.successRedirect(
+                () -> {
+                    String accessToken = null;
+                    String tokenType = null;
+                    String expiresIn = null;
+                    String responseScope = null;
+                    if (responseType.contains(ResponseType.token)) {
+                        responseScope = scope;
+                        // issue access token
+                        var at =
+                                accessTokenService.issue(
+                                        authorizationRequest.authenticatedUserSubject,
+                                        scope,
+                                        authorizationRequest.clientId,
+                                        Instant.now().getEpochSecond()
+                                                + config.accessTokenExpiration.toSeconds(),
+                                        Instant.now().getEpochSecond(),
+                                        scopeAudienceMapper.map(scope),
+                                        null);
+                        accessToken = at.token;
+                        tokenType = "bearer";
+                        expiresIn = String.valueOf(config.accessTokenExpiration.getSeconds());
+                    }
 
-        String authorizationCode = null;
-        if (responseType.contains(ResponseType.code)) {
-            // issue authorization code
-            var code =
-                    authorizationCodeService.issue(
-                            authorizationRequest.authenticatedUserSubject,
-                            scope,
-                            authorizationRequest.clientId,
-                            authorizationRequest.redirectUri,
-                            authorizationRequest.state,
-                            authorizationRequest.authTime,
-                            authorizationRequest.nonce,
-                            authorizationRequest.codeChallenge,
-                            codeChallengeMethod,
-                            Instant.now().getEpochSecond()
-                                    + config.authorizationCodeExpiration.toSeconds());
-            authorizationCode = code.code;
-        }
+                    String authorizationCode = null;
+                    if (responseType.contains(ResponseType.code)) {
+                        // issue authorization code
+                        var code =
+                                authorizationCodeService.issue(
+                                        authorizationRequest.authenticatedUserSubject,
+                                        scope,
+                                        authorizationRequest.clientId,
+                                        authorizationRequest.redirectUri,
+                                        authorizationRequest.state,
+                                        authorizationRequest.authTime,
+                                        authorizationRequest.nonce,
+                                        authorizationRequest.codeChallenge,
+                                        c,
+                                        Instant.now().getEpochSecond()
+                                                + config.authorizationCodeExpiration.toSeconds());
+                        authorizationCode = code.code;
+                    }
 
-        String idToken = null;
-        if (responseType.contains(ResponseType.id_token)) {
-            var accessTokenWillIssued = true;
-            if (accessToken == null & authorizationCode == null) {
-                // https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims
-                // The Claims requested by the profile, email, address, and phone scope values are
-                // returned from the UserInfo Endpoint, as described in Section 5.3.2, when a
-                // response_type value is used that results in an Access Token being issued.
-                // However, when no Access Token is issued (which is the case for the response_type
-                // value id_token), the resulting Claims are returned in the ID Token.
-                accessTokenWillIssued = false;
-            }
-            idToken =
-                    idTokenIssuer
-                            .issue(
-                                    authorizationRequest.authenticatedUserSubject,
-                                    authorizationRequest.clientId,
-                                    authorizationRequest.authTime,
-                                    authorizationRequest.nonce,
+                    String idToken = null;
+                    if (responseType.contains(ResponseType.id_token)) {
+                        var accessTokenWillIssued = true;
+                        if (accessToken == null & authorizationCode == null) {
+                            // https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims
+                            // The Claims requested by the profile, email, address, and phone scope
+                            // values are
+                            // returned from the UserInfo Endpoint, as described in Section 5.3.2,
+                            // when a
+                            // response_type value is used that results in an Access Token being
+                            // issued.
+                            // However, when no Access Token is issued (which is the case for the
+                            // response_type
+                            // value id_token), the resulting Claims are returned in the ID Token.
+                            accessTokenWillIssued = false;
+                        }
+                        idToken =
+                                idTokenIssuer
+                                        .issue(
+                                                authorizationRequest.authenticatedUserSubject,
+                                                authorizationRequest.clientId,
+                                                authorizationRequest.authTime,
+                                                authorizationRequest.nonce,
+                                                accessToken,
+                                                authorizationCode,
+                                                client.idTokenSignedResponseAlg,
+                                                scope,
+                                                accessTokenWillIssued)
+                                        .serialize();
+                    }
+                    return new Redirect(
+                            redirectUri,
+                            MapUtil.nullRemovedStringMap(
+                                    "access_token",
                                     accessToken,
+                                    "id_token",
+                                    idToken,
+                                    "code",
                                     authorizationCode,
-                                    client.idTokenSignedResponseAlg,
-                                    scope,
-                                    accessTokenWillIssued)
-                            .serialize();
-        }
-
-        return AuthorizationResponse.redirect(
-                redirectUri,
-                MapUtil.nullRemovedStringMap(
-                        "access_token",
-                        accessToken,
-                        "id_token",
-                        idToken,
-                        "code",
-                        authorizationCode,
-                        "token_type",
-                        tokenType,
-                        "expires_in",
-                        expiresIn,
-                        "scope",
-                        responseScope,
-                        "state",
-                        authorizationRequest.state),
-                responseMode,
+                                    "token_type",
+                                    tokenType,
+                                    "expires_in",
+                                    expiresIn,
+                                    "scope",
+                                    responseScope,
+                                    "state",
+                                    authorizationRequest.state),
+                            responseMode);
+                },
                 null);
     }
 
