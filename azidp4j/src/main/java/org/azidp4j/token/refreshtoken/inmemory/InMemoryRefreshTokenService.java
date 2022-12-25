@@ -18,6 +18,7 @@ public class InMemoryRefreshTokenService implements RefreshTokenService {
     public RefreshToken issue(
             String sub,
             String scope,
+            String claims,
             String clientId,
             Long exp,
             Long iat,
@@ -28,6 +29,7 @@ public class InMemoryRefreshTokenService implements RefreshTokenService {
                         UUID.randomUUID().toString(),
                         sub,
                         scope,
+                        claims,
                         clientId,
                         audience,
                         exp,

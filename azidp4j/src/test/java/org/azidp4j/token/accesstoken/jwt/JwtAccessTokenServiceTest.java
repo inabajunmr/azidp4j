@@ -36,7 +36,14 @@ class JwtAccessTokenServiceTest {
         var iat = Instant.now().getEpochSecond();
         var issued =
                 sut.issue(
-                        "sub", "scope1 scope2", "client id", exp, iat, Set.of("audience"), "code");
+                        "sub",
+                        "scope1 scope2",
+                        "{\"userinfo\":{\"name\":{\"essential\":true}}}",
+                        "client id",
+                        exp,
+                        iat,
+                        Set.of("audience"),
+                        "code");
         assertEquals("sub", issued.sub);
         assertEquals("scope1 scope2", issued.scope);
         assertEquals("client id", issued.clientId);
@@ -136,7 +143,14 @@ class JwtAccessTokenServiceTest {
         var iat = Instant.now().getEpochSecond();
         var issued =
                 sut.issue(
-                        "sub", "scope1 scope2", "client id", exp, iat, Set.of("audience"), "code");
+                        "sub",
+                        "scope1 scope2",
+                        null,
+                        "client id",
+                        exp,
+                        iat,
+                        Set.of("audience"),
+                        "code");
         assertEquals("sub", issued.sub);
         assertEquals("scope1 scope2", issued.scope);
         assertEquals("client id", issued.clientId);
@@ -161,7 +175,14 @@ class JwtAccessTokenServiceTest {
         var iat = Instant.now().getEpochSecond();
         var issued =
                 sut.issue(
-                        "sub", "scope1 scope2", "client id", exp, iat, Set.of("audience"), "code");
+                        "sub",
+                        "scope1 scope2",
+                        null,
+                        "client id",
+                        exp,
+                        iat,
+                        Set.of("audience"),
+                        "code");
         assertEquals("sub", issued.sub);
         assertEquals("scope1 scope2", issued.scope);
         assertEquals("client id", issued.clientId);
@@ -183,7 +204,14 @@ class JwtAccessTokenServiceTest {
 
         var issued =
                 service.issue(
-                        "sub", "scope1 scope2", "client id", exp, iat, Set.of("audience"), "code");
+                        "sub",
+                        "scope1 scope2",
+                        null,
+                        "client id",
+                        exp,
+                        iat,
+                        Set.of("audience"),
+                        "code");
         assertEquals("sub", issued.sub);
         assertEquals("scope1 scope2", issued.scope);
         assertEquals("client id", issued.clientId);

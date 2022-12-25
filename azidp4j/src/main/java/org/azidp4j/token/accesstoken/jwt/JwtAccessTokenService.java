@@ -34,6 +34,7 @@ public class JwtAccessTokenService implements AccessTokenService {
     public AccessToken issue(
             String sub,
             String scope,
+            String claimsParam,
             String clientId,
             Long exp,
             Long iat,
@@ -58,10 +59,13 @@ public class JwtAccessTokenService implements AccessTokenService {
                         clientId,
                         "scope",
                         scope,
+                        "claims",
+                        claimsParam,
                         "authorization_code",
                         authorizationCode);
         var jwt = jwsIssuer.issue(kidSupplier.get(), "at+jwt", claims).serialize();
-        return new AccessToken(jwt, sub, scope, clientId, audience, exp, iat, authorizationCode);
+        return new AccessToken(
+                jwt, sub, scope, claimsParam, clientId, audience, exp, iat, authorizationCode);
     }
 
     @Override
@@ -100,6 +104,7 @@ public class JwtAccessTokenService implements AccessTokenService {
             var payload = jws.getPayload().toJSONObject();
             var sub = payload.containsKey("sub") ? (String) payload.get("sub") : null;
             var scope = payload.containsKey("scope") ? (String) payload.get("scope") : null;
+            var claims = payload.containsKey("claims") ? (String) payload.get("claims") : null;
             var clientId =
                     payload.containsKey("client_id") ? (String) payload.get("client_id") : null;
             var aud =
@@ -113,7 +118,8 @@ public class JwtAccessTokenService implements AccessTokenService {
             var exp = payload.containsKey("exp") ? (Long) payload.get("exp") : null;
             var iat = payload.containsKey("iat") ? (Long) payload.get("iat") : null;
             return Optional.of(
-                    new AccessToken(token, sub, scope, clientId, aud, exp, iat, authorizationCode));
+                    new AccessToken(
+                            token, sub, scope, claims, clientId, aud, exp, iat, authorizationCode));
         } catch (ParseException | JOSEException e) {
             return Optional.empty();
         }

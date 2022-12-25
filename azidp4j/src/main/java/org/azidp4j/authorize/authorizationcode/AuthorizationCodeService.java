@@ -21,6 +21,7 @@ public interface AuthorizationCodeService {
     AuthorizationCode issue(
             String sub,
             String scope,
+            String claims,
             String clientId,
             String redirectUri,
             String state,

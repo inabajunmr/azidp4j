@@ -50,6 +50,7 @@ class RevocationTest {
                 accessTokenService.issue(
                         "sub",
                         "scope1 scope2",
+                        "{\"userinfo\":{\"name\":{\"essential\":true}}}",
                         "confidential",
                         Instant.now().getEpochSecond(),
                         Instant.now().getEpochSecond(),
@@ -79,6 +80,7 @@ class RevocationTest {
                 accessTokenService.issue(
                         "sub",
                         "scope1 scope2",
+                        "{\"userinfo\":{\"name\":{\"essential\":true}}}",
                         "public",
                         Instant.now().getEpochSecond(),
                         Instant.now().getEpochSecond(),
@@ -140,6 +142,7 @@ class RevocationTest {
                 refreshTokenService.issue(
                         "sub",
                         "scope1 scope2",
+                        "{\"userinfo\":{\"name\":{\"essential\":true}}}",
                         "confidential",
                         Instant.now().getEpochSecond(),
                         Instant.now().getEpochSecond(),
@@ -169,6 +172,7 @@ class RevocationTest {
                 refreshTokenService.issue(
                         "sub",
                         "scope1 scope2",
+                        "{\"userinfo\":{\"name\":{\"essential\":true}}}",
                         "public",
                         Instant.now().getEpochSecond(),
                         Instant.now().getEpochSecond(),
@@ -197,6 +201,7 @@ class RevocationTest {
                 accessTokenService.issue(
                         "sub",
                         "scope1 scope2",
+                        "{\"userinfo\":{\"name\":{\"essential\":true}}}",
                         "confidential",
                         Instant.now().getEpochSecond(),
                         Instant.now().getEpochSecond(),
@@ -226,6 +231,7 @@ class RevocationTest {
                 refreshTokenService.issue(
                         "sub",
                         "scope1 scope2",
+                        "{\"userinfo\":{\"name\":{\"essential\":true}}}",
                         "confidential",
                         Instant.now().getEpochSecond(),
                         Instant.now().getEpochSecond(),

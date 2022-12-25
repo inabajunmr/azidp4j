@@ -323,6 +323,11 @@ public class AzIdPBuilder {
                     errors.add("jwkSet contains unsupported alg");
                 }
             }
+        } else {
+            if (discoveryConfig != null) {
+                discoveryConfig.claimsParameterSupported = false;
+                discoveryConfig.claimsSupported = null;
+            }
         }
         validateIdTokenSigningAlgAndJwkSet(errors);
         constructJwtServices();

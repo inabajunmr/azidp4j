@@ -148,6 +148,7 @@ public class IssueToken {
                         accessTokenService.issue(
                                 authorizationCode.sub,
                                 authorizationCode.scope,
+                                authorizationCode.claims,
                                 authorizationCode.clientId,
                                 Instant.now().getEpochSecond()
                                         + config.accessTokenExpiration.toSeconds(),
@@ -160,6 +161,7 @@ public class IssueToken {
                             refreshTokenService.issue(
                                             authorizationCode.sub,
                                             authorizationCode.scope,
+                                            authorizationCode.claims,
                                             authorizationCode.clientId,
                                             Instant.now().getEpochSecond()
                                                     + config.refreshTokenExpiration.toSeconds(),
@@ -181,6 +183,7 @@ public class IssueToken {
                                     null,
                                     client.idTokenSignedResponseAlg,
                                     authorizationCode.scope,
+                                    authorizationCode.claims,
                                     true);
                     if (authorizationCode.state == null) {
                         return new TokenResponse(
@@ -253,6 +256,7 @@ public class IssueToken {
                             accessTokenService.issue(
                                     req.username,
                                     req.scope,
+                                    null,
                                     client.clientId,
                                     Instant.now().getEpochSecond()
                                             + config.accessTokenExpiration.toSeconds(),
@@ -266,6 +270,7 @@ public class IssueToken {
                                                 UUID.randomUUID().toString(),
                                                 req.username,
                                                 scope,
+                                                null,
                                                 client.clientId,
                                                 scopeAudienceMapper.map(scope),
                                                 Instant.now().getEpochSecond()
@@ -303,6 +308,7 @@ public class IssueToken {
                         accessTokenService.issue(
                                 client.clientId,
                                 scope,
+                                null,
                                 client.clientId,
                                 Instant.now().getEpochSecond()
                                         + config.accessTokenExpiration.toSeconds(),
@@ -344,6 +350,7 @@ public class IssueToken {
                         accessTokenService.issue(
                                 rt.sub,
                                 scope,
+                                rt.claims,
                                 client.clientId,
                                 Instant.now().getEpochSecond()
                                         + config.accessTokenExpiration.toSeconds(),
@@ -354,6 +361,7 @@ public class IssueToken {
                         refreshTokenService.issue(
                                 rt.sub,
                                 scope,
+                                rt.claims,
                                 rt.clientId,
                                 Instant.now().getEpochSecond()
                                         + config.refreshTokenExpiration.toSeconds(),

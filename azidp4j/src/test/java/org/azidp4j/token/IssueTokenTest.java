@@ -37,6 +37,7 @@ public class IssueTokenTest {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
+                        null,
                         "clientId",
                         "http://example.com",
                         "xyz",

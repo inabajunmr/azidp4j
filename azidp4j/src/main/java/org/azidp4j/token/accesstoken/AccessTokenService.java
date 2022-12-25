@@ -20,6 +20,7 @@ public interface AccessTokenService {
     AccessToken issue(
             String sub,
             String scope,
+            String claims,
             String clientId,
             Long exp,
             Long iat,

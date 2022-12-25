@@ -39,7 +39,14 @@ import org.junit.jupiter.api.Test;
 class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
 
     final IDTokenClaimsAssembler idTokenClaimsAssembler =
-            (sub, scope) -> Map.of("key1", "value1", "key2", Map.of("key2-1", "value2-1"));
+            (sub, accessTokenWillBeIssued, scope, claims) ->
+                    Map.of(
+                            "key1",
+                            "value1",
+                            "key2",
+                            Map.of("key2-1", "value2-1"),
+                            "accessTokenWillBeIssued",
+                            accessTokenWillBeIssued);
 
     final ClientStore clientStore = new InMemoryClientStore();
     final ECKey eckey =
@@ -181,7 +188,7 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
         // verify claims from idTokenClaimsAssembler
         var idToken = JWSObject.parse(fragmentMap.get("id_token"));
         // access token was issued so claims will be gained via userinfo endpoint
-        assertNull(idToken.getPayload().toJSONObject().get("key1"));
+        assertEquals(true, idToken.getPayload().toJSONObject().get("accessTokenWillBeIssued"));
     }
 
     @Test
@@ -228,5 +235,6 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
         assertEquals(
                 "value2-1",
                 ((Map<?, ?>) (idToken.getPayload().toJSONObject().get("key2"))).get("key2-1"));
+        assertEquals(false, idToken.getPayload().toJSONObject().get("accessTokenWillBeIssued"));
     }
 }

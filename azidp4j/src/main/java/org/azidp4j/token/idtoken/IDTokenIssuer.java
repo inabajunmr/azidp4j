@@ -49,7 +49,8 @@ public class IDTokenIssuer {
             String authorizationCode,
             SigningAlgorithm alg,
             String scope,
-            boolean accessTokenWillIssued) {
+            String claimsParam,
+            boolean accessTokenWillBeIssued) {
         var jti = UUID.randomUUID().toString();
         var atHash = accessToken != null ? calculateXHash(accessToken) : null;
         var cHash = authorizationCode != null ? calculateXHash(authorizationCode) : null;
@@ -77,13 +78,15 @@ public class IDTokenIssuer {
                         atHash,
                         "c_hash",
                         cHash);
-        if (idTokenClaimsAssembler != null && !accessTokenWillIssued) {
+        if (idTokenClaimsAssembler != null) {
             var profiles =
                     idTokenClaimsAssembler.assemble(
                             sub,
+                            accessTokenWillBeIssued,
                             Arrays.stream(scope.split(" "))
                                     .map(String::trim)
-                                    .collect(Collectors.toSet()));
+                                    .collect(Collectors.toSet()),
+                            claimsParam);
             if (profiles != null) {
                 // merge
                 var mutableProfiles = new HashMap<>(profiles);

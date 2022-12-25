@@ -18,6 +18,7 @@ public class InMemoryAccessTokenService implements AccessTokenService {
     public AccessToken issue(
             String sub,
             String scope,
+            String claims,
             String clientId,
             Long exp,
             Long iat,
@@ -28,6 +29,7 @@ public class InMemoryAccessTokenService implements AccessTokenService {
                         UUID.randomUUID().toString(),
                         sub,
                         scope,
+                        claims,
                         clientId,
                         audience,
                         exp,

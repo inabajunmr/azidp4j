@@ -35,12 +35,14 @@ class DiscoveryTest {
                         .revocationEndpoint("http://localhost:8080/revoke")
                         .introspectionEndpoint("http://localhost:8080/introspect")
                         .displayValueSupported(Set.of(Display.page, Display.popup))
+                        .claimsSupported(Set.of("test1", "test2"))
                         .userinfoSigningAlgValuesSupported(Set.of("RS256", "ES256"))
                         .userinfoEncryptionAlgValuesSupported(Set.of("RSA1_5", "RSA-OAEP"))
                         .userinfoEncryptionEncValuesSupported(
                                 Set.of("A128CBC-HS256", "A192CBC-HS384"))
                         .serviceDocumentation("https://example.com/service/documentation")
                         .uiLocalesSupported(List.of("sq-AL", "ar-DZ"))
+                        .claimsParameterSupported(false)
                         .opPolicyUri("https://example.com/policy")
                         .opTosUri("https://example.com/tos")
                         .build();
@@ -122,6 +124,7 @@ class DiscoveryTest {
         assertEquals(
                 "https://example.com/service/documentation", actual.get("service_documentation"));
         assertEquals(List.of("sq-AL", "ar-DZ"), actual.get("ui_locales_supported"));
+        assertEquals(false, actual.get("claims_parameter_supported"));
         assertEquals("https://example.com/policy", actual.get("op_policy_uri"));
         assertEquals("https://example.com/tos", actual.get("op_tos_uri"));
         assertEquals("http://localhost:8080/revoke", actual.get("revocation_endpoint"));
@@ -162,6 +165,7 @@ class DiscoveryTest {
         assertNull(actual.get("request_object_signing_alg_values_supported"));
         assertNull(actual.get("request_object_encryption_alg_values_supported"));
         assertNull(actual.get("request_object_encryption_enc_values_supported"));
+        assertEquals(Set.of("test1", "test2"), actual.get("claims_supported"));
         assertEquals(Set.of(Display.page, Display.popup), actual.get("display_values_supported"));
     }
 }
