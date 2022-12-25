@@ -57,7 +57,7 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
         var authorizationResponse = azIdp.authorize(authorizationRequest);
         switch (authorizationResponse.next) {
             case additionalPage -> {
-                switch (authorizationResponse.additionalPage.prompt) {
+                switch (authorizationResponse.additionalPage().prompt) {
                     case login:
                     {
                         redirectToLoginPage(httpExchange, authorizationRequest);
@@ -69,7 +69,7 @@ public class AuthorizationEndpointHandler extends AzIdpHttpHandler {
                 }
             }
             case redirect -> {
-                httpExchange.getResponseHeaders().put("Location", List.of(authorizationResponse.redirect.redirectTo));
+                httpExchange.getResponseHeaders().put("Location", List.of(authorizationResponse.redirect().createRedirectTo().toString()));
                 httpExchange.sendResponseHeaders(302, 0);
                 httpExchange.close();
             }

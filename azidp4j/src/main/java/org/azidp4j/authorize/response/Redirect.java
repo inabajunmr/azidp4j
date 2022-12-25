@@ -1,32 +1,39 @@
 package org.azidp4j.authorize.response;
 
 import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.stream.Collectors;
-import org.azidp4j.authorize.request.ResponseMode;
+import org.azidp4j.authorize.request.RedirectToSupplier;
 
 public class Redirect {
 
-    public final String redirectTo;
+    private final RedirectToSupplier redirectToSupplier;
 
-    public Redirect(URI redirectUri, Map<String, String> params, ResponseMode responseMode) {
-        var uri = new StringBuilder(redirectUri.toString());
+    private final boolean isSuccessResponse;
 
-        var join =
-                params.entrySet().stream()
-                        .map(
-                                kv ->
-                                        kv.getKey()
-                                                + '='
-                                                + URLEncoder.encode(
-                                                        kv.getValue(), StandardCharsets.UTF_8))
-                        .collect(Collectors.joining("&"));
-        switch (responseMode) {
-            case query -> uri.append("?").append(join);
-            case fragment -> uri.append("#").append(join);
+    private URI redirectTo;
+
+    public Redirect(RedirectToSupplier redirectToSupplier, boolean isSuccessResponse) {
+        this.redirectToSupplier = redirectToSupplier;
+        this.isSuccessResponse = isSuccessResponse;
+    }
+
+    /**
+     * Supply URI for redirect.
+     *
+     * <p>If isSuccessResponse is true, createRedirectTo create URI along with data store access for
+     * generate and persistent tokens.
+     *
+     * @return redirectTo
+     */
+    public URI createRedirectTo() {
+        if (this.redirectTo != null) {
+            return this.redirectTo;
         }
-        this.redirectTo = uri.toString();
+        this.redirectTo = this.redirectToSupplier.get().redirectTo;
+        return this.redirectTo;
+    }
+
+    /** If the response is success response, return true. */
+    public boolean isSuccessResponse() {
+        return isSuccessResponse;
     }
 }

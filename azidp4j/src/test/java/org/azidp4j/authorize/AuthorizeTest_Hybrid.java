@@ -8,7 +8,6 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
-import java.net.URI;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Arrays;
@@ -83,9 +82,9 @@ class AuthorizeTest_Hybrid {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var fragmentMap =
-                Arrays.stream(URI.create(location).getFragment().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
@@ -121,9 +120,9 @@ class AuthorizeTest_Hybrid {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var fragmentMap =
-                Arrays.stream(URI.create(location).getFragment().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         IdTokenAssert.assertIdTokenES256(
@@ -165,9 +164,9 @@ class AuthorizeTest_Hybrid {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var fragmentMap =
-                Arrays.stream(URI.create(location).getFragment().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         IdTokenAssert.assertIdTokenES256(
@@ -215,9 +214,9 @@ class AuthorizeTest_Hybrid {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var fragmentMap =
-                Arrays.stream(URI.create(location).getFragment().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         IdTokenAssert.assertIdTokenES256(

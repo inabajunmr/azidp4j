@@ -82,21 +82,28 @@ public class AuthorizationEndpointHandler {
 
         // Authorization Request
         var response = azIdP.authorize(authzReq);
-
         // azidp4j responses what authorization should do next.
         switch (response.next) {
             case redirect -> {
-                return "redirect:" + response.redirect.redirectTo;
+                var redirect = response.redirect();
+                // TODO
+                //                if(redirect.isSuccessResponse()) {
+                //                    // check acr and do something like show loginpage
+                //                    var claims = response.authorizationRequest().claims;
+                //
+                //                }
+
+                return "redirect:" + redirect.createRedirectTo().toString();
             }
             case errorPage -> {
                 // Error but can't redirect as authorization response.
                 // ex. redirect_uri is not allowed.
-                return errorPage(req, res, response.errorPage);
+                return errorPage(req, res, response.errorPage());
             }
             case additionalPage -> {
                 // When authorization request processing needs additional action.
                 // ex. user authentication or request consent.
-                return additionalPage(req, res, authzReq, response.additionalPage);
+                return additionalPage(req, res, authzReq, response.additionalPage());
             }
             default -> throw new AssertionError();
         }

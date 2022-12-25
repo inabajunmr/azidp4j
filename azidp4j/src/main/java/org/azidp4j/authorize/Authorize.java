@@ -11,6 +11,7 @@ import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.*;
 import org.azidp4j.authorize.response.AuthorizationErrorTypeWithoutRedirect;
 import org.azidp4j.authorize.response.AuthorizationResponse;
+import org.azidp4j.authorize.response.RedirectTo;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
 import org.azidp4j.scope.ScopeAudienceMapper;
@@ -73,19 +74,22 @@ public class Authorize {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
                     locales,
-                    "response_type parse error");
+                    "response_type parse error",
+                    authorizationRequest);
         }
         if (responseType.isEmpty()) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
                     locales,
-                    "response_type parse error");
+                    "response_type parse error",
+                    authorizationRequest);
         }
         if (!config.responseTypeSupported.contains(responseType)) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.unsupported_response_type,
                     locales,
-                    "azidp doesn't support response_type");
+                    "azidp doesn't support response_type",
+                    authorizationRequest);
         }
 
         ResponseMode responseMode;
@@ -95,13 +99,15 @@ public class Authorize {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_response_mode,
                     locales,
-                    "response_mode parse error");
+                    "response_mode parse error",
+                    authorizationRequest);
         }
         if (!config.responseModesSupported.contains(responseMode)) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.unsupported_response_mode,
                     locales,
-                    "azidp doesn't support response_mode");
+                    "azidp doesn't support response_mode",
+                    authorizationRequest);
         }
 
         // validate client
@@ -109,14 +115,16 @@ public class Authorize {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.client_id_required,
                     locales,
-                    "client_id required");
+                    "client_id required",
+                    authorizationRequest);
         }
         var clientOpt = clientStore.find(authorizationRequest.clientId);
         if (clientOpt.isEmpty()) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.client_not_found,
                     locales,
-                    "client not found");
+                    "client not found",
+                    authorizationRequest);
         }
 
         var client = clientOpt.get();
@@ -126,13 +134,15 @@ public class Authorize {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri,
                     locales,
-                    "redirect_uri required");
+                    "redirect_uri required",
+                    authorizationRequest);
         }
         if (!client.redirectUris.contains(authorizationRequest.redirectUri)) {
             return AuthorizationResponse.errorPage(
                     AuthorizationErrorTypeWithoutRedirect.redirect_uri_not_allowed,
                     locales,
-                    "client doesn't allow redirect_uri");
+                    "client doesn't allow redirect_uri",
+                    authorizationRequest);
         }
         URI redirectUri;
         try {
@@ -146,7 +156,9 @@ public class Authorize {
                     MapUtil.nullRemovedStringMap(
                             "error", "request_not_supported", "state", authorizationRequest.state),
                     responseMode,
-                    "request not supported");
+                    false,
+                    "request not supported",
+                    authorizationRequest);
         }
         if (authorizationRequest.requestUri != null) {
             return AuthorizationResponse.redirect(
@@ -157,7 +169,9 @@ public class Authorize {
                             "state",
                             authorizationRequest.state),
                     responseMode,
-                    "request_uri not supported");
+                    false,
+                    "request_uri not supported",
+                    authorizationRequest);
         }
         if (authorizationRequest.registration != null) {
             return AuthorizationResponse.redirect(
@@ -168,7 +182,9 @@ public class Authorize {
                             "state",
                             authorizationRequest.state),
                     responseMode,
-                    "registration not supported");
+                    false,
+                    "registration not supported",
+                    authorizationRequest);
         }
         // https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
         if (responseType.contains(ResponseType.code)) {
@@ -184,8 +200,10 @@ public class Authorize {
                                 "state",
                                 authorizationRequest.state),
                         responseMode,
+                        false,
                         "response_type is code but client doesn't support authorization_code"
-                                + " grant_type");
+                                + " grant_type",
+                        authorizationRequest);
             }
         }
 
@@ -201,8 +219,10 @@ public class Authorize {
                                 "state",
                                 authorizationRequest.state),
                         responseMode,
+                        false,
                         "response_type is token or id_token but client doesn't support implicit"
-                                + " grant_type");
+                                + " grant_type",
+                        authorizationRequest);
             }
         }
 
@@ -214,7 +234,9 @@ public class Authorize {
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_request", "state", authorizationRequest.state),
                     responseMode,
-                    "response_type is id_token but nonce not found");
+                    false,
+                    "response_type is id_token but nonce not found",
+                    authorizationRequest);
         }
 
         // validate scope
@@ -224,7 +246,9 @@ public class Authorize {
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_scope", "state", authorizationRequest.state),
                     responseMode,
-                    "client doesn't support enough scope");
+                    false,
+                    "client doesn't support enough scope",
+                    authorizationRequest);
         }
 
         if (responseType.contains(ResponseType.id_token)) {
@@ -235,36 +259,26 @@ public class Authorize {
                         MapUtil.nullRemovedStringMap(
                                 "error", "invalid_scope", "state", authorizationRequest.state),
                         responseMode,
+                        false,
                         "authorization request contains id_token response_type but no openid"
-                                + " scope");
+                                + " scope",
+                        authorizationRequest);
             }
         }
 
-        if (authorizationRequest.codeChallenge == null
-                && authorizationRequest.codeChallengeMethod != null) {
-            return AuthorizationResponse.redirect(
-                    redirectUri,
-                    MapUtil.nullRemovedStringMap(
-                            "error", "invalid_request", "state", authorizationRequest.state),
-                    responseMode,
-                    "code_challenge_method specified but no code_challenge");
-        }
-        CodeChallengeMethod codeChallengeMethod = null;
-        if (authorizationRequest.codeChallengeMethod != null) {
-            try {
-                codeChallengeMethod =
-                        CodeChallengeMethod.of(authorizationRequest.codeChallengeMethod);
-            } catch (IllegalArgumentException e) {
-                return AuthorizationResponse.redirect(
+        var parsedCodeChallenge =
+                CodeChallengeParser.parse(
+                        authorizationRequest.codeChallenge,
+                        authorizationRequest.codeChallengeMethod,
                         redirectUri,
-                        MapUtil.nullRemovedStringMap(
-                                "error", "invalid_request", "state", authorizationRequest.state),
+                        authorizationRequest.state,
                         responseMode,
-                        "code_challenge_method parse error");
-            }
-        } else if (authorizationRequest.codeChallenge != null) {
-            codeChallengeMethod = CodeChallengeMethod.S256;
+                        authorizationRequest);
+        if (parsedCodeChallenge.isError()) {
+            return parsedCodeChallenge.getErrorResponse();
         }
+        var codeChallenge = parsedCodeChallenge.getValue().getCodeChallenge();
+        var codeChallengeMethod = parsedCodeChallenge.getValue().getCodeChallengeMethod();
 
         // parse display
         var display = Display.page;
@@ -277,7 +291,9 @@ public class Authorize {
                         MapUtil.nullRemovedStringMap(
                                 "error", "invalid_request", "state", authorizationRequest.state),
                         responseMode,
-                        "display parse error");
+                        false,
+                        "display parse error",
+                        authorizationRequest);
             }
         }
 
@@ -291,7 +307,9 @@ public class Authorize {
                             "state",
                             authorizationRequest.state),
                     responseMode,
-                    "client doesn't support response_type");
+                    false,
+                    "client doesn't support response_type",
+                    authorizationRequest);
         }
 
         // parse id_token_hint
@@ -308,7 +326,9 @@ public class Authorize {
                         MapUtil.nullRemovedStringMap(
                                 "error", "invalid_request", "state", authorizationRequest.state),
                         responseMode,
-                        "invalid id_token_hint");
+                        false,
+                        "invalid id_token_hint",
+                        authorizationRequest);
             }
         }
 
@@ -320,7 +340,9 @@ public class Authorize {
                         MapUtil.nullRemovedStringMap(
                                 "error", "login_required", "state", authorizationRequest.state),
                         responseMode,
-                        "id_token_hint subject and authenticatedUser subject unmatched");
+                        false,
+                        "id_token_hint subject and authenticatedUser subject unmatched",
+                        authorizationRequest);
             }
         }
 
@@ -335,7 +357,9 @@ public class Authorize {
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_request", "state", authorizationRequest.state),
                     responseMode,
-                    "prompt parse error");
+                    false,
+                    "prompt parse error",
+                    authorizationRequest);
         }
         if (prompt.contains(Prompt.none) && prompt.size() != 1) {
             // none with other prompt is invalid
@@ -344,7 +368,9 @@ public class Authorize {
                     MapUtil.nullRemovedStringMap(
                             "error", "invalid_request", "state", authorizationRequest.state),
                     responseMode,
-                    "prompt contains none and another");
+                    false,
+                    "prompt contains none and another",
+                    authorizationRequest);
         } else {
             if (prompt.contains(Prompt.none)) {
                 if (authorizationRequest.authenticatedUserSubject == null) {
@@ -354,7 +380,9 @@ public class Authorize {
                             MapUtil.nullRemovedStringMap(
                                     "error", "login_required", "state", authorizationRequest.state),
                             responseMode,
-                            "prompt is none but user not authenticated");
+                            false,
+                            "prompt is none but user not authenticated",
+                            authorizationRequest);
                 }
                 if (!authorizationRequest.allScopeConsented()) {
                     // prompt=none but user doesn't consent enough scopes.
@@ -366,7 +394,9 @@ public class Authorize {
                                     "state",
                                     authorizationRequest.state),
                             responseMode,
-                            "prompt is none but user doesn't consent enough scope");
+                            false,
+                            "prompt is none but user doesn't consent enough scope",
+                            authorizationRequest);
                 }
             }
             if (prompt.contains(Prompt.login)) {
@@ -378,7 +408,8 @@ public class Authorize {
                         locales,
                         idTokenHintSub,
                         authorizationRequest.loginHint,
-                        null);
+                        null,
+                        authorizationRequest);
             }
             if (authorizationRequest.authenticatedUserSubject == null) {
                 return AuthorizationResponse.additionalPage(
@@ -389,7 +420,8 @@ public class Authorize {
                         locales,
                         idTokenHintSub,
                         authorizationRequest.loginHint,
-                        null);
+                        null,
+                        authorizationRequest);
             }
             if (authorizationRequest.maxAge != null || client.defaultMaxAge != null) {
                 try {
@@ -407,7 +439,9 @@ public class Authorize {
                                             "state",
                                             authorizationRequest.state),
                                     responseMode,
-                                    "prompt is none but authTime over");
+                                    false,
+                                    "prompt is none but authTime over",
+                                    authorizationRequest);
                         } else {
                             return AuthorizationResponse.additionalPage(
                                     Prompt.login,
@@ -417,7 +451,8 @@ public class Authorize {
                                     locales,
                                     idTokenHintSub,
                                     authorizationRequest.loginHint,
-                                    null);
+                                    null,
+                                    authorizationRequest);
                         }
                     }
                 } catch (NumberFormatException e) {
@@ -429,7 +464,9 @@ public class Authorize {
                                     "state",
                                     authorizationRequest.state),
                             responseMode,
-                            "max_age is not number");
+                            false,
+                            "max_age is not number",
+                            authorizationRequest);
                 }
             }
             if (prompt.contains(Prompt.consent)) {
@@ -441,7 +478,8 @@ public class Authorize {
                         locales,
                         idTokenHintSub,
                         authorizationRequest.loginHint,
-                        null);
+                        null,
+                        authorizationRequest);
             }
             if (prompt.contains(Prompt.select_account)) {
                 return AuthorizationResponse.additionalPage(
@@ -452,7 +490,8 @@ public class Authorize {
                         locales,
                         idTokenHintSub,
                         authorizationRequest.loginHint,
-                        null);
+                        null,
+                        authorizationRequest);
             }
             if (!authorizationRequest.allScopeConsented()) {
                 return AuthorizationResponse.additionalPage(
@@ -463,7 +502,8 @@ public class Authorize {
                         locales,
                         idTokenHintSub,
                         authorizationRequest.loginHint,
-                        null);
+                        null,
+                        authorizationRequest);
             }
         }
 
@@ -472,96 +512,106 @@ public class Authorize {
                     redirectUri,
                     MapUtil.nullRemovedStringMap("state", authorizationRequest.state),
                     responseMode,
-                    null);
-        }
-
-        String accessToken = null;
-        String tokenType = null;
-        String expiresIn = null;
-        String responseScope = null;
-        if (responseType.contains(ResponseType.token)) {
-            responseScope = scope;
-            // issue access token
-            var at =
-                    accessTokenService.issue(
-                            authorizationRequest.authenticatedUserSubject,
-                            scope,
-                            authorizationRequest.clientId,
-                            Instant.now().getEpochSecond()
-                                    + config.accessTokenExpiration.toSeconds(),
-                            Instant.now().getEpochSecond(),
-                            scopeAudienceMapper.map(scope),
-                            null);
-            accessToken = at.token;
-            tokenType = "bearer";
-            expiresIn = String.valueOf(config.accessTokenExpiration.getSeconds());
-        }
-
-        String authorizationCode = null;
-        if (responseType.contains(ResponseType.code)) {
-            // issue authorization code
-            var code =
-                    authorizationCodeService.issue(
-                            authorizationRequest.authenticatedUserSubject,
-                            scope,
-                            authorizationRequest.clientId,
-                            authorizationRequest.redirectUri,
-                            authorizationRequest.state,
-                            authorizationRequest.authTime,
-                            authorizationRequest.nonce,
-                            authorizationRequest.codeChallenge,
-                            codeChallengeMethod,
-                            Instant.now().getEpochSecond()
-                                    + config.authorizationCodeExpiration.toSeconds());
-            authorizationCode = code.code;
-        }
-
-        String idToken = null;
-        if (responseType.contains(ResponseType.id_token)) {
-            var accessTokenWillIssued = true;
-            if (accessToken == null & authorizationCode == null) {
-                // https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims
-                // The Claims requested by the profile, email, address, and phone scope values are
-                // returned from the UserInfo Endpoint, as described in Section 5.3.2, when a
-                // response_type value is used that results in an Access Token being issued.
-                // However, when no Access Token is issued (which is the case for the response_type
-                // value id_token), the resulting Claims are returned in the ID Token.
-                accessTokenWillIssued = false;
-            }
-            idToken =
-                    idTokenIssuer
-                            .issue(
-                                    authorizationRequest.authenticatedUserSubject,
-                                    authorizationRequest.clientId,
-                                    authorizationRequest.authTime,
-                                    authorizationRequest.nonce,
-                                    accessToken,
-                                    authorizationCode,
-                                    client.idTokenSignedResponseAlg,
-                                    scope,
-                                    accessTokenWillIssued)
-                            .serialize();
+                    true,
+                    null,
+                    authorizationRequest);
         }
 
         return AuthorizationResponse.redirect(
-                redirectUri,
-                MapUtil.nullRemovedStringMap(
-                        "access_token",
-                        accessToken,
-                        "id_token",
-                        idToken,
-                        "code",
-                        authorizationCode,
-                        "token_type",
-                        tokenType,
-                        "expires_in",
-                        expiresIn,
-                        "scope",
-                        responseScope,
-                        "state",
-                        authorizationRequest.state),
-                responseMode,
-                null);
+                () -> {
+                    String accessToken = null;
+                    String tokenType = null;
+                    String expiresIn = null;
+                    String responseScope = null;
+                    if (responseType.contains(ResponseType.token)) {
+                        responseScope = scope;
+                        // issue access token
+                        var at =
+                                accessTokenService.issue(
+                                        authorizationRequest.authenticatedUserSubject,
+                                        scope,
+                                        authorizationRequest.clientId,
+                                        Instant.now().getEpochSecond()
+                                                + config.accessTokenExpiration.toSeconds(),
+                                        Instant.now().getEpochSecond(),
+                                        scopeAudienceMapper.map(scope),
+                                        null);
+                        accessToken = at.token;
+                        tokenType = "bearer";
+                        expiresIn = String.valueOf(config.accessTokenExpiration.getSeconds());
+                    }
+
+                    String authorizationCode = null;
+                    if (responseType.contains(ResponseType.code)) {
+                        // issue authorization code
+                        var code =
+                                authorizationCodeService.issue(
+                                        authorizationRequest.authenticatedUserSubject,
+                                        scope,
+                                        authorizationRequest.clientId,
+                                        authorizationRequest.redirectUri,
+                                        authorizationRequest.state,
+                                        authorizationRequest.authTime,
+                                        authorizationRequest.nonce,
+                                        codeChallenge,
+                                        codeChallengeMethod,
+                                        Instant.now().getEpochSecond()
+                                                + config.authorizationCodeExpiration.toSeconds());
+                        authorizationCode = code.code;
+                    }
+
+                    String idToken = null;
+                    if (responseType.contains(ResponseType.id_token)) {
+                        var accessTokenWillIssued = true;
+                        if (accessToken == null & authorizationCode == null) {
+                            // https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims
+                            // The Claims requested by the profile, email, address, and phone scope
+                            // values are
+                            // returned from the UserInfo Endpoint, as described in Section 5.3.2,
+                            // when a
+                            // response_type value is used that results in an Access Token being
+                            // issued.
+                            // However, when no Access Token is issued (which is the case for the
+                            // response_type
+                            // value id_token), the resulting Claims are returned in the ID Token.
+                            accessTokenWillIssued = false;
+                        }
+                        idToken =
+                                idTokenIssuer
+                                        .issue(
+                                                authorizationRequest.authenticatedUserSubject,
+                                                authorizationRequest.clientId,
+                                                authorizationRequest.authTime,
+                                                authorizationRequest.nonce,
+                                                accessToken,
+                                                authorizationCode,
+                                                client.idTokenSignedResponseAlg,
+                                                scope,
+                                                accessTokenWillIssued)
+                                        .serialize();
+                    }
+                    return new RedirectTo(
+                            redirectUri,
+                            MapUtil.nullRemovedStringMap(
+                                    "access_token",
+                                    accessToken,
+                                    "id_token",
+                                    idToken,
+                                    "code",
+                                    authorizationCode,
+                                    "token_type",
+                                    tokenType,
+                                    "expires_in",
+                                    expiresIn,
+                                    "scope",
+                                    responseScope,
+                                    "state",
+                                    authorizationRequest.state),
+                            responseMode);
+                },
+                true,
+                null,
+                authorizationRequest);
     }
 
     private List<String> parseUiLocales(String uiLocales) {

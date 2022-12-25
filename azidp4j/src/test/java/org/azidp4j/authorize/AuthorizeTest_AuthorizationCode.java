@@ -3,7 +3,6 @@ package org.azidp4j.authorize;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.jwk.JWKSet;
-import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Set;
@@ -68,9 +67,9 @@ class AuthorizeTest_AuthorizationCode {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var queryMap =
-                Arrays.stream(URI.create(location).getQuery().split("&"))
+                Arrays.stream(location.getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertNull(queryMap.get("state"));
         assertNotNull(queryMap.get("code"));
@@ -109,9 +108,9 @@ class AuthorizeTest_AuthorizationCode {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var queryMap =
-                Arrays.stream(URI.create(location).getQuery().split("&"))
+                Arrays.stream(location.getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(queryMap.get("state"), "xyz");
         assertNotNull(queryMap.get("code"));
@@ -136,9 +135,9 @@ class AuthorizeTest_AuthorizationCode {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var queryMap =
-                Arrays.stream(URI.create(location).getQuery().split("&"))
+                Arrays.stream(location.getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertNull(queryMap.get("state"));
         assertNotNull(queryMap.get("code"));
@@ -178,9 +177,9 @@ class AuthorizeTest_AuthorizationCode {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var queryMap =
-                Arrays.stream(URI.create(location).getQuery().split("&"))
+                Arrays.stream(location.getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(queryMap.get("state"), "xyz");
         assertNotNull(queryMap.get("code"));
@@ -220,9 +219,9 @@ class AuthorizeTest_AuthorizationCode {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var queryMap =
-                Arrays.stream(URI.create(location).getFragment().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(queryMap.get("state"), "xyz");
         assertNotNull(queryMap.get("code"));

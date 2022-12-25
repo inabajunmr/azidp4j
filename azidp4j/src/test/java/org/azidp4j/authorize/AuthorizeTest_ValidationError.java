@@ -7,7 +7,6 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
-import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -83,9 +82,9 @@ class AuthorizeTest_ValidationError {
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.errorPage);
         assertEquals(
-                response.errorPage.errorType,
+                response.errorPage().errorType,
                 AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
-        assertEquals(List.of("en", "ja"), response.errorPage.uiLocales);
+        assertEquals(List.of("en", "ja"), response.errorPage().uiLocales);
         assertEquals(response.errorDescription, "response_type parse error");
     }
 
@@ -104,7 +103,7 @@ class AuthorizeTest_ValidationError {
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.errorPage);
         assertEquals(
-                response.errorPage.errorType,
+                response.errorPage().errorType,
                 AuthorizationErrorTypeWithoutRedirect.invalid_response_type);
         assertEquals(response.errorDescription, "response_type parse error");
     }
@@ -129,7 +128,7 @@ class AuthorizeTest_ValidationError {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -159,7 +158,7 @@ class AuthorizeTest_ValidationError {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -203,7 +202,7 @@ class AuthorizeTest_ValidationError {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -228,7 +227,7 @@ class AuthorizeTest_ValidationError {
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.errorPage);
         assertEquals(
-                response.errorPage.errorType,
+                response.errorPage().errorType,
                 AuthorizationErrorTypeWithoutRedirect.client_id_required);
         assertEquals(response.errorDescription, "client_id required");
     }
@@ -248,7 +247,7 @@ class AuthorizeTest_ValidationError {
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.errorPage);
         assertEquals(
-                response.errorPage.errorType,
+                response.errorPage().errorType,
                 AuthorizationErrorTypeWithoutRedirect.client_not_found);
         assertEquals(response.errorDescription, "client not found");
     }
@@ -268,7 +267,7 @@ class AuthorizeTest_ValidationError {
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.errorPage);
         assertEquals(
-                response.errorPage.errorType,
+                response.errorPage().errorType,
                 AuthorizationErrorTypeWithoutRedirect.redirect_uri_not_allowed);
         assertEquals(response.errorDescription, "client doesn't allow redirect_uri");
     }
@@ -287,7 +286,7 @@ class AuthorizeTest_ValidationError {
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.errorPage);
         assertEquals(
-                response.errorPage.errorType,
+                response.errorPage().errorType,
                 AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri);
         assertEquals(response.errorDescription, "redirect_uri required");
     }
@@ -307,7 +306,7 @@ class AuthorizeTest_ValidationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -332,7 +331,7 @@ class AuthorizeTest_ValidationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -359,7 +358,7 @@ class AuthorizeTest_ValidationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -384,7 +383,7 @@ class AuthorizeTest_ValidationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getFragment().split("&"))
@@ -410,7 +409,7 @@ class AuthorizeTest_ValidationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -440,9 +439,9 @@ class AuthorizeTest_ValidationError {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var queryMap =
-                Arrays.stream(URI.create(location).getQuery().split("&"))
+                Arrays.stream(location.getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals("invalid_request", queryMap.get("error"));
         assertEquals(response.errorDescription, "prompt parse error");
@@ -468,7 +467,7 @@ class AuthorizeTest_ValidationError {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -494,7 +493,7 @@ class AuthorizeTest_ValidationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -521,7 +520,7 @@ class AuthorizeTest_ValidationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -548,7 +547,7 @@ class AuthorizeTest_ValidationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -576,7 +575,7 @@ class AuthorizeTest_ValidationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -604,7 +603,7 @@ class AuthorizeTest_ValidationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -631,7 +630,7 @@ class AuthorizeTest_ValidationError {
                         .build();
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -659,7 +658,7 @@ class AuthorizeTest_ValidationError {
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.errorPage);
         assertEquals(
-                response.errorPage.errorType,
+                response.errorPage().errorType,
                 AuthorizationErrorTypeWithoutRedirect.invalid_response_mode);
         assertEquals(response.errorDescription, "response_mode parse error");
     }
@@ -708,7 +707,7 @@ class AuthorizeTest_ValidationError {
         var response = sut.authorize(authorizationRequest);
         assertEquals(response.next, NextAction.errorPage);
         assertEquals(
-                response.errorPage.errorType,
+                response.errorPage().errorType,
                 AuthorizationErrorTypeWithoutRedirect.unsupported_response_mode);
         assertEquals(response.errorDescription, "azidp doesn't support response_mode");
     }
@@ -762,7 +761,7 @@ class AuthorizeTest_ValidationError {
         // verify
         assertEquals(response.next, NextAction.errorPage);
         assertEquals(
-                response.errorPage.errorType,
+                response.errorPage().errorType,
                 AuthorizationErrorTypeWithoutRedirect.unsupported_response_type);
         assertEquals(response.errorDescription, "azidp doesn't support response_type");
     }
@@ -815,7 +814,7 @@ class AuthorizeTest_ValidationError {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getFragment().split("&"))
@@ -846,7 +845,7 @@ class AuthorizeTest_ValidationError {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getFragment().split("&"))
@@ -876,7 +875,7 @@ class AuthorizeTest_ValidationError {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -907,7 +906,7 @@ class AuthorizeTest_ValidationError {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getQuery().split("&"))
@@ -938,7 +937,7 @@ class AuthorizeTest_ValidationError {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = URI.create(response.redirect.redirectTo);
+        var location = response.redirect().createRedirectTo();
         assertEquals("rp1.example.com", location.getHost());
         var queryMap =
                 Arrays.stream(location.getFragment().split("&"))

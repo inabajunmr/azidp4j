@@ -3,9 +3,7 @@ package org.azidp4j.authorize.response;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
-import org.azidp4j.authorize.request.Display;
-import org.azidp4j.authorize.request.Prompt;
-import org.azidp4j.authorize.request.ResponseMode;
+import org.azidp4j.authorize.request.*;
 
 public class AuthorizationResponse {
 
@@ -13,28 +11,31 @@ public class AuthorizationResponse {
     public final NextAction next;
 
     /** when next is additionalPage, the parameter is specified. */
-    public final AdditionalPage additionalPage;
+    private final AdditionalPage additionalPage;
 
     /** when next is errorPage, the parameter is specified. */
-    public final ErrorPage errorPage;
+    private final ErrorPage errorPage;
 
-    /** when next is redirect, the parameter is specified. */
-    public final Redirect redirect;
+    private final Redirect redirect;
 
     /** error description for developer * */
     public final String errorDescription;
+
+    private final InternalAuthorizationRequest authorizationRequest;
 
     private AuthorizationResponse(
             NextAction next,
             Redirect redirect,
             AdditionalPage additionalPage,
             ErrorPage errorPage,
-            String errorDescription) {
+            String errorDescription,
+            InternalAuthorizationRequest authorizationRequest) {
         this.next = next;
         this.additionalPage = additionalPage;
         this.errorPage = errorPage;
         this.redirect = redirect;
         this.errorDescription = errorDescription;
+        this.authorizationRequest = authorizationRequest;
     }
 
     public static AuthorizationResponse additionalPage(
@@ -45,7 +46,8 @@ public class AuthorizationResponse {
             List<String> uiLocales,
             String expectedUserSubject,
             String loginHint,
-            String errorDescription) {
+            String errorDescription,
+            InternalAuthorizationRequest authorizationRequest) {
         var page =
                 new AdditionalPage(
                         prompt,
@@ -56,28 +58,72 @@ public class AuthorizationResponse {
                         expectedUserSubject,
                         loginHint);
         return new AuthorizationResponse(
-                NextAction.additionalPage, null, page, null, errorDescription);
+                NextAction.additionalPage,
+                null,
+                page,
+                null,
+                errorDescription,
+                authorizationRequest);
     }
 
     public static AuthorizationResponse errorPage(
             AuthorizationErrorTypeWithoutRedirect error,
             List<String> uiLocales,
-            String errorDescription) {
+            String errorDescription,
+            InternalAuthorizationRequest authorizationRequest) {
         return new AuthorizationResponse(
                 NextAction.errorPage,
                 null,
                 null,
                 new ErrorPage(error, uiLocales),
-                errorDescription);
+                errorDescription,
+                authorizationRequest);
     }
 
     public static AuthorizationResponse redirect(
             URI redirectUri,
             Map<String, String> params,
             ResponseMode responseMode,
-            String errorDescription) {
-        var redirect = new Redirect(redirectUri, params, responseMode);
+            boolean isSuccessResponse,
+            String errorDescription,
+            InternalAuthorizationRequest authorizationRequest) {
         return new AuthorizationResponse(
-                NextAction.redirect, redirect, null, null, errorDescription);
+                NextAction.redirect,
+                new Redirect(
+                        () -> new RedirectTo(redirectUri, params, responseMode), isSuccessResponse),
+                null,
+                null,
+                errorDescription,
+                authorizationRequest);
+    }
+
+    public static AuthorizationResponse redirect(
+            RedirectToSupplier redirectToSupplier,
+            boolean isSuccessResponse,
+            String errorDescription,
+            InternalAuthorizationRequest authorizationRequest) {
+        return new AuthorizationResponse(
+                NextAction.redirect,
+                new Redirect(redirectToSupplier, isSuccessResponse),
+                null,
+                null,
+                errorDescription,
+                authorizationRequest);
+    }
+
+    public AdditionalPage additionalPage() {
+        return additionalPage;
+    }
+
+    public ErrorPage errorPage() {
+        return errorPage;
+    }
+
+    public Redirect redirect() {
+        return redirect;
+    }
+
+    public InternalAuthorizationRequest authorizationRequest() {
+        return authorizationRequest;
     }
 }

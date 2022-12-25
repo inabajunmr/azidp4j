@@ -82,9 +82,9 @@ class AuthorizeTest_AdditionalPage {
 
             // verify
             assertEquals(NextAction.additionalPage, response.next);
-            assertEquals(Prompt.login, response.additionalPage.prompt);
-            assertEquals(Display.page, response.additionalPage.display);
-            assertEquals(List.of("ja", "en"), response.additionalPage.uiLocales);
+            assertEquals(Prompt.login, response.additionalPage().prompt);
+            assertEquals(Display.page, response.additionalPage().display);
+            assertEquals(List.of("ja", "en"), response.additionalPage().uiLocales);
         }
         // user not login with id_token_hint
         {
@@ -118,10 +118,10 @@ class AuthorizeTest_AdditionalPage {
 
             // verify
             assertEquals(NextAction.additionalPage, response.next);
-            assertEquals(Prompt.login, response.additionalPage.prompt);
-            assertEquals(Display.page, response.additionalPage.display);
-            assertEquals(List.of("ja", "en"), response.additionalPage.uiLocales);
-            assertEquals("expectedSubject", response.additionalPage.expectedUserSubject);
+            assertEquals(Prompt.login, response.additionalPage().prompt);
+            assertEquals(Display.page, response.additionalPage().display);
+            assertEquals(List.of("ja", "en"), response.additionalPage().uiLocales);
+            assertEquals("expectedSubject", response.additionalPage().expectedUserSubject);
         }
         // no consented scope
         {
@@ -143,9 +143,9 @@ class AuthorizeTest_AdditionalPage {
 
             // verify
             assertEquals(NextAction.additionalPage, response.next);
-            assertEquals(Prompt.consent, response.additionalPage.prompt);
-            assertEquals(Display.popup, response.additionalPage.display);
-            assertNull(response.additionalPage.expectedUserSubject);
+            assertEquals(Prompt.consent, response.additionalPage().prompt);
+            assertEquals(Display.popup, response.additionalPage().display);
+            assertNull(response.additionalPage().expectedUserSubject);
         }
         // no enough scope consented
         {
@@ -166,9 +166,9 @@ class AuthorizeTest_AdditionalPage {
 
             // verify
             assertEquals(NextAction.additionalPage, response.next);
-            assertEquals(Prompt.consent, response.additionalPage.prompt);
-            assertEquals(Display.page, response.additionalPage.display);
-            assertNull(response.additionalPage.expectedUserSubject);
+            assertEquals(Prompt.consent, response.additionalPage().prompt);
+            assertEquals(Display.page, response.additionalPage().display);
+            assertNull(response.additionalPage().expectedUserSubject);
         }
         // prompt is login(and no display)
         {
@@ -190,9 +190,9 @@ class AuthorizeTest_AdditionalPage {
 
             // verify
             assertEquals(NextAction.additionalPage, response.next);
-            assertEquals(Prompt.login, response.additionalPage.prompt);
-            assertEquals(Display.page, response.additionalPage.display);
-            assertNull(response.additionalPage.expectedUserSubject);
+            assertEquals(Prompt.login, response.additionalPage().prompt);
+            assertEquals(Display.page, response.additionalPage().display);
+            assertNull(response.additionalPage().expectedUserSubject);
         }
         // prompt is login(and display is popup)
         {
@@ -215,9 +215,9 @@ class AuthorizeTest_AdditionalPage {
 
             // verify
             assertEquals(NextAction.additionalPage, response.next);
-            assertEquals(Prompt.login, response.additionalPage.prompt);
-            assertEquals(Display.popup, response.additionalPage.display);
-            assertNull(response.additionalPage.expectedUserSubject);
+            assertEquals(Prompt.login, response.additionalPage().prompt);
+            assertEquals(Display.popup, response.additionalPage().display);
+            assertNull(response.additionalPage().expectedUserSubject);
         }
         // prompt is consent(authenticated)
         {
@@ -239,9 +239,9 @@ class AuthorizeTest_AdditionalPage {
 
             // verify
             assertEquals(NextAction.additionalPage, response.next);
-            assertEquals(Prompt.consent, response.additionalPage.prompt);
-            assertEquals(Display.page, response.additionalPage.display);
-            assertNull(response.additionalPage.expectedUserSubject);
+            assertEquals(Prompt.consent, response.additionalPage().prompt);
+            assertEquals(Display.page, response.additionalPage().display);
+            assertNull(response.additionalPage().expectedUserSubject);
         }
         // prompt is consent(not authenticated)
         {
@@ -261,9 +261,9 @@ class AuthorizeTest_AdditionalPage {
 
             // verify
             assertEquals(NextAction.additionalPage, response.next);
-            assertEquals(Prompt.login, response.additionalPage.prompt);
-            assertEquals(Display.page, response.additionalPage.display);
-            assertNull(response.additionalPage.expectedUserSubject);
+            assertEquals(Prompt.login, response.additionalPage().prompt);
+            assertEquals(Display.page, response.additionalPage().display);
+            assertNull(response.additionalPage().expectedUserSubject);
         }
         // prompt is login and consent
         {
@@ -285,9 +285,9 @@ class AuthorizeTest_AdditionalPage {
 
             // verify
             assertEquals(NextAction.additionalPage, response.next);
-            assertEquals(Prompt.login, response.additionalPage.prompt);
-            assertEquals(Display.page, response.additionalPage.display);
-            assertNull(response.additionalPage.expectedUserSubject);
+            assertEquals(Prompt.login, response.additionalPage().prompt);
+            assertEquals(Display.page, response.additionalPage().display);
+            assertNull(response.additionalPage().expectedUserSubject);
         }
 
         // prompt=select_account
@@ -310,9 +310,9 @@ class AuthorizeTest_AdditionalPage {
 
             // verify
             assertEquals(NextAction.additionalPage, response.next);
-            assertEquals(Prompt.select_account, response.additionalPage.prompt);
-            assertEquals(Display.page, response.additionalPage.display);
-            assertNull(response.additionalPage.expectedUserSubject);
+            assertEquals(Prompt.select_account, response.additionalPage().prompt);
+            assertEquals(Display.page, response.additionalPage().display);
+            assertNull(response.additionalPage().expectedUserSubject);
         }
 
         // user logined but over max age
@@ -335,9 +335,9 @@ class AuthorizeTest_AdditionalPage {
 
             // verify
             assertEquals(NextAction.additionalPage, response.next);
-            assertEquals(Prompt.login, response.additionalPage.prompt);
-            assertEquals(Display.page, response.additionalPage.display);
-            assertNull(response.additionalPage.expectedUserSubject);
+            assertEquals(Prompt.login, response.additionalPage().prompt);
+            assertEquals(Display.page, response.additionalPage().display);
+            assertNull(response.additionalPage().expectedUserSubject);
         }
     }
 }

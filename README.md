@@ -119,13 +119,13 @@ var authorizationRequest =
                 Set.of("openid", "item:read"),
                 authorizationRequestQueryParameterMap);
 var authorizationResponse = azidp.authorize(authorizationRequest);
-System.out.println(authorizationResponse.redirect.redirectTo);
+System.out.println(authorizationResponse.redirect().createRedirectTo());
 // https://client.example.com/callback?code=890d9cca-11a2-47b8-b879-1f584fdb0354&state=abc
 ```
 
 ### Token Endpoint
 ```java
-var code = authorizationResponse.redirect.redirectTo.replaceAll(".*code=([^&]+).*", "$1");
+var code = authorizationResponse.redirect().createRedirectTo().replaceAll(".*code=([^&]+).*", "$1");
 var tokenRequest =
         new TokenRequest(
                 clientResponse.body.get("client_id").toString(),
