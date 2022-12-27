@@ -11,9 +11,9 @@ import org.springframework.http.RequestEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-public class IntegrationTestUtil {
+public class IntrospectionScenario {
 
-    public static void introspectionTest(
+    public static void test(
             String accessToken,
             TestRestTemplate testRestTemplate,
             String clientId,

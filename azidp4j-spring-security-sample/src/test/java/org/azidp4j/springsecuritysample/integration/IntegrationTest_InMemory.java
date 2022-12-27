@@ -9,22 +9,15 @@ import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import org.azidp4j.authorize.request.ResponseType;
-import org.azidp4j.client.GrantType;
-import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
@@ -57,36 +50,11 @@ public class IntegrationTest_InMemory {
         assertThat(tokenResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         var defaultClientAccessToken = (String) tokenResponse.getBody().get("access_token");
 
-        // client registration
+        // client registration ========================
         var redirectUri = "https://example.com";
-        var clientRegistrationRequest =
-                Map.of(
-                        "redirect_uris",
-                        Set.of(redirectUri),
-                        "grant_types",
-                        Set.of(
-                                GrantType.authorization_code.name(),
-                                GrantType.implicit.name(),
-                                GrantType.password.name(),
-                                GrantType.refresh_token.name()),
-                        "response_types",
-                        Set.of(ResponseType.code.name(), ResponseType.token.name()),
-                        "scope",
-                        "scope1 scope2 openid profile email address phone",
-                        "id_token_signed_response_alg",
-                        "RS256",
-                        "token_endpoint_auth_method",
-                        "client_secret_basic");
-        var clientRegistrationEntity =
-                RequestEntity.post("/client")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + defaultClientAccessToken)
-                        .body(clientRegistrationRequest);
         var clientRegistrationResponse =
-                testRestTemplate.postForEntity(
-                        endpoint + "/client", clientRegistrationEntity, Map.class);
-        assertThat(clientRegistrationResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+                ClientRegistrationScenario.test(
+                        endpoint, testRestTemplate, defaultClientAccessToken, redirectUri);
         var clientId = (String) clientRegistrationResponse.getBody().get("client_id");
         var clientSecret = (String) clientRegistrationResponse.getBody().get("client_secret");
         var configurationToken =
@@ -94,7 +62,7 @@ public class IntegrationTest_InMemory {
         var configurationUri =
                 (String) clientRegistrationResponse.getBody().get("registration_client_uri");
 
-        // read client
+        // read client ========================
         {
             var clientReadEntity =
                     RequestEntity.get(configurationUri)
@@ -105,133 +73,20 @@ public class IntegrationTest_InMemory {
             assertThat(clientReadResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
 
-        // authorization request ========================
-        // id_token contains gender via claims parameter. userinfo returns email, email_verified via
-        // scope and phone_number via claims parameter.
-        var claims =
-                "{\"id_token\":{\"gender\":null},\"userinfo\":{\"phone_number\":{\"essential\":true}}}";
-        var state = UUID.randomUUID().toString();
-        var authorizationRequest =
-                UriComponentsBuilder.fromUriString(endpoint + "/authorize")
-                        .queryParam("response_type", "code")
-                        .queryParam("client_id", clientId)
-                        .queryParam("redirect_uri", redirectUri)
-                        .queryParam("scope", "scope1 openid email")
-                        .queryParam("claims", "{claims}")
-                        .queryParam("state", state)
-                        .build(claims);
-        var authorizationResponseRedirectToLoginPage =
-                testRestTemplate.getForEntity(authorizationRequest, String.class);
-        assertThat(authorizationResponseRedirectToLoginPage.getStatusCode())
-                .isEqualTo(HttpStatus.FOUND);
-        var redirectToLoginPageUri =
-                authorizationResponseRedirectToLoginPage.getHeaders().get("Location").get(0);
-
-        // redirect to login form ========================
-        var login = testRestTemplate.getForEntity(endpoint + redirectToLoginPageUri, String.class);
-        var loginPage = Jsoup.parse(login.getBody());
-        assertThat(loginPage.select("form").attr("action")).isEqualTo("/login");
-        var csrf = loginPage.select("input[name='_csrf']").val();
-
-        // post login
-        MultiValueMap<String, String> loginBody = new LinkedMultiValueMap<>();
-        loginBody.add("username", "user1");
-        loginBody.add("password", "password1");
-        loginBody.add("_csrf", csrf);
-        var loginRequestEntity =
-                RequestEntity.post(
-                                endpoint
-                                        + authorizationResponseRedirectToLoginPage
-                                                .getHeaders()
-                                                .get("Location")
-                                                .get(0))
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .body(loginBody);
-        var loginResponseEntity =
-                testRestTemplate.postForEntity(
-                        endpoint + redirectToLoginPageUri, loginRequestEntity, String.class);
-
-        // redirect to authorization request ========================
-        ResponseEntity<String> authorizationResponseRedirectToConsentPage =
-                testRestTemplate.exchange(
-                        RequestEntity.get(
-                                        URI.create(
-                                                endpoint
-                                                        + loginResponseEntity
-                                                                .getHeaders()
-                                                                .get("Location")
-                                                                .get(0)))
-                                .build(),
-                        String.class);
-
-        // redirect to consent page ========================
-        var redirectToConsentPageUri =
-                authorizationResponseRedirectToConsentPage.getHeaders().get("Location").get(0);
-
-        var consent =
-                testRestTemplate.getForEntity(
-                        URI.create(endpoint + redirectToConsentPageUri), String.class);
-        var consentPage = Jsoup.parse(consent.getBody());
-        var csrf2 = consentPage.select("input[name='_csrf']").val();
-
-        // post consent ========================
-        MultiValueMap<String, String> consentBody = new LinkedMultiValueMap<>();
-        consentBody.add("_csrf", csrf2);
-        var consentRequestEntity =
-                RequestEntity.post(redirectToConsentPageUri)
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .body(consentBody);
-        var consentResponseEntity =
-                testRestTemplate.postForEntity(
-                        URI.create(
-                                endpoint
-                                        + authorizationResponseRedirectToConsentPage
-                                                .getHeaders()
-                                                .get("Location")
-                                                .get(0)),
-                        consentRequestEntity,
-                        String.class);
-
-        // redirect to authorization request ========================
-        ResponseEntity<String> authorizationResponse =
-                testRestTemplate.exchange(
-                        RequestEntity.get(
-                                        URI.create(
-                                                endpoint
-                                                        + consentResponseEntity
-                                                                .getHeaders()
-                                                                .get("Location")
-                                                                .get(0)))
-                                .build(),
-                        String.class);
-        var authorizationResponseWithAuthorizationCode =
-                authorizationResponse.getHeaders().get("Location").get(0);
-        var authorizationCode =
-                UriComponentsBuilder.fromUriString(authorizationResponseWithAuthorizationCode)
-                        .build()
-                        .getQueryParams()
-                        .get("code")
-                        .get(0);
+        // authorization request with login and consent ========================
+        String authorizationCode =
+                AuthorizationRequestScenario.test(
+                        endpoint, testRestTemplate, redirectUri, clientId);
 
         // token request by authorization code ========================
-        MultiValueMap<String, String> tokenRequestForAuthorizationCodeGrant =
-                new LinkedMultiValueMap<>();
-        tokenRequestForAuthorizationCodeGrant.add("grant_type", "authorization_code");
-        tokenRequestForAuthorizationCodeGrant.add("code", authorizationCode);
-        tokenRequestForAuthorizationCodeGrant.add("redirect_uri", redirectUri);
-        tokenRequestForAuthorizationCodeGrant.add("client_id", clientId);
-        var tokenRequestForAuthorizationCodeGrantEntity =
-                RequestEntity.post("/token")
-                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .body(tokenRequestForAuthorizationCodeGrant);
-        var tokenResponseForAuthorizationCodeGrant =
-                testRestTemplate
-                        .withBasicAuth(clientId, clientSecret)
-                        .postForEntity(
-                                endpoint + "/token",
-                                tokenRequestForAuthorizationCodeGrantEntity,
-                                Map.class);
+        ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+                TokenRequestByAuthorizationCode.test(
+                        endpoint,
+                        testRestTemplate,
+                        redirectUri,
+                        clientId,
+                        clientSecret,
+                        authorizationCode);
         assertThat(tokenResponseForAuthorizationCodeGrant.getStatusCode()).isEqualTo(HttpStatus.OK);
         var accessToken =
                 (String) tokenResponseForAuthorizationCodeGrant.getBody().get("access_token");
@@ -247,62 +102,11 @@ public class IntegrationTest_InMemory {
         assertEquals(parsedIdToken.getPayload().toJSONObject().get("gender"), "user1gender");
 
         // introspection ========================
-        {
-            IntegrationTestUtil.introspectionTest(
-                    accessToken, testRestTemplate, clientId, clientSecret, endpoint, true);
-        }
+        IntrospectionScenario.test(
+                accessToken, testRestTemplate, clientId, clientSecret, endpoint, true);
 
-        // userinfo endpoint(get) ========================
-        {
-            var userInfoRequest =
-                    RequestEntity.get(endpoint + "/userinfo")
-                            .accept(MediaType.APPLICATION_JSON)
-                            .header("Authorization", "Bearer " + accessToken)
-                            .build();
-            var userinfo = testRestTemplate.exchange(userInfoRequest, Map.class);
-            assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
-            // email claim from scope
-            assertThat(userinfo.getBody().get("email")).isEqualTo("user1@example.com");
-            // phone_number claim from claims parameter
-            assertThat(userinfo.getBody().get("phone_number")).isEqualTo("+1 (425) 555-1212");
-        }
-
-        // userinfo endpoint(post with header bearer token) ========================
-        {
-            var userInfoRequest =
-                    RequestEntity.post(endpoint + "/userinfo")
-                            .accept(MediaType.APPLICATION_JSON)
-                            .header("Authorization", "Bearer " + accessToken)
-                            .build();
-            var userinfo = testRestTemplate.exchange(userInfoRequest, Map.class);
-            assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
-            // email claim from scope
-            assertThat(userinfo.getBody().get("email")).isEqualTo("user1@example.com");
-            // phone_number claim from claims parameter
-            assertThat(userinfo.getBody().get("phone_number")).isEqualTo("+1 (425) 555-1212");
-        }
-
-        // userinfo endpoint(post with body bearer token) ========================
-        {
-            MultiValueMap<String, String> userinfoRequest = new LinkedMultiValueMap<>();
-            userinfoRequest.add("access_token", accessToken);
-            var userinfoRequestEntity =
-                    RequestEntity.post("/userinfo")
-                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                            .accept(MediaType.APPLICATION_JSON)
-                            .body(userinfoRequest);
-            var userinfo =
-                    testRestTemplate.postForEntity(
-                            endpoint + "/userinfo", userinfoRequestEntity, Map.class);
-            assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
-            // email claim from scope
-            assertThat(userinfo.getBody().get("email")).isEqualTo("user1@example.com");
-            // phone_number claim from claims parameter
-            assertThat(userinfo.getBody().get("phone_number")).isEqualTo("+1 (425) 555-1212");
-        }
+        // userinfo ========================
+        UserInfoScenario.test(endpoint, testRestTemplate, accessToken);
 
         // token refresh ========================
         MultiValueMap<String, String> tokenRequestForRefresh = new LinkedMultiValueMap<>();
@@ -344,7 +148,7 @@ public class IntegrationTest_InMemory {
 
         // introspection
         {
-            IntegrationTestUtil.introspectionTest(
+            IntrospectionScenario.test(
                     (String) tokenResponseForRefreshGrant.getBody().get("access_token"),
                     testRestTemplate,
                     clientId,

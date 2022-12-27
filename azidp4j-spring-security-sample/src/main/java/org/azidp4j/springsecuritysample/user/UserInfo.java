@@ -67,50 +67,10 @@ public class UserInfo extends HashMap<String, Object> {
             try {
                 var tree = MAPPER.readTree(claims);
                 if (tree.has(claimsType.name())) {
-                    var idTokenNode = tree.get(claimsType.name());
-                    if (idTokenNode.isObject()) {
-                        idTokenNode
-                                .fieldNames()
-                                .forEachRemaining(
-                                        k -> {
-                                            var target = idTokenNode.get(k);
-                                            if (target.isNull() && this.containsKey(k)) {
-                                                filteredByClaims.put(k, this.get(k));
-                                                return;
-                                            }
-                                            if (target.has("essential") && this.containsKey(k)) {
-                                                filteredByClaims.put(k, this.get(k));
-                                                return;
-                                            }
-                                            if (target.has("value")
-                                                    && target.get("value").isValueNode()
-                                                    && this.containsKey(k)
-                                                    && target.get("value").equals(this.get(k))) {
-                                                filteredByClaims.put(k, this.get(k));
-                                                return;
-                                            }
-                                            if (target.has("values")
-                                                    && target.get("values").isArray()
-                                                    && this.containsKey(k)) {
-                                                for (JsonNode value : target.get("values")) {
-                                                    if (this.get(k) instanceof String v
-                                                            && value.textValue().equals(v)) {
-                                                        filteredByClaims.put(k, this.get(k));
-                                                        return;
-                                                    }
-                                                    if (this.get(k) instanceof Boolean v
-                                                            && value.booleanValue() == v) {
-                                                        filteredByClaims.put(k, this.get(k));
-                                                        return;
-                                                    }
-                                                    if (this.get(k) instanceof Number v
-                                                            && value.numberValue().equals(v)) {
-                                                        filteredByClaims.put(k, this.get(k));
-                                                        return;
-                                                    }
-                                                }
-                                            }
-                                        });
+                    // idTokenOrUserInfo may have claim names that should put in UserInfo
+                    var idTokenOrUserInfo = tree.get(claimsType.name());
+                    if (idTokenOrUserInfo.isObject()) {
+                        extractClaims(filteredByClaims, idTokenOrUserInfo);
                     }
                 }
             } catch (JsonProcessingException e) {
@@ -118,6 +78,51 @@ public class UserInfo extends HashMap<String, Object> {
             }
         }
         return filteredByClaims;
+    }
+
+    private void extractClaims(UserInfo filteredByClaims, JsonNode idTokenOrUserInfoClaimsParam) {
+        idTokenOrUserInfoClaimsParam
+                .fieldNames()
+                .forEachRemaining(
+                        claimName -> {
+                            var target = idTokenOrUserInfoClaimsParam.get(claimName);
+                            if (target.isNull() && this.containsKey(claimName)) {
+                                filteredByClaims.put(claimName, this.get(claimName));
+                                return;
+                            }
+                            if (target.has("essential") && this.containsKey(claimName)) {
+                                filteredByClaims.put(claimName, this.get(claimName));
+                                return;
+                            }
+                            if (target.has("value")
+                                    && target.get("value").isValueNode()
+                                    && this.containsKey(claimName)
+                                    && target.get("value").equals(this.get(claimName))) {
+                                filteredByClaims.put(claimName, this.get(claimName));
+                                return;
+                            }
+                            if (target.has("values")
+                                    && target.get("values").isArray()
+                                    && this.containsKey(claimName)) {
+                                for (JsonNode value : target.get("values")) {
+                                    if (this.get(claimName) instanceof String v
+                                            && value.textValue().equals(v)) {
+                                        filteredByClaims.put(claimName, this.get(claimName));
+                                        return;
+                                    }
+                                    if (this.get(claimName) instanceof Boolean v
+                                            && value.booleanValue() == v) {
+                                        filteredByClaims.put(claimName, this.get(claimName));
+                                        return;
+                                    }
+                                    if (this.get(claimName) instanceof Number v
+                                            && value.numberValue().equals(v)) {
+                                        filteredByClaims.put(claimName, this.get(claimName));
+                                        return;
+                                    }
+                                }
+                            }
+                        });
     }
 }
 
