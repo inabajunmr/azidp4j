@@ -7,6 +7,7 @@ import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.response.AuthorizationResponse;
 import org.azidp4j.util.MapUtil;
 
+/** Authorization Request Parser for code_challenge and code_challenge_method */
 public class CodeChallengeParser {
 
     public static ParseResult<CodeChallenge> parse(

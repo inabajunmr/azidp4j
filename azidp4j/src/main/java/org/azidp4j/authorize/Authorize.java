@@ -530,6 +530,7 @@ public class Authorize {
                                 accessTokenService.issue(
                                         authorizationRequest.authenticatedUserSubject,
                                         scope,
+                                        authorizationRequest.claims,
                                         authorizationRequest.clientId,
                                         Instant.now().getEpochSecond()
                                                 + config.accessTokenExpiration.toSeconds(),
@@ -548,6 +549,7 @@ public class Authorize {
                                 authorizationCodeService.issue(
                                         authorizationRequest.authenticatedUserSubject,
                                         scope,
+                                        authorizationRequest.claims,
                                         authorizationRequest.clientId,
                                         authorizationRequest.redirectUri,
                                         authorizationRequest.state,
@@ -587,6 +589,7 @@ public class Authorize {
                                                 authorizationCode,
                                                 client.idTokenSignedResponseAlg,
                                                 scope,
+                                                authorizationRequest.claims,
                                                 accessTokenWillIssued)
                                         .serialize();
                     }

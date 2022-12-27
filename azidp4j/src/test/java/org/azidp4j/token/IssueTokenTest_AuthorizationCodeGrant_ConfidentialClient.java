@@ -197,6 +197,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
+                        null,
                         "ES256Client",
                         "http://example.com",
                         "xyz",
@@ -242,6 +243,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1 openid",
+                        null,
                         "ES256Client",
                         "http://example.com",
                         "xyz",
@@ -299,6 +301,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1 openid",
+                        null,
                         "ES256Client",
                         "http://example.com",
                         "xyz",
@@ -359,6 +362,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1 openid",
+                        null,
                         "RS256Client",
                         "http://example.com",
                         "xyz",
@@ -418,6 +422,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1 openid",
+                        null,
                         "NoneClient",
                         "http://example.com",
                         "xyz",
@@ -476,6 +481,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 authorizationCodeService.issue(
                         subject,
                         "notauthorized",
+                        null,
                         "ES256Client",
                         "http://example.com",
                         "xyz",
@@ -512,6 +518,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
+                        null,
                         "ES256Client",
                         "http://example.com",
                         "xyz",
@@ -556,6 +563,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
+                        null,
                         "ES256Client",
                         "http://example.com",
                         "xyz",
@@ -590,6 +598,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1 openid",
+                        null,
                         "ES256Client",
                         "http://example.com",
                         "xyz",
@@ -625,6 +634,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
+                        null,
                         "ES256Client",
                         "http://example.com",
                         "xyz",
@@ -661,6 +671,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
+                        null,
                         "ES256Client",
                         "http://example.com",
                         "xyz",

@@ -14,8 +14,9 @@ public class IdTokenClaimsAssembler implements IDTokenClaimsAssembler {
 
     /** https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims */
     @Override
-    public Map<String, Object> assemble(String sub, Set<String> scopes) {
+    public Map<String, Object> assemble(
+            String sub, boolean accessTokenWillBeIssued, Set<String> scopes, String claims) {
         var user = userStore.find(sub);
-        return user.filterByScopes(scopes);
+        return user.filterForIDToken(accessTokenWillBeIssued, scopes, claims);
     }
 }

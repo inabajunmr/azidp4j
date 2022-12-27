@@ -83,6 +83,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
+                        null,
                         client.clientId,
                         "http://example.com",
                         "xyz",
@@ -129,6 +130,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
+                        null,
                         client.clientId,
                         "http://example.com",
                         "xyz",
@@ -178,6 +180,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
+                        null,
                         client.clientId,
                         "http://example.com",
                         "xyz",
@@ -227,6 +230,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
                 authorizationCodeService.issue(
                         subject,
                         "rs:scope1",
+                        null,
                         client.clientId,
                         "http://example.com",
                         "xyz",

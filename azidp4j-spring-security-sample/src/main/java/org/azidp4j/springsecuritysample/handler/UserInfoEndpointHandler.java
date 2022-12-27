@@ -3,6 +3,7 @@ package org.azidp4j.springsecuritysample.handler;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.azidp4j.springsecuritysample.user.UserStore;
+import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,8 @@ public class UserInfoEndpointHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserInfoEndpointHandler.class);
 
     @Autowired UserStore userStore;
+
+    @Autowired AccessTokenService accessTokenService;
 
     /**
      * @see <a
@@ -39,6 +42,12 @@ public class UserInfoEndpointHandler {
                             .filter(a -> a.matches("^SCOPE_.*"))
                             .map(a -> a.replace("SCOPE_", ""))
                             .collect(Collectors.toSet());
+            var claims =
+                    accessTokenService
+                            .introspect(
+                                    ((BearerTokenAuthentication) auth).getToken().getTokenValue())
+                            .get()
+                            .claims;
 
             // `openid` scope is required for the endpoint.
             if (scopes.contains("openid")) {
@@ -46,7 +55,7 @@ public class UserInfoEndpointHandler {
                 var username = auth.getName();
                 // azidp4j doesn't support UserInfo endpoint so construct response by itself.
                 return ResponseEntity.status(200)
-                        .body(userStore.find(username).filterByScopes(scopes));
+                        .body(userStore.find(username).filterForUserInfoEndpoint(scopes, claims));
             } else {
                 return ResponseEntity.status(401).build();
             }

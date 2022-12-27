@@ -19,6 +19,7 @@ public class AuthorizationRequestParser {
         String uiLocales = req.queryParameters.get("ui_locales");
         String idTokenHint = req.queryParameters.get("id_token_hint");
         String loginHint = req.queryParameters.get("login_hint");
+        String claims = req.queryParameters.get("claims");
         String request = req.queryParameters.get("request");
         String requestUri = req.queryParameters.get("request_uri");
         String registration = req.queryParameters.get("registration");
@@ -44,6 +45,7 @@ public class AuthorizationRequestParser {
                 .loginHint(loginHint)
                 .prompt(prompt)
                 .display(display)
+                .claims(claims)
                 .request(request)
                 .requestUri(requestUri)
                 .registration(registration)

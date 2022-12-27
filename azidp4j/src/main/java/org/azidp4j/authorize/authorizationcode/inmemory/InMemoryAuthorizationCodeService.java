@@ -18,6 +18,7 @@ public class InMemoryAuthorizationCodeService implements AuthorizationCodeServic
     public AuthorizationCode issue(
             String sub,
             String scope,
+            String claims,
             String clientId,
             String redirectUri,
             String state,
@@ -31,6 +32,7 @@ public class InMemoryAuthorizationCodeService implements AuthorizationCodeServic
                         UUID.randomUUID().toString(),
                         sub,
                         scope,
+                        claims,
                         clientId,
                         redirectUri,
                         state,
