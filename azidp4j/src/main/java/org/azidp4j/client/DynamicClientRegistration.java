@@ -172,6 +172,7 @@ public class DynamicClientRegistration {
                 accessTokenService.issue(
                         client.clientId,
                         "configure",
+                        null,
                         client.clientId,
                         Instant.now().getEpochSecond() + config.accessTokenExpiration.toSeconds(),
                         Instant.now().getEpochSecond(),

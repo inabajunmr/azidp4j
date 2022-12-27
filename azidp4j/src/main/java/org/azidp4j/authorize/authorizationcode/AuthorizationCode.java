@@ -9,6 +9,7 @@ public class AuthorizationCode {
 
     public final String code;
     public final String scope;
+    public final String claims;
     public final String clientId;
     public final String redirectUri;
     public final Long authTime;
@@ -22,6 +23,7 @@ public class AuthorizationCode {
             String code,
             String sub,
             String scope,
+            String claims,
             String clientId,
             String redirectUri,
             String state,
@@ -33,6 +35,7 @@ public class AuthorizationCode {
         this.code = code;
         this.sub = sub;
         this.scope = scope;
+        this.claims = claims;
         this.clientId = clientId;
         this.redirectUri = redirectUri;
         this.state = state;

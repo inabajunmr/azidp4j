@@ -10,7 +10,6 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import java.net.URI;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Arrays;
@@ -195,9 +194,9 @@ class AuthorizeTest_Implicit {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var fragmentMap =
-                Arrays.stream(URI.create(location).getFragment().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertNull(fragmentMap.get("state"));
         AccessTokenAssert.assertAccessToken(
@@ -231,9 +230,9 @@ class AuthorizeTest_Implicit {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var fragmentMap =
-                Arrays.stream(URI.create(location).getFragment().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
@@ -268,9 +267,9 @@ class AuthorizeTest_Implicit {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var fragmentMap =
-                Arrays.stream(URI.create(location).getFragment().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
@@ -317,9 +316,9 @@ class AuthorizeTest_Implicit {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var fragmentMap =
-                Arrays.stream(URI.create(location).getFragment().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
@@ -411,9 +410,9 @@ class AuthorizeTest_Implicit {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var fragmentMap =
-                Arrays.stream(URI.create(location).getFragment().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(

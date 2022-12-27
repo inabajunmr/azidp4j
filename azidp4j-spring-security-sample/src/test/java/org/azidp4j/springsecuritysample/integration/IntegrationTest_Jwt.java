@@ -142,7 +142,11 @@ public class IntegrationTest_Jwt {
             assertThat(clientReadResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
 
-        // authorization request
+        // authorization request ========================
+        // id_token contains gender via claims parameter. userinfo returns email, email_verified via
+        // scope and phone_number via claims parameter.
+        var claims =
+                "{\"id_token\":{\"gender\":null},\"userinfo\":{\"phone_number\":{\"essential\":true}}}";
         var state = UUID.randomUUID().toString();
         var authorizationRequest =
                 UriComponentsBuilder.fromUriString(endpoint + "/authorize")
@@ -150,16 +154,17 @@ public class IntegrationTest_Jwt {
                         .queryParam("client_id", clientId)
                         .queryParam("redirect_uri", redirectUri)
                         .queryParam("scope", "scope1 openid email")
+                        .queryParam("claims", "{claims}")
                         .queryParam("state", state)
-                        .build();
+                        .build(claims);
         var authorizationResponseRedirectToLoginPage =
-                testRestTemplate.getForEntity(authorizationRequest.toString(), String.class);
+                testRestTemplate.getForEntity(authorizationRequest, String.class);
         assertThat(authorizationResponseRedirectToLoginPage.getStatusCode())
                 .isEqualTo(HttpStatus.FOUND);
         var redirectToLoginPageUri =
                 authorizationResponseRedirectToLoginPage.getHeaders().get("Location").get(0);
 
-        // redirect to login form
+        // redirect to login form ========================
         var login = testRestTemplate.getForEntity(endpoint + redirectToLoginPageUri, String.class);
         var loginPage = Jsoup.parse(login.getBody());
         assertThat(loginPage.select("form").attr("action")).isEqualTo("/login");
@@ -183,7 +188,7 @@ public class IntegrationTest_Jwt {
                 testRestTemplate.postForEntity(
                         endpoint + redirectToLoginPageUri, loginRequestEntity, String.class);
 
-        // redirect to authorization request
+        // redirect to authorization request ========================
         ResponseEntity<String> authorizationResponseRedirectToConsentPage =
                 testRestTemplate.exchange(
                         RequestEntity.get(
@@ -196,7 +201,7 @@ public class IntegrationTest_Jwt {
                                 .build(),
                         String.class);
 
-        // redirect to consent page
+        // redirect to consent page ========================
         var redirectToConsentPageUri =
                 authorizationResponseRedirectToConsentPage.getHeaders().get("Location").get(0);
 
@@ -206,7 +211,7 @@ public class IntegrationTest_Jwt {
         var consentPage = Jsoup.parse(consent.getBody());
         var csrf2 = consentPage.select("input[name='_csrf']").val();
 
-        // post consent
+        // post consent ========================
         MultiValueMap<String, String> consentBody = new LinkedMultiValueMap<>();
         consentBody.add("_csrf", csrf2);
         var consentRequestEntity =
@@ -224,7 +229,7 @@ public class IntegrationTest_Jwt {
                         consentRequestEntity,
                         String.class);
 
-        // redirect to authorization request
+        // redirect to authorization request ========================
         ResponseEntity<String> authorizationResponse =
                 testRestTemplate.exchange(
                         RequestEntity.get(
@@ -245,7 +250,7 @@ public class IntegrationTest_Jwt {
                         .get("code")
                         .get(0);
 
-        // token request by authorization code
+        // token request by authorization code ========================
         MultiValueMap<String, String> tokenRequestForAuthorizationCodeGrant =
                 new LinkedMultiValueMap<>();
         tokenRequestForAuthorizationCodeGrant.add("grant_type", "authorization_code");
@@ -275,28 +280,16 @@ public class IntegrationTest_Jwt {
         var jwk = jwks.getKeyByKeyId(parsedIdToken.getHeader().getKeyID());
         var verifier = new RSASSAVerifier((RSAKey) jwk);
         assertTrue(parsedIdToken.verify(verifier));
+        // gender claims is from claims parameter
+        assertEquals(parsedIdToken.getPayload().toJSONObject().get("gender"), "user1gender");
 
-        // introspection
+        // introspection ========================
         {
-            MultiValueMap<String, String> introspectionRequest = new LinkedMultiValueMap<>();
-            introspectionRequest.add("token", accessToken);
-            var introspectionRequestEntity =
-                    RequestEntity.post("/introspect")
-                            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                            .accept(MediaType.APPLICATION_JSON)
-                            .body(introspectionRequest);
-            var introspectionResponse =
-                    testRestTemplate
-                            .withBasicAuth(clientId, clientSecret)
-                            .postForEntity(
-                                    endpoint + "/introspect",
-                                    introspectionRequestEntity,
-                                    Map.class);
-            assertThat(introspectionResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assertEquals(true, introspectionResponse.getBody().get("active"));
+            IntegrationTestUtil.introspectionTest(
+                    accessToken, testRestTemplate, clientId, clientSecret, endpoint, true);
         }
 
-        // userinfo endpoint(get)
+        // userinfo endpoint(get) ========================
         {
             var userInfoRequest =
                     RequestEntity.get(endpoint + "/userinfo")
@@ -306,10 +299,13 @@ public class IntegrationTest_Jwt {
             var userinfo = testRestTemplate.exchange(userInfoRequest, Map.class);
             assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
+            // email claim from scope
             assertThat(userinfo.getBody().get("email")).isEqualTo("user1@example.com");
+            // phone_number claim from claims parameter
+            assertThat(userinfo.getBody().get("phone_number")).isEqualTo("+1 (425) 555-1212");
         }
 
-        // userinfo endpoint(post with header bearer token)
+        // userinfo endpoint(post with header bearer token) ========================
         {
             var userInfoRequest =
                     RequestEntity.post(endpoint + "/userinfo")
@@ -319,26 +315,33 @@ public class IntegrationTest_Jwt {
             var userinfo = testRestTemplate.exchange(userInfoRequest, Map.class);
             assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
+            // email claim from scope
             assertThat(userinfo.getBody().get("email")).isEqualTo("user1@example.com");
+            // phone_number claim from claims parameter
+            assertThat(userinfo.getBody().get("phone_number")).isEqualTo("+1 (425) 555-1212");
         }
 
-        // userinfo endpoint(post with body bearer token)
+        // userinfo endpoint(post with body bearer token) ========================
         {
-            MultiValueMap<String, String> introspectionRequest = new LinkedMultiValueMap<>();
-            introspectionRequest.add("access_token", accessToken);
-            var introspectionRequestEntity =
+            MultiValueMap<String, String> userinfoRequest = new LinkedMultiValueMap<>();
+            userinfoRequest.add("access_token", accessToken);
+            var userinfoRequestEntity =
                     RequestEntity.post("/userinfo")
                             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                             .accept(MediaType.APPLICATION_JSON)
-                            .body(introspectionRequest);
+                            .body(userinfoRequest);
             var userinfo =
                     testRestTemplate.postForEntity(
-                            endpoint + "/userinfo", introspectionRequestEntity, Map.class);
+                            endpoint + "/userinfo", userinfoRequestEntity, Map.class);
             assertThat(userinfo.getStatusCode()).isEqualTo(HttpStatus.OK);
             assertThat(userinfo.getBody().get("sub")).isEqualTo("user1");
+            // email claim from scope
+            assertThat(userinfo.getBody().get("email")).isEqualTo("user1@example.com");
+            // phone_number claim from claims parameter
+            assertThat(userinfo.getBody().get("phone_number")).isEqualTo("+1 (425) 555-1212");
         }
 
-        // token refresh
+        // token refresh ========================
         MultiValueMap<String, String> tokenRequestForRefresh = new LinkedMultiValueMap<>();
         tokenRequestForRefresh.add("grant_type", "refresh_token");
         tokenRequestForRefresh.add("refresh_token", refreshToken);
@@ -357,7 +360,7 @@ public class IntegrationTest_Jwt {
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("access_token"));
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("refresh_token"));
 
-        // delete client
+        // delete client ========================
         var clientDeleteEntity =
                 RequestEntity.delete(configurationUri)
                         .accept(MediaType.APPLICATION_JSON)

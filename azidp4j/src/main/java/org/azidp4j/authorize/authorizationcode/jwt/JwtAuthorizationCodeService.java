@@ -35,6 +35,7 @@ public class JwtAuthorizationCodeService implements AuthorizationCodeService {
     public AuthorizationCode issue(
             String sub,
             String scope,
+            String claimsParam,
             String clientId,
             String redirectUri,
             String state,
@@ -60,6 +61,8 @@ public class JwtAuthorizationCodeService implements AuthorizationCodeService {
                         redirectUri,
                         "scope",
                         scope,
+                        "claims",
+                        claimsParam,
                         "state",
                         state,
                         "nonce",
@@ -75,6 +78,7 @@ public class JwtAuthorizationCodeService implements AuthorizationCodeService {
                 jwt,
                 sub,
                 scope,
+                claimsParam,
                 clientId,
                 redirectUri,
                 state,
@@ -120,6 +124,7 @@ public class JwtAuthorizationCodeService implements AuthorizationCodeService {
             var payload = jws.getPayload().toJSONObject();
             var sub = payload.containsKey("sub") ? (String) payload.get("sub") : null;
             var scope = payload.containsKey("scope") ? (String) payload.get("scope") : null;
+            var claims = payload.containsKey("claims") ? (String) payload.get("claims") : null;
             var clientId =
                     payload.containsKey("client_id") ? (String) payload.get("client_id") : null;
             var exp = payload.containsKey("exp") ? (Long) payload.get("exp") : null;
@@ -144,6 +149,7 @@ public class JwtAuthorizationCodeService implements AuthorizationCodeService {
                             code,
                             sub,
                             scope,
+                            claims,
                             clientId,
                             redirectUri,
                             state,

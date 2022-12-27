@@ -11,7 +11,6 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
-import java.net.URI;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Arrays;
@@ -40,7 +39,14 @@ import org.junit.jupiter.api.Test;
 class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
 
     final IDTokenClaimsAssembler idTokenClaimsAssembler =
-            (sub, scope) -> Map.of("key1", "value1", "key2", Map.of("key2-1", "value2-1"));
+            (sub, accessTokenWillBeIssued, scope, claims) ->
+                    Map.of(
+                            "key1",
+                            "value1",
+                            "key2",
+                            Map.of("key2-1", "value2-1"),
+                            "accessTokenWillBeIssued",
+                            accessTokenWillBeIssued);
 
     final ClientStore clientStore = new InMemoryClientStore();
     final ECKey eckey =
@@ -153,9 +159,9 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var fragmentMap =
-                Arrays.stream(URI.create(location).getFragment().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         AccessTokenAssert.assertAccessToken(
@@ -182,7 +188,7 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
         // verify claims from idTokenClaimsAssembler
         var idToken = JWSObject.parse(fragmentMap.get("id_token"));
         // access token was issued so claims will be gained via userinfo endpoint
-        assertNull(idToken.getPayload().toJSONObject().get("key1"));
+        assertEquals(true, idToken.getPayload().toJSONObject().get("accessTokenWillBeIssued"));
     }
 
     @Test
@@ -206,9 +212,9 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var fragmentMap =
-                Arrays.stream(URI.create(location).getFragment().split("&"))
+                Arrays.stream(location.getFragment().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(fragmentMap.get("state"), "xyz");
         IdTokenAssert.assertIdTokenES256(
@@ -229,5 +235,6 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
         assertEquals(
                 "value2-1",
                 ((Map<?, ?>) (idToken.getPayload().toJSONObject().get("key2"))).get("key2-1"));
+        assertEquals(false, idToken.getPayload().toJSONObject().get("accessTokenWillBeIssued"));
     }
 }

@@ -9,7 +9,6 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
-import java.net.URI;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
@@ -105,7 +104,9 @@ public class OidcSample {
         assertEquals(authorizationResponse.next, NextAction.redirect);
         var queryMap =
                 Arrays.stream(
-                                URI.create(authorizationResponse.redirect.redirectTo)
+                                authorizationResponse
+                                        .redirect()
+                                        .createRedirectTo()
                                         .getQuery()
                                         .split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));

@@ -161,40 +161,49 @@ If the service needs to issue ID Token that has application-specific claims, nee
 You need to implement [IDTokenClaimsAssembler#assemble](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/token/idtoken/IDTokenClaimsAssembler.java) interface.
 The returned value will be merged in issued ID Token.
 
+// TODO ref to Spring sample implementation
+
 ```java
 /** https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims */
 @Override
-public Map<String, Object> assemble(String sub, Set<String> scopes) {
-    var user = userStore.find(sub);
-    var claims = new HashMap<String, Object>();
-    if (scopes.contains("profile")) {
-        claims.put("name", user.get("name"));
-        claims.put("family_name", user.get("family_name"));
-        claims.put("given_name", user.get("given_name"));
-        claims.put("middle_name", user.get("middle_name"));
-        claims.put("nickname", user.get("nickname"));
-        claims.put("preferred_username", user.get("preferred_username"));
-        claims.put("profile", user.get("profile"));
-        claims.put("picture", user.get("picture"));
-        claims.put("website", user.get("website"));
-        claims.put("gender", user.get("gender"));
-        claims.put("birthdate", user.get("birthdate"));
-        claims.put("zoneinfo", user.get("zoneinfo"));
-        claims.put("locale", user.get("locale"));
+public Map<String, Object> assemble(
+        String sub, boolean accessTokenWillBeIssued, Set<String> scopes, String claims) {
+    // If you want to use claims parameter for ID Token claims, parse claims and returns claims parameter.
+    // https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims said
+    // `However, when no Access Token is issued (which is the case for the response_type value id_token), the resulting Claims are returned in the ID Token.`
+    if(!accessTokenWillBeIssued){
+        var user = userStore.find(sub);
+        if(scopes.contains("profile")){
+            claims.put("name",user.get("name"));
+            claims.put("family_name",user.get("family_name"));
+            claims.put("given_name",user.get("given_name"));
+            claims.put("middle_name",user.get("middle_name"));
+            claims.put("nickname",user.get("nickname"));
+            claims.put("preferred_username",user.get("preferred_username"));
+            claims.put("profile",user.get("profile"));
+            claims.put("picture",user.get("picture"));
+            claims.put("website",user.get("website"));
+            claims.put("gender",user.get("gender"));
+            claims.put("birthdate",user.get("birthdate"));
+            claims.put("zoneinfo",user.get("zoneinfo"));
+            claims.put("locale",user.get("locale"));
+        }
+        if(scopes.contains("email")){
+            claims.put("email",user.get("email"));
+            claims.put("email_verified",user.get("email_verified"));
+        }
+        if(scopes.contains("address")){
+            claims.put("address",user.get("address"));
+        }
+        if(scopes.contains("phone")){
+            claims.put("phone_number",user.get("phone_number"));
+            claims.put("phone_number_verified",user.get("phone_number_verified"));
+        }
+        claims.put("updated_at",user.get("updated_at"));
+        return claims;
+    } else {
+        return null;
     }
-    if (scopes.contains("email")) {
-        claims.put("email", user.get("email"));
-        claims.put("email_verified", user.get("email_verified"));
-    }
-    if (scopes.contains("address")) {
-        claims.put("address", user.get("address"));
-    }
-    if (scopes.contains("phone")) {
-        claims.put("phone_number", user.get("phone_number"));
-        claims.put("phone_number_verified", user.get("phone_number_verified"));
-    }
-    claims.put("updated_at", user.get("updated_at"));
-    return claims;
 }
 ```
 

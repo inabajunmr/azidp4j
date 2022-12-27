@@ -21,6 +21,7 @@ public interface RefreshTokenService {
     RefreshToken issue(
             String sub,
             String scope,
+            String claims,
             String clientId,
             Long exp,
             Long iat,

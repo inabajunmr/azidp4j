@@ -3,7 +3,6 @@ package org.azidp4j.authorize;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.jwk.JWKSet;
-import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -104,9 +103,9 @@ class AuthorizeTest_None {
 
         // verify
         assertEquals(response.next, NextAction.redirect);
-        var location = response.redirect.redirectTo;
+        var location = response.redirect().createRedirectTo();
         var queryMap =
-                Arrays.stream(URI.create(location).getQuery().split("&"))
+                Arrays.stream(location.getQuery().split("&"))
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertNotNull(queryMap.get("state"));
         assertNull(queryMap.get("access_token"));

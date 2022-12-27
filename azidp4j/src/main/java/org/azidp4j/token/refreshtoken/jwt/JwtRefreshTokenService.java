@@ -34,6 +34,7 @@ public class JwtRefreshTokenService implements RefreshTokenService {
     public RefreshToken issue(
             String sub,
             String scope,
+            String claimsParam,
             String clientId,
             Long exp,
             Long iat,
@@ -57,10 +58,12 @@ public class JwtRefreshTokenService implements RefreshTokenService {
                         "client_id",
                         clientId,
                         "scope",
-                        scope);
+                        scope,
+                        "claims",
+                        claimsParam);
         // jwt?
         var jwt = jwsIssuer.issue(kidSupplier.get(), "rt+jwt", claims).serialize();
-        return new RefreshToken(jwt, sub, scope, clientId, audience, exp, iat, null);
+        return new RefreshToken(jwt, sub, scope, claimsParam, clientId, audience, exp, iat, null);
     }
 
     @Override
@@ -98,6 +101,7 @@ public class JwtRefreshTokenService implements RefreshTokenService {
             var payload = jws.getPayload().toJSONObject();
             var sub = payload.containsKey("sub") ? (String) payload.get("sub") : null;
             var scope = payload.containsKey("scope") ? (String) payload.get("scope") : null;
+            var claims = payload.containsKey("claims") ? (String) payload.get("claims") : null;
             var clientId =
                     payload.containsKey("client_id") ? (String) payload.get("client_id") : null;
             var aud =
@@ -106,7 +110,8 @@ public class JwtRefreshTokenService implements RefreshTokenService {
                             : null;
             var exp = payload.containsKey("exp") ? (Long) payload.get("exp") : null;
             var iat = payload.containsKey("iat") ? (Long) payload.get("iat") : null;
-            return Optional.of(new RefreshToken(token, sub, scope, clientId, aud, exp, iat, null));
+            return Optional.of(
+                    new RefreshToken(token, sub, scope, claims, clientId, aud, exp, iat, null));
         } catch (ParseException | JOSEException e) {
             return Optional.empty();
         }

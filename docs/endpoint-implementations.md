@@ -89,14 +89,16 @@ AuthorizationResponse#next express service what should do next.
 var response = azIdP.authorize(authzReq);
 switch (response.next) {
     case redirect -> {
-        // redirect to response.redirect.redirectTo;
+        // redirect() generate URI to redirect along with issuing tokens  
+        var redirect = response.redirect();
+        // redirect to redirect.createRedirectTo()
     }
     case errorPage -> {
         // Error but can't redirect as authorization response.
-        // show error page with response.errorPage.errorType
+        // show error page with response.errorPage().errorType
     }
     case additionalPage -> {
-        // When authorization request processing needs additional action by additionalPage.prompt.
+        // When authorization request processing needs additional action by additionalPage().prompt.
         // ex. user authentication or request consent.
     }
 }
@@ -105,21 +107,27 @@ switch (response.next) {
 Following next parameters are defined.
 
 * redirect
-    * service just redirect to `response.redirect.redirectTo`
+  * see [redirect](#redirect)
+      * service just redirect to `response.redirect().createRedirectTo()`
 * errorPage
     * see [errorPage](#errorpage)
 * additionalPage
     * see [additionalPage](#additionalpage)
 
+#### redirect
+
+Service typically just redirect to `response.redirect().createRedirectTo()`.
+If service want to check the response is success response or not, `response.isSuccessResponse()` can be used.
+
 #### errorPage
 
 When an authorization request is something wrong but can't redirect to the client, AzIdP#authorize returns `errorPage`.
-In this case, `errorPage.errorType` will be set to show the error page against each errorType.
+In this case, `errorPage().errorType` will be set to show the error page against each errorType.
 
 #### additionalPage
 
 When AzIdP4J requires additional action like user login, AzIdP#authorize returns `additionalPage`.
-The type of additionalPage is defined at `additionalPage.prompt`.
+The type of additionalPage is defined at `additionalPage().prompt`.
 
 Following types are defined as prompt.
 
@@ -142,7 +150,7 @@ But when an authorization request has prompt parameter, the same authorization r
 AuthorizationRequest#removePrompt is used for removing the prompt parameter to avoid this situation.
 
 ```java
-switch (response.additionalPage.prompt) {
+switch (response.additionalPage().prompt) {
     case login -> {
         // use this parameters to re-authorization request after login
         var redirectAfterLoginQueryParamters = "authzReq.removePrompt("login").queryParameters()

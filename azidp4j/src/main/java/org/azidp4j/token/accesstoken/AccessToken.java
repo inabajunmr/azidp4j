@@ -7,6 +7,7 @@ public class AccessToken {
     public final String token;
     public final String sub;
     public final String scope;
+    public final String claims;
     public final String clientId;
     public final Set<String> audience;
     public final long expiresAtEpochSec;
@@ -21,6 +22,7 @@ public class AccessToken {
             String token,
             String sub,
             String scope,
+            String claims,
             String clientId,
             Set<String> audience,
             long expiresAtEpochSec,
@@ -29,6 +31,7 @@ public class AccessToken {
         this.token = token;
         this.sub = sub;
         this.scope = scope;
+        this.claims = claims;
         this.clientId = clientId;
         this.audience = audience;
         this.expiresAtEpochSec = expiresAtEpochSec;
@@ -40,10 +43,20 @@ public class AccessToken {
             String token,
             String sub,
             String scope,
+            String claims,
             String clientId,
             Set<String> audience,
             long expiresAtEpochSec,
             long issuedAtEpochSec) {
-        this(token, sub, scope, clientId, audience, expiresAtEpochSec, issuedAtEpochSec, null);
+        this(
+                token,
+                sub,
+                scope,
+                claims,
+                clientId,
+                audience,
+                expiresAtEpochSec,
+                issuedAtEpochSec,
+                null);
     }
 }
