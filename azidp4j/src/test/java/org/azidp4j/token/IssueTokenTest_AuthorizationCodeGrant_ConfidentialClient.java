@@ -99,6 +99,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null));
         clientStore.save(
                 new Client(
@@ -124,6 +125,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         SigningAlgorithm.RS256,
                         null,
                         null,
+                        List.of("acr1"),
                         null));
         clientStore.save(
                 new Client(
@@ -149,6 +151,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         SigningAlgorithm.none,
                         null,
                         null,
+                        List.of("acr1"),
                         null));
         clientStore.save(
                 new Client(
@@ -174,6 +177,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null));
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         accessTokenService = new InMemoryAccessTokenService(new InMemoryAccessTokenStore());

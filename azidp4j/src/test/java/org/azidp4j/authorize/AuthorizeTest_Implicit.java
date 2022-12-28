@@ -72,6 +72,7 @@ class AuthorizeTest_Implicit {
                     SigningAlgorithm.ES256,
                     null,
                     null,
+                    List.of("acr1"),
                     null);
 
     final Client clientRs256 =
@@ -98,6 +99,7 @@ class AuthorizeTest_Implicit {
                     SigningAlgorithm.RS256,
                     null,
                     null,
+                    List.of("acr1"),
                     null);
 
     final Client noGrantTypesClient =
@@ -124,6 +126,7 @@ class AuthorizeTest_Implicit {
                     SigningAlgorithm.ES256,
                     null,
                     null,
+                    List.of("acr1"),
                     null);
 
     final Client noResponseTypesClient =
@@ -150,6 +153,7 @@ class AuthorizeTest_Implicit {
                     SigningAlgorithm.ES256,
                     null,
                     null,
+                    List.of("acr1"),
                     null);
 
     final Authorize sut;
@@ -427,6 +431,7 @@ class AuthorizeTest_Implicit {
                         SigningAlgorithm.none,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
         clientStore.save(client);
         var key =

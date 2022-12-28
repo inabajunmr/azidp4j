@@ -84,6 +84,7 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
                     SigningAlgorithm.ES256,
                     null,
                     null,
+                    List.of("acr1"),
                     null);
 
     final Client clientRs256 =
@@ -110,6 +111,7 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
                     SigningAlgorithm.RS256,
                     null,
                     null,
+                    List.of("acr1"),
                     null);
 
     final Authorize sut;

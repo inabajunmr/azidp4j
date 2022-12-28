@@ -160,6 +160,7 @@ public class DynamicClientRegistration {
                         idTokenSignedResponseAlg,
                         request.defaultMaxAge,
                         request.requireAuthTime != null ? request.requireAuthTime : false,
+                        request.defaultAcrValues,
                         request.initiateLoginUri);
         try {
             clientValidator.validate(client);
@@ -249,6 +250,8 @@ public class DynamicClientRegistration {
                         client.defaultMaxAge,
                         "require_auth_time",
                         client.requireAuthTime,
+                        "default_acr_values",
+                        client.defaultAcrValues,
                         "initiate_login_uri",
                         client.initiateLoginUri);
         Optional.ofNullable(client.clientName).ifPresent(v -> res.putAll(v.toMap()));

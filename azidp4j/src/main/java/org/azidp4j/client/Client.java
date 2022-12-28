@@ -75,6 +75,8 @@ public class Client {
      */
     public final Boolean requireAuthTime;
 
+    public List<String> defaultAcrValues;
+
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final String initiateLoginUri;
 
@@ -105,6 +107,7 @@ public class Client {
             SigningAlgorithm idTokenSignedResponseAlg,
             Long defaultMaxAge,
             Boolean requireAuthTime,
+            List<String> defaultAcrValues,
             String initiateLoginUri) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -128,6 +131,7 @@ public class Client {
         this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
         this.defaultMaxAge = defaultMaxAge;
         this.requireAuthTime = requireAuthTime;
+        this.defaultAcrValues = defaultAcrValues;
         this.initiateLoginUri = initiateLoginUri;
     }
 }

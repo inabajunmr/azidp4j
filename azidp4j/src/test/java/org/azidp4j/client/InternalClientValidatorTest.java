@@ -3,6 +3,7 @@ package org.azidp4j.client;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
@@ -87,6 +88,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -135,6 +137,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -182,6 +185,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -229,6 +233,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -267,6 +272,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -307,6 +313,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -345,6 +352,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -383,6 +391,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -421,6 +430,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -461,6 +471,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         "illegal"); // target
 
         // exercise
@@ -499,6 +510,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         -1L, // target
                         null,
+                        List.of("acr1"),
                         "https://example.com");
 
         // exercise

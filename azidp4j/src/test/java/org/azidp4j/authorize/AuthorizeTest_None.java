@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
@@ -54,6 +55,7 @@ class AuthorizeTest_None {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
         clientStore.save(client);
         var config =
