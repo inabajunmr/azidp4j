@@ -2,8 +2,6 @@ package org.azidp4j.authorize;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
@@ -66,31 +64,17 @@ public class Authorize {
                 && authorizationRequest.authTime == null) {
             throw new AssertionError("When user is authenticated, must set authTime.");
         }
-        var locales = parseUiLocales(authorizationRequest.uiLocales);
-        Set<ResponseType> responseType;
-        try {
-            responseType = ResponseType.parse(authorizationRequest.responseType);
-        } catch (IllegalArgumentException e) {
-            return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
-                    locales,
-                    "response_type parse error",
-                    authorizationRequest);
+        var locales = UILocalesParser.parseUiLocales(authorizationRequest.uiLocales);
+        var parsedResponseType =
+                ResponseTypeParser.parse(
+                        authorizationRequest.responseType,
+                        locales,
+                        authorizationRequest,
+                        config.responseTypeSupported);
+        if (parsedResponseType.isError()) {
+            return parsedResponseType.getErrorResponse();
         }
-        if (responseType.isEmpty()) {
-            return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
-                    locales,
-                    "response_type parse error",
-                    authorizationRequest);
-        }
-        if (!config.responseTypeSupported.contains(responseType)) {
-            return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.unsupported_response_type,
-                    locales,
-                    "azidp doesn't support response_type",
-                    authorizationRequest);
-        }
+        var responseType = parsedResponseType.getValue();
 
         ResponseMode responseMode;
         try {
@@ -615,13 +599,5 @@ public class Authorize {
                 true,
                 null,
                 authorizationRequest);
-    }
-
-    private List<String> parseUiLocales(String uiLocales) {
-        if (uiLocales == null) {
-            return List.of();
-        }
-
-        return Arrays.stream(uiLocales.replaceAll(" +", " ").split(" ")).toList();
     }
 }
