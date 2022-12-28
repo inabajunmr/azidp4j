@@ -1,4 +1,4 @@
-package org.azidp4j.authorize;
+package org.azidp4j.authorize.parser;
 
 import java.util.Arrays;
 import java.util.List;

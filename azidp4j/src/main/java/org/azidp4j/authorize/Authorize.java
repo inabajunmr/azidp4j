@@ -1,10 +1,10 @@
 package org.azidp4j.authorize;
 
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
+import org.azidp4j.authorize.parser.*;
 import org.azidp4j.authorize.request.*;
 import org.azidp4j.authorize.response.AuthorizationErrorTypeWithoutRedirect;
 import org.azidp4j.authorize.response.AuthorizationResponse;
@@ -16,7 +16,6 @@ import org.azidp4j.scope.ScopeValidator;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.idtoken.IDTokenIssuer;
 import org.azidp4j.token.idtoken.IDTokenValidator;
-import org.azidp4j.token.idtoken.InvalidIDTokenException;
 import org.azidp4j.util.MapUtil;
 
 public class Authorize {
@@ -271,39 +270,18 @@ public class Authorize {
                     authorizationRequest);
         }
 
-        // parse id_token_hint
-        String idTokenHintSub = null;
-        if (authorizationRequest.idTokenHint != null) {
-            try {
-                var idTokenHint =
-                        idTokenValidator.validateForIdTokenHint(
-                                authorizationRequest.idTokenHint, client);
-                idTokenHintSub = idTokenHint.getPayload().toJSONObject().get("sub").toString();
-            } catch (InvalidIDTokenException e) {
-                return AuthorizationResponse.redirect(
+        var parsedIDTokenHint =
+                IDTokenHintParser.parse(
+                        authorizationRequest.idTokenHint,
+                        idTokenValidator,
+                        client,
                         redirectUri,
-                        MapUtil.nullRemovedStringMap(
-                                "error", "invalid_request", "state", authorizationRequest.state),
                         responseMode,
-                        false,
-                        "invalid id_token_hint",
                         authorizationRequest);
-            }
+        if (parsedIDTokenHint.isError()) {
+            return parsedIDTokenHint.getErrorResponse();
         }
-
-        // check authenticated user subject and id_token_hint sub are same.
-        if (idTokenHintSub != null && authorizationRequest.authenticatedUserSubject != null) {
-            if (!Objects.equals(idTokenHintSub, authorizationRequest.authenticatedUserSubject)) {
-                return AuthorizationResponse.redirect(
-                        redirectUri,
-                        MapUtil.nullRemovedStringMap(
-                                "error", "login_required", "state", authorizationRequest.state),
-                        responseMode,
-                        false,
-                        "id_token_hint subject and authenticatedUser subject unmatched",
-                        authorizationRequest);
-            }
-        }
+        var idTokenHintSub = parsedIDTokenHint.getValue();
 
         // parse prompt
         Set<Prompt> prompt;
