@@ -1,6 +1,5 @@
 package org.azidp4j.authorize;
 
-import java.net.URI;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Set;
@@ -76,23 +75,17 @@ public class Authorize {
         }
         var responseType = parsedResponseType.getValue();
 
-        ResponseMode responseMode;
-        try {
-            responseMode = ResponseMode.of(authorizationRequest.responseMode, responseType);
-        } catch (IllegalArgumentException e) {
-            return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.invalid_response_mode,
-                    locales,
-                    "response_mode parse error",
-                    authorizationRequest);
+        var parsedResponseMode =
+                ResponseModeParser.parse(
+                        authorizationRequest.responseMode,
+                        responseType,
+                        config.responseModesSupported,
+                        locales,
+                        authorizationRequest);
+        if (parsedResponseMode.isError()) {
+            return parsedResponseMode.getErrorResponse();
         }
-        if (!config.responseModesSupported.contains(responseMode)) {
-            return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.unsupported_response_mode,
-                    locales,
-                    "azidp doesn't support response_mode",
-                    authorizationRequest);
-        }
+        var responseMode = parsedResponseMode.getValue();
 
         // validate client
         if (authorizationRequest.clientId == null) {
@@ -113,27 +106,14 @@ public class Authorize {
 
         var client = clientOpt.get();
 
-        // validate redirect urls
-        if (authorizationRequest.redirectUri == null) {
-            return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.invalid_redirect_uri,
-                    locales,
-                    "redirect_uri required",
-                    authorizationRequest);
+        var parsedRedirectURI =
+                RedirectURIParser.parse(
+                        authorizationRequest.redirectUri, client, locales, authorizationRequest);
+        if (parsedRedirectURI.isError()) {
+            return parsedRedirectURI.getErrorResponse();
         }
-        if (!client.redirectUris.contains(authorizationRequest.redirectUri)) {
-            return AuthorizationResponse.errorPage(
-                    AuthorizationErrorTypeWithoutRedirect.redirect_uri_not_allowed,
-                    locales,
-                    "client doesn't allow redirect_uri",
-                    authorizationRequest);
-        }
-        URI redirectUri;
-        try {
-            redirectUri = URI.create(authorizationRequest.redirectUri);
-        } catch (IllegalArgumentException e) {
-            throw new AssertionError("Client has illegal redirect_uris.", e);
-        }
+        var redirectUri = parsedRedirectURI.getValue();
+
         if (authorizationRequest.request != null) {
             return AuthorizationResponse.redirect(
                     redirectUri,
@@ -170,6 +150,7 @@ public class Authorize {
                     "registration not supported",
                     authorizationRequest);
         }
+
         // https://openid.net/specs/openid-connect-registration-1_0.html#ClientMetadata
         if (responseType.contains(ResponseType.code)) {
             // validate grant type and response type

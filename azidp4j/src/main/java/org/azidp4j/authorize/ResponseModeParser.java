@@ -28,7 +28,7 @@ public class ResponseModeParser {
                             "response_mode parse error",
                             authorizationRequest));
         }
-        if (!responseModesSupported.contains(responseMode)) {
+        if (!responseModesSupported.contains(parsedResponseMode)) {
             return ParseResult.error(
                     AuthorizationResponse.errorPage(
                             AuthorizationErrorTypeWithoutRedirect.unsupported_response_mode,
