@@ -103,7 +103,6 @@ public class Authorize {
                     "client not found",
                     authorizationRequest);
         }
-
         var client = clientOpt.get();
 
         var parsedRedirectURI =
@@ -246,21 +245,16 @@ public class Authorize {
         var codeChallengeMethod = parsedCodeChallenge.getValue().getCodeChallengeMethod();
 
         // parse display
-        var display = Display.page;
-        if (authorizationRequest.display != null) {
-            try {
-                display = Display.of(authorizationRequest.display);
-            } catch (IllegalArgumentException e) {
-                return AuthorizationResponse.redirect(
+        var parsedDisplay =
+                DisplayParser.parse(
+                        authorizationRequest.display,
                         redirectUri,
-                        MapUtil.nullRemovedStringMap(
-                                "error", "invalid_request", "state", authorizationRequest.state),
                         responseMode,
-                        false,
-                        "display parse error",
                         authorizationRequest);
-            }
+        if (parsedDisplay.isError()) {
+            return parsedDisplay.getErrorResponse();
         }
+        var display = parsedDisplay.getValue();
 
         // check client supported requested response_type
         if (!client.responseTypes.contains(responseType)) {
