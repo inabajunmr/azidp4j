@@ -565,6 +565,7 @@ public class Authorize {
                         var code =
                                 authorizationCodeService.issue(
                                         authorizationRequest.authenticatedUserSubject,
+                                        authorizationRequest.authenticatedUserAcr,
                                         scope,
                                         authorizationRequest.claims,
                                         authorizationRequest.clientId,
@@ -599,6 +600,7 @@ public class Authorize {
                                 idTokenIssuer
                                         .issue(
                                                 authorizationRequest.authenticatedUserSubject,
+                                                authorizationRequest.authenticatedUserAcr,
                                                 authorizationRequest.clientId,
                                                 authorizationRequest.authTime,
                                                 authorizationRequest.nonce,

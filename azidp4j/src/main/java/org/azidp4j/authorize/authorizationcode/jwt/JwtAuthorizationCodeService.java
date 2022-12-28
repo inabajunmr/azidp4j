@@ -34,6 +34,7 @@ public class JwtAuthorizationCodeService implements AuthorizationCodeService {
     @Override
     public AuthorizationCode issue(
             String sub,
+            String acr,
             String scope,
             String claimsParam,
             String clientId,
@@ -51,6 +52,8 @@ public class JwtAuthorizationCodeService implements AuthorizationCodeService {
                         issuer,
                         "sub",
                         sub,
+                        "acr",
+                        acr,
                         "exp",
                         exp,
                         "jti",
@@ -77,6 +80,7 @@ public class JwtAuthorizationCodeService implements AuthorizationCodeService {
         return new AuthorizationCode(
                 jwt,
                 sub,
+                acr,
                 scope,
                 claimsParam,
                 clientId,
@@ -123,6 +127,7 @@ public class JwtAuthorizationCodeService implements AuthorizationCodeService {
 
             var payload = jws.getPayload().toJSONObject();
             var sub = payload.containsKey("sub") ? (String) payload.get("sub") : null;
+            var acr = payload.containsKey("acr") ? (String) payload.get("acr") : null;
             var scope = payload.containsKey("scope") ? (String) payload.get("scope") : null;
             var claims = payload.containsKey("claims") ? (String) payload.get("claims") : null;
             var clientId =
@@ -148,6 +153,7 @@ public class JwtAuthorizationCodeService implements AuthorizationCodeService {
                     new AuthorizationCode(
                             code,
                             sub,
+                            acr,
                             scope,
                             claims,
                             clientId,

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -196,6 +197,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1",
                         null,
                         "ES256Client",
@@ -242,6 +244,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1 openid",
                         null,
                         "ES256Client",
@@ -290,6 +293,12 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
                 "abc",
                 (String) response.body.get("access_token"),
                 null);
+        assertEquals(
+                JWSObject.parse((String) response.body.get("id_token"))
+                        .getPayload()
+                        .toJSONObject()
+                        .get("acr"),
+                "acr");
     }
 
     @Test
@@ -300,6 +309,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1 openid",
                         null,
                         "ES256Client",
@@ -361,6 +371,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1 openid",
                         null,
                         "RS256Client",
@@ -421,6 +432,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1 openid",
                         null,
                         "NoneClient",
@@ -480,6 +492,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "notauthorized",
                         null,
                         "ES256Client",
@@ -517,6 +530,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1",
                         null,
                         "ES256Client",
@@ -562,6 +576,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1",
                         null,
                         "ES256Client",
@@ -597,6 +612,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1 openid",
                         null,
                         "ES256Client",
@@ -633,6 +649,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1",
                         null,
                         "ES256Client",
@@ -670,6 +687,7 @@ class IssueTokenTest_AuthorizationCodeGrant_ConfidentialClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1",
                         null,
                         "ES256Client",

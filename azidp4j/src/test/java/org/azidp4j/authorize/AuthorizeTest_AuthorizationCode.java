@@ -31,11 +31,13 @@ class AuthorizeTest_AuthorizationCode {
     final Client noResponseTypesClient = Fixtures.noResponseTypeClient();
     final AzIdPConfig config = Fixtures.azIdPConfig();
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
+    final InMemoryAuthorizationCodeService inMemoryAuthorizationCodeService =
+            new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
     final JWKSet jwks = new JWKSet();
     final Authorize sut =
             new Authorize(
                     clientStore,
-                    new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
+                    inMemoryAuthorizationCodeService,
                     scopeAudienceMapper,
                     new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                     new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null),
@@ -114,6 +116,36 @@ class AuthorizeTest_AuthorizationCode {
                         .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
         assertEquals(queryMap.get("state"), "xyz");
         assertNotNull(queryMap.get("code"));
+    }
+
+    @Test
+    void authorizationCodeGrant_withAcr() {
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("code")
+                        .authenticatedUserAcr("acrValue")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("rs:scope1")
+                        .authenticatedUserSubject("username")
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.next, NextAction.redirect);
+        var location = response.redirect().createRedirectTo();
+        var queryMap =
+                Arrays.stream(location.getQuery().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertNull(queryMap.get("state"));
+        assertNotNull(queryMap.get("code"));
+        var authorizationCode = inMemoryAuthorizationCodeService.consume(queryMap.get("code"));
+        assertEquals(authorizationCode.get().acr, "acrValue");
     }
 
     @Test

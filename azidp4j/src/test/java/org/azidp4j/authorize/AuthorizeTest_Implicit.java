@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -293,6 +294,60 @@ class AuthorizeTest_Implicit {
                 "abc",
                 fragmentMap.get("access_token"),
                 null);
+    }
+
+    @Test
+    void implicitGrant_oidc_es256_withAcr() throws JOSEException, ParseException {
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("token id_token")
+                        .authenticatedUserAcr("acrValue")
+                        .clientId(clientEs256.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("http://rp1.example.com")
+                        .scope("openid rs:scope1")
+                        .authenticatedUserSubject("username")
+                        .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
+                        .state("xyz")
+                        .nonce("abc")
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.next, NextAction.redirect);
+        var location = response.redirect().createRedirectTo();
+        var fragmentMap =
+                Arrays.stream(location.getFragment().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals(fragmentMap.get("state"), "xyz");
+        AccessTokenAssert.assertAccessToken(
+                accessTokenStore.find(fragmentMap.get("access_token")).get(),
+                "username",
+                "http://rs.example.com",
+                clientEs256.clientId,
+                "openid rs:scope1",
+                Instant.now().getEpochSecond() + 3600);
+        assertEquals(fragmentMap.get("token_type"), "bearer");
+        assertEquals(Integer.parseInt(fragmentMap.get("expires_in")), 3600);
+        IdTokenAssert.assertIdTokenES256(
+                fragmentMap.get("id_token"),
+                eckey,
+                "username",
+                clientEs256.clientId,
+                "http://localhost:8080",
+                Instant.now().getEpochSecond() + 3600,
+                Instant.now().getEpochSecond(),
+                Instant.now().getEpochSecond(),
+                "abc",
+                fragmentMap.get("access_token"),
+                null);
+        assertEquals(
+                JWSObject.parse(fragmentMap.get("id_token")).getPayload().toJSONObject().get("acr"),
+                "acrValue");
+        ;
     }
 
     @Test

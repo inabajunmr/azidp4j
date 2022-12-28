@@ -36,6 +36,7 @@ public class IssueTokenTest {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1",
                         null,
                         "clientId",

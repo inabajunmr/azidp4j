@@ -42,6 +42,7 @@ class JwtAuthorizationCodeServiceTest {
         var issued =
                 sut.issue(
                         "sub",
+                        "acr",
                         "scope1 scope2",
                         null,
                         "client id",
@@ -166,6 +167,7 @@ class JwtAuthorizationCodeServiceTest {
         var issued =
                 sut.issue(
                         "sub",
+                        "acr",
                         "scope1 scope2",
                         null,
                         "client id",
@@ -197,6 +199,7 @@ class JwtAuthorizationCodeServiceTest {
         var issued =
                 sut.issue(
                         "sub",
+                        "acr",
                         "scope1 scope2",
                         null,
                         "client id",
@@ -223,6 +226,7 @@ class JwtAuthorizationCodeServiceTest {
         var issued =
                 service.issue(
                         "sub",
+                        "acr",
                         "scope1 scope2",
                         null,
                         "client id",
