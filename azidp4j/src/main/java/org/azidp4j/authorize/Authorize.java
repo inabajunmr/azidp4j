@@ -266,19 +266,36 @@ public class Authorize {
             }
         }
 
-        var parsedCodeChallenge =
-                CodeChallengeParser.parse(
-                        authorizationRequest.codeChallenge,
-                        authorizationRequest.codeChallengeMethod,
-                        redirectUri,
-                        authorizationRequest.state,
-                        responseMode,
-                        authorizationRequest);
-        if (parsedCodeChallenge.isError()) {
-            return parsedCodeChallenge.getErrorResponse();
+        if (authorizationRequest.codeChallenge == null
+                && authorizationRequest.codeChallengeMethod != null) {
+            return AuthorizationResponse.redirect(
+                    redirectUri,
+                    MapUtil.nullRemovedStringMap(
+                            "error", "invalid_request", "state", authorizationRequest.state),
+                    responseMode,
+                    false,
+                    "code_challenge_method specified but no code_challenge",
+                    authorizationRequest);
         }
-        var codeChallenge = parsedCodeChallenge.getValue().getCodeChallenge();
-        var codeChallengeMethod = parsedCodeChallenge.getValue().getCodeChallengeMethod();
+        CodeChallengeMethod codeChallengeMethodTemp = null;
+        if (authorizationRequest.codeChallengeMethod != null) {
+            try {
+                codeChallengeMethodTemp =
+                        CodeChallengeMethod.of(authorizationRequest.codeChallengeMethod);
+            } catch (IllegalArgumentException e) {
+                return AuthorizationResponse.redirect(
+                        redirectUri,
+                        MapUtil.nullRemovedStringMap(
+                                "error", "invalid_request", "state", authorizationRequest.state),
+                        responseMode,
+                        false,
+                        "code_challenge_method parse error",
+                        authorizationRequest);
+            }
+        } else if (authorizationRequest.codeChallenge != null) {
+            codeChallengeMethodTemp = CodeChallengeMethod.S256;
+        }
+        CodeChallengeMethod codeChallengeMethod = codeChallengeMethodTemp;
 
         // parse display
         var display = Display.page;
@@ -555,7 +572,7 @@ public class Authorize {
                                         authorizationRequest.state,
                                         authorizationRequest.authTime,
                                         authorizationRequest.nonce,
-                                        codeChallenge,
+                                        authorizationRequest.codeChallenge,
                                         codeChallengeMethod,
                                         Instant.now().getEpochSecond()
                                                 + config.authorizationCodeExpiration.toSeconds());
