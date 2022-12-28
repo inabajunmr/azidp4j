@@ -86,6 +86,8 @@ class DynamicClientRegistrationTest_Register {
                                 100L,
                                 "require_auth_time",
                                 true,
+                                "default_acr_values",
+                                List.of("acr1", "acr2"),
                                 "initiate_login_uri",
                                 "https://example.com"));
 
@@ -322,6 +324,7 @@ class DynamicClientRegistrationTest_Register {
                                 SigningAlgorithm.ES256,
                                 SigningAlgorithm.RS256,
                                 SigningAlgorithm.none),
+                        List.of("acr"),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
@@ -369,6 +372,7 @@ class DynamicClientRegistrationTest_Register {
                                 SigningAlgorithm.ES256,
                                 SigningAlgorithm.RS256,
                                 SigningAlgorithm.none),
+                        List.of("acr"),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),

@@ -49,6 +49,7 @@ class InternalClientValidatorTest {
                                         ResponseType.id_token)),
                         Set.of(ResponseMode.query, ResponseMode.fragment),
                         Set.of(),
+                        List.of("acr"),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
@@ -519,6 +520,45 @@ class InternalClientValidatorTest {
             fail();
         } catch (IllegalArgumentException e) {
             assertEquals("defaultMaxAge must be positive", e.getMessage());
+        }
+    }
+
+    @Test
+    void validate_UnsupportedAcr() {
+        // setup
+        var client =
+                new Client(
+                        "confidential",
+                        "secret",
+                        Set.of("https://example.com"),
+                        Set.of(),
+                        ApplicationType.WEB,
+                        Set.of(GrantType.authorization_code),
+                        null,
+                        null,
+                        null,
+                        "rs:scope1 rs:scope2 openid",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        null,
+                        SigningAlgorithm.ES256,
+                        10000L,
+                        null,
+                        List.of("acr1", "unsupported"), // target
+                        "https://example.com");
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("defaultAcrValues doesn't support at acrValuesSupported", e.getMessage());
         }
     }
 }

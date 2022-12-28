@@ -61,6 +61,7 @@ public class AzIdPBuilder {
     private Supplier<String> refreshTokenServiceKidSupplier = null;
     private DiscoveryConfig discoveryConfig = null;
     private UserPasswordVerifier userPasswordVerifier = null;
+    private List<String> acrValuesSupported;
     private Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported =
             Set.of(TokenEndpointAuthMethod.client_secret_basic);
     private Set<String> tokenEndpointAuthSigningAlgValuesSupported;
@@ -231,6 +232,11 @@ public class AzIdPBuilder {
         return this;
     }
 
+    public AzIdPBuilder acrValuesSupported(List<String> acrValuesSupported) {
+        this.acrValuesSupported = acrValuesSupported;
+        return this;
+    }
+
     public AzIdPBuilder tokenEndpointAuthMethodsSupported(
             Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported) {
         this.tokenEndpointAuthMethodsSupported = tokenEndpointAuthMethodsSupported;
@@ -370,6 +376,7 @@ public class AzIdPBuilder {
                         responseTypesSupported,
                         responseModesSupported,
                         idTokenSigningAlgValuesSupported,
+                        acrValuesSupported,
                         accessTokenExpiration,
                         authorizationCodeExpiration,
                         refreshTokenExpiration,

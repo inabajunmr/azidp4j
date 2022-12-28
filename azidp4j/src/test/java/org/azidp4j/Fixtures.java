@@ -59,6 +59,7 @@ public class Fixtures {
                         Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token)),
                 Set.of(ResponseMode.query, ResponseMode.fragment),
                 Set.of(SigningAlgorithm.ES256, SigningAlgorithm.RS256, SigningAlgorithm.none),
+                List.of("acr1", "acr2"),
                 Duration.ofSeconds(3600),
                 Duration.ofSeconds(600),
                 Duration.ofSeconds(604800),

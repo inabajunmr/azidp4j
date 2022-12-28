@@ -8,6 +8,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.azidp4j.AccessTokenAssert;
@@ -281,6 +282,7 @@ public class IssueTokenTest_RefreshToken {
                         Set.of(),
                         Set.of(),
                         Set.of(SigningAlgorithm.ES256),
+                        List.of("acr"),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(-1), // always issuing expired

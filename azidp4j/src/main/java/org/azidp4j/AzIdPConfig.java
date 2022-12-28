@@ -1,6 +1,7 @@
 package org.azidp4j;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
@@ -23,6 +24,7 @@ public class AzIdPConfig {
     public final Set<Set<ResponseType>> responseTypeSupported;
     public final Set<ResponseMode> responseModesSupported;
     public final Set<SigningAlgorithm> idTokenSigningAlgValuesSupported;
+    public final List<String> acrValuesSupported;
     public final Duration authorizationCodeExpiration;
     public final Duration accessTokenExpiration;
     public final Duration idTokenExpiration;
@@ -42,6 +44,7 @@ public class AzIdPConfig {
             Set<Set<ResponseType>> responseTypeSupported,
             Set<ResponseMode> responseModesSupported,
             Set<SigningAlgorithm> idTokenSigningAlgValuesSupported,
+            List<String> acrValuesSupported,
             Duration accessTokenExpiration,
             Duration authorizationCodeExpiration,
             Duration refreshTokenExpiration,
@@ -62,6 +65,7 @@ public class AzIdPConfig {
         this.responseTypeSupported = responseTypeSupported;
         this.responseModesSupported = responseModesSupported;
         this.idTokenSigningAlgValuesSupported = idTokenSigningAlgValuesSupported;
+        this.acrValuesSupported = acrValuesSupported;
         this.accessTokenExpiration = accessTokenExpiration;
         this.authorizationCodeExpiration = authorizationCodeExpiration;
         this.refreshTokenExpiration = refreshTokenExpiration;
