@@ -17,9 +17,17 @@ public class ParseResult<T> {
      */
     private final AuthorizationResponse errorResponse;
 
-    public ParseResult(T value, AuthorizationResponse errorResponse) {
+    private ParseResult(T value, AuthorizationResponse errorResponse) {
         this.value = value;
         this.errorResponse = errorResponse;
+    }
+
+    public static <T> ParseResult<T> error(AuthorizationResponse errorResponse) {
+        return new ParseResult<>(null, errorResponse);
+    }
+
+    public static <T> ParseResult<T> of(T value) {
+        return new ParseResult<>(value, null);
     }
 
     public T getValue() {

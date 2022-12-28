@@ -19,8 +19,7 @@ public class ResponseTypeParser {
         try {
             responseTypes = ResponseType.parse(responseType);
         } catch (IllegalArgumentException e) {
-            return new ParseResult<>(
-                    null,
+            return ParseResult.error(
                     AuthorizationResponse.errorPage(
                             AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
                             locales,
@@ -28,8 +27,7 @@ public class ResponseTypeParser {
                             authorizationRequest));
         }
         if (responseTypes.isEmpty()) {
-            return new ParseResult<>(
-                    null,
+            return ParseResult.error(
                     AuthorizationResponse.errorPage(
                             AuthorizationErrorTypeWithoutRedirect.invalid_response_type,
                             locales,
@@ -37,14 +35,13 @@ public class ResponseTypeParser {
                             authorizationRequest));
         }
         if (!responseTypeSupported.contains(responseTypes)) {
-            return new ParseResult<>(
-                    null,
+            return ParseResult.error(
                     AuthorizationResponse.errorPage(
                             AuthorizationErrorTypeWithoutRedirect.unsupported_response_type,
                             locales,
                             "azidp doesn't support response_type",
                             authorizationRequest));
         }
-        return new ParseResult<>(ResponseType.parse(responseType), null);
+        return ParseResult.of(ResponseType.parse(responseType));
     }
 }

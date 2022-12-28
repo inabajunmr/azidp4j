@@ -19,8 +19,7 @@ public class CodeChallengeParser {
             InternalAuthorizationRequest authorizationRequest) {
 
         if (codeChallenge == null && codeChallengeMethod != null) {
-            return new ParseResult(
-                    null,
+            return ParseResult.error(
                     AuthorizationResponse.redirect(
                             redirectUri,
                             MapUtil.nullRemovedStringMap(
@@ -35,8 +34,7 @@ public class CodeChallengeParser {
             try {
                 codeChallengeMethodTemp = CodeChallengeMethod.of(codeChallengeMethod);
             } catch (IllegalArgumentException e) {
-                return new ParseResult(
-                        null,
+                return ParseResult.error(
                         AuthorizationResponse.redirect(
                                 redirectUri,
                                 MapUtil.nullRemovedStringMap(
@@ -50,6 +48,6 @@ public class CodeChallengeParser {
             codeChallengeMethodTemp = CodeChallengeMethod.S256;
         }
 
-        return new ParseResult(new CodeChallenge(codeChallengeMethodTemp, codeChallenge), null);
+        return ParseResult.of(new CodeChallenge(codeChallengeMethodTemp, codeChallenge));
     }
 }
