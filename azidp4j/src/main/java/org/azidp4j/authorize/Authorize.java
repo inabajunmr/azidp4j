@@ -2,11 +2,9 @@ package org.azidp4j.authorize;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.authorize.authorizationcode.AcrValuesParser;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.*;
 import org.azidp4j.authorize.response.AuthorizationErrorTypeWithoutRedirect;
@@ -363,6 +361,25 @@ public class Authorize {
             }
         }
 
+        List<String> acrValues;
+        try {
+            acrValues =
+                    AcrValuesParser.acrValues(
+                            authorizationRequest.acrValues,
+                            client.defaultAcrValues,
+                            config.acrValuesSupported);
+        } catch (IllegalArgumentException e) {
+            // acr_values is unsupported
+            return AuthorizationResponse.redirect(
+                    redirectUri,
+                    MapUtil.nullRemovedStringMap(
+                            "error", "invalid_request", "state", authorizationRequest.state),
+                    responseMode,
+                    false,
+                    "acrValues has unsupported value",
+                    authorizationRequest);
+        }
+
         // parse prompt
         Set<Prompt> prompt;
         try {
@@ -422,6 +439,7 @@ public class Authorize {
                         display,
                         client.clientId,
                         scope,
+                        acrValues,
                         locales,
                         idTokenHintSub,
                         authorizationRequest.loginHint,
@@ -434,6 +452,7 @@ public class Authorize {
                         display,
                         client.clientId,
                         scope,
+                        acrValues,
                         locales,
                         idTokenHintSub,
                         authorizationRequest.loginHint,
@@ -465,6 +484,7 @@ public class Authorize {
                                     display,
                                     client.clientId,
                                     scope,
+                                    acrValues,
                                     locales,
                                     idTokenHintSub,
                                     authorizationRequest.loginHint,
@@ -492,6 +512,7 @@ public class Authorize {
                         display,
                         client.clientId,
                         scope,
+                        acrValues,
                         locales,
                         idTokenHintSub,
                         authorizationRequest.loginHint,
@@ -504,6 +525,7 @@ public class Authorize {
                         display,
                         client.clientId,
                         scope,
+                        acrValues,
                         locales,
                         idTokenHintSub,
                         authorizationRequest.loginHint,
@@ -516,12 +538,29 @@ public class Authorize {
                         display,
                         client.clientId,
                         scope,
+                        acrValues,
                         locales,
                         idTokenHintSub,
                         authorizationRequest.loginHint,
                         null,
                         authorizationRequest);
             }
+        }
+
+        if (!acrValues.isEmpty()
+                && (authorizationRequest.authenticatedUserAcr == null
+                        || !acrValues.contains(authorizationRequest.authenticatedUserAcr))) {
+            return AuthorizationResponse.additionalPage(
+                    Prompt.login,
+                    display,
+                    client.clientId,
+                    scope,
+                    acrValues,
+                    locales,
+                    idTokenHintSub,
+                    authorizationRequest.loginHint,
+                    null,
+                    authorizationRequest);
         }
 
         if (responseType.contains(ResponseType.none)) {

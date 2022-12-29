@@ -42,6 +42,8 @@ public class SecurityConfiguration {
                                                 "/introspect",
                                                 "/revoke")
                                         .permitAll()
+                                        .mvcMatchers("/login/self-reported")
+                                        .permitAll()
                                         .anyRequest()
                                         .authenticated())
                 .httpBasic(withDefaults())

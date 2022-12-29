@@ -9,6 +9,7 @@ public class AdditionalPage {
     public final Display display;
     public final String clientId;
     public final String scope;
+    public final List<String> acrValues;
     public List<String> uiLocales;
     public String expectedUserSubject;
     public String loginHint;
@@ -18,6 +19,7 @@ public class AdditionalPage {
             Display display,
             String clientId,
             String scope,
+            List<String> acrValues,
             List<String> uiLocales,
             String expectedUserSubject,
             String loginHint) {
@@ -25,6 +27,7 @@ public class AdditionalPage {
         this.display = display;
         this.clientId = clientId;
         this.scope = scope;
+        this.acrValues = acrValues;
         this.uiLocales = uiLocales;
         this.expectedUserSubject = expectedUserSubject;
         this.loginHint = loginHint;

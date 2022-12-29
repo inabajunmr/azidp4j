@@ -19,6 +19,7 @@ public class AuthorizationRequestParser {
         String uiLocales = req.queryParameters.get("ui_locales");
         String idTokenHint = req.queryParameters.get("id_token_hint");
         String loginHint = req.queryParameters.get("login_hint");
+        String acrValues = req.queryParameters.get("acr_values");
         String claims = req.queryParameters.get("claims");
         String request = req.queryParameters.get("request");
         String requestUri = req.queryParameters.get("request_uri");
@@ -30,6 +31,7 @@ public class AuthorizationRequestParser {
 
         return InternalAuthorizationRequest.builder()
                 .authenticatedUserSubject(req.authenticatedUserSubject)
+                .authenticatedUserAcr(req.authenticatedUserAcr)
                 .consentedScope(req.consentedScope != null ? req.consentedScope : Set.of())
                 .authTime(req.authTime)
                 .responseType(responseType)
@@ -43,6 +45,7 @@ public class AuthorizationRequestParser {
                 .uiLocales(uiLocales)
                 .idTokenHint(idTokenHint)
                 .loginHint(loginHint)
+                .acrValues(acrValues)
                 .prompt(prompt)
                 .display(display)
                 .claims(claims)

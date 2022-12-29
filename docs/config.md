@@ -59,6 +59,7 @@ var azIdp =
 | scopeAudienceMapper | required | Mapping scopes to audience. Using for introspection result and JWT aud claim except for ID Token. |  | scope -> Set.of("rs.example.com") |
 | accessTokenService | required | See [Token Stores Configuration](token-stores-configuration). |  |  |
 | refreshTokenService | optional | See [Token Stores Configuration](token-stores-configuration). When supporting `refresh_token` grant type, the value is required. |  |  |
+| acrValuesSupported | optional | Supported Authentication Context Class References. |  |  |
 | discoveryConfig | optional | See [Discovery Configuration](#discovery-configuration). |  |  |
 | userPasswordVerifier | optional | See [Password Grant](#password-grant).  When supporting `password` grant type, the value is required. |  |  |
 

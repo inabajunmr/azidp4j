@@ -65,6 +65,7 @@ All request parameters are optional.
 | id_token_signed_response_alg | Signing algorithm of ID Token for the client. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 | token_endpoint_auth_signing_alg | AzIdP4J doesn't support client authentication. The parameter is for only client metadata. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 | default_max_age | Default max_age for Authorization Request. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| default_acr_values | Default authentication context class reference for the client. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 | require_auth_time | AzIdP4J always returns auth_time claim. It's just client metadata. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 | initiate_login_uri | Just client metadata. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 

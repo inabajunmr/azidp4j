@@ -191,6 +191,7 @@ class AuthorizeTest_Implicit {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .build();
 
@@ -226,6 +227,7 @@ class AuthorizeTest_Implicit {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .build();
@@ -262,6 +264,7 @@ class AuthorizeTest_Implicit {
                         .redirectUri("http://rp1.example.com")
                         .scope("openid rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .nonce("abc")
@@ -306,12 +309,12 @@ class AuthorizeTest_Implicit {
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("token id_token")
-                        .authenticatedUserAcr("acrValue")
                         .clientId(clientEs256.clientId)
                         .authTime(Instant.now().getEpochSecond())
                         .redirectUri("http://rp1.example.com")
                         .scope("openid rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .nonce("abc")
@@ -350,7 +353,7 @@ class AuthorizeTest_Implicit {
                 null);
         assertEquals(
                 JWSObject.parse(fragmentMap.get("id_token")).getPayload().toJSONObject().get("acr"),
-                "acrValue");
+                "acr1");
         ;
     }
 
@@ -365,6 +368,7 @@ class AuthorizeTest_Implicit {
                         .redirectUri("http://rp1.example.com")
                         .scope("openid rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .nonce("abc")
@@ -460,6 +464,7 @@ class AuthorizeTest_Implicit {
                         .redirectUri("http://rp1.example.com")
                         .scope("openid rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .nonce("abc")

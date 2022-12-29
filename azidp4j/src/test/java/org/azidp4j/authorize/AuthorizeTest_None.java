@@ -97,6 +97,7 @@ class AuthorizeTest_None {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .state("xyz")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .build();

@@ -56,7 +56,7 @@ public class InternalAuthorizationRequest {
     public final String loginHint;
 
     /** OpenID Connect Core 1.0 */
-    // TODO   final String acrValues;
+    public final String acrValues;
 
     public final String claims;
 
@@ -106,6 +106,7 @@ public class InternalAuthorizationRequest {
             String uiLocales,
             String idTokenHint,
             String loginHint,
+            String acrValues,
             String prompt,
             String display,
             String claims,
@@ -128,6 +129,7 @@ public class InternalAuthorizationRequest {
         this.maxAge = maxAge;
         this.idTokenHint = idTokenHint;
         this.loginHint = loginHint;
+        this.acrValues = acrValues;
         this.uiLocales = uiLocales;
         this.prompt = prompt;
         this.display = display;
@@ -155,6 +157,7 @@ public class InternalAuthorizationRequest {
         private String maxAge;
         private String idTokenHint;
         private String loginHint;
+        private String acrValues;
         private String uiLocales;
         private String prompt;
         private String display;
@@ -237,6 +240,11 @@ public class InternalAuthorizationRequest {
             return this;
         }
 
+        public Builder acrValues(String acrValues) {
+            this.acrValues = acrValues;
+            return this;
+        }
+
         public Builder uiLocales(String uiLocales) {
             this.uiLocales = uiLocales;
             return this;
@@ -299,6 +307,7 @@ public class InternalAuthorizationRequest {
                     uiLocales,
                     idTokenHint,
                     loginHint,
+                    acrValues,
                     prompt,
                     display,
                     claims,

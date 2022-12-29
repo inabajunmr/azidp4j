@@ -21,7 +21,7 @@ public class AuthorizationRequest {
     /** Authorization request query parameters. * */
     public final Map<String, String> queryParameters;
     /** authentication context class. */
-    private String acr;
+    public String authenticatedUserAcr;
 
     /**
      * Authorization request.
@@ -86,7 +86,7 @@ public class AuthorizationRequest {
         return Map.copyOf(queryParameters);
     }
 
-    public void setAcr(String acr) {
-        this.acr = acr;
+    public void setAuthenticatedUserAcr(String authenticatedUserAcr) {
+        this.authenticatedUserAcr = authenticatedUserAcr;
     }
 }
