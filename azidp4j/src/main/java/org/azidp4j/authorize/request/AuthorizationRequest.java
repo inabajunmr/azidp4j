@@ -20,6 +20,8 @@ public class AuthorizationRequest {
     public final Long authTime;
     /** Authorization request query parameters. * */
     public final Map<String, String> queryParameters;
+    /** authentication context class. */
+    public String authenticatedUserAcr;
 
     /**
      * Authorization request.
@@ -82,5 +84,9 @@ public class AuthorizationRequest {
      */
     public Map<String, String> queryParameters() {
         return Map.copyOf(queryParameters);
+    }
+
+    public void setAuthenticatedUserAcr(String authenticatedUserAcr) {
+        this.authenticatedUserAcr = authenticatedUserAcr;
     }
 }

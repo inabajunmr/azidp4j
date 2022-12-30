@@ -1,5 +1,6 @@
 package org.azidp4j.client;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -36,6 +37,7 @@ public class InMemoryClientStore implements ClientStore {
                         SigningAlgorithm.ES256,
                         null,
                         false,
+                        List.of("acr1"),
                         null));
     }
 

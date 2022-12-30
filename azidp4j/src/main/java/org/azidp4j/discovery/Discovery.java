@@ -51,7 +51,7 @@ public class Discovery {
                 "grant_types_supported",
                 config.grantTypesSupported,
                 "acr_values_supported",
-                null,
+                config.acrValuesSupported,
                 "subject_types_supported",
                 Set.of("public"),
                 "id_token_signing_alg_values_supported",

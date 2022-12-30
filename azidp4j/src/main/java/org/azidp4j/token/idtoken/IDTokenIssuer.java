@@ -42,6 +42,7 @@ public class IDTokenIssuer {
 
     public JOSEObject issue(
             String sub,
+            String acr,
             String clientId,
             Long authTime,
             String nonce,
@@ -60,6 +61,8 @@ public class IDTokenIssuer {
                         config.issuer,
                         "sub",
                         sub,
+                        "acr",
+                        acr,
                         "aud",
                         clientId,
                         "exp",

@@ -31,11 +31,13 @@ class AuthorizeTest_AuthorizationCode {
     final Client noResponseTypesClient = Fixtures.noResponseTypeClient();
     final AzIdPConfig config = Fixtures.azIdPConfig();
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
+    final InMemoryAuthorizationCodeService inMemoryAuthorizationCodeService =
+            new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());
     final JWKSet jwks = new JWKSet();
     final Authorize sut =
             new Authorize(
                     clientStore,
-                    new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore()),
+                    inMemoryAuthorizationCodeService,
                     scopeAudienceMapper,
                     new InMemoryAccessTokenService(new InMemoryAccessTokenStore()),
                     new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null),
@@ -59,6 +61,7 @@ class AuthorizeTest_AuthorizationCode {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .build();
 
@@ -99,6 +102,7 @@ class AuthorizeTest_AuthorizationCode {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .build();
@@ -127,6 +131,7 @@ class AuthorizeTest_AuthorizationCode {
                         .redirectUri("http://rp1.example.com")
                         .scope(null)
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("openid", "rs:scope1"))
                         .build();
 
@@ -168,6 +173,7 @@ class AuthorizeTest_AuthorizationCode {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .build();
@@ -210,6 +216,7 @@ class AuthorizeTest_AuthorizationCode {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .build();

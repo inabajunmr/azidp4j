@@ -11,13 +11,17 @@ import org.azidp4j.AzIdP;
 import org.azidp4j.authorize.request.AuthorizationRequest;
 import org.azidp4j.authorize.response.AdditionalPage;
 import org.azidp4j.authorize.response.ErrorPage;
+import org.azidp4j.springsecuritysample.authentication.AcrValue;
+import org.azidp4j.springsecuritysample.authentication.SelfReportedAuthenticationToken;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.springsecuritysample.user.UserStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.savedrequest.SimpleSavedRequest;
 import org.springframework.stereotype.Controller;
@@ -61,8 +65,15 @@ public class AuthorizationEndpointHandler {
         // When user is unauthenticated, azidp4j accepts null as authenticatedUserName.
         // In that case, azidp4j requires login page or error.
         String authenticatedUserName = null;
+        AcrValue acr = null;
         if (req.getUserPrincipal() != null) {
             authenticatedUserName = req.getUserPrincipal().getName();
+            var authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication instanceof UsernamePasswordAuthenticationToken) {
+                acr = AcrValue.pwd;
+            } else if (authentication instanceof SelfReportedAuthenticationToken) {
+                acr = AcrValue.self_reported;
+            }
         }
 
         // Consented scope management is out of scope from azidp.
@@ -79,6 +90,9 @@ public class AuthorizationEndpointHandler {
                                 : null,
                         consentedScopes,
                         params);
+        if (acr != null) {
+            authzReq.setAuthenticatedUserAcr(acr.value);
+        }
 
         // Authorization Request
         var response = azIdP.authorize(authzReq);
@@ -86,13 +100,6 @@ public class AuthorizationEndpointHandler {
         switch (response.next) {
             case redirect -> {
                 var redirect = response.redirect();
-                // TODO
-                //                if(redirect.isSuccessResponse()) {
-                //                    // check acr and do something like show loginpage
-                //                    var claims = response.authorizationRequest().claims;
-                //
-                //                }
-
                 return "redirect:" + redirect.createRedirectTo().toString();
             }
             case errorPage -> {
@@ -114,6 +121,7 @@ public class AuthorizationEndpointHandler {
             HttpServletResponse res,
             AuthorizationRequest authzReq,
             AdditionalPage additionalPage) {
+
         var uiLocale = uiLocales(additionalPage.uiLocales);
         localeResolver.setLocale(req, res, uiLocale);
         switch (additionalPage.prompt) {
@@ -151,8 +159,13 @@ public class AuthorizationEndpointHandler {
                             .setAttribute(
                                     "EXPECTED_USER_SUBJECT", additionalPage.expectedUserSubject);
                 }
+                if (additionalPage.acrValues != null
+                        && additionalPage.acrValues.contains(AcrValue.self_reported.value)) {
+                    // if acr_values parameter required self-reported login
+                    return "redirect:" + AcrValue.self_reported.path;
+                }
                 // Redirect to Login page.
-                return "redirect:/login";
+                return "redirect:" + AcrValue.pwd.path;
             }
             case consent -> {
                 // After user consent, redirect to authorization once again.

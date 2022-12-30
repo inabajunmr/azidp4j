@@ -48,6 +48,7 @@ public class PkceTest {
                         Instant.now().getEpochSecond(),
                         Set.of("rs:scope1", "rs:scope2"),
                         queryParameters);
+        authorizationRequest.setAuthenticatedUserAcr("acr1");
 
         // exercise
         var authorizationResponse = sut.authorize(authorizationRequest);
@@ -117,6 +118,7 @@ public class PkceTest {
                         Instant.now().getEpochSecond(),
                         Set.of("rs:scope1", "rs:scope2"),
                         queryParameters);
+        authorizationRequest.setAuthenticatedUserAcr("acr1");
 
         // exercise
         var authorizationResponse = sut.authorize(authorizationRequest);
@@ -186,6 +188,7 @@ public class PkceTest {
                         Instant.now().getEpochSecond(),
                         Set.of("rs:scope1", "rs:scope2"),
                         queryParameters);
+        authorizationRequest.setAuthenticatedUserAcr("acr1");
 
         // exercise
         var authorizationResponse = sut.authorize(authorizationRequest);

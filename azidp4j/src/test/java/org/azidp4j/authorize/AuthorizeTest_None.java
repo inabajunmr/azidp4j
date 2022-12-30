@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
@@ -54,6 +55,7 @@ class AuthorizeTest_None {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
         clientStore.save(client);
         var config =
@@ -71,6 +73,7 @@ class AuthorizeTest_None {
                         Set.of(Set.of(ResponseType.none)),
                         Set.of(ResponseMode.query, ResponseMode.fragment),
                         Set.of(SigningAlgorithm.none),
+                        List.of("acr"),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
@@ -94,6 +97,7 @@ class AuthorizeTest_None {
                         .redirectUri("http://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .state("xyz")
                         .consentedScope(Set.of("rs:scope1", "rs:scope2"))
                         .build();

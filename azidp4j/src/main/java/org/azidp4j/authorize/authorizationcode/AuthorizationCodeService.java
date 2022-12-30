@@ -20,6 +20,7 @@ public interface AuthorizationCodeService {
      */
     AuthorizationCode issue(
             String sub,
+            String acr,
             String scope,
             String claims,
             String clientId,

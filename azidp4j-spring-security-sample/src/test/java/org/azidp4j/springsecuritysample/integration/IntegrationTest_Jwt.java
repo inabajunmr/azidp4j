@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.util.Map;
 import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.jwt.JwtAuthorizationCodeService;
+import org.azidp4j.springsecuritysample.authentication.AcrValue;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.accesstoken.jwt.JwtAccessTokenService;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
@@ -110,32 +111,40 @@ public class IntegrationTest_Jwt {
             assertThat(clientReadResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
 
-        // authorization request with login and consent ========================
-        String authorizationCode =
-                AuthorizationRequestScenario.test(
-                        endpoint, testRestTemplate, redirectUri, clientId);
+        String accessToken;
+        String refreshToken;
+        {
+            // authorization request with login and consent ========================
+            String authorizationCode =
+                    AuthorizationRequestScenario.test(
+                            endpoint, testRestTemplate, redirectUri, clientId);
 
-        // token request by authorization code ========================
-        ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
-                TokenRequestByAuthorizationCode.test(
-                        endpoint,
-                        testRestTemplate,
-                        redirectUri,
-                        clientId,
-                        clientSecret,
-                        authorizationCode);
-        var accessToken =
-                (String) tokenResponseForAuthorizationCodeGrant.getBody().get("access_token");
-        var idToken = (String) tokenResponseForAuthorizationCodeGrant.getBody().get("id_token");
-        var refreshToken =
-                (String) tokenResponseForAuthorizationCodeGrant.getBody().get("refresh_token");
-        var jwks = JWKSet.load(new URL(endpoint + "/.well-known/jwks.json"));
-        var parsedIdToken = JWSObject.parse(idToken);
-        var jwk = jwks.getKeyByKeyId(parsedIdToken.getHeader().getKeyID());
-        var verifier = new RSASSAVerifier((RSAKey) jwk);
-        assertTrue(parsedIdToken.verify(verifier));
-        // gender claims is from claims parameter
-        assertEquals(parsedIdToken.getPayload().toJSONObject().get("gender"), "user1gender");
+            // token request by authorization code ========================
+            ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+                    TokenRequestByAuthorizationCode.test(
+                            endpoint,
+                            testRestTemplate,
+                            redirectUri,
+                            clientId,
+                            clientSecret,
+                            authorizationCode);
+            assertThat(tokenResponseForAuthorizationCodeGrant.getStatusCode())
+                    .isEqualTo(HttpStatus.OK);
+            accessToken =
+                    (String) tokenResponseForAuthorizationCodeGrant.getBody().get("access_token");
+            var idToken = (String) tokenResponseForAuthorizationCodeGrant.getBody().get("id_token");
+            refreshToken =
+                    (String) tokenResponseForAuthorizationCodeGrant.getBody().get("refresh_token");
+            var jwks = JWKSet.load(new URL(endpoint + "/.well-known/jwks.json"));
+            var parsedIdToken = JWSObject.parse(idToken);
+            var jwk = jwks.getKeyByKeyId(parsedIdToken.getHeader().getKeyID());
+            var verifier = new RSASSAVerifier((RSAKey) jwk);
+            assertTrue(parsedIdToken.verify(verifier));
+            // gender claims is from claims parameter
+            assertEquals(parsedIdToken.getPayload().toJSONObject().get("gender"), "user1gender");
+            // acr
+            assertEquals(parsedIdToken.getPayload().toJSONObject().get("acr"), AcrValue.pwd.value);
+        }
 
         // introspection ========================
         IntrospectionScenario.test(
@@ -162,6 +171,41 @@ public class IntegrationTest_Jwt {
         assertThat(tokenResponseForRefreshGrant.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("access_token"));
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("refresh_token"));
+
+        {
+            // authorization request with login and consent ========================
+            String authorizationCode =
+                    AuthorizationRequestWithAcrValuesScenario.test(
+                            endpoint, testRestTemplate, redirectUri, clientId);
+
+            // token request by authorization code ========================
+            ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+                    TokenRequestByAuthorizationCode.test(
+                            endpoint,
+                            testRestTemplate,
+                            redirectUri,
+                            clientId,
+                            clientSecret,
+                            authorizationCode);
+            assertThat(tokenResponseForAuthorizationCodeGrant.getStatusCode())
+                    .isEqualTo(HttpStatus.OK);
+            accessToken =
+                    (String) tokenResponseForAuthorizationCodeGrant.getBody().get("access_token");
+            var idToken = (String) tokenResponseForAuthorizationCodeGrant.getBody().get("id_token");
+            refreshToken =
+                    (String) tokenResponseForAuthorizationCodeGrant.getBody().get("refresh_token");
+            var jwks = JWKSet.load(new URL(endpoint + "/.well-known/jwks.json"));
+            var parsedIdToken = JWSObject.parse(idToken);
+            var jwk = jwks.getKeyByKeyId(parsedIdToken.getHeader().getKeyID());
+            var verifier = new RSASSAVerifier((RSAKey) jwk);
+            assertTrue(parsedIdToken.verify(verifier));
+            // gender claims is from claims parameter
+            assertEquals(parsedIdToken.getPayload().toJSONObject().get("gender"), "user1gender");
+            // acr
+            assertEquals(
+                    parsedIdToken.getPayload().toJSONObject().get("acr"),
+                    AcrValue.self_reported.value);
+        }
 
         // delete client ========================
         var clientDeleteEntity =

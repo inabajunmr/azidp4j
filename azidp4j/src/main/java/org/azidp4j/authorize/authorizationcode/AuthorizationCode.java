@@ -6,6 +6,8 @@ public class AuthorizationCode {
 
     /** user identifier */
     public final String sub;
+    /** user acr */
+    public final String acr;
 
     public final String code;
     public final String scope;
@@ -22,6 +24,7 @@ public class AuthorizationCode {
     public AuthorizationCode(
             String code,
             String sub,
+            String acr,
             String scope,
             String claims,
             String clientId,
@@ -34,6 +37,7 @@ public class AuthorizationCode {
             long expiresAtEpochSec) {
         this.code = code;
         this.sub = sub;
+        this.acr = acr;
         this.scope = scope;
         this.claims = claims;
         this.clientId = clientId;

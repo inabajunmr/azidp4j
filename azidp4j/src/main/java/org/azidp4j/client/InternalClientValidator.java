@@ -101,5 +101,12 @@ public class InternalClientValidator {
                 throw new IllegalArgumentException("defaultMaxAge must be positive");
             }
         }
+
+        if (config.acrValuesSupported != null
+                && client.defaultAcrValues != null
+                && !config.acrValuesSupported.containsAll(client.defaultAcrValues)) {
+            throw new IllegalArgumentException(
+                    "defaultAcrValues doesn't support at acrValuesSupported");
+        }
     }
 }

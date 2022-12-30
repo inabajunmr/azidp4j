@@ -3,6 +3,7 @@ package org.azidp4j.client;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
 import org.azidp4j.AzIdPConfig;
 import org.azidp4j.Fixtures;
@@ -48,6 +49,7 @@ class InternalClientValidatorTest {
                                         ResponseType.id_token)),
                         Set.of(ResponseMode.query, ResponseMode.fragment),
                         Set.of(),
+                        List.of("acr"),
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
@@ -87,6 +89,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -135,6 +138,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -182,6 +186,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -229,6 +234,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -267,6 +273,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -307,6 +314,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -345,6 +353,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -383,6 +392,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -421,6 +431,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         null);
 
         // exercise
@@ -461,6 +472,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         null,
                         null,
+                        List.of("acr1"),
                         "illegal"); // target
 
         // exercise
@@ -499,6 +511,7 @@ class InternalClientValidatorTest {
                         SigningAlgorithm.ES256,
                         -1L, // target
                         null,
+                        List.of("acr1"),
                         "https://example.com");
 
         // exercise
@@ -507,6 +520,45 @@ class InternalClientValidatorTest {
             fail();
         } catch (IllegalArgumentException e) {
             assertEquals("defaultMaxAge must be positive", e.getMessage());
+        }
+    }
+
+    @Test
+    void validate_UnsupportedAcr() {
+        // setup
+        var client =
+                new Client(
+                        "confidential",
+                        "secret",
+                        Set.of("https://example.com"),
+                        Set.of(),
+                        ApplicationType.WEB,
+                        Set.of(GrantType.authorization_code),
+                        null,
+                        null,
+                        null,
+                        "rs:scope1 rs:scope2 openid",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        TokenEndpointAuthMethod.client_secret_basic,
+                        null,
+                        SigningAlgorithm.ES256,
+                        10000L,
+                        null,
+                        List.of("acr1", "unsupported"), // target
+                        "https://example.com");
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("defaultAcrValues doesn't support at acrValuesSupported", e.getMessage());
         }
     }
 }

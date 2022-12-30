@@ -82,6 +82,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1",
                         null,
                         client.clientId,
@@ -129,6 +130,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1",
                         null,
                         client.clientId,
@@ -179,6 +181,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1",
                         null,
                         client.clientId,
@@ -229,6 +232,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
         var authorizationCode =
                 authorizationCodeService.issue(
                         subject,
+                        "acr",
                         "rs:scope1",
                         null,
                         client.clientId,

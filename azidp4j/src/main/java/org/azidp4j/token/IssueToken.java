@@ -176,6 +176,7 @@ public class IssueToken {
                     var idToken =
                             idTokenIssuer.issue(
                                     authorizationCode.sub,
+                                    authorizationCode.acr,
                                     client.clientId,
                                     authorizationCode.authTime,
                                     authorizationCode.nonce,

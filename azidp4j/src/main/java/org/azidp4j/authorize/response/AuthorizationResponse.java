@@ -43,6 +43,7 @@ public class AuthorizationResponse {
             Display display,
             String clientId,
             String scope,
+            List<String> acrValues,
             List<String> uiLocales,
             String expectedUserSubject,
             String loginHint,
@@ -54,6 +55,7 @@ public class AuthorizationResponse {
                         display,
                         clientId,
                         scope,
+                        acrValues,
                         uiLocales,
                         expectedUserSubject,
                         loginHint);

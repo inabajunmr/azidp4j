@@ -84,6 +84,7 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
                     SigningAlgorithm.ES256,
                     null,
                     null,
+                    List.of("acr1"),
                     null);
 
     final Client clientRs256 =
@@ -110,6 +111,7 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
                     SigningAlgorithm.RS256,
                     null,
                     null,
+                    List.of("acr1"),
                     null);
 
     final Authorize sut;
@@ -149,6 +151,7 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
                         .redirectUri("http://rp1.example.com")
                         .scope("openid rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .nonce("abc")
@@ -202,6 +205,7 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
                         .redirectUri("http://rp1.example.com")
                         .scope("openid rs:scope1")
                         .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
                         .consentedScope(Set.of("openid", "rs:scope1", "rs:scope2"))
                         .state("xyz")
                         .nonce("abc")

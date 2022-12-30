@@ -339,5 +339,32 @@ class AuthorizeTest_AdditionalPage {
             assertEquals(Display.page, response.additionalPage().display);
             assertNull(response.additionalPage().expectedUserSubject);
         }
+
+        // authenticatedUserAcr doesn't satisfy acrValues
+        {
+            var authorizationRequest =
+                    InternalAuthorizationRequest.builder()
+                            .responseType("token")
+                            .clientId(client.clientId)
+                            .authTime(Instant.now().getEpochSecond())
+                            .redirectUri("http://rp1.example.com")
+                            .responseType("id_token")
+                            .scope("openid")
+                            .nonce("xyz")
+                            .authenticatedUserSubject("username")
+                            .authenticatedUserAcr("acr3")
+                            .acrValues("acr1 acr2")
+                            .consentedScope(Set.of("openid"))
+                            .build();
+
+            // exercise
+            var response = sut.authorize(authorizationRequest);
+
+            // verify
+            assertEquals(NextAction.additionalPage, response.next);
+            assertEquals(Prompt.login, response.additionalPage().prompt);
+            assertEquals(Display.page, response.additionalPage().display);
+            assertNull(response.additionalPage().expectedUserSubject);
+        }
     }
 }

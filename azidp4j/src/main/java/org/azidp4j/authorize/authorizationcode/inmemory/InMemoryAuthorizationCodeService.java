@@ -17,6 +17,7 @@ public class InMemoryAuthorizationCodeService implements AuthorizationCodeServic
     @Override
     public AuthorizationCode issue(
             String sub,
+            String acr,
             String scope,
             String claims,
             String clientId,
@@ -31,6 +32,7 @@ public class InMemoryAuthorizationCodeService implements AuthorizationCodeServic
                 new AuthorizationCode(
                         UUID.randomUUID().toString(),
                         sub,
+                        acr,
                         scope,
                         claims,
                         clientId,

@@ -20,6 +20,7 @@ import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.discovery.DiscoveryConfig;
 import org.azidp4j.scope.ScopeAudienceMapper;
+import org.azidp4j.springsecuritysample.authentication.AcrValue;
 import org.azidp4j.token.UserPasswordVerifier;
 import org.azidp4j.token.accesstoken.AccessTokenService;
 import org.azidp4j.token.refreshtoken.RefreshTokenService;
@@ -117,6 +118,8 @@ public class AzIdPConfiguration {
                         .customAccessTokenService(accessTokenService)
                         .customRefreshTokenService(refreshTokenService)
                         .userPasswordVerifier(userPasswordVerifier)
+                        .acrValuesSupported(
+                                List.of(AcrValue.self_reported.value, AcrValue.pwd.value))
                         .discovery(discoveryConfig)
                         .build();
 

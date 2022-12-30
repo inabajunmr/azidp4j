@@ -3,6 +3,7 @@ package org.azidp4j;
 import com.nimbusds.jose.jwk.JWKSet;
 import java.text.ParseException;
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
@@ -58,6 +59,7 @@ public class Fixtures {
                         Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token)),
                 Set.of(ResponseMode.query, ResponseMode.fragment),
                 Set.of(SigningAlgorithm.ES256, SigningAlgorithm.RS256, SigningAlgorithm.none),
+                List.of("acr1", "acr2"),
                 Duration.ofSeconds(3600),
                 Duration.ofSeconds(600),
                 Duration.ofSeconds(604800),
@@ -110,6 +112,7 @@ public class Fixtures {
                 null,
                 null,
                 false,
+                List.of("acr1"),
                 null);
     }
 
@@ -150,6 +153,7 @@ public class Fixtures {
                 SigningAlgorithm.ES256,
                 null,
                 null,
+                List.of("acr1"),
                 null);
     }
 
@@ -185,6 +189,7 @@ public class Fixtures {
                 SigningAlgorithm.ES256,
                 null,
                 null,
+                List.of("acr1"),
                 null);
     }
 
@@ -212,6 +217,7 @@ public class Fixtures {
                 SigningAlgorithm.ES256,
                 null,
                 null,
+                List.of("acr1"),
                 null);
     }
 
@@ -244,6 +250,7 @@ public class Fixtures {
                 SigningAlgorithm.ES256,
                 null,
                 null,
+                List.of("acr1"),
                 null);
     }
 

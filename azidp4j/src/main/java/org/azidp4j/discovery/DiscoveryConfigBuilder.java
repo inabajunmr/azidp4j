@@ -19,6 +19,7 @@ public class DiscoveryConfigBuilder {
                     "iss",
                     "sub",
                     "aud",
+                    "acr",
                     "exp",
                     "iat",
                     "jti",

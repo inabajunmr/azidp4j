@@ -33,6 +33,7 @@ public class ClientRequestParser {
                 parameters.containsKey("default_max_age")
                         ? (Boolean) parameters.get("require_auth_time")
                         : null;
+        var defaultAcrValues = valuesToStringList(parameters.get("default_acr_values"));
         var initiateLoginUri = valueToString("initiate_login_uri", parameters);
         return InternalClientRequest.builder()
                 .redirectUris(redirectUris)
@@ -55,6 +56,7 @@ public class ClientRequestParser {
                 .idTokenSignedResponseAlg(idTokenSignedResponseAlg)
                 .defaultMaxAge(defaultMaxAge)
                 .requireAuthTime(requireAuthTime)
+                .defaultAcrValues(defaultAcrValues)
                 .initiateLoginUri(initiateLoginUri)
                 .build();
     }

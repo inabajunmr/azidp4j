@@ -13,8 +13,6 @@ AzIdP4J is library for Java OAuth 2.0 Authorization Server & OpenID Connect Iden
 * [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html)
   * AzIdP4J doesn't support
     * UserInfo endpoint
-    * ID Token claims
-      * AzIdP4J issue ID Token that has only sub
     * Request object
     * PPID
     * Encrypted ID Token

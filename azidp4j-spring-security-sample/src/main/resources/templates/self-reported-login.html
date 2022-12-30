@@ -1,0 +1,18 @@
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+</head>
+<body>
+<h1 th:text="#{login.self-reported.header}">Self-Reported Login</h1>
+<div th:if="${param.error}">
+    <p th:text="#{login.self-reported.not-found}">Not found</p>
+</div>
+<form th:action="@{/login/self-reported}" method="post">
+    <div class="form-group">
+        <label class="control-label" for="username" th:text="#{login.username}">Username</label>
+        <input  class="form-control" id="username" name="username" th:value="${#httpSession.getAttribute('EXPECTED_USER_SUBJECT')}" />
+    </div>
+    <button type="submit" th:text="#{login.submit}">Login</button>
+</form>
+</body>
+</html>

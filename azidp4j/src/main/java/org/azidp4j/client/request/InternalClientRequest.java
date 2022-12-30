@@ -131,8 +131,7 @@ public class InternalClientRequest {
     public final Boolean requireAuthTime;
 
     /** OpenID Connect Dynamic Client Registration 1.0 */
-    // TODO supports with acr claim
-    // default_acr_values
+    public final List<String> defaultAcrValues;
 
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final String initiateLoginUri;
@@ -166,6 +165,7 @@ public class InternalClientRequest {
             String idTokenSignedResponseAlg,
             Long defaultMaxAge,
             Boolean requireAuthTime,
+            List<String> defaultAcrValues,
             String initiateLoginUri) {
         this.redirectUris = redirectUris;
         this.grantTypes = grantTypes;
@@ -187,6 +187,7 @@ public class InternalClientRequest {
         this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
         this.defaultMaxAge = defaultMaxAge;
         this.requireAuthTime = requireAuthTime;
+        this.defaultAcrValues = defaultAcrValues;
         this.initiateLoginUri = initiateLoginUri;
     }
 
@@ -211,6 +212,7 @@ public class InternalClientRequest {
         private String idTokenSignedResponseAlg;
         private Long defaultMaxAge;
         private Boolean requireAuthTime;
+        public List<String> defaultAcrValues;
         private String initiateLoginUri;
 
         public Builder redirectUris(Set<String> redirectUris) {
@@ -318,6 +320,11 @@ public class InternalClientRequest {
             return this;
         }
 
+        public Builder defaultAcrValues(List<String> defaultAcrValues) {
+            this.defaultAcrValues = defaultAcrValues;
+            return this;
+        }
+
         public InternalClientRequest build() {
             return new InternalClientRequest(
                     redirectUris,
@@ -340,6 +347,7 @@ public class InternalClientRequest {
                     idTokenSignedResponseAlg,
                     defaultMaxAge,
                     requireAuthTime,
+                    defaultAcrValues,
                     initiateLoginUri);
         }
     }

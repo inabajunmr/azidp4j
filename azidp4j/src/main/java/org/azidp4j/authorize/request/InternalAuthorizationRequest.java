@@ -7,6 +7,8 @@ public class InternalAuthorizationRequest {
 
     /** Authenticated user identifier (not authorization request parameter) */
     public final String authenticatedUserSubject;
+    /** The session's acr value */
+    public final String authenticatedUserAcr;
 
     /** User consented scope (not authorization request parameter) */
     public final Set<String> consentedScope;
@@ -54,7 +56,7 @@ public class InternalAuthorizationRequest {
     public final String loginHint;
 
     /** OpenID Connect Core 1.0 */
-    // TODO   final String acrValues;
+    public final String acrValues;
 
     public final String claims;
 
@@ -90,6 +92,7 @@ public class InternalAuthorizationRequest {
 
     private InternalAuthorizationRequest(
             String authenticatedUserSubject,
+            String authenticatedUserAcr,
             Set<String> consentedScope,
             Long authTime,
             String responseType,
@@ -103,6 +106,7 @@ public class InternalAuthorizationRequest {
             String uiLocales,
             String idTokenHint,
             String loginHint,
+            String acrValues,
             String prompt,
             String display,
             String claims,
@@ -112,6 +116,7 @@ public class InternalAuthorizationRequest {
             String codeChallenge,
             String codeChallengeMethod) {
         this.authenticatedUserSubject = authenticatedUserSubject;
+        this.authenticatedUserAcr = authenticatedUserAcr;
         this.consentedScope = consentedScope;
         this.authTime = authTime;
         this.responseType = responseType;
@@ -124,6 +129,7 @@ public class InternalAuthorizationRequest {
         this.maxAge = maxAge;
         this.idTokenHint = idTokenHint;
         this.loginHint = loginHint;
+        this.acrValues = acrValues;
         this.uiLocales = uiLocales;
         this.prompt = prompt;
         this.display = display;
@@ -138,6 +144,7 @@ public class InternalAuthorizationRequest {
     public static class Builder {
 
         private String authenticatedUserSubject;
+        private String authenticatedUserAcr;
         private Set<String> consentedScope;
         private Long authTime;
         private String responseType;
@@ -150,6 +157,7 @@ public class InternalAuthorizationRequest {
         private String maxAge;
         private String idTokenHint;
         private String loginHint;
+        private String acrValues;
         private String uiLocales;
         private String prompt;
         private String display;
@@ -164,6 +172,11 @@ public class InternalAuthorizationRequest {
 
         public Builder authenticatedUserSubject(String authenticatedUserSubject) {
             this.authenticatedUserSubject = authenticatedUserSubject;
+            return this;
+        }
+
+        public Builder authenticatedUserAcr(String authenticatedUserAcr) {
+            this.authenticatedUserAcr = authenticatedUserAcr;
             return this;
         }
 
@@ -227,6 +240,11 @@ public class InternalAuthorizationRequest {
             return this;
         }
 
+        public Builder acrValues(String acrValues) {
+            this.acrValues = acrValues;
+            return this;
+        }
+
         public Builder uiLocales(String uiLocales) {
             this.uiLocales = uiLocales;
             return this;
@@ -275,6 +293,7 @@ public class InternalAuthorizationRequest {
         public InternalAuthorizationRequest build() {
             return new InternalAuthorizationRequest(
                     authenticatedUserSubject,
+                    authenticatedUserAcr,
                     consentedScope,
                     authTime,
                     responseType,
@@ -288,6 +307,7 @@ public class InternalAuthorizationRequest {
                     uiLocales,
                     idTokenHint,
                     loginHint,
+                    acrValues,
                     prompt,
                     display,
                     claims,
