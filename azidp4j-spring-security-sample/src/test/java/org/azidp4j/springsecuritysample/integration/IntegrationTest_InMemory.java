@@ -184,9 +184,11 @@ public class IntegrationTest_InMemory {
                     .isEqualTo(HttpStatus.OK);
             accessToken =
                     (String) tokenResponseForAuthorizationCodeGrant.getBody().get("access_token");
+            assertNotNull(accessToken);
             var idToken = (String) tokenResponseForAuthorizationCodeGrant.getBody().get("id_token");
             refreshToken =
                     (String) tokenResponseForAuthorizationCodeGrant.getBody().get("refresh_token");
+            assertNotNull(refreshToken);
             var jwks = JWKSet.load(new URL(endpoint + "/.well-known/jwks.json"));
             var parsedIdToken = JWSObject.parse(idToken);
             var jwk = jwks.getKeyByKeyId(parsedIdToken.getHeader().getKeyID());
@@ -198,15 +200,52 @@ public class IntegrationTest_InMemory {
             assertEquals(
                     parsedIdToken.getPayload().toJSONObject().get("acr"),
                     AcrValue.self_reported.value);
-
-            // delete client ========================
-            var clientDeleteEntity =
-                    RequestEntity.delete(configurationUri)
-                            .accept(MediaType.APPLICATION_JSON)
-                            .header("Authorization", "Bearer " + configurationToken)
-                            .build();
-            var clientDeleteResponse = testRestTemplate.exchange(clientDeleteEntity, Map.class);
-            assertThat(clientDeleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         }
+
+        {
+            // authorization request with login and consent ========================
+            String authorizationCode =
+                    AuthorizationRequestWithAcrClaimsParameterScenario.test(
+                            endpoint, testRestTemplate, redirectUri, clientId);
+
+            // token request by authorization code ========================
+            ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+                    TokenRequestByAuthorizationCode.test(
+                            endpoint,
+                            testRestTemplate,
+                            redirectUri,
+                            clientId,
+                            clientSecret,
+                            authorizationCode);
+            assertThat(tokenResponseForAuthorizationCodeGrant.getStatusCode())
+                    .isEqualTo(HttpStatus.OK);
+            accessToken =
+                    (String) tokenResponseForAuthorizationCodeGrant.getBody().get("access_token");
+            assertNotNull(accessToken);
+            var idToken = (String) tokenResponseForAuthorizationCodeGrant.getBody().get("id_token");
+            refreshToken =
+                    (String) tokenResponseForAuthorizationCodeGrant.getBody().get("refresh_token");
+            assertNotNull(refreshToken);
+            var jwks = JWKSet.load(new URL(endpoint + "/.well-known/jwks.json"));
+            var parsedIdToken = JWSObject.parse(idToken);
+            var jwk = jwks.getKeyByKeyId(parsedIdToken.getHeader().getKeyID());
+            var verifier = new RSASSAVerifier((RSAKey) jwk);
+            assertTrue(parsedIdToken.verify(verifier));
+            // gender claims is from claims parameter
+            assertEquals(parsedIdToken.getPayload().toJSONObject().get("gender"), "user1gender");
+            // acr
+            assertEquals(
+                    parsedIdToken.getPayload().toJSONObject().get("acr"),
+                    AcrValue.self_reported.value);
+        }
+
+        // delete client ========================
+        var clientDeleteEntity =
+                RequestEntity.delete(configurationUri)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + configurationToken)
+                        .build();
+        var clientDeleteResponse = testRestTemplate.exchange(clientDeleteEntity, Map.class);
+        assertThat(clientDeleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 }

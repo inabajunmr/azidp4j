@@ -86,14 +86,12 @@ public class UserInfo extends HashMap<String, Object> {
                 .forEachRemaining(
                         claimName -> {
                             var target = idTokenOrUserInfoClaimsParam.get(claimName);
+                            // "phone_number":null
                             if (target.isNull() && this.containsKey(claimName)) {
                                 filteredByClaims.put(claimName, this.get(claimName));
                                 return;
                             }
-                            if (target.has("essential") && this.containsKey(claimName)) {
-                                filteredByClaims.put(claimName, this.get(claimName));
-                                return;
-                            }
+                            // "phone_number":{"value":"000"}
                             if (target.has("value")
                                     && target.get("value").isValueNode()
                                     && this.containsKey(claimName)
@@ -101,6 +99,7 @@ public class UserInfo extends HashMap<String, Object> {
                                 filteredByClaims.put(claimName, this.get(claimName));
                                 return;
                             }
+                            // "phone_number":{"values":["000", "001"]}
                             if (target.has("values")
                                     && target.get("values").isArray()
                                     && this.containsKey(claimName)) {
@@ -121,6 +120,10 @@ public class UserInfo extends HashMap<String, Object> {
                                         return;
                                     }
                                 }
+                            }
+                            // "phone_number":{"essential":true}
+                            if (target.has("essential") && this.containsKey(claimName)) {
+                                filteredByClaims.put(claimName, this.get(claimName));
                             }
                         });
     }

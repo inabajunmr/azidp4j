@@ -9,7 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,11 +39,12 @@ public class SelfReportedLoginEndpointHandler {
     @PostMapping
     public String login(HttpSession session, @RequestParam String username) {
         LOGGER.info(SelfReportedLoginEndpointHandler.class.getName());
-        var user = userDetailsService.loadUserByUsername(username);
-        if (user == null) {
+        UserDetails user;
+        try {
+            user = userDetailsService.loadUserByUsername(username);
+        } catch (UsernameNotFoundException e) {
             return "redirect:/login/self-reported?error";
         }
-
         userStore.find(username).put("auth_time_sec", Instant.now().getEpochSecond());
         SecurityContextHolder.getContext()
                 .setAuthentication(new SelfReportedAuthenticationToken(user, List.of()));
