@@ -28,6 +28,10 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
 
     private final InMemoryAccessTokenStore accessTokenStore;
 
+    private final Client confidentialClient = Fixtures.confidentialClient().build();
+
+    private final Client publicClient = Fixtures.publicClient().build();
+
     IssueTokenTest_ResourceOwnerPasswordCredentialsGrant() throws JOSEException {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
@@ -45,8 +49,8 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                     }
                 };
         var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.confidentialClient());
-        clientStore.save(Fixtures.publicClient());
+        clientStore.save(confidentialClient);
+        clientStore.save(publicClient);
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         this.issueToken =
                 new IssueToken(
@@ -66,7 +70,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         // setup
         var tokenRequest =
                 new TokenRequest(
-                        "confidential",
+                        confidentialClient.clientId,
                         MapUtil.ofNullable(
                                 "grant_type",
                                 "password",
@@ -87,7 +91,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
-                "confidential",
+                confidentialClient.clientId,
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -112,7 +116,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                                 "scope",
                                 "rs:scope1",
                                 "client_id",
-                                "public"));
+                                publicClient.clientId));
         // exercise
         var response = issueToken.issue(tokenRequest);
 
@@ -123,7 +127,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                 accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "username",
                 "http://rs.example.com",
-                "public",
+                publicClient.clientId,
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -151,7 +155,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                     }
                 };
         var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.confidentialClient());
+        clientStore.save(confidentialClient);
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -165,7 +169,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
                         clientStore);
         var tokenRequest =
                 new TokenRequest(
-                        "confidential",
+                        confidentialClient.clientId,
                         MapUtil.ofNullable(
                                 "grant_type",
                                 "password",
@@ -192,7 +196,7 @@ class IssueTokenTest_ResourceOwnerPasswordCredentialsGrant {
         // setup
         var tokenRequest =
                 new TokenRequest(
-                        "confidential",
+                        confidentialClient.clientId,
                         MapUtil.ofNullable(
                                 "grant_type",
                                 "password",

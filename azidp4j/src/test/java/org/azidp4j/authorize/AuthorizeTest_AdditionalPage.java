@@ -34,9 +34,9 @@ import org.junit.jupiter.api.Test;
 class AuthorizeTest_AdditionalPage {
 
     final ClientStore clientStore = new InMemoryClientStore();
-    final Client client = Fixtures.confidentialClient();
-    final Client noGrantTypesClient = Fixtures.noGrantTypeClient();
-    final Client noResponseTypesClient = Fixtures.noResponseTypeClient();
+    final Client client = Fixtures.confidentialClient().build();
+    final Client noGrantTypesClient = Fixtures.noGrantTypeClient().build();
+    final Client noResponseTypesClient = Fixtures.noResponseTypeClient().build();
     final AzIdPConfig config = Fixtures.azIdPConfig();
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
     final JWK es256 =
@@ -71,7 +71,7 @@ class AuthorizeTest_AdditionalPage {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
+                            .redirectUri("https://rp1.example.com")
                             .scope("rs:scope1")
                             .state("xyz")
                             .uiLocales("ja en")
@@ -106,7 +106,7 @@ class AuthorizeTest_AdditionalPage {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
+                            .redirectUri("https://rp1.example.com")
                             .scope("rs:scope1")
                             .state("xyz")
                             .uiLocales("ja en")
@@ -131,7 +131,7 @@ class AuthorizeTest_AdditionalPage {
                             .responseType("code")
                             .display("popup")
                             .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
+                            .redirectUri("https://rp1.example.com")
                             .scope("rs:scope1")
                             .authenticatedUserSubject("username")
                             .consentedScope(Set.of())
@@ -154,7 +154,7 @@ class AuthorizeTest_AdditionalPage {
                             .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
+                            .redirectUri("https://rp1.example.com")
                             .scope("rs:scope1 rs:scope2")
                             .authenticatedUserSubject("username")
                             .consentedScope(Set.of("rs:scope1"))
@@ -177,7 +177,7 @@ class AuthorizeTest_AdditionalPage {
                             .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
+                            .redirectUri("https://rp1.example.com")
                             .scope("rs:scope1 rs:scope2")
                             .prompt("login")
                             .authenticatedUserSubject("username")
@@ -201,7 +201,7 @@ class AuthorizeTest_AdditionalPage {
                             .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
+                            .redirectUri("https://rp1.example.com")
                             .scope("rs:scope1 rs:scope2")
                             .prompt("login")
                             .display("popup")
@@ -226,7 +226,7 @@ class AuthorizeTest_AdditionalPage {
                             .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
+                            .redirectUri("https://rp1.example.com")
                             .scope("rs:scope1 rs:scope2")
                             .prompt("consent")
                             .authenticatedUserSubject("username")
@@ -249,7 +249,7 @@ class AuthorizeTest_AdditionalPage {
                     InternalAuthorizationRequest.builder()
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
+                            .redirectUri("https://rp1.example.com")
                             .scope("rs:scope1 rs:scope2")
                             .prompt("consent")
                             .consentedScope(Set.of("rs:scope1 rs:scope2"))
@@ -272,7 +272,7 @@ class AuthorizeTest_AdditionalPage {
                             .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
+                            .redirectUri("https://rp1.example.com")
                             .scope("rs:scope1 rs:scope2")
                             .prompt("login consent")
                             .authenticatedUserSubject("username")
@@ -297,7 +297,7 @@ class AuthorizeTest_AdditionalPage {
                             .authTime(Instant.now().getEpochSecond())
                             .responseType("code")
                             .clientId(client.clientId)
-                            .redirectUri("http://rp1.example.com")
+                            .redirectUri("https://rp1.example.com")
                             .scope("rs:scope1 rs:scope2")
                             .prompt("select_account")
                             .authenticatedUserSubject("username")
@@ -323,7 +323,7 @@ class AuthorizeTest_AdditionalPage {
                             .clientId(client.clientId)
                             .authTime(Instant.now().getEpochSecond() - 11)
                             .maxAge("10")
-                            .redirectUri("http://rp1.example.com")
+                            .redirectUri("https://rp1.example.com")
                             .scope("openid")
                             .authenticatedUserSubject("username")
                             .consentedScope(Set.of("openid"))
@@ -347,7 +347,7 @@ class AuthorizeTest_AdditionalPage {
                             .responseType("token")
                             .clientId(client.clientId)
                             .authTime(Instant.now().getEpochSecond())
-                            .redirectUri("http://rp1.example.com")
+                            .redirectUri("https://rp1.example.com")
                             .responseType("id_token")
                             .scope("openid")
                             .nonce("xyz")

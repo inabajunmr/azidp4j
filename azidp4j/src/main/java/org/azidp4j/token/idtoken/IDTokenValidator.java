@@ -77,6 +77,10 @@ public class IDTokenValidator {
             throw new InvalidIDTokenException("Authorized Party unmatched");
         }
 
+        if (client.idTokenSignedResponseAlg == null) {
+            throw new InvalidIDTokenException("Client doesn't have idTokenSignedResponseAlg");
+        }
+
         if (!Objects.equals(
                 client.idTokenSignedResponseAlg.name(),
                 parsedIdToken.getHeader().getAlgorithm().getName())) {

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
+import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.request.InternalAuthorizationRequest;
@@ -32,31 +33,9 @@ class AuthorizeTest_None {
         // setup
         var clientStore = new InMemoryClientStore();
         var client =
-                new Client(
-                        "client1",
-                        "clientSecret",
-                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                        Set.of(Set.of(ResponseType.none)),
-                        ApplicationType.WEB,
-                        Set.of(),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        null,
-                        null,
-                        List.of("acr1"),
-                        null);
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.none)))
+                        .build();
         clientStore.save(client);
         var config =
                 new AzIdPConfig(
@@ -94,7 +73,7 @@ class AuthorizeTest_None {
                         .responseType("none")
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
                         .authenticatedUserAcr("acr1")

@@ -28,6 +28,8 @@ class IssueTokenTest_ClientCredentialsGrant {
 
     private final InMemoryAccessTokenStore accessTokenStore;
 
+    private final Client confidentialClient = Fixtures.confidentialClient().build();
+
     public IssueTokenTest_ClientCredentialsGrant() throws JOSEException {
         // setup
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
@@ -39,7 +41,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         var idTokenIssuer =
                 new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null);
         var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.confidentialClient());
+        clientStore.save(confidentialClient);
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         this.issueToken =
                 new IssueToken(
@@ -57,7 +59,7 @@ class IssueTokenTest_ClientCredentialsGrant {
     void success() {
         var tokenRequest =
                 new TokenRequest(
-                        "confidential",
+                        confidentialClient.clientId,
                         MapUtil.ofNullable(
                                 "grant_type", "client_credentials", "scope", "rs:scope1"));
 
@@ -68,9 +70,9 @@ class IssueTokenTest_ClientCredentialsGrant {
         assertEquals(response.status, 200);
         AccessTokenAssert.assertAccessToken(
                 accessTokenStore.find((String) response.body.get("access_token")).get(),
-                "confidential",
+                confidentialClient.clientId,
                 "http://rs.example.com",
-                "confidential",
+                confidentialClient.clientId,
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -84,7 +86,7 @@ class IssueTokenTest_ClientCredentialsGrant {
         // setup
         var tokenRequest =
                 new TokenRequest(
-                        "confidential",
+                        confidentialClient.clientId,
                         MapUtil.ofNullable(
                                 "grant_type", "client_credentials", "scope", "rs:unauthorized"));
 
@@ -109,7 +111,7 @@ class IssueTokenTest_ClientCredentialsGrant {
                                 "scope",
                                 "rs:scope1",
                                 "client_id",
-                                "confidential"));
+                                confidentialClient.clientId));
 
         // exercise
         var response = issueToken.issue(tokenRequest);

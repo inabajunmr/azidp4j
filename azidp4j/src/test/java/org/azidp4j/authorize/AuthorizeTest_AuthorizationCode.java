@@ -26,9 +26,9 @@ import org.junit.jupiter.api.Test;
 class AuthorizeTest_AuthorizationCode {
 
     final ClientStore clientStore = new InMemoryClientStore();
-    final Client client = Fixtures.confidentialClient();
-    final Client noGrantTypesClient = Fixtures.noGrantTypeClient();
-    final Client noResponseTypesClient = Fixtures.noResponseTypeClient();
+    final Client client = Fixtures.confidentialClient().build();
+    final Client noGrantTypesClient = Fixtures.noGrantTypeClient().build();
+    final Client noResponseTypesClient = Fixtures.noResponseTypeClient().build();
     final AzIdPConfig config = Fixtures.azIdPConfig();
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
     final InMemoryAuthorizationCodeService inMemoryAuthorizationCodeService =
@@ -58,7 +58,7 @@ class AuthorizeTest_AuthorizationCode {
                         .responseType("code")
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
                         .authenticatedUserAcr("acr1")
@@ -99,7 +99,7 @@ class AuthorizeTest_AuthorizationCode {
                         .responseType("code")
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
                         .authenticatedUserAcr("acr1")
@@ -128,7 +128,7 @@ class AuthorizeTest_AuthorizationCode {
                         .responseType("code")
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope(null)
                         .authenticatedUserSubject("username")
                         .authenticatedUserAcr("acr1")
@@ -170,7 +170,7 @@ class AuthorizeTest_AuthorizationCode {
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
                         .maxAge("10")
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
                         .authenticatedUserAcr("acr1")
@@ -213,7 +213,7 @@ class AuthorizeTest_AuthorizationCode {
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
                         .maxAge("10")
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
                         .authenticatedUserAcr("acr1")

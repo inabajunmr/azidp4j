@@ -22,12 +22,12 @@ public class PkceTest {
     void defaultCodeChallengeMethod() {
         // setup
         var clientStore = new InMemoryClientStore();
-        var client = Fixtures.publicClient();
+        var client = Fixtures.publicClient().build();
         clientStore.save(client);
         var sut = Fixtures.azIdPBuilder(new JWKSet()).customClientStore(clientStore).build();
 
         // authorization request
-        var redirectUri = "http://rp1.example.com";
+        var redirectUri = "https://rp1.example.com";
         var queryParameters =
                 Map.of(
                         "client_id",
@@ -90,12 +90,12 @@ public class PkceTest {
     void s256CodeChallengeMethod() {
         // setup
         var clientStore = new InMemoryClientStore();
-        var client = Fixtures.publicClient();
+        var client = Fixtures.publicClient().build();
         clientStore.save(client);
         var sut = Fixtures.azIdPBuilder(new JWKSet()).customClientStore(clientStore).build();
 
         // authorization request
-        var redirectUri = "http://rp1.example.com";
+        var redirectUri = "https://rp1.example.com";
         var queryParameters =
                 Map.of(
                         "client_id",
@@ -160,12 +160,12 @@ public class PkceTest {
     void plainCodeChallengeMethod() {
         // setup
         var clientStore = new InMemoryClientStore();
-        var client = Fixtures.publicClient();
+        var client = Fixtures.publicClient().build();
         clientStore.save(client);
         var sut = Fixtures.azIdPBuilder(new JWKSet()).customClientStore(clientStore).build();
 
         // authorization request
-        var redirectUri = "http://rp1.example.com";
+        var redirectUri = "https://rp1.example.com";
         var queryParameters =
                 Map.of(
                         "client_id",

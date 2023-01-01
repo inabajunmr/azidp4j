@@ -29,8 +29,8 @@ class RevocationTest {
     private final ClientStore clientStore = new InMemoryClientStore();
 
     {
-        clientStore.save(Fixtures.confidentialClient());
-        clientStore.save(Fixtures.publicClient());
+        clientStore.save(Fixtures.confidentialClient().build());
+        clientStore.save(Fixtures.publicClient().build());
     }
 
     private final Revocation sut =
@@ -220,7 +220,7 @@ class RevocationTest {
         // verify
         assertEquals(200, response.status);
         assertFalse(refreshTokenService.introspect(rt.token).isPresent());
-        clientStore.save(Fixtures.confidentialClient());
+        clientStore.save(Fixtures.confidentialClient().build());
     }
 
     @Test
@@ -250,7 +250,7 @@ class RevocationTest {
         // verify
         assertEquals(200, response.status);
         assertFalse(refreshTokenService.introspect(rt.token).isPresent());
-        clientStore.save(Fixtures.confidentialClient());
+        clientStore.save(Fixtures.confidentialClient().build());
     }
 
     @Test

@@ -52,7 +52,7 @@ class IssueTokenTest_AuthorizationCodeGrant_PublicClient {
 
     private final AzIdPConfig config = Fixtures.azIdPConfig();
 
-    private final Client client = Fixtures.publicClient();
+    private final Client client = Fixtures.publicClient().build();
 
     @BeforeEach
     void init() {
