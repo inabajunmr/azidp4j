@@ -12,14 +12,14 @@ import org.azidp4j.authorize.request.AuthorizationRequest;
 import org.azidp4j.authorize.response.AdditionalPage;
 import org.azidp4j.authorize.response.ErrorPage;
 import org.azidp4j.springsecuritysample.authentication.AcrValue;
-import org.azidp4j.springsecuritysample.authentication.SelfReportedAuthenticationToken;
+import org.azidp4j.springsecuritysample.claims.ClaimsParameterParser;
+import org.azidp4j.springsecuritysample.claims.ClaimsValue;
 import org.azidp4j.springsecuritysample.consent.InMemoryUserConsentStore;
 import org.azidp4j.springsecuritysample.user.UserStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.WebAttributes;
@@ -65,15 +65,12 @@ public class AuthorizationEndpointHandler {
         // When user is unauthenticated, azidp4j accepts null as authenticatedUserName.
         // In that case, azidp4j requires login page or error.
         String authenticatedUserName = null;
-        AcrValue acr = null;
+        AcrValue userAcr = null;
         if (req.getUserPrincipal() != null) {
             authenticatedUserName = req.getUserPrincipal().getName();
-            var authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication instanceof UsernamePasswordAuthenticationToken) {
-                acr = AcrValue.pwd;
-            } else if (authentication instanceof SelfReportedAuthenticationToken) {
-                acr = AcrValue.self_reported;
-            }
+            userAcr =
+                    AuthenticationAcrMapper.map(
+                            SecurityContextHolder.getContext().getAuthentication());
         }
 
         // Consented scope management is out of scope from azidp.
@@ -90,8 +87,8 @@ public class AuthorizationEndpointHandler {
                                 : null,
                         consentedScopes,
                         params);
-        if (acr != null) {
-            authzReq.setAuthenticatedUserAcr(acr.value);
+        if (userAcr != null) {
+            authzReq.setAuthenticatedUserAcr(userAcr.value);
         }
 
         // Authorization Request
@@ -100,6 +97,67 @@ public class AuthorizationEndpointHandler {
         switch (response.next) {
             case redirect -> {
                 var redirect = response.redirect();
+                if (!response.redirect().isSuccessResponse()) {
+                    return "redirect:" + redirect.createRedirectTo().toString();
+                }
+
+                // handle acr claims
+                var claims = ClaimsParameterParser.parse(response.authorizationRequest().claims);
+                var claimsParameterAcr = claims.fromIdToken("acr");
+                if (claimsParameterAcr.isEmpty()) {
+                    // no acr claims
+                    return "redirect:" + redirect.createRedirectTo().toString();
+                }
+                if (claimsParameterAcr.get().contains(ClaimsValue.of(userAcr.value))) {
+                    // userAcr satisfy claims parameter
+                    return "redirect:" + redirect.createRedirectTo().toString();
+                }
+
+                // Save authorization request
+                var queryParamsForSavedAuthorizationRequest =
+                        new LinkedMultiValueMap<String, String>();
+                authzReq.queryParameters()
+                        .forEach(
+                                (k, v) ->
+                                        queryParamsForSavedAuthorizationRequest.add(
+                                                k, URLEncoder.encode(v, StandardCharsets.UTF_8)));
+                req.getSession()
+                        .setAttribute(
+                                "SPRING_SECURITY_SAVED_REQUEST",
+                                new SimpleSavedRequest(
+                                        UriComponentsBuilder.fromPath("/authorize")
+                                                .queryParams(
+                                                        queryParamsForSavedAuthorizationRequest)
+                                                .build()
+                                                .toUriString()));
+
+                // userAcr doesn't satisfy claims parameter acr so redirect to login page
+                var requiredAcrClaims =
+                        claimsParameterAcr.get().getValues().stream()
+                                .filter(ClaimsValue::isText)
+                                .map(ClaimsValue::asText)
+                                .toList();
+
+                if (requiredAcrClaims.contains(AcrValue.self_reported.value)) {
+                    return "redirect:" + AcrValue.self_reported.path;
+                }
+                if (requiredAcrClaims.contains(AcrValue.pwd.value)) {
+                    return "redirect:" + AcrValue.self_reported.path;
+                }
+                // claims parameter acr values are not supported at the application
+                if (claimsParameterAcr.get().isEssential()) {
+                    // unsupported acr is essential so error
+                    var message =
+                            messages.getMessage(
+                                    "exception.authorization_request.invalid",
+                                    new String[] {"unsupported acr claim"},
+                                    res.getLocale());
+                    req.getSession()
+                            .setAttribute(
+                                    WebAttributes.AUTHENTICATION_EXCEPTION,
+                                    new InnerAuthenticationException(message));
+                    return "redirect:/login?error";
+                }
                 return "redirect:" + redirect.createRedirectTo().toString();
             }
             case errorPage -> {
@@ -110,7 +168,12 @@ public class AuthorizationEndpointHandler {
             case additionalPage -> {
                 // When authorization request processing needs additional action.
                 // ex. user authentication or request consent.
-                return additionalPage(req, res, authzReq, response.additionalPage());
+                return additionalPage(
+                        req,
+                        res,
+                        authzReq,
+                        response.additionalPage(),
+                        response.authorizationRequest().claims);
             }
             default -> throw new AssertionError();
         }
@@ -120,7 +183,8 @@ public class AuthorizationEndpointHandler {
             HttpServletRequest req,
             HttpServletResponse res,
             AuthorizationRequest authzReq,
-            AdditionalPage additionalPage) {
+            AdditionalPage additionalPage,
+            String claims) {
 
         var uiLocale = uiLocales(additionalPage.uiLocales);
         localeResolver.setLocale(req, res, uiLocale);
@@ -159,7 +223,44 @@ public class AuthorizationEndpointHandler {
                             .setAttribute(
                                     "EXPECTED_USER_SUBJECT", additionalPage.expectedUserSubject);
                 }
-                if (additionalPage.acrValues != null
+
+                // handle acr claims
+                var acrClaim = ClaimsParameterParser.parse(claims).fromIdToken("acr");
+                if (acrClaim.isPresent()) {
+                    for (var claimsParameterAcrValue : acrClaim.get().getValues()) {
+                        if (!claimsParameterAcrValue.isText()) {
+                            continue;
+                        }
+                        if (!additionalPage.acrValues.isEmpty()
+                                && !additionalPage.acrValues.contains(
+                                        claimsParameterAcrValue.asText())) {
+                            // The acrValue doesn't satisfy acr_values parameter so ignore it
+                            continue;
+                        }
+                        if (AcrValue.self_reported.value.equals(claimsParameterAcrValue.asText())) {
+                            return "redirect:" + AcrValue.self_reported.path;
+                        }
+                        if (AcrValue.self_reported.value.equals(claimsParameterAcrValue.asText())) {
+                            return "redirect:" + AcrValue.pwd.path;
+                        }
+                    }
+                    // the required(essential) acr value is not supported
+                    if (acrClaim.get().isEssential()) {
+                        var message =
+                                messages.getMessage(
+                                        "exception.authorization_request.invalid",
+                                        new String[] {"unsupported acr claim"},
+                                        uiLocale);
+                        req.getSession()
+                                .setAttribute(
+                                        WebAttributes.AUTHENTICATION_EXCEPTION,
+                                        new InnerAuthenticationException(message));
+                        return "redirect:/login?error";
+                    }
+                }
+
+                // handle acr_values parameter
+                if (!additionalPage.acrValues.isEmpty()
                         && additionalPage.acrValues.contains(AcrValue.self_reported.value)) {
                     // if acr_values parameter required self-reported login
                     return "redirect:" + AcrValue.self_reported.path;
