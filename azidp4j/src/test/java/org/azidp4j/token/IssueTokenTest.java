@@ -49,8 +49,8 @@ public class IssueTokenTest {
                         Instant.now().getEpochSecond() + 600);
         var config = Fixtures.azIdPConfig();
         var clientStore = new InMemoryClientStore();
-        var confidentialClient = Fixtures.confidentialClient();
-        var noGrantTypeClient = Fixtures.noGrantTypeClient();
+        var confidentialClient = Fixtures.confidentialClient().build();
+        var noGrantTypeClient = Fixtures.noGrantTypeClient().build();
         clientStore.save(confidentialClient);
         clientStore.save(noGrantTypeClient);
         var accessTokenStore = new InMemoryAccessTokenStore();

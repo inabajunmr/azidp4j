@@ -56,41 +56,15 @@ class InternalClientValidatorTest {
                         Duration.ofSeconds(3600));
         var sut = new InternalClientValidator(config);
         var client =
-                new Client(
-                        "confidential",
-                        "secret",
-                        Set.of("https://rp1.example.com", "https://rp2.example.com"),
-                        Set.of(
+                Fixtures.confidentialClient()
+                        .grantTypes(
                                 Set.of(
-                                        ResponseType.code,
-                                        ResponseType.token,
-                                        ResponseType.id_token,
-                                        ResponseType.none)),
-                        ApplicationType.WEB,
-                        Set.of(
-                                GrantType.authorization_code,
-                                GrantType.implicit,
-                                GrantType.password,
-                                GrantType.client_credentials,
-                                GrantType.refresh_token),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2 openid",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        null,
-                        null,
-                        List.of("acr1"),
-                        null);
+                                        GrantType.authorization_code,
+                                        GrantType.implicit,
+                                        GrantType.password,
+                                        GrantType.client_credentials,
+                                        GrantType.refresh_token))
+                        .build();
 
         // exercise
         try {
@@ -105,41 +79,16 @@ class InternalClientValidatorTest {
     void validate_NotSupportedResponseTypes() {
         // setup
         var client =
-                new Client(
-                        "confidential",
-                        "secret",
-                        Set.of("https://rp1.example.com", "https://rp2.example.com"),
-                        Set.of(
+                Fixtures.confidentialClient()
+                        .responseTypes(
                                 Set.of(
-                                        ResponseType.code,
-                                        ResponseType.token,
-                                        ResponseType.id_token,
-                                        ResponseType.none)),
-                        ApplicationType.WEB,
-                        Set.of(
-                                GrantType.authorization_code,
-                                GrantType.implicit,
-                                GrantType.password,
-                                GrantType.client_credentials,
-                                GrantType.refresh_token),
-                        null,
-                        null,
-                        null,
-                        "unknown",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        null,
-                        null,
-                        List.of("acr1"),
-                        null);
+                                        Set.of(
+                                                ResponseType.code,
+                                                ResponseType.token,
+                                                ResponseType.id_token,
+                                                ResponseType.none) // target
+                                        ))
+                        .build();
 
         // exercise
         try {
@@ -154,40 +103,10 @@ class InternalClientValidatorTest {
     void validate_NotSupportedScope() {
         // setup
         var client =
-                new Client(
-                        "confidential",
-                        "secret",
-                        Set.of("https://rp1.example.com", "https://rp2.example.com"),
-                        Set.of(
-                                Set.of(
-                                        ResponseType.code,
-                                        ResponseType.token,
-                                        ResponseType.id_token)),
-                        ApplicationType.WEB,
-                        Set.of(
-                                GrantType.authorization_code,
-                                GrantType.implicit,
-                                GrantType.password,
-                                GrantType.client_credentials,
-                                GrantType.refresh_token),
-                        null,
-                        null,
-                        null,
-                        "unknown",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        null,
-                        null,
-                        List.of("acr1"),
-                        null);
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .scope("unknown")
+                        .build();
 
         // exercise
         try {
@@ -202,40 +121,11 @@ class InternalClientValidatorTest {
     void validate_JwksAndJwksUri() {
         // setup
         var client =
-                new Client(
-                        "confidential",
-                        "secret",
-                        Set.of("https://rp1.example.com", "https://rp2.example.com"),
-                        Set.of(
-                                Set.of(
-                                        ResponseType.code,
-                                        ResponseType.token,
-                                        ResponseType.id_token)),
-                        ApplicationType.WEB,
-                        Set.of(
-                                GrantType.authorization_code,
-                                GrantType.implicit,
-                                GrantType.password,
-                                GrantType.client_credentials,
-                                GrantType.refresh_token),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2 openid",
-                        null,
-                        null,
-                        null,
-                        "https://example.com/jwks", // target
-                        Fixtures.jwkSet(), // target
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        null,
-                        null,
-                        List.of("acr1"),
-                        null);
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .jwks(Fixtures.jwkSet()) // target
+                        .jwksUri("https://example.com/jwks") // target
+                        .build();
 
         // exercise
         try {
@@ -247,34 +137,14 @@ class InternalClientValidatorTest {
     }
 
     @Test
-    void validate_tokenEndpointAuthMethodIsNullButClientCredentials() {
+    void validate_tokenEndpointAuthMethodIsNoneButClientCredentials() {
         // setup
         var client =
-                new Client(
-                        "confidential",
-                        "secret",
-                        Set.of("https://rp1.example.com", "https://rp2.example.com"),
-                        Set.of(),
-                        ApplicationType.WEB,
-                        Set.of(GrantType.client_credentials), // target
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2 openid",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.none, // target
-                        null,
-                        SigningAlgorithm.ES256,
-                        null,
-                        null,
-                        List.of("acr1"),
-                        null);
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .grantTypes(Set.of(GrantType.client_credentials)) // target
+                        .tokenEndpointAuthMethod(TokenEndpointAuthMethod.none) // target
+                        .build();
 
         // exercise
         try {
@@ -291,31 +161,12 @@ class InternalClientValidatorTest {
     void validate_WebApplicationAndImplicitButRedirectUriIsHttp() {
         // setup
         var client =
-                new Client(
-                        "confidential",
-                        "secret",
-                        Set.of("http://rp1.example.com" /* target */, "https://rp2.example.com"),
-                        Set.of(),
-                        ApplicationType.WEB, // target
-                        Set.of(GrantType.implicit), // target
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2 openid",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        null,
-                        null,
-                        List.of("acr1"),
-                        null);
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB) // target
+                        .grantTypes(Set.of(GrantType.implicit)) // target
+                        .redirectUris(Set.of("http://example.com")) // target
+                        .build();
 
         // exercise
         try {
@@ -330,31 +181,12 @@ class InternalClientValidatorTest {
     void validate_WebApplicationAndImplicitButRedirectUriIsLocalhost() {
         // setup
         var client =
-                new Client(
-                        "confidential",
-                        "secret",
-                        Set.of("https://localhost:8080" /* target */, "https://rp2.example.com"),
-                        Set.of(),
-                        ApplicationType.WEB, // target
-                        Set.of(GrantType.implicit), // target
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2 openid",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        null,
-                        null,
-                        List.of("acr1"),
-                        null);
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB) // target
+                        .grantTypes(Set.of(GrantType.implicit)) // target
+                        .redirectUris(Set.of("https://localhost:8080")) // target
+                        .build();
 
         // exercise
         try {
@@ -369,31 +201,15 @@ class InternalClientValidatorTest {
     void validate_NativeApplicationButRedirectUriIsHttps() {
         // setup
         var client =
-                new Client(
-                        "confidential",
-                        "secret",
-                        Set.of("https://example.com" /* target */, "http://localhost:8080"),
-                        Set.of(),
-                        ApplicationType.NATIVE, // target
-                        Set.of(GrantType.implicit),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2 openid",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        null,
-                        null,
-                        List.of("acr1"),
-                        null);
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.NATIVE) // target
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .redirectUris(
+                                Set.of(
+                                        "https://example.com", // target
+                                        "http://localhost:8080"))
+                        .build();
 
         // exercise
         try {
@@ -408,31 +224,15 @@ class InternalClientValidatorTest {
     void validate_NativeApplicationButRedirectUriIsNotLocalhost() {
         // setup
         var client =
-                new Client(
-                        "confidential",
-                        "secret",
-                        Set.of("http://example.com" /* target */, "http://localhost:8080"),
-                        Set.of(),
-                        ApplicationType.NATIVE, // target
-                        Set.of(GrantType.implicit),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2 openid",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        null,
-                        null,
-                        List.of("acr1"),
-                        null);
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.NATIVE) // target
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .redirectUris(
+                                Set.of(
+                                        "http://example.com", // target
+                                        "http://localhost:8080"))
+                        .build();
 
         // exercise
         try {
@@ -449,31 +249,12 @@ class InternalClientValidatorTest {
     void validate_IllegalInitiateLoginUri() {
         // setup
         var client =
-                new Client(
-                        "confidential",
-                        "secret",
-                        Set.of("https://example.com"),
-                        Set.of(),
-                        ApplicationType.WEB,
-                        Set.of(GrantType.authorization_code),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2 openid",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        null,
-                        null,
-                        List.of("acr1"),
-                        "illegal"); // target
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB)
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .initiateLoginUri("illegal") // target
+                        .build();
 
         // exercise
         try {
@@ -488,31 +269,12 @@ class InternalClientValidatorTest {
     void validate_IllegalMaxAge() {
         // setup
         var client =
-                new Client(
-                        "confidential",
-                        "secret",
-                        Set.of("https://example.com"),
-                        Set.of(),
-                        ApplicationType.WEB,
-                        Set.of(GrantType.authorization_code),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2 openid",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        -1L, // target
-                        null,
-                        List.of("acr1"),
-                        "https://example.com");
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB)
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .defaultMaxAge(-1L) // target
+                        .build();
 
         // exercise
         try {
@@ -527,31 +289,12 @@ class InternalClientValidatorTest {
     void validate_UnsupportedAcr() {
         // setup
         var client =
-                new Client(
-                        "confidential",
-                        "secret",
-                        Set.of("https://example.com"),
-                        Set.of(),
-                        ApplicationType.WEB,
-                        Set.of(GrantType.authorization_code),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2 openid",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        10000L,
-                        null,
-                        List.of("acr1", "unsupported"), // target
-                        "https://example.com");
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB)
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .defaultAcrValues(List.of("acr1", "unsupported")) // target
+                        .build();
 
         // exercise
         try {

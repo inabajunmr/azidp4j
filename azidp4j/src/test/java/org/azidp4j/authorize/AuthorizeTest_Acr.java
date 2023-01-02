@@ -33,46 +33,10 @@ import org.junit.jupiter.api.Test;
 public class AuthorizeTest_Acr {
 
     final ClientStore clientStore = new InMemoryClientStore();
-    final Client clientWithDefaultAcrValues = Fixtures.confidentialClient();
+    final Client clientWithDefaultAcrValues =
+            Fixtures.confidentialClient().defaultAcrValues(List.of("acr1", "acr2")).build();
     final Client clientWithoutDefaultAcrValues =
-            new Client(
-                    "WithoutDefaultAcrValues",
-                    "secret",
-                    Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                    Set.of(
-                            Set.of(ResponseType.code),
-                            Set.of(ResponseType.token),
-                            Set.of(ResponseType.id_token),
-                            Set.of(ResponseType.none),
-                            Set.of(ResponseType.code, ResponseType.token),
-                            Set.of(ResponseType.code, ResponseType.id_token),
-                            Set.of(ResponseType.id_token, ResponseType.token),
-                            Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token)),
-                    ApplicationType.WEB,
-                    Set.of(
-                            GrantType.authorization_code,
-                            GrantType.implicit,
-                            GrantType.password,
-                            GrantType.client_credentials,
-                            GrantType.refresh_token),
-                    null,
-                    null,
-                    null,
-                    "rs:scope1 rs:scope2 openid",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    null,
-                    SigningAlgorithm.ES256,
-                    null,
-                    null,
-                    null,
-                    null);
+            Fixtures.confidentialClient().defaultAcrValues(null).build();
     final AzIdPConfig configWithSupportedAcrValues = Fixtures.azIdPConfig();
     final AzIdPConfig configWithoutSupportedAcrValues =
             new AzIdPConfig(
@@ -152,7 +116,7 @@ public class AuthorizeTest_Acr {
                         .acrValues("unsupported") // target
                         .clientId(clientWithDefaultAcrValues.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .state("xyz")
                         .authenticatedUserSubject("username")
@@ -180,54 +144,14 @@ public class AuthorizeTest_Acr {
     void authorizationCodeGrant_SupportedAcrValuesAndDefaultAcrValuesUnmatched() {
         // setup
         var clientWithUnsupportedDefaultAcrValues =
-                new Client(
-                        "UnsupportedDefaultAcrValues",
-                        "secret",
-                        Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                        Set.of(
-                                Set.of(ResponseType.code),
-                                Set.of(ResponseType.token),
-                                Set.of(ResponseType.id_token),
-                                Set.of(ResponseType.none),
-                                Set.of(ResponseType.code, ResponseType.token),
-                                Set.of(ResponseType.code, ResponseType.id_token),
-                                Set.of(ResponseType.id_token, ResponseType.token),
-                                Set.of(
-                                        ResponseType.code,
-                                        ResponseType.token,
-                                        ResponseType.id_token)),
-                        ApplicationType.WEB,
-                        Set.of(
-                                GrantType.authorization_code,
-                                GrantType.implicit,
-                                GrantType.password,
-                                GrantType.client_credentials,
-                                GrantType.refresh_token),
-                        null,
-                        null,
-                        null,
-                        "rs:scope1 rs:scope2 openid",
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        null,
-                        TokenEndpointAuthMethod.client_secret_basic,
-                        null,
-                        SigningAlgorithm.ES256,
-                        null,
-                        null,
-                        List.of("unsupported"), // target
-                        null);
+                Fixtures.confidentialClient().defaultAcrValues(List.of("unsupported")).build();
         clientStore.save(clientWithUnsupportedDefaultAcrValues);
         var authorizationRequest =
                 InternalAuthorizationRequest.builder()
                         .responseType("code")
                         .clientId(clientWithUnsupportedDefaultAcrValues.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .state("xyz")
                         .authenticatedUserSubject("username")
@@ -259,7 +183,7 @@ public class AuthorizeTest_Acr {
                         .responseType("code")
                         .clientId(clientWithoutDefaultAcrValues.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .state("xyz")
                         .authenticatedUserSubject("username")
@@ -292,7 +216,7 @@ public class AuthorizeTest_Acr {
                         .responseType("code")
                         .clientId(clientWithoutDefaultAcrValues.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .state("xyz")
                         .authenticatedUserSubject("username")
@@ -326,7 +250,7 @@ public class AuthorizeTest_Acr {
                         .responseType("code")
                         .clientId(clientWithoutDefaultAcrValues.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .state("xyz")
                         .authenticatedUserSubject("username")
@@ -360,7 +284,7 @@ public class AuthorizeTest_Acr {
                         .responseType("code")
                         .clientId(clientWithoutDefaultAcrValues.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .state("xyz")
                         .authenticatedUserSubject("username")
@@ -389,7 +313,7 @@ public class AuthorizeTest_Acr {
                         .responseType("code")
                         .clientId(clientWithoutDefaultAcrValues.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .state("xyz")
                         .authenticatedUserSubject("username")
@@ -424,7 +348,7 @@ public class AuthorizeTest_Acr {
                         .responseType("code")
                         .clientId(clientWithDefaultAcrValues.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .state("xyz")
                         .authenticatedUserSubject("username")
@@ -458,7 +382,7 @@ public class AuthorizeTest_Acr {
                         .responseType("code")
                         .clientId(clientWithDefaultAcrValues.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .state("xyz")
                         .authenticatedUserSubject("username")
@@ -486,7 +410,7 @@ public class AuthorizeTest_Acr {
                         .responseType("code")
                         .clientId(clientWithDefaultAcrValues.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .state("xyz")
                         .authenticatedUserSubject("username")
@@ -515,7 +439,7 @@ public class AuthorizeTest_Acr {
                         .responseType("code")
                         .clientId(clientWithDefaultAcrValues.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .state("xyz")
                         .authenticatedUserSubject("username")

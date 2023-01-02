@@ -35,6 +35,10 @@ public class IssueTokenTest_RefreshToken {
 
     private final InMemoryAccessTokenStore accessTokenStore;
 
+    private final Client confidentialClient = Fixtures.confidentialClient().build();
+
+    private final Client publicClient = Fixtures.publicClient().build();
+
     public IssueTokenTest_RefreshToken() throws JOSEException {
         var key = new ECKeyGenerator(Curve.P_256).keyID("123").generate();
         var jwks = new JWKSet(key);
@@ -45,8 +49,8 @@ public class IssueTokenTest_RefreshToken {
         var idTokenIssuer =
                 new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null);
         var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.confidentialClient());
-        clientStore.save(Fixtures.publicClient());
+        clientStore.save(confidentialClient);
+        clientStore.save(publicClient);
         this.refreshTokenStore = new InMemoryRefreshTokenStore();
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         this.issueToken =
@@ -63,7 +67,6 @@ public class IssueTokenTest_RefreshToken {
 
     @Test
     void success() {
-
         // setup
         var refreshToken =
                 new RefreshToken(
@@ -71,14 +74,14 @@ public class IssueTokenTest_RefreshToken {
                         "user",
                         "rs:scope1 rs:scope2",
                         "{\"userinfo\":{\"name\":{\"essential\":true}}}",
-                        "confidential",
+                        confidentialClient.clientId,
                         Set.of("scope"),
                         Instant.now().getEpochSecond() + 3600,
                         Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 new TokenRequest(
-                        "confidential",
+                        confidentialClient.clientId,
                         MapUtil.ofNullable(
                                 "grant_type",
                                 "refresh_token",
@@ -97,7 +100,7 @@ public class IssueTokenTest_RefreshToken {
                 accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "user",
                 "http://rs.example.com",
-                "confidential",
+                confidentialClient.clientId,
                 "rs:scope1 rs:scope2",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -115,14 +118,14 @@ public class IssueTokenTest_RefreshToken {
                         "user",
                         "rs:scope1 rs:scope2",
                         "{\"userinfo\":{\"name\":{\"essential\":true}}}",
-                        "confidential",
+                        confidentialClient.clientId,
                         Set.of("rs"),
                         Instant.now().getEpochSecond() + 3600,
                         Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 new TokenRequest(
-                        "confidential",
+                        confidentialClient.clientId,
                         MapUtil.ofNullable(
                                 "grant_type",
                                 "refresh_token",
@@ -141,7 +144,7 @@ public class IssueTokenTest_RefreshToken {
                 accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "user",
                 "http://rs.example.com",
-                "confidential",
+                confidentialClient.clientId,
                 "rs:scope1",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -163,7 +166,7 @@ public class IssueTokenTest_RefreshToken {
                         "user",
                         "rs:scope1 rs:scope2",
                         "{\"userinfo\":{\"name\":{\"essential\":true}}}",
-                        "public",
+                        publicClient.clientId,
                         Set.of("rs"),
                         Instant.now().getEpochSecond() + 3600,
                         Instant.now().getEpochSecond());
@@ -179,7 +182,7 @@ public class IssueTokenTest_RefreshToken {
                                 "refresh_token",
                                 refreshToken.token,
                                 "client_id",
-                                "public"));
+                                publicClient.clientId));
         // exercise
         var response = issueToken.issue(tokenRequest);
 
@@ -190,7 +193,7 @@ public class IssueTokenTest_RefreshToken {
                 accessTokenStore.find((String) response.body.get("access_token")).get(),
                 "user",
                 "http://rs.example.com",
-                "public",
+                publicClient.clientId,
                 "rs:scope1 rs:scope2",
                 Instant.now().getEpochSecond() + 3600);
         assertEquals(response.body.get("token_type"), "bearer");
@@ -208,14 +211,14 @@ public class IssueTokenTest_RefreshToken {
                         "user",
                         "rs:scope1",
                         "{\"userinfo\":{\"name\":{\"essential\":true}}}",
-                        "confidential",
+                        confidentialClient.clientId,
                         Set.of("rs"),
                         Instant.now().getEpochSecond() + 3600,
                         Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 new TokenRequest(
-                        "confidential",
+                        confidentialClient.clientId,
                         MapUtil.ofNullable(
                                 "grant_type",
                                 "refresh_token",
@@ -240,7 +243,7 @@ public class IssueTokenTest_RefreshToken {
         // setup
         var tokenRequest =
                 new TokenRequest(
-                        "confidential",
+                        confidentialClient.clientId,
                         MapUtil.ofNullable(
                                 "grant_type",
                                 "refresh_token",
@@ -292,7 +295,8 @@ public class IssueTokenTest_RefreshToken {
                 new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null);
         var refreshTokenStore = new InMemoryRefreshTokenStore();
         var clientStore = new InMemoryClientStore();
-        clientStore.save(Fixtures.confidentialClient());
+        var client = Fixtures.confidentialClient().build();
+        clientStore.save(client);
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var issueToken =
                 new IssueToken(
@@ -310,14 +314,14 @@ public class IssueTokenTest_RefreshToken {
                         "user",
                         "rs:scope1",
                         "{\"userinfo\":{\"name\":{\"essential\":true}}}",
-                        "confidential",
+                        client.clientId,
                         Set.of("rs"),
                         Instant.now().getEpochSecond() - 10,
                         Instant.now().getEpochSecond());
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 new TokenRequest(
-                        "confidential",
+                        client.clientId,
                         MapUtil.ofNullable(
                                 "grant_type",
                                 "refresh_token",
@@ -350,7 +354,7 @@ public class IssueTokenTest_RefreshToken {
         refreshTokenStore.save(refreshToken);
         var tokenRequest =
                 new TokenRequest(
-                        "confidential",
+                        confidentialClient.clientId,
                         MapUtil.ofNullable(
                                 "grant_type",
                                 "refresh_token",

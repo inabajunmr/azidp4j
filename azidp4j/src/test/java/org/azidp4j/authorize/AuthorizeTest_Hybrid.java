@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 class AuthorizeTest_Hybrid {
 
     final ClientStore clientStore = new InMemoryClientStore();
-    final Client client = Fixtures.confidentialClient();
+    final Client client = Fixtures.confidentialClient().build();
 
     final ECKey key =
             new ECKeyGenerator(Curve.P_256)
@@ -70,7 +70,7 @@ class AuthorizeTest_Hybrid {
                         .responseType("code token")
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("rs:scope1")
                         .authenticatedUserSubject("username")
                         .authenticatedUserAcr("acr1")
@@ -108,7 +108,7 @@ class AuthorizeTest_Hybrid {
                         .responseType("code id_token")
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("openid rs:scope1")
                         .authenticatedUserSubject("username")
                         .authenticatedUserAcr("acr1")
@@ -153,7 +153,7 @@ class AuthorizeTest_Hybrid {
                         .responseType("id_token token")
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("openid rs:scope1")
                         .authenticatedUserSubject("username")
                         .authenticatedUserAcr("acr1")
@@ -204,7 +204,7 @@ class AuthorizeTest_Hybrid {
                         .responseType("code id_token token")
                         .clientId(client.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("openid rs:scope1")
                         .authenticatedUserSubject("username")
                         .authenticatedUserAcr("acr1")

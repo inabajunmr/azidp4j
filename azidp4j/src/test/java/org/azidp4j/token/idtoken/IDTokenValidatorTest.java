@@ -37,7 +37,7 @@ class IDTokenValidatorTest {
 
     @Test
     void validateForIdTokenHint_Success() {
-        var client = Fixtures.confidentialClient();
+        var client = Fixtures.confidentialClient().build();
         var jws =
                 new JWSIssuer(jwks)
                         .issue(
@@ -139,7 +139,7 @@ class IDTokenValidatorTest {
             var jws =
                     new JWSIssuer(jwks)
                             .issue("es", null, Map.of("iss", config.issuer, "aud", "invalid"));
-            sut.validateForIdTokenHint(jws.serialize(), Fixtures.confidentialClient());
+            sut.validateForIdTokenHint(jws.serialize(), Fixtures.confidentialClient().build());
             fail();
         } catch (InvalidIDTokenException e) {
             assertEquals("Audience unmatched", e.getMessage());
@@ -148,7 +148,7 @@ class IDTokenValidatorTest {
 
     @Test
     void validateForIdTokenHint_InvalidAzp() {
-        var client = Fixtures.confidentialClient();
+        var client = Fixtures.confidentialClient().build();
         try {
             var jws =
                     new JWSIssuer(jwks)
@@ -171,7 +171,7 @@ class IDTokenValidatorTest {
 
     @Test
     void validateForIdTokenHint_ClientNotSupportedAlg() {
-        var client = Fixtures.confidentialClient();
+        var client = Fixtures.confidentialClient().build();
         try {
             var jws =
                     new JWSIssuer(jwks)

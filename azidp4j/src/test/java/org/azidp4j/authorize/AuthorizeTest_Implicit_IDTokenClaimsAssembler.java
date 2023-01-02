@@ -58,61 +58,26 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
             new RSAKeyGenerator(2048).keyID("abc").algorithm(new Algorithm("RS256")).generate();
 
     final Client clientEs256 =
-            new Client(
-                    "es256client",
-                    "clientSecret",
-                    Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                    Set.of(
-                            Set.of(ResponseType.token),
-                            Set.of(ResponseType.id_token),
-                            Set.of(ResponseType.token, ResponseType.id_token)),
-                    ApplicationType.WEB,
-                    Set.of(GrantType.authorization_code, GrantType.implicit),
-                    null,
-                    null,
-                    null,
-                    "rs:scope1 rs:scope2 openid",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    null,
-                    SigningAlgorithm.ES256,
-                    null,
-                    null,
-                    List.of("acr1"),
-                    null);
+            Fixtures.confidentialClient()
+                    .responseTypes(
+                            Set.of(
+                                    Set.of(ResponseType.token),
+                                    Set.of(ResponseType.id_token),
+                                    Set.of(ResponseType.token, ResponseType.id_token)))
+                    .grantTypes(Set.of(GrantType.authorization_code, GrantType.implicit))
+                    .idTokenSignedResponseAlg(SigningAlgorithm.ES256)
+                    .build();
 
     final Client clientRs256 =
-            new Client(
-                    "rs256client",
-                    "clientSecret",
-                    Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                    Set.of(Set.of(ResponseType.token, ResponseType.id_token)),
-                    ApplicationType.WEB,
-                    Set.of(GrantType.implicit),
-                    null,
-                    null,
-                    null,
-                    "openid rs:scope1 rs:scope2",
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    TokenEndpointAuthMethod.client_secret_basic,
-                    null,
-                    SigningAlgorithm.RS256,
-                    null,
-                    null,
-                    List.of("acr1"),
-                    null);
+            Fixtures.confidentialClient()
+                    .responseTypes(
+                            Set.of(
+                                    Set.of(ResponseType.token),
+                                    Set.of(ResponseType.id_token),
+                                    Set.of(ResponseType.token, ResponseType.id_token)))
+                    .grantTypes(Set.of(GrantType.authorization_code, GrantType.implicit))
+                    .idTokenSignedResponseAlg(SigningAlgorithm.RS256)
+                    .build();
 
     final Authorize sut;
     final InMemoryAccessTokenStore accessTokenStore;
@@ -148,7 +113,7 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
                         .responseType("token id_token")
                         .clientId(clientEs256.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("openid rs:scope1")
                         .authenticatedUserSubject("username")
                         .authenticatedUserAcr("acr1")
@@ -202,7 +167,7 @@ class AuthorizeTest_Implicit_IDTokenClaimsAssembler {
                         .responseType("id_token")
                         .clientId(clientEs256.clientId)
                         .authTime(Instant.now().getEpochSecond())
-                        .redirectUri("http://rp1.example.com")
+                        .redirectUri("https://rp1.example.com")
                         .scope("openid rs:scope1")
                         .authenticatedUserSubject("username")
                         .authenticatedUserAcr("acr1")

@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
@@ -76,11 +77,11 @@ public class Fixtures {
                 .build();
     }
 
-    public static Client publicClient() {
-        return new Client(
-                "public",
-                null,
-                Set.of("http://rp1.example.com", "http://rp2.example.com"),
+    public static ClientBuilder clientBuilder() {
+        var builder = new ClientBuilder();
+        builder.clientId(UUID.randomUUID().toString());
+        builder.redirectUris(Set.of("https://rp1.example.com", "https://rp2.example.com"));
+        builder.responseTypes(
                 Set.of(
                         Set.of(ResponseType.code),
                         Set.of(ResponseType.token),
@@ -89,169 +90,70 @@ public class Fixtures {
                         Set.of(ResponseType.code, ResponseType.token),
                         Set.of(ResponseType.code, ResponseType.id_token),
                         Set.of(ResponseType.id_token, ResponseType.token),
-                        Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token)),
-                ApplicationType.WEB,
+                        Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token)));
+        builder.applicationType(ApplicationType.WEB);
+        builder.scope("rs:scope1 rs:scope2 openid");
+        return builder;
+    }
+
+    public static ClientBuilder publicClient() {
+        var builder = clientBuilder();
+        builder.tokenEndpointAuthMethod(TokenEndpointAuthMethod.none);
+        builder.requireAuthTime(false);
+        builder.grantTypes(
+                Set.of(
+                        GrantType.authorization_code,
+                        GrantType.implicit,
+                        GrantType.refresh_token,
+                        GrantType.password));
+        return builder;
+    }
+
+    public static ClientBuilder confidentialClient() {
+        var builder = clientBuilder();
+        builder.clientSecret("secret");
+        builder.tokenEndpointAuthMethod(TokenEndpointAuthMethod.client_secret_basic);
+        builder.idTokenSignedResponseAlg(SigningAlgorithm.ES256);
+        builder.grantTypes(
                 Set.of(
                         GrantType.authorization_code,
                         GrantType.implicit,
                         GrantType.password,
-                        GrantType.refresh_token),
-                null,
-                null,
-                null,
-                "rs:scope1 rs:scope2 openid",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                TokenEndpointAuthMethod.none,
-                "ES256",
-                null,
-                null,
-                false,
-                List.of("acr1"),
-                null);
+                        GrantType.refresh_token,
+                        GrantType.client_credentials));
+        return builder;
     }
 
-    public static Client confidentialClient() {
-        return new Client(
-                "confidential",
-                "secret",
-                Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                Set.of(
-                        Set.of(ResponseType.code),
-                        Set.of(ResponseType.token),
-                        Set.of(ResponseType.id_token),
-                        Set.of(ResponseType.none),
-                        Set.of(ResponseType.code, ResponseType.token),
-                        Set.of(ResponseType.code, ResponseType.id_token),
-                        Set.of(ResponseType.id_token, ResponseType.token),
-                        Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token)),
-                ApplicationType.WEB,
+    public static ClientBuilder noGrantTypeClient() {
+        var builder = confidentialClient();
+        builder.grantTypes(Set.of());
+        return builder;
+    }
+
+    public static ClientBuilder authorizationCodeClient() {
+        var builder = clientBuilder();
+        builder.responseTypes(Set.of(Set.of(ResponseType.code)));
+        builder.clientSecret("secret");
+        builder.grantTypes(Set.of(GrantType.authorization_code));
+        builder.tokenEndpointAuthMethod(TokenEndpointAuthMethod.client_secret_basic);
+        builder.idTokenSignedResponseAlg(SigningAlgorithm.ES256);
+        return builder;
+    }
+
+    public static ClientBuilder noResponseTypeClient() {
+        var builder = clientBuilder();
+        builder.clientSecret("secret");
+        builder.responseTypes(Set.of());
+        builder.tokenEndpointAuthMethod(TokenEndpointAuthMethod.client_secret_basic);
+        builder.idTokenSignedResponseAlg(SigningAlgorithm.ES256);
+        builder.grantTypes(
                 Set.of(
                         GrantType.authorization_code,
                         GrantType.implicit,
                         GrantType.password,
-                        GrantType.client_credentials,
-                        GrantType.refresh_token),
-                null,
-                null,
-                null,
-                "rs:scope1 rs:scope2 openid",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                TokenEndpointAuthMethod.client_secret_basic,
-                null,
-                SigningAlgorithm.ES256,
-                null,
-                null,
-                List.of("acr1"),
-                null);
-    }
-
-    public static Client noGrantTypeClient() {
-        return new Client(
-                "noGrantTypesClient",
-                "clientSecret",
-                Set.of("http://rp1.example.com"),
-                Set.of(
-                        Set.of(ResponseType.code),
-                        Set.of(ResponseType.token),
-                        Set.of(ResponseType.id_token),
-                        Set.of(ResponseType.none),
-                        Set.of(ResponseType.code, ResponseType.token),
-                        Set.of(ResponseType.code, ResponseType.id_token),
-                        Set.of(ResponseType.id_token, ResponseType.token),
-                        Set.of(ResponseType.code, ResponseType.token, ResponseType.id_token)),
-                ApplicationType.WEB,
-                Set.of(),
-                null,
-                null,
-                null,
-                "scope1 scope2",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                TokenEndpointAuthMethod.client_secret_basic,
-                null,
-                SigningAlgorithm.ES256,
-                null,
-                null,
-                List.of("acr1"),
-                null);
-    }
-
-    public static Client authorizationCodeClient() {
-        return new Client(
-                "authorizationCodeClient",
-                "secret",
-                Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                Set.of(Set.of(ResponseType.code)),
-                ApplicationType.WEB,
-                Set.of(GrantType.authorization_code),
-                null,
-                null,
-                null,
-                "rs:scope1 rs:scope2 openid",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                TokenEndpointAuthMethod.client_secret_basic,
-                null,
-                SigningAlgorithm.ES256,
-                null,
-                null,
-                List.of("acr1"),
-                null);
-    }
-
-    public static Client noResponseTypeClient() {
-        return new Client(
-                "noResponseTypeClient",
-                "secret",
-                Set.of("http://rp1.example.com", "http://rp2.example.com"),
-                Set.of(),
-                ApplicationType.WEB,
-                Set.of(
-                        GrantType.authorization_code,
-                        GrantType.implicit,
-                        GrantType.password,
-                        GrantType.client_credentials,
-                        GrantType.refresh_token),
-                null,
-                null,
-                null,
-                "rs:scope1 rs:scope2 openid",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                TokenEndpointAuthMethod.client_secret_basic,
-                null,
-                SigningAlgorithm.ES256,
-                null,
-                null,
-                List.of("acr1"),
-                null);
+                        GrantType.refresh_token,
+                        GrantType.client_credentials));
+        return builder;
     }
 
     public static JWKSet jwkSet() {
