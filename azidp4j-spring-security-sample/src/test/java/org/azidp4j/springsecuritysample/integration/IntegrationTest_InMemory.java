@@ -3,8 +3,7 @@ package org.azidp4j.springsecuritysample.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -34,6 +33,7 @@ public class IntegrationTest_InMemory {
         String endpoint = "http://localhost:8082";
         TestRestTemplate testRestTemplate =
                 new TestRestTemplate(TestRestTemplate.HttpClientOption.ENABLE_COOKIES);
+        TestRestTemplate apiRestTemplate = new TestRestTemplate();
 
         // token request by default client
         MultiValueMap<String, String> tokenRequest = new LinkedMultiValueMap<>();
@@ -45,7 +45,7 @@ public class IntegrationTest_InMemory {
                         .accept(MediaType.APPLICATION_JSON)
                         .body(tokenRequest);
         var tokenResponse =
-                testRestTemplate
+                apiRestTemplate
                         .withBasicAuth("default", "default")
                         .postForEntity(endpoint + "/token", tokenRequestEntity, Map.class);
         assertThat(tokenResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -55,7 +55,7 @@ public class IntegrationTest_InMemory {
         var redirectUri = "https://example.com";
         var clientRegistrationResponse =
                 ClientRegistrationScenario.test(
-                        endpoint, testRestTemplate, defaultClientAccessToken, redirectUri);
+                        endpoint, apiRestTemplate, defaultClientAccessToken, redirectUri);
         var clientId = (String) clientRegistrationResponse.getBody().get("client_id");
         var clientSecret = (String) clientRegistrationResponse.getBody().get("client_secret");
         var configurationToken =
@@ -70,7 +70,7 @@ public class IntegrationTest_InMemory {
                             .accept(MediaType.APPLICATION_JSON)
                             .header("Authorization", "Bearer " + configurationToken)
                             .build();
-            var clientReadResponse = testRestTemplate.exchange(clientReadEntity, Map.class);
+            var clientReadResponse = apiRestTemplate.exchange(clientReadEntity, Map.class);
             assertThat(clientReadResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
 
@@ -86,7 +86,7 @@ public class IntegrationTest_InMemory {
             ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
                     TokenRequestByAuthorizationCode.test(
                             endpoint,
-                            testRestTemplate,
+                            apiRestTemplate,
                             redirectUri,
                             clientId,
                             clientSecret,
@@ -111,26 +111,32 @@ public class IntegrationTest_InMemory {
 
         // introspection ========================
         IntrospectionScenario.test(
-                accessToken, testRestTemplate, clientId, clientSecret, endpoint, true);
+                accessToken, apiRestTemplate, clientId, clientSecret, endpoint, true);
 
         // userinfo ========================
-        UserInfoScenario.test(endpoint, testRestTemplate, accessToken);
+        UserInfoScenario.test(endpoint, apiRestTemplate, accessToken);
 
         // token refresh ========================
         MultiValueMap<String, String> tokenRequestForRefresh = new LinkedMultiValueMap<>();
         tokenRequestForRefresh.add("grant_type", "refresh_token");
         tokenRequestForRefresh.add("refresh_token", refreshToken);
         tokenRequestForRefresh.add("scope", "scope1");
+        // private_key_jwt
+        JWSObject assertion =
+                ClientAuthenticationJWTAssertionGenerator.getJwsObject(
+                        endpoint + "/token", clientId);
+        tokenRequestForRefresh.add("client_assertion", assertion.serialize());
+        tokenRequestForRefresh.add(
+                "client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+
         var tokenRequestForRefreshEntity =
                 RequestEntity.post("/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .accept(MediaType.APPLICATION_JSON)
                         .body(tokenRequestForRefresh);
         var tokenResponseForRefreshGrant =
-                testRestTemplate
-                        .withBasicAuth(clientId, clientSecret)
-                        .postForEntity(
-                                endpoint + "/token", tokenRequestForRefreshEntity, Map.class);
+                apiRestTemplate.postForEntity(
+                        endpoint + "/token", tokenRequestForRefreshEntity, Map.class);
         assertThat(tokenResponseForRefreshGrant.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("access_token"));
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("refresh_token"));
@@ -147,7 +153,7 @@ public class IntegrationTest_InMemory {
                             .accept(MediaType.APPLICATION_JSON)
                             .body(revocationRequest);
             var revocationResponse =
-                    testRestTemplate
+                    apiRestTemplate
                             .withBasicAuth(clientId, clientSecret)
                             .postForEntity(
                                     endpoint + "/revoke", revocationRequestEntity, Map.class);
@@ -158,7 +164,7 @@ public class IntegrationTest_InMemory {
         {
             IntrospectionScenario.test(
                     (String) tokenResponseForRefreshGrant.getBody().get("access_token"),
-                    testRestTemplate,
+                    apiRestTemplate,
                     clientId,
                     clientSecret,
                     endpoint,
@@ -175,7 +181,7 @@ public class IntegrationTest_InMemory {
             ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
                     TokenRequestByAuthorizationCode.test(
                             endpoint,
-                            testRestTemplate,
+                            apiRestTemplate,
                             redirectUri,
                             clientId,
                             clientSecret,
@@ -212,7 +218,7 @@ public class IntegrationTest_InMemory {
             ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
                     TokenRequestByAuthorizationCode.test(
                             endpoint,
-                            testRestTemplate,
+                            apiRestTemplate,
                             redirectUri,
                             clientId,
                             clientSecret,
@@ -245,7 +251,7 @@ public class IntegrationTest_InMemory {
                         .accept(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + configurationToken)
                         .build();
-        var clientDeleteResponse = testRestTemplate.exchange(clientDeleteEntity, Map.class);
+        var clientDeleteResponse = apiRestTemplate.exchange(clientDeleteEntity, Map.class);
         assertThat(clientDeleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 }

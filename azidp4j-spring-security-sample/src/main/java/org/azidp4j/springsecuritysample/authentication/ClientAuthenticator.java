@@ -6,6 +6,7 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import java.text.ParseException;
 import java.time.Instant;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.web.authentication.www.BasicAuthenticationConverter;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 public class ClientAuthenticator {
@@ -116,11 +118,12 @@ public class ClientAuthenticator {
             }
 
             // find client
-            var clientId = iss;
-            var client = clientStore.find(clientId.toString());
+            var client = clientStore.find(iss.toString());
             if (client.isEmpty()) {
                 return Optional.empty();
             }
+
+            // TODO auth_method validate
 
             // aud
             if (!Objects.equals(endpoint + "/token", parsed.get("aud"))) {
@@ -131,7 +134,6 @@ public class ClientAuthenticator {
             if (parsed.containsKey("exp")) {
                 var exp = parsed.get("exp");
                 if (exp instanceof Long e) {
-                    // TODO ほんとか？
                     if (e <= Instant.now().getEpochSecond()) {
                         return Optional.empty();
                     }
@@ -155,9 +157,15 @@ public class ClientAuthenticator {
             // verify signing
             var kid = assertion.getHeader().getKeyID();
             var jwks = client.get().jwks;
-            if (client.get().jwks != null) {
-                // TODO get jwks from URI
+            if (jwks == null && client.get().jwksUri != null) {
+                // fetch jwks from client registered URI
                 var jwkUri = client.get().jwksUri;
+                var restTemplate = new RestTemplate();
+                var jwksStr = restTemplate.getForObject(jwkUri, String.class);
+                jwks = JWKSet.parse(jwksStr);
+            }
+            if (jwks == null) {
+                return Optional.empty();
             }
 
             var jwk = jwks.getKeyByKeyId(kid);
@@ -165,7 +173,6 @@ public class ClientAuthenticator {
                 return Optional.empty();
             }
 
-            // TODO
             JWSVerifier verifier;
             if (jwk instanceof RSAKey rsaKey) {
                 verifier = new RSASSAVerifier(rsaKey);

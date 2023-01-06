@@ -36,7 +36,9 @@ public class ClientRegistrationScenario {
                         "id_token_signed_response_alg",
                         "RS256",
                         "token_endpoint_auth_method",
-                        "client_secret_basic");
+                        "client_secret_basic",
+                        "jwks",
+                        ClientJWKs.JWKS.toPublicJWKSet().toJSONObject());
         var clientRegistrationEntity =
                 RequestEntity.post("/client")
                         .contentType(MediaType.APPLICATION_JSON)
