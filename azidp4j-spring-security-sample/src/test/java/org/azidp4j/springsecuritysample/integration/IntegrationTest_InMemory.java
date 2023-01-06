@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
@@ -30,13 +29,13 @@ public class IntegrationTest_InMemory {
 
     @Test
     void exampleTest() throws IOException, ParseException, JOSEException {
-        String endpoint = "http://localhost:8082";
+        var endpoint = "http://localhost:8082";
         TestRestTemplate testRestTemplate =
                 new TestRestTemplate(TestRestTemplate.HttpClientOption.ENABLE_COOKIES);
         TestRestTemplate apiRestTemplate = new TestRestTemplate();
 
         // token request by default client
-        MultiValueMap<String, String> tokenRequest = new LinkedMultiValueMap<>();
+        var tokenRequest = new LinkedMultiValueMap<>();
         tokenRequest.add("grant_type", "client_credentials");
         tokenRequest.add("scope", "default");
         var tokenRequestEntity =
@@ -78,12 +77,12 @@ public class IntegrationTest_InMemory {
         String refreshToken;
         {
             // authorization request with login and consent ========================
-            String authorizationCode =
+            var authorizationCode =
                     AuthorizationRequestScenario.test(
                             endpoint, testRestTemplate, redirectUri, clientId);
 
             // token request by authorization code ========================
-            ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+            var tokenResponseForAuthorizationCodeGrant =
                     TokenRequestByAuthorizationCode.test(
                             endpoint,
                             apiRestTemplate,
@@ -117,12 +116,12 @@ public class IntegrationTest_InMemory {
         UserInfoScenario.test(endpoint, apiRestTemplate, accessToken);
 
         // token refresh ========================
-        MultiValueMap<String, String> tokenRequestForRefresh = new LinkedMultiValueMap<>();
+        var tokenRequestForRefresh = new LinkedMultiValueMap<>();
         tokenRequestForRefresh.add("grant_type", "refresh_token");
         tokenRequestForRefresh.add("refresh_token", refreshToken);
         tokenRequestForRefresh.add("scope", "scope1");
         // private_key_jwt
-        JWSObject assertion =
+        var assertion =
                 ClientAuthenticationJWTAssertionGenerator.getJwsObject(
                         endpoint + "/token", clientId);
         tokenRequestForRefresh.add("client_assertion", assertion.serialize());
@@ -143,7 +142,7 @@ public class IntegrationTest_InMemory {
 
         // revoke ========================
         {
-            MultiValueMap<String, String> revocationRequest = new LinkedMultiValueMap<>();
+            var revocationRequest = new LinkedMultiValueMap<>();
             revocationRequest.add(
                     "token", (String) tokenResponseForRefreshGrant.getBody().get("access_token"));
             revocationRequest.add("token_type_hint", "access_token");
@@ -173,12 +172,12 @@ public class IntegrationTest_InMemory {
 
         {
             // authorization request with login and consent ========================
-            String authorizationCode =
+            var authorizationCode =
                     AuthorizationRequestWithAcrValuesScenario.test(
                             endpoint, testRestTemplate, redirectUri, clientId);
 
             // token request by authorization code ========================
-            ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+            var tokenResponseForAuthorizationCodeGrant =
                     TokenRequestByAuthorizationCode.test(
                             endpoint,
                             apiRestTemplate,
@@ -210,12 +209,12 @@ public class IntegrationTest_InMemory {
 
         {
             // authorization request with login and consent ========================
-            String authorizationCode =
+            var authorizationCode =
                     AuthorizationRequestWithAcrClaimsParameterScenario.test(
                             endpoint, testRestTemplate, redirectUri, clientId);
 
             // token request by authorization code ========================
-            ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+            var tokenResponseForAuthorizationCodeGrant =
                     TokenRequestByAuthorizationCode.test(
                             endpoint,
                             apiRestTemplate,

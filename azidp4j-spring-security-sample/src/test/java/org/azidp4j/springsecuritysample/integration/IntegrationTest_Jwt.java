@@ -67,10 +67,10 @@ public class IntegrationTest_Jwt {
 
     @Test
     void exampleTest() throws IOException, ParseException, JOSEException {
-        String endpoint = "http://localhost:8081";
-        TestRestTemplate testRestTemplate =
+        var endpoint = "http://localhost:8081";
+        var testRestTemplate =
                 new TestRestTemplate(TestRestTemplate.HttpClientOption.ENABLE_COOKIES);
-        TestRestTemplate apiRestTemplate = new TestRestTemplate();
+        var apiRestTemplate = new TestRestTemplate();
 
         // token request by default client
         MultiValueMap<String, String> tokenRequest = new LinkedMultiValueMap<>();
@@ -115,12 +115,12 @@ public class IntegrationTest_Jwt {
         String refreshToken;
         {
             // authorization request with login and consent ========================
-            String authorizationCode =
+            var authorizationCode =
                     AuthorizationRequestScenario.test(
                             endpoint, testRestTemplate, redirectUri, clientId);
 
             // token request by authorization code ========================
-            ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+            var tokenResponseForAuthorizationCodeGrant =
                     TokenRequestByAuthorizationCode.test(
                             endpoint,
                             apiRestTemplate,
@@ -159,7 +159,7 @@ public class IntegrationTest_Jwt {
         tokenRequestForRefresh.add("refresh_token", refreshToken);
         tokenRequestForRefresh.add("scope", "scope1");
         // private_key_jwt
-        JWSObject assertion =
+        var assertion =
                 ClientAuthenticationJWTAssertionGenerator.getJwsObject(
                         endpoint + "/token", clientId);
         tokenRequestForRefresh.add("client_assertion", assertion.serialize());
@@ -180,12 +180,12 @@ public class IntegrationTest_Jwt {
 
         {
             // authorization request with login and consent ========================
-            String authorizationCode =
+            var authorizationCode =
                     AuthorizationRequestWithAcrValuesScenario.test(
                             endpoint, testRestTemplate, redirectUri, clientId);
 
             // token request by authorization code ========================
-            ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+            var tokenResponseForAuthorizationCodeGrant =
                     TokenRequestByAuthorizationCode.test(
                             endpoint,
                             apiRestTemplate,
@@ -215,12 +215,12 @@ public class IntegrationTest_Jwt {
 
         {
             // authorization request with login and consent ========================
-            String authorizationCode =
+            var authorizationCode =
                     AuthorizationRequestWithAcrClaimsParameterScenario.test(
                             endpoint, testRestTemplate, redirectUri, clientId);
 
             // token request by authorization code ========================
-            ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+            var tokenResponseForAuthorizationCodeGrant =
                     TokenRequestByAuthorizationCode.test(
                             endpoint,
                             apiRestTemplate,
