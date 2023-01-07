@@ -110,17 +110,18 @@ public class DynamicClientRegistration {
         if (!config.tokenEndpointAuthMethodsSupported.contains(tokenEndpointAuthMethod)) {
             return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
+        String tokenEndpointAuthSigningAlg = null;
         if (tokenEndpointAuthMethod == TokenEndpointAuthMethod.private_key_jwt
                 || tokenEndpointAuthMethod == TokenEndpointAuthMethod.client_secret_jwt) {
             if (request.tokenEndpointAuthSigningAlg == null) {
+                tokenEndpointAuthSigningAlg = "RS256"; // TODO using enum
+            }  else {
+                tokenEndpointAuthSigningAlg = request.tokenEndpointAuthSigningAlg;
+            }
+            if (!config.tokenEndpointAuthSigningAlgValuesSupported.contains(
+                    tokenEndpointAuthSigningAlg)) {
                 return new ClientRegistrationResponse(
                         400, Map.of("error", "invalid_client_metadata"));
-            } else {
-                if (!config.tokenEndpointAuthSigningAlgValuesSupported.contains(
-                        request.tokenEndpointAuthSigningAlg)) {
-                    return new ClientRegistrationResponse(
-                            400, Map.of("error", "invalid_client_metadata"));
-                }
             }
         }
 
