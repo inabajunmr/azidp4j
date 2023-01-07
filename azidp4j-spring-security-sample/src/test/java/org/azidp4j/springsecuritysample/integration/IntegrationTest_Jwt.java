@@ -172,8 +172,10 @@ public class IntegrationTest_Jwt {
                         .accept(MediaType.APPLICATION_JSON)
                         .body(tokenRequestForRefresh);
         var tokenResponseForRefreshGrant =
-                apiRestTemplate.postForEntity(
-                        endpoint + "/token", tokenRequestForRefreshEntity, Map.class);
+                apiRestTemplate
+                        .withBasicAuth(clientId, clientSecret)
+                        .postForEntity(
+                                endpoint + "/token", tokenRequestForRefreshEntity, Map.class);
         assertThat(tokenResponseForRefreshGrant.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("access_token"));
         assertNotNull(tokenResponseForRefreshGrant.getBody().get("refresh_token"));

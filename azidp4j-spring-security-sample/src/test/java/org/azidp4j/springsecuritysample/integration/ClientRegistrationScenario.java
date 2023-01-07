@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.GrantType;
+import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,7 +37,7 @@ public class ClientRegistrationScenario {
                         "id_token_signed_response_alg",
                         "RS256",
                         "token_endpoint_auth_method",
-                        "client_secret_basic",
+                        TokenEndpointAuthMethod.client_secret_basic.name(),
                         "jwks",
                         ClientJWKs.JWKS.toPublicJWKSet().toJSONObject());
         var clientRegistrationEntity =

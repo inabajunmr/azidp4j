@@ -118,12 +118,16 @@ public class ClientAuthenticator {
             }
 
             // find client
-            var client = clientStore.find(iss.toString());
-            if (client.isEmpty()) {
+            var clientOpt = clientStore.find(iss.toString());
+            if (clientOpt.isEmpty()) {
                 return Optional.empty();
             }
 
-            // TODO auth_method validate
+            var client = clientOpt.get();
+            if (!Objects.equals(
+                    TokenEndpointAuthMethod.private_key_jwt, client.tokenEndpointAuthMethod)) {
+                return Optional.empty();
+            }
 
             // aud
             if (!Objects.equals(endpoint + "/token", parsed.get("aud"))) {
@@ -156,10 +160,10 @@ public class ClientAuthenticator {
 
             // verify signing
             var kid = assertion.getHeader().getKeyID();
-            var jwks = client.get().jwks;
-            if (jwks == null && client.get().jwksUri != null) {
+            var jwks = client.jwks;
+            if (jwks == null && client.jwksUri != null) {
                 // fetch jwks from client registered URI
-                var jwkUri = client.get().jwksUri;
+                var jwkUri = client.jwksUri;
                 var restTemplate = new RestTemplate();
                 var jwksStr = restTemplate.getForObject(jwkUri, String.class);
                 jwks = JWKSet.parse(jwksStr);
@@ -182,7 +186,7 @@ public class ClientAuthenticator {
                 return Optional.empty();
             }
             if (assertion.verify(verifier)) {
-                return client;
+                return clientOpt;
             }
             return Optional.empty();
         } catch (ParseException | JOSEException e) {

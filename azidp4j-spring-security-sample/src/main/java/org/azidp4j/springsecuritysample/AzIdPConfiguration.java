@@ -106,7 +106,9 @@ public class AzIdPConfiguration {
                                 Set.of(
                                         TokenEndpointAuthMethod.client_secret_post,
                                         TokenEndpointAuthMethod.client_secret_basic,
+                                        TokenEndpointAuthMethod.private_key_jwt,
                                         TokenEndpointAuthMethod.none))
+                        .tokenEndpointAuthSigningAlgValuesSupported(Set.of("RS256", "ES256"))
                         .customClientStore(clientStore)
                         .customClientValidator(new JwtClientAuthNotAllowClientValidator())
                         .clientConfigurationEndpointIssuer(
