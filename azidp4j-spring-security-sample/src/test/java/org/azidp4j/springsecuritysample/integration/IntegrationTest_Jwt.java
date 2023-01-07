@@ -158,13 +158,6 @@ public class IntegrationTest_Jwt {
         tokenRequestForRefresh.add("grant_type", "refresh_token");
         tokenRequestForRefresh.add("refresh_token", refreshToken);
         tokenRequestForRefresh.add("scope", "scope1");
-        // private_key_jwt
-        var assertion =
-                ClientAuthenticationJWTAssertionGenerator.getJwsObject(
-                        endpoint + "/token", clientId);
-        tokenRequestForRefresh.add("client_assertion", assertion.serialize());
-        tokenRequestForRefresh.add(
-                "client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
 
         var tokenRequestForRefreshEntity =
                 RequestEntity.post("/token")
