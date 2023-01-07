@@ -115,7 +115,7 @@ public class DynamicClientRegistration {
                 || tokenEndpointAuthMethod == TokenEndpointAuthMethod.client_secret_jwt) {
             if (request.tokenEndpointAuthSigningAlg == null) {
                 tokenEndpointAuthSigningAlg = "RS256"; // TODO using enum
-            }  else {
+            } else {
                 tokenEndpointAuthSigningAlg = request.tokenEndpointAuthSigningAlg;
             }
             if (!config.tokenEndpointAuthSigningAlgValuesSupported.contains(
