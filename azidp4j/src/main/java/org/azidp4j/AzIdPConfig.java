@@ -15,11 +15,11 @@ public class AzIdPConfig {
     public final Set<String> scopesSupported;
     public final Set<String> defaultScope;
     public final Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported;
-    public final Set<String> tokenEndpointAuthSigningAlgValuesSupported;
+    public final Set<SigningAlgorithm> tokenEndpointAuthSigningAlgValuesSupported;
     public final Set<TokenEndpointAuthMethod> introspectionEndpointAuthMethodsSupported;
-    public final Set<String> introspectionEndpointAuthSigningAlgValuesSupported;
+    public final Set<SigningAlgorithm> introspectionEndpointAuthSigningAlgValuesSupported;
     public final Set<TokenEndpointAuthMethod> revocationEndpointAuthMethodsSupported;
-    public final Set<String> revocationEndpointAuthSigningAlgValuesSupported;
+    public final Set<SigningAlgorithm> revocationEndpointAuthSigningAlgValuesSupported;
     public final Set<GrantType> grantTypesSupported;
     public final Set<Set<ResponseType>> responseTypeSupported;
     public final Set<ResponseMode> responseModesSupported;
@@ -35,11 +35,11 @@ public class AzIdPConfig {
             Set<String> scopesSupported,
             Set<String> defaultScope,
             Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported,
-            Set<String> tokenEndpointAuthSigningAlgValuesSupported,
+            Set<SigningAlgorithm> tokenEndpointAuthSigningAlgValuesSupported,
             Set<TokenEndpointAuthMethod> introspectionEndpointAuthMethodsSupported,
-            Set<String> introspectionEndpointAuthSigningAlgValuesSupported,
+            Set<SigningAlgorithm> introspectionEndpointAuthSigningAlgValuesSupported,
             Set<TokenEndpointAuthMethod> revocationEndpointAuthMethodsSupported,
-            Set<String> revocationEndpointAuthSigningAlgValuesSupported,
+            Set<SigningAlgorithm> revocationEndpointAuthSigningAlgValuesSupported,
             Set<GrantType> grantTypesSupported,
             Set<Set<ResponseType>> responseTypeSupported,
             Set<ResponseMode> responseModesSupported,

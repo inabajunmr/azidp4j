@@ -46,7 +46,7 @@ public class ClientBuilder {
 
     private TokenEndpointAuthMethod tokenEndpointAuthMethod;
 
-    private String tokenEndpointAuthSigningAlg;
+    private SigningAlgorithm tokenEndpointAuthSigningAlg;
 
     private SigningAlgorithm idTokenSignedResponseAlg;
 
@@ -184,7 +184,7 @@ public class ClientBuilder {
         return this;
     }
 
-    public ClientBuilder tokenEndpointAuthSigningAlg(String tokenEndpointAuthSigningAlg) {
+    public ClientBuilder tokenEndpointAuthSigningAlg(SigningAlgorithm tokenEndpointAuthSigningAlg) {
         this.tokenEndpointAuthSigningAlg = tokenEndpointAuthSigningAlg;
         return this;
     }

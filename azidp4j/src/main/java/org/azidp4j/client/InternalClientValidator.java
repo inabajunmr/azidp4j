@@ -108,5 +108,14 @@ public class InternalClientValidator {
             throw new IllegalArgumentException(
                     "defaultAcrValues doesn't support at acrValuesSupported");
         }
+
+        if (client.tokenEndpointAuthSigningAlg != null
+                && config.tokenEndpointAuthSigningAlgValuesSupported != null
+                && !config.tokenEndpointAuthSigningAlgValuesSupported.contains(
+                        client.tokenEndpointAuthSigningAlg)) {
+            throw new IllegalArgumentException(
+                    "tokenEndpointAuthSigningAlgValuesSupported doesn't support at"
+                            + " tokenEndpointAuthSigningAlg");
+        }
     }
 }

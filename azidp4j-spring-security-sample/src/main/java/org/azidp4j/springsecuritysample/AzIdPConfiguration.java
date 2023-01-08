@@ -16,6 +16,7 @@ import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.GrantType;
+import org.azidp4j.client.SigningAlgorithm;
 import org.azidp4j.client.TokenEndpointAuthMethod;
 import org.azidp4j.client.request.ClientRequest;
 import org.azidp4j.discovery.DiscoveryConfig;
@@ -108,7 +109,8 @@ public class AzIdPConfiguration {
                                         TokenEndpointAuthMethod.client_secret_basic,
                                         TokenEndpointAuthMethod.private_key_jwt,
                                         TokenEndpointAuthMethod.none))
-                        .tokenEndpointAuthSigningAlgValuesSupported(Set.of("RS256", "ES256"))
+                        .tokenEndpointAuthSigningAlgValuesSupported(
+                                Set.of(SigningAlgorithm.RS256, SigningAlgorithm.ES256))
                         .customClientStore(clientStore)
                         .customClientValidator(new JwtClientAuthNotAllowClientValidator())
                         .clientConfigurationEndpointIssuer(

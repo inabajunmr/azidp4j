@@ -60,7 +60,7 @@ public class Client {
     public final TokenEndpointAuthMethod tokenEndpointAuthMethod;
 
     /** OpenID Connect Dynamic Client Registration 1.0 */
-    public final String tokenEndpointAuthSigningAlg;
+    public final SigningAlgorithm tokenEndpointAuthSigningAlg;
 
     /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final SigningAlgorithm idTokenSignedResponseAlg;
@@ -103,7 +103,7 @@ public class Client {
             String softwareId,
             String softwareVersion,
             TokenEndpointAuthMethod tokenEndpointAuthMethod,
-            String tokenEndpointAuthSigningAlg,
+            SigningAlgorithm tokenEndpointAuthSigningAlg,
             SigningAlgorithm idTokenSignedResponseAlg,
             Long defaultMaxAge,
             Boolean requireAuthTime,

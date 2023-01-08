@@ -110,19 +110,17 @@ public class DynamicClientRegistration {
         if (!config.tokenEndpointAuthMethodsSupported.contains(tokenEndpointAuthMethod)) {
             return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
-        String tokenEndpointAuthSigningAlg = null;
-        if (tokenEndpointAuthMethod == TokenEndpointAuthMethod.private_key_jwt
-                || tokenEndpointAuthMethod == TokenEndpointAuthMethod.client_secret_jwt) {
-            if (request.tokenEndpointAuthSigningAlg == null) {
-                tokenEndpointAuthSigningAlg = "RS256"; // TODO using enum
-            } else {
-                tokenEndpointAuthSigningAlg = request.tokenEndpointAuthSigningAlg;
-            }
-            if (!config.tokenEndpointAuthSigningAlgValuesSupported.contains(
-                    tokenEndpointAuthSigningAlg)) {
-                return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_client_metadata"));
-            }
+        SigningAlgorithm tokenEndpointAuthSigningAlg = null;
+        try {
+            tokenEndpointAuthSigningAlg = SigningAlgorithm.of(request.tokenEndpointAuthSigningAlg);
+        } catch (IllegalArgumentException e) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
+        }
+
+        if ((tokenEndpointAuthMethod == TokenEndpointAuthMethod.private_key_jwt
+                        || tokenEndpointAuthMethod == TokenEndpointAuthMethod.client_secret_jwt)
+                && tokenEndpointAuthSigningAlg == null) {
+            tokenEndpointAuthSigningAlg = SigningAlgorithm.RS256;
         }
 
         var idTokenSignedResponseAlg = SigningAlgorithm.RS256;
@@ -157,7 +155,7 @@ public class DynamicClientRegistration {
                         request.softwareId,
                         request.softwareVersion,
                         tokenEndpointAuthMethod,
-                        request.tokenEndpointAuthSigningAlg,
+                        tokenEndpointAuthSigningAlg,
                         idTokenSignedResponseAlg,
                         request.defaultMaxAge,
                         request.requireAuthTime != null ? request.requireAuthTime : false,
@@ -244,9 +242,13 @@ public class DynamicClientRegistration {
                         "token_endpoint_auth_method",
                         client.tokenEndpointAuthMethod.name(),
                         "token_endpoint_auth_signing_alg",
-                        client.tokenEndpointAuthSigningAlg,
+                        client.tokenEndpointAuthSigningAlg != null
+                                ? client.tokenEndpointAuthSigningAlg.name()
+                                : null,
                         "id_token_signed_response_alg",
-                        client.idTokenSignedResponseAlg.name(),
+                        client.idTokenSignedResponseAlg != null
+                                ? client.idTokenSignedResponseAlg.name()
+                                : null,
                         "default_max_age",
                         client.defaultMaxAge,
                         "require_auth_time",
