@@ -9,7 +9,7 @@ public class JwtClientAuthNotAllowClientValidator implements ClientValidator {
         // The implementation only supports client_secret_basic and client_secret_post.
         if (client.tokenEndpointAuthMethod != null) {
             switch (client.tokenEndpointAuthMethod) {
-                case private_key_jwt, client_secret_jwt -> throw new IllegalArgumentException();
+                case client_secret_jwt -> throw new IllegalArgumentException();
             }
         }
     }

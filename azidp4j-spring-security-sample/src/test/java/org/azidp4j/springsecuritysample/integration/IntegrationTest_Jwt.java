@@ -3,8 +3,7 @@ package org.azidp4j.springsecuritysample.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -68,9 +67,10 @@ public class IntegrationTest_Jwt {
 
     @Test
     void exampleTest() throws IOException, ParseException, JOSEException {
-        String endpoint = "http://localhost:8081";
-        TestRestTemplate testRestTemplate =
+        var endpoint = "http://localhost:8081";
+        var testRestTemplate =
                 new TestRestTemplate(TestRestTemplate.HttpClientOption.ENABLE_COOKIES);
+        var apiRestTemplate = new TestRestTemplate();
 
         // token request by default client
         MultiValueMap<String, String> tokenRequest = new LinkedMultiValueMap<>();
@@ -82,7 +82,7 @@ public class IntegrationTest_Jwt {
                         .accept(MediaType.APPLICATION_JSON)
                         .body(tokenRequest);
         var tokenResponse =
-                testRestTemplate
+                apiRestTemplate
                         .withBasicAuth("default", "default")
                         .postForEntity(endpoint + "/token", tokenRequestEntity, Map.class);
         assertThat(tokenResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -92,7 +92,7 @@ public class IntegrationTest_Jwt {
         var redirectUri = "https://example.com";
         var clientRegistrationResponse =
                 ClientRegistrationScenario.test(
-                        endpoint, testRestTemplate, defaultClientAccessToken, redirectUri);
+                        endpoint, apiRestTemplate, defaultClientAccessToken, redirectUri);
         var clientId = (String) clientRegistrationResponse.getBody().get("client_id");
         var clientSecret = (String) clientRegistrationResponse.getBody().get("client_secret");
         var configurationToken =
@@ -107,7 +107,7 @@ public class IntegrationTest_Jwt {
                             .accept(MediaType.APPLICATION_JSON)
                             .header("Authorization", "Bearer " + configurationToken)
                             .build();
-            var clientReadResponse = testRestTemplate.exchange(clientReadEntity, Map.class);
+            var clientReadResponse = apiRestTemplate.exchange(clientReadEntity, Map.class);
             assertThat(clientReadResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         }
 
@@ -115,15 +115,15 @@ public class IntegrationTest_Jwt {
         String refreshToken;
         {
             // authorization request with login and consent ========================
-            String authorizationCode =
+            var authorizationCode =
                     AuthorizationRequestScenario.test(
                             endpoint, testRestTemplate, redirectUri, clientId);
 
             // token request by authorization code ========================
-            ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+            var tokenResponseForAuthorizationCodeGrant =
                     TokenRequestByAuthorizationCode.test(
                             endpoint,
-                            testRestTemplate,
+                            apiRestTemplate,
                             redirectUri,
                             clientId,
                             clientSecret,
@@ -148,23 +148,24 @@ public class IntegrationTest_Jwt {
 
         // introspection ========================
         IntrospectionScenario.test(
-                accessToken, testRestTemplate, clientId, clientSecret, endpoint, true);
+                accessToken, apiRestTemplate, clientId, clientSecret, endpoint, true);
 
         // userinfo ========================
-        UserInfoScenario.test(endpoint, testRestTemplate, accessToken);
+        UserInfoScenario.test(endpoint, apiRestTemplate, accessToken);
 
         // token refresh ========================
         MultiValueMap<String, String> tokenRequestForRefresh = new LinkedMultiValueMap<>();
         tokenRequestForRefresh.add("grant_type", "refresh_token");
         tokenRequestForRefresh.add("refresh_token", refreshToken);
         tokenRequestForRefresh.add("scope", "scope1");
+
         var tokenRequestForRefreshEntity =
                 RequestEntity.post("/token")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .accept(MediaType.APPLICATION_JSON)
                         .body(tokenRequestForRefresh);
         var tokenResponseForRefreshGrant =
-                testRestTemplate
+                apiRestTemplate
                         .withBasicAuth(clientId, clientSecret)
                         .postForEntity(
                                 endpoint + "/token", tokenRequestForRefreshEntity, Map.class);
@@ -174,15 +175,15 @@ public class IntegrationTest_Jwt {
 
         {
             // authorization request with login and consent ========================
-            String authorizationCode =
+            var authorizationCode =
                     AuthorizationRequestWithAcrValuesScenario.test(
                             endpoint, testRestTemplate, redirectUri, clientId);
 
             // token request by authorization code ========================
-            ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+            var tokenResponseForAuthorizationCodeGrant =
                     TokenRequestByAuthorizationCode.test(
                             endpoint,
-                            testRestTemplate,
+                            apiRestTemplate,
                             redirectUri,
                             clientId,
                             clientSecret,
@@ -209,15 +210,15 @@ public class IntegrationTest_Jwt {
 
         {
             // authorization request with login and consent ========================
-            String authorizationCode =
+            var authorizationCode =
                     AuthorizationRequestWithAcrClaimsParameterScenario.test(
                             endpoint, testRestTemplate, redirectUri, clientId);
 
             // token request by authorization code ========================
-            ResponseEntity<Map> tokenResponseForAuthorizationCodeGrant =
+            var tokenResponseForAuthorizationCodeGrant =
                     TokenRequestByAuthorizationCode.test(
                             endpoint,
-                            testRestTemplate,
+                            apiRestTemplate,
                             redirectUri,
                             clientId,
                             clientSecret,
@@ -250,7 +251,7 @@ public class IntegrationTest_Jwt {
                         .accept(MediaType.APPLICATION_JSON)
                         .header("Authorization", "Bearer " + configurationToken)
                         .build();
-        var clientDeleteResponse = testRestTemplate.exchange(clientDeleteEntity, Map.class);
+        var clientDeleteResponse = apiRestTemplate.exchange(clientDeleteEntity, Map.class);
         assertThat(clientDeleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 }

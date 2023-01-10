@@ -22,6 +22,7 @@ public class Discovery {
         if (discoveryConfig == null) {
             throw new AssertionError("Requires DiscoveryConfig for init AzIdp.");
         }
+        // should convert enum to null?
         return MapUtil.nullRemovedMap(
                 "issuer",
                 config.issuer,
@@ -75,15 +76,27 @@ public class Discovery {
                 "token_endpoint_auth_methods_supported",
                 config.tokenEndpointAuthMethodsSupported,
                 "token_endpoint_auth_signing_alg_values_supported",
-                config.tokenEndpointAuthSigningAlgValuesSupported,
+                config.tokenEndpointAuthSigningAlgValuesSupported != null
+                        ? config.tokenEndpointAuthSigningAlgValuesSupported.stream()
+                                .map(Enum::name)
+                                .collect(Collectors.toSet())
+                        : null,
                 "introspection_endpoint_auth_methods_supported",
                 config.introspectionEndpointAuthMethodsSupported,
                 "introspection_endpoint_auth_signing_alg_values_supported",
-                config.introspectionEndpointAuthSigningAlgValuesSupported,
+                config.introspectionEndpointAuthSigningAlgValuesSupported != null
+                        ? config.introspectionEndpointAuthSigningAlgValuesSupported.stream()
+                                .map(Enum::name)
+                                .collect(Collectors.toSet())
+                        : null,
                 "revocation_endpoint_auth_methods_supported",
                 config.revocationEndpointAuthMethodsSupported,
                 "revocation_endpoint_auth_signing_alg_values_supported",
-                config.revocationEndpointAuthSigningAlgValuesSupported,
+                config.revocationEndpointAuthSigningAlgValuesSupported != null
+                        ? config.revocationEndpointAuthSigningAlgValuesSupported.stream()
+                                .map(Enum::name)
+                                .collect(Collectors.toSet())
+                        : null,
                 "display_values_supported",
                 discoveryConfig.displayValueSupported,
                 "claim_types_supported",

@@ -28,9 +28,13 @@ class RevocationTest {
             new InMemoryRefreshTokenService(new InMemoryRefreshTokenStore());
     private final ClientStore clientStore = new InMemoryClientStore();
 
+    private final Client confidentialClient = Fixtures.confidentialClient().build();
+
+    private final Client publicClient = Fixtures.publicClient().build();
+
     {
-        clientStore.save(Fixtures.confidentialClient().build());
-        clientStore.save(Fixtures.publicClient().build());
+        clientStore.save(confidentialClient);
+        clientStore.save(publicClient);
     }
 
     private final Revocation sut =
@@ -51,7 +55,7 @@ class RevocationTest {
                         "sub",
                         "scope1 scope2",
                         "{\"userinfo\":{\"name\":{\"essential\":true}}}",
-                        "confidential",
+                        confidentialClient.clientId,
                         Instant.now().getEpochSecond(),
                         Instant.now().getEpochSecond(),
                         Set.of("audience"),
@@ -62,7 +66,7 @@ class RevocationTest {
         var response =
                 sut.revoke(
                         new RevocationRequest(
-                                "confidential",
+                                confidentialClient.clientId,
                                 MapUtil.ofNullable(
                                         "token", at.token, "token_type_hint", tokenTypeHint)));
 
@@ -81,7 +85,7 @@ class RevocationTest {
                         "sub",
                         "scope1 scope2",
                         "{\"userinfo\":{\"name\":{\"essential\":true}}}",
-                        "public",
+                        publicClient.clientId,
                         Instant.now().getEpochSecond(),
                         Instant.now().getEpochSecond(),
                         Set.of("audience"),
@@ -92,7 +96,7 @@ class RevocationTest {
         var response =
                 sut.revoke(
                         new RevocationRequest(
-                                "public",
+                                publicClient.clientId,
                                 MapUtil.ofNullable(
                                         "token", at.token, "token_type_hint", tokenTypeHint)));
 
@@ -103,13 +107,13 @@ class RevocationTest {
 
     @ParameterizedTest
     @MethodSource("hints")
-    void notFound(String tokenTypeHint) {
+    void tokenNotFound(String tokenTypeHint) {
 
         // exercise
         var response =
                 sut.revoke(
                         new RevocationRequest(
-                                "confidential",
+                                confidentialClient.clientId,
                                 MapUtil.ofNullable(
                                         "token", "not found", "token_type_hint", tokenTypeHint)));
 
@@ -125,7 +129,7 @@ class RevocationTest {
         var response =
                 sut.revoke(
                         new RevocationRequest(
-                                "confidential",
+                                confidentialClient.clientId,
                                 MapUtil.ofNullable(
                                         "token", null, "token_type_hint", tokenTypeHint)));
 
@@ -143,7 +147,7 @@ class RevocationTest {
                         "sub",
                         "scope1 scope2",
                         "{\"userinfo\":{\"name\":{\"essential\":true}}}",
-                        "confidential",
+                        confidentialClient.clientId,
                         Instant.now().getEpochSecond(),
                         Instant.now().getEpochSecond(),
                         Set.of("audience"),
@@ -154,7 +158,7 @@ class RevocationTest {
         var response =
                 sut.revoke(
                         new RevocationRequest(
-                                "confidential",
+                                confidentialClient.clientId,
                                 MapUtil.ofNullable(
                                         "token", rt.token, "token_type_hint", tokenTypeHint)));
 
@@ -173,7 +177,7 @@ class RevocationTest {
                         "sub",
                         "scope1 scope2",
                         "{\"userinfo\":{\"name\":{\"essential\":true}}}",
-                        "public",
+                        publicClient.clientId,
                         Instant.now().getEpochSecond(),
                         Instant.now().getEpochSecond(),
                         Set.of("audience"),
@@ -184,7 +188,7 @@ class RevocationTest {
         var response =
                 sut.revoke(
                         new RevocationRequest(
-                                "confidential",
+                                publicClient.clientId,
                                 MapUtil.ofNullable(
                                         "token", rt.token, "token_type_hint", tokenTypeHint)));
 
@@ -197,24 +201,26 @@ class RevocationTest {
     void accessToken_clientNotFound() {
 
         // setup
+        var client = Fixtures.confidentialClient().build();
+        clientStore.save(client);
         var rt =
                 accessTokenService.issue(
                         "sub",
                         "scope1 scope2",
                         "{\"userinfo\":{\"name\":{\"essential\":true}}}",
-                        "confidential",
+                        client.clientId,
                         Instant.now().getEpochSecond(),
                         Instant.now().getEpochSecond(),
                         Set.of("audience"),
                         "code");
         assertTrue(accessTokenService.introspect(rt.token).isPresent());
-        clientStore.remove("confidential");
+        clientStore.remove(client.clientId);
 
         // exercise
         var response =
                 sut.revoke(
                         new RevocationRequest(
-                                "confidential",
+                                client.clientId,
                                 MapUtil.ofNullable("token", rt.token, "token_type_hint", null)));
 
         // verify
@@ -227,24 +233,26 @@ class RevocationTest {
     void refreshToken_clientNotFound() {
 
         // setup
+        var client = Fixtures.confidentialClient().build();
+        clientStore.save(client);
         var rt =
                 refreshTokenService.issue(
                         "sub",
                         "scope1 scope2",
                         "{\"userinfo\":{\"name\":{\"essential\":true}}}",
-                        "confidential",
+                        client.clientId,
                         Instant.now().getEpochSecond(),
                         Instant.now().getEpochSecond(),
                         Set.of("audience"),
                         "code");
         assertTrue(refreshTokenService.introspect(rt.token).isPresent());
-        clientStore.remove("confidential");
+        clientStore.remove(client.clientId);
 
         // exercise
         var response =
                 sut.revoke(
                         new RevocationRequest(
-                                "confidential",
+                                confidentialClient.clientId,
                                 MapUtil.ofNullable("token", rt.token, "token_type_hint", null)));
 
         // verify
@@ -274,7 +282,7 @@ class RevocationTest {
         var response =
                 sut.revoke(
                         new RevocationRequest(
-                                "confidential",
+                                confidentialClient.clientId,
                                 MapUtil.ofNullable("token", 100, "token_type_hint", null)));
 
         // verify

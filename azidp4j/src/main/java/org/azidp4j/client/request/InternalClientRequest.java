@@ -102,6 +102,14 @@ public class InternalClientRequest {
      */
     public final String tokenEndpointAuthSigningAlg;
 
+    public final String introspectionEndpointAuthMethod;
+
+    public final String introspectionEndpointAuthSigningAlg;
+
+    public final String revocationEndpointAuthMethod;
+
+    public final String revocationEndpointAuthSigningAlg;
+
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final String idTokenSignedResponseAlg;
 
@@ -162,6 +170,10 @@ public class InternalClientRequest {
             String softwareVersion,
             String tokenEndpointAuthMethod,
             String tokenEndpointAuthSigningAlg,
+            String introspectionEndpointAuthMethod,
+            String introspectionEndpointAuthSigningAlg,
+            String revocationEndpointAuthMethod,
+            String revocationEndpointAuthSigningAlg,
             String idTokenSignedResponseAlg,
             Long defaultMaxAge,
             Boolean requireAuthTime,
@@ -184,6 +196,10 @@ public class InternalClientRequest {
         this.softwareVersion = softwareVersion;
         this.tokenEndpointAuthMethod = tokenEndpointAuthMethod;
         this.tokenEndpointAuthSigningAlg = tokenEndpointAuthSigningAlg;
+        this.introspectionEndpointAuthMethod = introspectionEndpointAuthMethod;
+        this.introspectionEndpointAuthSigningAlg = introspectionEndpointAuthSigningAlg;
+        this.revocationEndpointAuthMethod = revocationEndpointAuthMethod;
+        this.revocationEndpointAuthSigningAlg = revocationEndpointAuthSigningAlg;
         this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
         this.defaultMaxAge = defaultMaxAge;
         this.requireAuthTime = requireAuthTime;
@@ -209,6 +225,10 @@ public class InternalClientRequest {
         private String softwareVersion;
         private String tokenEndpointAuthMethod;
         private String tokenEndpointAuthSigningAlg;
+        private String introspectionEndpointAuthMethod;
+        private String introspectionEndpointAuthSigningAlg;
+        private String revocationEndpointAuthMethod;
+        private String revocationEndpointAuthSigningAlg;
         private String idTokenSignedResponseAlg;
         private Long defaultMaxAge;
         private Boolean requireAuthTime;
@@ -344,6 +364,10 @@ public class InternalClientRequest {
                     softwareVersion,
                     tokenEndpointAuthMethod,
                     tokenEndpointAuthSigningAlg,
+                    introspectionEndpointAuthMethod,
+                    introspectionEndpointAuthSigningAlg,
+                    revocationEndpointAuthMethod,
+                    revocationEndpointAuthSigningAlg,
                     idTokenSignedResponseAlg,
                     defaultMaxAge,
                     requireAuthTime,

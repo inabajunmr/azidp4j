@@ -1,7 +1,5 @@
 package org.azidp4j.springsecuritysample;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 import java.time.Instant;
 import java.util.Map;
 import org.azidp4j.AzIdP;
@@ -46,7 +44,6 @@ public class SecurityConfiguration {
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated())
-                .httpBasic(withDefaults())
                 .formLogin((form) -> form.loginPage("/login").permitAll())
                 .oauth2ResourceServer(oauth2 -> oauth2.bearerTokenResolver(resolver).opaqueToken());
         http.httpBasic().disable();

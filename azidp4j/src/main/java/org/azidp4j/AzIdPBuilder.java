@@ -64,11 +64,11 @@ public class AzIdPBuilder {
     private List<String> acrValuesSupported;
     private Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported =
             Set.of(TokenEndpointAuthMethod.client_secret_basic);
-    private Set<String> tokenEndpointAuthSigningAlgValuesSupported;
+    private Set<SigningAlgorithm> tokenEndpointAuthSigningAlgValuesSupported;
     private Set<TokenEndpointAuthMethod> introspectionEndpointAuthMethodsSupported;
-    private Set<String> introspectionEndpointAuthSigningAlgValuesSupported;
+    private Set<SigningAlgorithm> introspectionEndpointAuthSigningAlgValuesSupported;
     private Set<TokenEndpointAuthMethod> revocationEndpointAuthMethodsSupported;
-    private Set<String> revocationEndpointAuthSigningAlgValuesSupported;
+    private Set<SigningAlgorithm> revocationEndpointAuthSigningAlgValuesSupported;
 
     public AzIdPBuilder issuer(String issuer) {
         this.issuer = issuer;
@@ -244,7 +244,7 @@ public class AzIdPBuilder {
     }
 
     public AzIdPBuilder tokenEndpointAuthSigningAlgValuesSupported(
-            Set<String> tokenEndpointAuthSigningAlgValuesSupported) {
+            Set<SigningAlgorithm> tokenEndpointAuthSigningAlgValuesSupported) {
         this.tokenEndpointAuthSigningAlgValuesSupported =
                 tokenEndpointAuthSigningAlgValuesSupported;
         return this;
@@ -257,7 +257,7 @@ public class AzIdPBuilder {
     }
 
     public AzIdPBuilder introspectionEndpointAuthSigningAlgValuesSupported(
-            Set<String> introspectionEndpointAuthSigningAlgValuesSupported) {
+            Set<SigningAlgorithm> introspectionEndpointAuthSigningAlgValuesSupported) {
         this.introspectionEndpointAuthSigningAlgValuesSupported =
                 introspectionEndpointAuthSigningAlgValuesSupported;
         return this;
@@ -270,7 +270,7 @@ public class AzIdPBuilder {
     }
 
     public AzIdPBuilder revocationEndpointAuthSigningAlgValuesSupported(
-            Set<String> revocationEndpointAuthSigningAlgValuesSupported) {
+            Set<SigningAlgorithm> revocationEndpointAuthSigningAlgValuesSupported) {
         this.revocationEndpointAuthSigningAlgValuesSupported =
                 revocationEndpointAuthSigningAlgValuesSupported;
         return this;
@@ -406,7 +406,7 @@ public class AzIdPBuilder {
     private void validateXxxEndpointAuthMethods(
             String type,
             Set<TokenEndpointAuthMethod> xxxEndpointAuthMethodsSupported,
-            Set<String> xxxEndpointAuthSigningAlgValuesSupported,
+            Set<SigningAlgorithm> xxxEndpointAuthSigningAlgValuesSupported,
             List<String> errors) {
         if (xxxEndpointAuthMethodsSupported == null) {
             return;
@@ -414,9 +414,7 @@ public class AzIdPBuilder {
         // tokenEndpointAuthMethodsSupported is xxx_jwt, required
         // tokenEndpointAuthSigningAlgValuesSupported
         var isJwtAuthMethod =
-                xxxEndpointAuthMethodsSupported != null
-                                && xxxEndpointAuthMethodsSupported.contains(
-                                        TokenEndpointAuthMethod.private_key_jwt)
+                xxxEndpointAuthMethodsSupported.contains(TokenEndpointAuthMethod.private_key_jwt)
                         || xxxEndpointAuthMethodsSupported.contains(
                                 TokenEndpointAuthMethod.client_secret_jwt);
         if (isJwtAuthMethod
@@ -435,7 +433,7 @@ public class AzIdPBuilder {
         }
 
         if (xxxEndpointAuthSigningAlgValuesSupported != null
-                && xxxEndpointAuthSigningAlgValuesSupported.contains("none")) {
+                && xxxEndpointAuthSigningAlgValuesSupported.contains(SigningAlgorithm.none)) {
             errors.add("tokenEndpointAuthSigningAlgValuesSupported is none is not allowed");
         }
     }

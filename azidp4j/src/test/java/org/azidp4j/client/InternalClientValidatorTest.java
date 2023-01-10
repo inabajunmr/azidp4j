@@ -304,4 +304,110 @@ class InternalClientValidatorTest {
             assertEquals("defaultAcrValues doesn't support at acrValuesSupported", e.getMessage());
         }
     }
+
+    @Test
+    void validate_UnsupportedXxxEndpointAuthSigningAlg() {
+
+        // setup
+        var config =
+                new AzIdPConfig(
+                        "http://localhost:8080",
+                        Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
+                        Set.of("openid", "rs:scope1"),
+                        Set.of(TokenEndpointAuthMethod.private_key_jwt),
+                        Set.of(SigningAlgorithm.ES256), // RS256 not supported
+                        Set.of(TokenEndpointAuthMethod.private_key_jwt),
+                        Set.of(SigningAlgorithm.ES256), // RS256 not supported
+                        Set.of(TokenEndpointAuthMethod.private_key_jwt),
+                        Set.of(SigningAlgorithm.ES256), // RS256 not supported
+                        Set.of(
+                                GrantType.authorization_code,
+                                GrantType.implicit,
+                                GrantType.password,
+                                GrantType.client_credentials,
+                                GrantType.refresh_token),
+                        Set.of(
+                                Set.of(ResponseType.code),
+                                Set.of(ResponseType.token),
+                                Set.of(ResponseType.id_token),
+                                Set.of(ResponseType.code, ResponseType.token),
+                                Set.of(ResponseType.code, ResponseType.id_token),
+                                Set.of(ResponseType.token, ResponseType.id_token),
+                                Set.of(
+                                        ResponseType.code,
+                                        ResponseType.token,
+                                        ResponseType.id_token)),
+                        Set.of(ResponseMode.query, ResponseMode.fragment),
+                        Set.of(
+                                SigningAlgorithm.ES256,
+                                SigningAlgorithm.RS256,
+                                SigningAlgorithm.none),
+                        List.of("acr1", "acr2"),
+                        Duration.ofSeconds(3600),
+                        Duration.ofSeconds(600),
+                        Duration.ofSeconds(604800),
+                        Duration.ofSeconds(3600));
+        var validator = new InternalClientValidator(config);
+
+        {
+            var client =
+                    Fixtures.confidentialClient()
+                            .responseTypes(Set.of(Set.of(ResponseType.code)))
+                            .applicationType(ApplicationType.WEB)
+                            .grantTypes(Set.of(GrantType.implicit))
+                            .tokenEndpointAuthSigningAlg(SigningAlgorithm.RS256)
+                            .build();
+
+            // exercise
+            try {
+                validator.validate(client);
+                fail();
+            } catch (IllegalArgumentException e) {
+                assertEquals(
+                        "tokenEndpointAuthSigningAlgValuesSupported doesn't support at"
+                                + " tokenEndpointAuthSigningAlg",
+                        e.getMessage());
+            }
+        }
+        {
+            var client =
+                    Fixtures.confidentialClient()
+                            .responseTypes(Set.of(Set.of(ResponseType.code)))
+                            .applicationType(ApplicationType.WEB)
+                            .grantTypes(Set.of(GrantType.implicit))
+                            .introspectionEndpointAuthSigningAlg(SigningAlgorithm.RS256)
+                            .build();
+
+            // exercise
+            try {
+                validator.validate(client);
+                fail();
+            } catch (IllegalArgumentException e) {
+                assertEquals(
+                        "introspectionEndpointAuthSigningAlgValuesSupported doesn't support at"
+                                + " introspectionEndpointAuthSigningAlg",
+                        e.getMessage());
+            }
+        }
+        {
+            var client =
+                    Fixtures.confidentialClient()
+                            .responseTypes(Set.of(Set.of(ResponseType.code)))
+                            .applicationType(ApplicationType.WEB)
+                            .grantTypes(Set.of(GrantType.implicit))
+                            .revocationEndpointAuthSigningAlg(SigningAlgorithm.RS256)
+                            .build();
+
+            // exercise
+            try {
+                validator.validate(client);
+                fail();
+            } catch (IllegalArgumentException e) {
+                assertEquals(
+                        "revocationEndpointAuthSigningAlgValuesSupported doesn't support at"
+                                + " revocationEndpointAuthSigningAlg",
+                        e.getMessage());
+            }
+        }
+    }
 }

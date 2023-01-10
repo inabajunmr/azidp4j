@@ -76,17 +76,19 @@ class DiscoveryTest {
                                 Set.of(
                                         TokenEndpointAuthMethod.client_secret_jwt,
                                         TokenEndpointAuthMethod.client_secret_basic))
-                        .tokenEndpointAuthSigningAlgValuesSupported(Set.of("RS256"))
+                        .tokenEndpointAuthSigningAlgValuesSupported(Set.of(SigningAlgorithm.RS256))
                         .introspectionEndpointAuthMethodsSupported(
                                 Set.of(
                                         TokenEndpointAuthMethod.client_secret_jwt,
                                         TokenEndpointAuthMethod.private_key_jwt))
-                        .introspectionEndpointAuthSigningAlgValuesSupported(Set.of("ES256"))
+                        .introspectionEndpointAuthSigningAlgValuesSupported(
+                                Set.of(SigningAlgorithm.ES256))
                         .revocationEndpointAuthMethodsSupported(
                                 Set.of(
                                         TokenEndpointAuthMethod.private_key_jwt,
                                         TokenEndpointAuthMethod.client_secret_basic))
-                        .revocationEndpointAuthSigningAlgValuesSupported(Set.of("RS256", "ES256"))
+                        .revocationEndpointAuthSigningAlgValuesSupported(
+                                Set.of(SigningAlgorithm.RS256, SigningAlgorithm.ES256))
                         .discovery(discovery)
                         .customScopeAudienceMapper(new SampleScopeAudienceMapper())
                         .userPasswordVerifier((username, password) -> true)

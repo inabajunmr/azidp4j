@@ -97,31 +97,62 @@ public class DynamicClientRegistration {
             }
         }
 
-        var tokenEndpointAuthMethod = TokenEndpointAuthMethod.client_secret_basic;
-        if (request.tokenEndpointAuthMethod != null) {
-            try {
-                var tam = TokenEndpointAuthMethod.of(request.tokenEndpointAuthMethod);
-                tokenEndpointAuthMethod = tam;
-            } catch (IllegalArgumentException e) {
-                return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_client_metadata"));
-            }
-        }
-        if (!config.tokenEndpointAuthMethodsSupported.contains(tokenEndpointAuthMethod)) {
+        TokenEndpointAuthMethod tokenEndpointAuthMethod;
+        try {
+            tokenEndpointAuthMethod =
+                    TokenEndpointAuthMethodExtractor.extractXxxEndpointAuthMethod(
+                            request.tokenEndpointAuthMethod,
+                            config.tokenEndpointAuthMethodsSupported);
+        } catch (IllegalArgumentException e) {
             return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
-        if (tokenEndpointAuthMethod == TokenEndpointAuthMethod.private_key_jwt
-                || tokenEndpointAuthMethod == TokenEndpointAuthMethod.client_secret_jwt) {
-            if (request.tokenEndpointAuthSigningAlg == null) {
-                return new ClientRegistrationResponse(
-                        400, Map.of("error", "invalid_client_metadata"));
-            } else {
-                if (!config.tokenEndpointAuthSigningAlgValuesSupported.contains(
-                        request.tokenEndpointAuthSigningAlg)) {
-                    return new ClientRegistrationResponse(
-                            400, Map.of("error", "invalid_client_metadata"));
-                }
-            }
+
+        SigningAlgorithm tokenEndpointAuthSigningAlg;
+        try {
+            tokenEndpointAuthSigningAlg =
+                    TokenEndpointAuthMethodExtractor.extractTokenEndpointAuthSigningAlg(
+                            request.tokenEndpointAuthSigningAlg, tokenEndpointAuthMethod);
+        } catch (IllegalArgumentException e) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
+        }
+
+        TokenEndpointAuthMethod introspectionEndpointAuthMethod;
+        try {
+            introspectionEndpointAuthMethod =
+                    TokenEndpointAuthMethodExtractor.extractXxxEndpointAuthMethod(
+                            request.introspectionEndpointAuthMethod,
+                            config.introspectionEndpointAuthMethodsSupported);
+        } catch (IllegalArgumentException e) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
+        }
+
+        SigningAlgorithm introspectionEndpointAuthSigningAlg;
+        try {
+            introspectionEndpointAuthSigningAlg =
+                    TokenEndpointAuthMethodExtractor.extractTokenEndpointAuthSigningAlg(
+                            request.introspectionEndpointAuthSigningAlg,
+                            introspectionEndpointAuthMethod);
+        } catch (IllegalArgumentException e) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
+        }
+
+        TokenEndpointAuthMethod revocationEndpointAuthMethod;
+        try {
+            revocationEndpointAuthMethod =
+                    TokenEndpointAuthMethodExtractor.extractXxxEndpointAuthMethod(
+                            request.revocationEndpointAuthMethod,
+                            config.revocationEndpointAuthMethodsSupported);
+        } catch (IllegalArgumentException e) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
+        }
+
+        SigningAlgorithm revocationEndpointAuthSigningAlg;
+        try {
+            revocationEndpointAuthSigningAlg =
+                    TokenEndpointAuthMethodExtractor.extractTokenEndpointAuthSigningAlg(
+                            request.revocationEndpointAuthSigningAlg, revocationEndpointAuthMethod);
+        } catch (IllegalArgumentException e) {
+            return new ClientRegistrationResponse(400, Map.of("error", "invalid_client_metadata"));
         }
 
         var idTokenSignedResponseAlg = SigningAlgorithm.RS256;
@@ -156,7 +187,11 @@ public class DynamicClientRegistration {
                         request.softwareId,
                         request.softwareVersion,
                         tokenEndpointAuthMethod,
-                        request.tokenEndpointAuthSigningAlg,
+                        tokenEndpointAuthSigningAlg,
+                        introspectionEndpointAuthMethod,
+                        introspectionEndpointAuthSigningAlg,
+                        revocationEndpointAuthMethod,
+                        revocationEndpointAuthSigningAlg,
                         idTokenSignedResponseAlg,
                         request.defaultMaxAge,
                         request.requireAuthTime != null ? request.requireAuthTime : false,
@@ -243,9 +278,13 @@ public class DynamicClientRegistration {
                         "token_endpoint_auth_method",
                         client.tokenEndpointAuthMethod.name(),
                         "token_endpoint_auth_signing_alg",
-                        client.tokenEndpointAuthSigningAlg,
+                        client.tokenEndpointAuthSigningAlg != null
+                                ? client.tokenEndpointAuthSigningAlg.name()
+                                : null,
                         "id_token_signed_response_alg",
-                        client.idTokenSignedResponseAlg.name(),
+                        client.idTokenSignedResponseAlg != null
+                                ? client.idTokenSignedResponseAlg.name()
+                                : null,
                         "default_max_age",
                         client.defaultMaxAge,
                         "require_auth_time",
