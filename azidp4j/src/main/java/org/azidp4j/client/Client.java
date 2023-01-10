@@ -62,6 +62,18 @@ public class Client {
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final SigningAlgorithm tokenEndpointAuthSigningAlg;
 
+    /** No definition at spec but used like tokenEndpointAuthMethod */
+    public final TokenEndpointAuthMethod introspectionEndpointAuthMethod;
+
+    /** No definition at spec but used like tokenEndpointAuthSigningAlg */
+    public final SigningAlgorithm introspectionEndpointAuthSigningAlg;
+
+    /** No definition at spec but used like tokenEndpointAuthMethod */
+    public final TokenEndpointAuthMethod revocationEndpointAuthMethod;
+
+    /** No definition at spec but used like tokenEndpointAuthSigningAlg */
+    public final SigningAlgorithm revocationEndpointAuthSigningAlg;
+
     /** OAuth 2.0 Dynamic Client Registration Protocol */
     public final SigningAlgorithm idTokenSignedResponseAlg;
 
@@ -104,6 +116,10 @@ public class Client {
             String softwareVersion,
             TokenEndpointAuthMethod tokenEndpointAuthMethod,
             SigningAlgorithm tokenEndpointAuthSigningAlg,
+            TokenEndpointAuthMethod introspectionEndpointAuthMethod,
+            SigningAlgorithm introspectionEndpointAuthSigningAlg,
+            TokenEndpointAuthMethod revocationEndpointAuthMethod,
+            SigningAlgorithm revocationEndpointAuthSigningAlg,
             SigningAlgorithm idTokenSignedResponseAlg,
             Long defaultMaxAge,
             Boolean requireAuthTime,
@@ -128,6 +144,10 @@ public class Client {
         this.softwareVersion = softwareVersion;
         this.tokenEndpointAuthMethod = tokenEndpointAuthMethod;
         this.tokenEndpointAuthSigningAlg = tokenEndpointAuthSigningAlg;
+        this.introspectionEndpointAuthMethod = introspectionEndpointAuthMethod;
+        this.introspectionEndpointAuthSigningAlg = introspectionEndpointAuthSigningAlg;
+        this.revocationEndpointAuthMethod = revocationEndpointAuthMethod;
+        this.revocationEndpointAuthSigningAlg = revocationEndpointAuthSigningAlg;
         this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
         this.defaultMaxAge = defaultMaxAge;
         this.requireAuthTime = requireAuthTime;

@@ -48,6 +48,14 @@ public class ClientBuilder {
 
     private SigningAlgorithm tokenEndpointAuthSigningAlg;
 
+    private TokenEndpointAuthMethod introspectionEndpointAuthMethod;
+
+    private SigningAlgorithm introspectionEndpointAuthSigningAlg;
+
+    private TokenEndpointAuthMethod revocationEndpointAuthMethod;
+
+    private SigningAlgorithm revocationEndpointAuthSigningAlg;
+
     private SigningAlgorithm idTokenSignedResponseAlg;
 
     private Long defaultMaxAge;
@@ -83,6 +91,10 @@ public class ClientBuilder {
                 softwareVersion,
                 tokenEndpointAuthMethod,
                 tokenEndpointAuthSigningAlg,
+                introspectionEndpointAuthMethod,
+                introspectionEndpointAuthSigningAlg,
+                revocationEndpointAuthMethod,
+                revocationEndpointAuthSigningAlg,
                 idTokenSignedResponseAlg,
                 defaultMaxAge,
                 requireAuthTime,
@@ -186,6 +198,30 @@ public class ClientBuilder {
 
     public ClientBuilder tokenEndpointAuthSigningAlg(SigningAlgorithm tokenEndpointAuthSigningAlg) {
         this.tokenEndpointAuthSigningAlg = tokenEndpointAuthSigningAlg;
+        return this;
+    }
+
+    public ClientBuilder introspectionEndpointAuthMethod(
+            TokenEndpointAuthMethod introspectionEndpointAuthMethod) {
+        this.introspectionEndpointAuthMethod = introspectionEndpointAuthMethod;
+        return this;
+    }
+
+    public ClientBuilder introspectionEndpointAuthSigningAlg(
+            SigningAlgorithm introspectionEndpointAuthSigningAlg) {
+        this.introspectionEndpointAuthSigningAlg = introspectionEndpointAuthSigningAlg;
+        return this;
+    }
+
+    public ClientBuilder revocationEndpointAuthMethod(
+            TokenEndpointAuthMethod revocationEndpointAuthMethod) {
+        this.revocationEndpointAuthMethod = revocationEndpointAuthMethod;
+        return this;
+    }
+
+    public ClientBuilder revocationEndpointAuthSigningAlg(
+            SigningAlgorithm revocationEndpointAuthSigningAlg) {
+        this.revocationEndpointAuthSigningAlg = revocationEndpointAuthSigningAlg;
         return this;
     }
 

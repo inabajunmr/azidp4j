@@ -50,6 +50,8 @@ public class ClientAuthenticator {
                         && client.get()
                                 .clientSecret
                                 .equals(usernamePasswordAuthenticationToken.getCredentials())
+                        // TODO value for token endpoint is always used but not only token endpoint
+                        // like introspection/revocation
                         && client.get().tokenEndpointAuthMethod
                                 == TokenEndpointAuthMethod.client_secret_basic) {
                     return client;

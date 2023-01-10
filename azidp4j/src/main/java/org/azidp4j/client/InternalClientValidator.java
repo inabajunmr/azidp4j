@@ -117,5 +117,23 @@ public class InternalClientValidator {
                     "tokenEndpointAuthSigningAlgValuesSupported doesn't support at"
                             + " tokenEndpointAuthSigningAlg");
         }
+
+        if (client.introspectionEndpointAuthSigningAlg != null
+                && config.introspectionEndpointAuthSigningAlgValuesSupported != null
+                && !config.introspectionEndpointAuthSigningAlgValuesSupported.contains(
+                        client.introspectionEndpointAuthSigningAlg)) {
+            throw new IllegalArgumentException(
+                    "introspectionEndpointAuthSigningAlgValuesSupported doesn't support at"
+                            + " introspectionEndpointAuthSigningAlg");
+        }
+
+        if (client.revocationEndpointAuthSigningAlg != null
+                && config.revocationEndpointAuthSigningAlgValuesSupported != null
+                && !config.revocationEndpointAuthSigningAlgValuesSupported.contains(
+                        client.revocationEndpointAuthSigningAlg)) {
+            throw new IllegalArgumentException(
+                    "revocationEndpointAuthSigningAlgValuesSupported doesn't support at"
+                            + " revocationEndpointAuthSigningAlg");
+        }
     }
 }
