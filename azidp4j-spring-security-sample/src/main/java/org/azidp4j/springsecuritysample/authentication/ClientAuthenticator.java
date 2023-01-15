@@ -5,17 +5,21 @@ import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.client.Client;
 import org.azidp4j.client.ClientStore;
 import org.azidp4j.client.TokenEndpointAuthMethod;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.www.BasicAuthenticationConverter;
-import org.springframework.stereotype.Component;
 
-@Component
 public class ClientAuthenticator {
 
-    @Autowired ClientStore clientStore;
+    private final ClientStore clientStore;
+
+    private final Endpoint endpoint;
 
     private final BasicAuthenticationConverter authenticationConverter =
             new BasicAuthenticationConverter();
+
+    public ClientAuthenticator(ClientStore clientStore, Endpoint endpoint) {
+        this.clientStore = clientStore;
+        this.endpoint = endpoint;
+    }
 
     /**
      * @see <a
@@ -33,7 +37,7 @@ public class ClientAuthenticator {
                         && client.get()
                                 .clientSecret
                                 .equals(usernamePasswordAuthenticationToken.getCredentials())
-                        && client.get().tokenEndpointAuthMethod
+                        && authMethod(client.get())
                                 == TokenEndpointAuthMethod.client_secret_basic) {
                     return client;
                 }
@@ -51,8 +55,7 @@ public class ClientAuthenticator {
             // if client supports token_endpoint_auth_method=client_secret_post,
             // verify client secret.
             if (client.isPresent()
-                    && client.get().tokenEndpointAuthMethod
-                            == TokenEndpointAuthMethod.client_secret_post
+                    && authMethod(client.get()) == TokenEndpointAuthMethod.client_secret_post
                     && request.getParameterMap().containsKey("client_secret")) {
 
                 // verify client secret
@@ -65,5 +68,19 @@ public class ClientAuthenticator {
         }
 
         return Optional.empty();
+    }
+
+    private TokenEndpointAuthMethod authMethod(Client client) {
+        return switch (endpoint) {
+            case token -> client.tokenEndpointAuthMethod;
+            case introspection -> client.introspectionEndpointAuthMethod;
+            case revocation -> client.revocationEndpointAuthMethod;
+        };
+    }
+
+    public enum Endpoint {
+        token,
+        introspection,
+        revocation;
     }
 }

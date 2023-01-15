@@ -73,17 +73,17 @@ public class Discovery {
                 "request_object_encryption_enc_values_supported",
                 null,
                 "token_endpoint_auth_methods_supported",
-                config.tokenEndpointAuthMethodsSupported,
+                enumToString(config.tokenEndpointAuthMethodsSupported),
                 "token_endpoint_auth_signing_alg_values_supported",
-                config.tokenEndpointAuthSigningAlgValuesSupported,
+                enumToString(config.tokenEndpointAuthSigningAlgValuesSupported),
                 "introspection_endpoint_auth_methods_supported",
-                config.introspectionEndpointAuthMethodsSupported,
+                enumToString(config.introspectionEndpointAuthMethodsSupported),
                 "introspection_endpoint_auth_signing_alg_values_supported",
-                config.introspectionEndpointAuthSigningAlgValuesSupported,
+                enumToString(config.introspectionEndpointAuthSigningAlgValuesSupported),
                 "revocation_endpoint_auth_methods_supported",
-                config.revocationEndpointAuthMethodsSupported,
+                enumToString(config.revocationEndpointAuthMethodsSupported),
                 "revocation_endpoint_auth_signing_alg_values_supported",
-                config.revocationEndpointAuthSigningAlgValuesSupported,
+                enumToString(config.revocationEndpointAuthSigningAlgValuesSupported),
                 "display_values_supported",
                 discoveryConfig.displayValueSupported,
                 "claim_types_supported",
@@ -110,6 +110,23 @@ public class Discovery {
                 "op_tos_uri",
                 discoveryConfig.opTosUri,
                 "code_challenge_methods_supported",
-                Set.of(CodeChallengeMethod.PLAIN.name(), CodeChallengeMethod.S256.name()));
+                enumToString(
+                        Set.of(
+                                CodeChallengeMethod.PLAIN,
+                                CodeChallengeMethod.S256))); // TODO modifiable
+    }
+
+    private <E extends Enum> String enumToString(E e) {
+        if (e == null) {
+            return null;
+        }
+        return e.name();
+    }
+
+    private <E extends Enum> Set<String> enumToString(Set<E> e) {
+        if (e == null) {
+            return null;
+        }
+        return e.stream().map(Enum::name).collect(Collectors.toSet());
     }
 }

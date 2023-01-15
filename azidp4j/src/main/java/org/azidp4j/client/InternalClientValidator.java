@@ -52,6 +52,78 @@ public class InternalClientValidator {
                             + " supported");
         }
 
+        // token_endpoint_auth_method doesn't require signing alg, it causes error.
+        if (client.tokenEndpointAuthMethod != null
+                && !client.tokenEndpointAuthMethod.usingTokenAuthMethodSigningAlg
+                && client.tokenEndpointAuthSigningAlg != null) {
+            throw new IllegalArgumentException(
+                    "tokenEndpointAuthMethod "
+                            + client.tokenEndpointAuthMethod.name()
+                            + " doesn't required tokenEndpointAuthSigningAlg");
+        }
+        // check auth method is supported
+        if (client.tokenEndpointAuthMethod != null
+                && !config.tokenEndpointAuthMethodsSupported.contains(
+                        client.tokenEndpointAuthMethod)) {
+            throw new IllegalArgumentException(
+                    client.tokenEndpointAuthMethod + " is not supported");
+        }
+        // check algorithm is supported
+        if (client.tokenEndpointAuthSigningAlg != null
+                && !config.tokenEndpointAuthSigningAlgValuesSupported.contains(
+                        client.tokenEndpointAuthSigningAlg)) {
+            throw new IllegalArgumentException(
+                    client.tokenEndpointAuthSigningAlg + " is not supported");
+        }
+
+        // introspection_endpoint_auth_method doesn't require signing alg, it causes error.
+        if (client.introspectionEndpointAuthMethod != null
+                && !client.introspectionEndpointAuthMethod.usingTokenAuthMethodSigningAlg
+                && client.introspectionEndpointAuthSigningAlg != null) {
+            throw new IllegalArgumentException(
+                    "introspectionEndpointAuthMethod "
+                            + client.introspectionEndpointAuthMethod.name()
+                            + " doesn't required introspectionEndpointAuthSigningAlg");
+        }
+        // check auth method is supported
+        if (client.introspectionEndpointAuthMethod != null
+                && !config.introspectionEndpointAuthMethodsSupported.contains(
+                        client.introspectionEndpointAuthMethod)) {
+            throw new IllegalArgumentException(
+                    client.introspectionEndpointAuthMethod + " is not supported");
+        }
+        // check algorithm is supported
+        if (client.introspectionEndpointAuthSigningAlg != null
+                && !config.introspectionEndpointAuthSigningAlgValuesSupported.contains(
+                        client.introspectionEndpointAuthSigningAlg)) {
+            throw new IllegalArgumentException(
+                    client.introspectionEndpointAuthSigningAlg + " is not supported");
+        }
+
+        // revocation_endpoint_auth_method doesn't require signing alg, it causes error.
+        if (client.revocationEndpointAuthMethod != null
+                && !client.revocationEndpointAuthMethod.usingTokenAuthMethodSigningAlg
+                && client.revocationEndpointAuthSigningAlg != null) {
+            throw new IllegalArgumentException(
+                    "revocationEndpointAuthMethod "
+                            + client.revocationEndpointAuthMethod.name()
+                            + " doesn't required revocationEndpointAuthSigningAlg");
+        }
+        // check auth method is supported
+        if (client.revocationEndpointAuthMethod != null
+                && !config.revocationEndpointAuthMethodsSupported.contains(
+                        client.revocationEndpointAuthMethod)) {
+            throw new IllegalArgumentException(
+                    client.revocationEndpointAuthMethod + " is not supported");
+        }
+        // check algorithm is supported
+        if (client.revocationEndpointAuthSigningAlg != null
+                && !config.revocationEndpointAuthSigningAlgValuesSupported.contains(
+                        client.revocationEndpointAuthSigningAlg)) {
+            throw new IllegalArgumentException(
+                    client.revocationEndpointAuthSigningAlg + " is not supported");
+        }
+
         // Web Clients using the OAuth Implicit Grant Type MUST only register URLs using the https
         // scheme as redirect_uris;they MUST NOT use localhost as the hostname. Native Clients MUST
         // only register redirect_uris using custom URI schemes or URLs using the http: scheme with

@@ -1,11 +1,17 @@
 package org.azidp4j.client;
 
 public enum TokenEndpointAuthMethod {
-    client_secret_post,
-    client_secret_basic,
-    client_secret_jwt,
-    private_key_jwt,
-    none;
+    client_secret_post(false),
+    client_secret_basic(false),
+    client_secret_jwt(true),
+    private_key_jwt(true),
+    none(false);
+
+    TokenEndpointAuthMethod(boolean usingTokenAuthMethodSigningAlg) {
+        this.usingTokenAuthMethodSigningAlg = usingTokenAuthMethodSigningAlg;
+    }
+
+    public final boolean usingTokenAuthMethodSigningAlg;
 
     public static TokenEndpointAuthMethod of(String value) {
         if (value == null) {

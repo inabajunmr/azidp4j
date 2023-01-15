@@ -1,15 +1,16 @@
 package org.azidp4j.springsecuritysample.handler;
 
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.AzIdP;
+import org.azidp4j.client.ClientStore;
 import org.azidp4j.introspection.request.IntrospectionRequest;
+import org.azidp4j.springsecuritysample.authentication.ClientAuthenticator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,16 @@ public class IntrospectionEndpointHandler {
     private static final Logger LOGGER =
             LoggerFactory.getLogger(IntrospectionEndpointHandler.class);
 
-    @Autowired AzIdP azIdP;
+    private final AzIdP azIdP;
+
+    private final ClientAuthenticator clientAuthenticator;
+
+    @Autowired
+    public IntrospectionEndpointHandler(AzIdP azIdP, ClientStore clientStore) {
+        this.azIdP = azIdP;
+        this.clientAuthenticator =
+                new ClientAuthenticator(clientStore, ClientAuthenticator.Endpoint.introspection);
+    }
 
     /**
      * @see <a
@@ -27,13 +37,11 @@ public class IntrospectionEndpointHandler {
      */
     @PostMapping(value = "introspect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Map<String, Object>> introspect(
-            @RequestParam MultiValueMap<String, Object> body, Authentication authentication) {
+            HttpServletRequest request, @RequestParam MultiValueMap<String, Object> body) {
         LOGGER.info(IntrospectionEndpointHandler.class.getName());
 
-        // Introspection endpoint requires client authentication.
-        // ref. org.azidp4j.springsecuritysample.authentication.ClientAuthenticationFilter
-        // ref. org.azidp4j.springsecuritysample.authentication.ClientAuthenticator
-        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CLIENT"))) {
+        // just client authentication
+        if (clientAuthenticator.authenticateClient(request).isEmpty()) {
             return ResponseEntity.status(401).build();
         }
 

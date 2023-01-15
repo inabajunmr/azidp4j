@@ -102,6 +102,18 @@ public class InternalClientRequest {
      */
     public final String tokenEndpointAuthSigningAlg;
 
+    /** No definition at spec but used like tokenEndpointAuthMethod */
+    public final String introspectionEndpointAuthMethod;
+
+    /** No definition at spec but used like tokenEndpointAuthSigningAlg */
+    public final String introspectionEndpointAuthSigningAlg;
+
+    /** No definition at spec but used like tokenEndpointAuthMethod */
+    public final String revocationEndpointAuthMethod;
+
+    /** No definition at spec but used like tokenEndpointAuthSigningAlg */
+    public final String revocationEndpointAuthSigningAlg;
+
     /** OpenID Connect Dynamic Client Registration 1.0 */
     public final String idTokenSignedResponseAlg;
 
@@ -163,6 +175,10 @@ public class InternalClientRequest {
             String tokenEndpointAuthMethod,
             String tokenEndpointAuthSigningAlg,
             String idTokenSignedResponseAlg,
+            String introspectionEndpointAuthMethod,
+            String introspectionEndpointAuthSigningAlg,
+            String revocationEndpointAuthMethod,
+            String revocationEndpointAuthSigningAlg,
             Long defaultMaxAge,
             Boolean requireAuthTime,
             List<String> defaultAcrValues,
@@ -185,6 +201,10 @@ public class InternalClientRequest {
         this.tokenEndpointAuthMethod = tokenEndpointAuthMethod;
         this.tokenEndpointAuthSigningAlg = tokenEndpointAuthSigningAlg;
         this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
+        this.introspectionEndpointAuthMethod = introspectionEndpointAuthMethod;
+        this.introspectionEndpointAuthSigningAlg = introspectionEndpointAuthSigningAlg;
+        this.revocationEndpointAuthMethod = revocationEndpointAuthMethod;
+        this.revocationEndpointAuthSigningAlg = revocationEndpointAuthSigningAlg;
         this.defaultMaxAge = defaultMaxAge;
         this.requireAuthTime = requireAuthTime;
         this.defaultAcrValues = defaultAcrValues;
@@ -209,6 +229,10 @@ public class InternalClientRequest {
         private String softwareVersion;
         private String tokenEndpointAuthMethod;
         private String tokenEndpointAuthSigningAlg;
+        private String introspectionEndpointAuthMethod;
+        private String introspectionEndpointAuthSigningAlg;
+        private String revocationEndpointAuthMethod;
+        private String revocationEndpointAuthSigningAlg;
         private String idTokenSignedResponseAlg;
         private Long defaultMaxAge;
         private Boolean requireAuthTime;
@@ -300,6 +324,27 @@ public class InternalClientRequest {
             return this;
         }
 
+        public Builder introspectionEndpointAuthMethod(String introspectionEndpointAuthMethod) {
+            this.introspectionEndpointAuthMethod = introspectionEndpointAuthMethod;
+            return this;
+        }
+
+        public Builder introspectionEndpointAuthSigningAlg(
+                String introspectionEndpointAuthSigningAlg) {
+            this.introspectionEndpointAuthSigningAlg = introspectionEndpointAuthSigningAlg;
+            return this;
+        }
+
+        public Builder revocationEndpointAuthMethod(String revocationEndpointAuthMethod) {
+            this.revocationEndpointAuthMethod = revocationEndpointAuthMethod;
+            return this;
+        }
+
+        public Builder revocationEndpointAuthSigningAlg(String revocationEndpointAuthSigningAlg) {
+            this.revocationEndpointAuthSigningAlg = revocationEndpointAuthSigningAlg;
+            return this;
+        }
+
         public Builder idTokenSignedResponseAlg(String idTokenSignedResponseAlg) {
             this.idTokenSignedResponseAlg = idTokenSignedResponseAlg;
             return this;
@@ -345,6 +390,10 @@ public class InternalClientRequest {
                     tokenEndpointAuthMethod,
                     tokenEndpointAuthSigningAlg,
                     idTokenSignedResponseAlg,
+                    introspectionEndpointAuthMethod,
+                    introspectionEndpointAuthSigningAlg,
+                    revocationEndpointAuthMethod,
+                    revocationEndpointAuthSigningAlg,
                     defaultMaxAge,
                     requireAuthTime,
                     defaultAcrValues,

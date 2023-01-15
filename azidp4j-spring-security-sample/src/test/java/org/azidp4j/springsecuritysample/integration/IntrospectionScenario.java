@@ -22,6 +22,9 @@ public class IntrospectionScenario {
             boolean expected) {
         MultiValueMap<String, String> introspectionRequest = new LinkedMultiValueMap<>();
         introspectionRequest.add("token", accessToken);
+        introspectionRequest.add("client_id", clientId);
+        introspectionRequest.add("client_secret", clientSecret);
+
         var introspectionRequestEntity =
                 RequestEntity.post("/introspect")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)

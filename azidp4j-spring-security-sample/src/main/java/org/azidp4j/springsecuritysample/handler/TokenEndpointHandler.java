@@ -1,15 +1,16 @@
 package org.azidp4j.springsecuritysample.handler;
 
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.azidp4j.AzIdP;
+import org.azidp4j.client.ClientStore;
+import org.azidp4j.springsecuritysample.authentication.ClientAuthenticator;
 import org.azidp4j.token.request.TokenRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,16 @@ public class TokenEndpointHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenEndpointHandler.class);
 
-    @Autowired AzIdP azIdP;
+    private final AzIdP azIdP;
+
+    private final ClientAuthenticator clientAuthenticator;
+
+    @Autowired
+    public TokenEndpointHandler(AzIdP azIdP, ClientStore clientStore) {
+        this.azIdP = azIdP;
+        this.clientAuthenticator =
+                new ClientAuthenticator(clientStore, ClientAuthenticator.Endpoint.token);
+    }
 
     /**
      * @see <a
@@ -27,17 +37,17 @@ public class TokenEndpointHandler {
      *     href="https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint">https://openid.net/specs/openid-connect-core-1_0.html#TokenEndpoint</a>
      */
     @PostMapping(value = "token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<Map> tokenEndpoint(@RequestParam MultiValueMap<String, Object> body) {
+    public ResponseEntity<Map> tokenEndpoint(
+            HttpServletRequest request, @RequestParam MultiValueMap<String, Object> body) {
         LOGGER.info(TokenEndpointHandler.class.getName());
 
         // When client is unauthenticated, azidp4j accepts null as authenticatedClientId.
         // If client isn't public client, azidp4j returns error against token request without
-        // authenticated cilent.
+        // authenticated client.
+        var clientOpt = clientAuthenticator.authenticateClient(request);
         String authenticatedClientId = null;
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null
-                && auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_CLIENT"))) {
-            authenticatedClientId = auth.getName();
+        if (clientOpt.isPresent()) {
+            authenticatedClientId = clientOpt.get().clientId;
         }
 
         // Token Request
