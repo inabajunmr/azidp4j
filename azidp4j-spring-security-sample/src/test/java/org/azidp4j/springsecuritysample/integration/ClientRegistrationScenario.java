@@ -36,6 +36,10 @@ public class ClientRegistrationScenario {
                         "id_token_signed_response_alg",
                         "RS256",
                         "token_endpoint_auth_method",
+                        "client_secret_basic",
+                        "introspection_endpoint_auth_method",
+                        "client_secret_post",
+                        "revocation_endpoint_auth_method",
                         "client_secret_basic");
         var clientRegistrationEntity =
                 RequestEntity.post("/client")

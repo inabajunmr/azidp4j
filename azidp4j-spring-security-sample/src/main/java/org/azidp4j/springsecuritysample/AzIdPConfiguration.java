@@ -107,6 +107,13 @@ public class AzIdPConfiguration {
                                         TokenEndpointAuthMethod.client_secret_post,
                                         TokenEndpointAuthMethod.client_secret_basic,
                                         TokenEndpointAuthMethod.none))
+                        .introspectionEndpointAuthMethodsSupported(
+                                Set.of(TokenEndpointAuthMethod.client_secret_post))
+                        .revocationEndpointAuthMethodsSupported(
+                                Set.of(
+                                        TokenEndpointAuthMethod.client_secret_post,
+                                        TokenEndpointAuthMethod.client_secret_basic,
+                                        TokenEndpointAuthMethod.none))
                         .customClientStore(clientStore)
                         .customClientValidator(new JwtClientAuthNotAllowClientValidator())
                         .clientConfigurationEndpointIssuer(

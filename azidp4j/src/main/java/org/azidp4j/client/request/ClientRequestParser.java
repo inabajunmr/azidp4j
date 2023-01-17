@@ -24,6 +24,15 @@ public class ClientRequestParser {
         var tokenEndpointAuthMethod = valueToString("token_endpoint_auth_method", parameters);
         var tokenEndpointAuthSigningAlg =
                 valueToString("token_endpoint_auth_signing_alg", parameters);
+        var introspectionEndpointAuthMethod =
+                valueToString("introspection_endpoint_auth_method", parameters);
+        var introspectionEndpointAuthSigningAlg =
+                valueToString("introspection_endpoint_auth_signing_alg", parameters);
+        var revocationEndpointAuthMethod =
+                valueToString("revocation_endpoint_auth_method", parameters);
+        var revocationEndpointAuthSigningAlg =
+                valueToString("revocation_endpoint_auth_signing_alg", parameters);
+
         var idTokenSignedResponseAlg = valueToString("id_token_signed_response_alg", parameters);
         var defaultMaxAge =
                 parameters.containsKey("default_max_age")
@@ -53,6 +62,10 @@ public class ClientRequestParser {
                 .softwareVersion(softwareVersion)
                 .tokenEndpointAuthMethod(tokenEndpointAuthMethod)
                 .tokenEndpointAuthSigningAlg(tokenEndpointAuthSigningAlg)
+                .introspectionEndpointAuthMethod(introspectionEndpointAuthMethod)
+                .introspectionEndpointAuthSigningAlg(introspectionEndpointAuthSigningAlg)
+                .revocationEndpointAuthMethod(revocationEndpointAuthMethod)
+                .revocationEndpointAuthSigningAlg(revocationEndpointAuthSigningAlg)
                 .idTokenSignedResponseAlg(idTokenSignedResponseAlg)
                 .defaultMaxAge(defaultMaxAge)
                 .requireAuthTime(requireAuthTime)

@@ -10,7 +10,6 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.util.List;
 import java.util.Set;
 import org.azidp4j.AzIdP;
-import org.azidp4j.authorize.request.CodeChallengeMethod;
 import org.azidp4j.authorize.request.Display;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
@@ -76,17 +75,19 @@ class DiscoveryTest {
                                 Set.of(
                                         TokenEndpointAuthMethod.client_secret_jwt,
                                         TokenEndpointAuthMethod.client_secret_basic))
-                        .tokenEndpointAuthSigningAlgValuesSupported(Set.of("RS256"))
+                        .tokenEndpointAuthSigningAlgValuesSupported(Set.of(SigningAlgorithm.RS256))
                         .introspectionEndpointAuthMethodsSupported(
                                 Set.of(
                                         TokenEndpointAuthMethod.client_secret_jwt,
                                         TokenEndpointAuthMethod.private_key_jwt))
-                        .introspectionEndpointAuthSigningAlgValuesSupported(Set.of("ES256"))
+                        .introspectionEndpointAuthSigningAlgValuesSupported(
+                                Set.of(SigningAlgorithm.ES256))
                         .revocationEndpointAuthMethodsSupported(
                                 Set.of(
                                         TokenEndpointAuthMethod.private_key_jwt,
                                         TokenEndpointAuthMethod.client_secret_basic))
-                        .revocationEndpointAuthSigningAlgValuesSupported(Set.of("RS256", "ES256"))
+                        .revocationEndpointAuthSigningAlgValuesSupported(
+                                Set.of(SigningAlgorithm.RS256, SigningAlgorithm.ES256))
                         .discovery(discovery)
                         .customScopeAudienceMapper(new SampleScopeAudienceMapper())
                         .userPasswordVerifier((username, password) -> true)
@@ -115,9 +116,7 @@ class DiscoveryTest {
                         GrantType.client_credentials),
                 actual.get("grant_types_supported"));
         assertEquals(
-                Set.of(
-                        TokenEndpointAuthMethod.client_secret_jwt,
-                        TokenEndpointAuthMethod.client_secret_basic),
+                Set.of("client_secret_jwt", "client_secret_basic"),
                 actual.get("token_endpoint_auth_methods_supported"));
         assertEquals(
                 Set.of("RS256"), actual.get("token_endpoint_auth_signing_alg_values_supported"));
@@ -129,25 +128,19 @@ class DiscoveryTest {
         assertEquals("https://example.com/tos", actual.get("op_tos_uri"));
         assertEquals("http://localhost:8080/revoke", actual.get("revocation_endpoint"));
         assertEquals(
-                Set.of(
-                        TokenEndpointAuthMethod.private_key_jwt,
-                        TokenEndpointAuthMethod.client_secret_basic),
+                Set.of("private_key_jwt", "client_secret_basic"),
                 actual.get("revocation_endpoint_auth_methods_supported"));
         assertEquals(
                 Set.of("RS256", "ES256"),
                 actual.get("revocation_endpoint_auth_signing_alg_values_supported"));
         assertEquals("http://localhost:8080/introspect", actual.get("introspection_endpoint"));
         assertEquals(
-                Set.of(
-                        TokenEndpointAuthMethod.client_secret_jwt,
-                        TokenEndpointAuthMethod.private_key_jwt),
+                Set.of("client_secret_jwt", "private_key_jwt"),
                 actual.get("introspection_endpoint_auth_methods_supported"));
         assertEquals(
                 Set.of("ES256"),
                 actual.get("introspection_endpoint_auth_signing_alg_values_supported"));
-        assertEquals(
-                Set.of(CodeChallengeMethod.PLAIN.name(), CodeChallengeMethod.S256.name()),
-                actual.get("code_challenge_methods_supported"));
+        assertEquals(Set.of("PLAIN", "S256"), actual.get("code_challenge_methods_supported"));
         assertEquals("http://localhost:8080/userinfo", actual.get("userinfo_endpoint"));
         assertEquals(Set.of("public"), actual.get("subject_types_supported"));
         assertEquals(

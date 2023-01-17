@@ -304,4 +304,202 @@ class InternalClientValidatorTest {
             assertEquals("defaultAcrValues doesn't support at acrValuesSupported", e.getMessage());
         }
     }
+
+    @Test
+    void validate_TokenEndpointAuth_Unsupported() {
+        // setup
+        var client =
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB)
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .tokenEndpointAuthMethod(TokenEndpointAuthMethod.client_secret_post)
+                        .build();
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("client_secret_post is not supported", e.getMessage());
+        }
+    }
+
+    @Test
+    void validate_TokenEndpointAuthSigningAlg_TokenEndpointAuthMethodNotRequiresSigningAlg() {
+        // setup
+        var client =
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB)
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .tokenEndpointAuthMethod(TokenEndpointAuthMethod.client_secret_basic)
+                        .tokenEndpointAuthSigningAlg(SigningAlgorithm.RS256)
+                        .build();
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals(
+                    "tokenEndpointAuthMethod client_secret_basic doesn't required"
+                            + " tokenEndpointAuthSigningAlg",
+                    e.getMessage());
+        }
+    }
+
+    @Test
+    void validate_TokenEndpointAuthSigningAlg_SigningAlgNotSupported() {
+        // setup
+        var client =
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB)
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .tokenEndpointAuthMethod(TokenEndpointAuthMethod.private_key_jwt)
+                        .tokenEndpointAuthSigningAlg(SigningAlgorithm.ES256)
+                        .build();
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("ES256 is not supported", e.getMessage());
+        }
+    }
+
+    @Test
+    void validate_IntrospectionEndpointAuth_Unsupported() {
+        // setup
+        var client =
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB)
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .introspectionEndpointAuthMethod(TokenEndpointAuthMethod.client_secret_post)
+                        .build();
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("client_secret_post is not supported", e.getMessage());
+        }
+    }
+
+    @Test
+    void
+            validate_IntrospectionEndpointAuthSigningAlg_IntrospectionEndpointAuthMethodNotRequiresSigningAlg() {
+        // setup
+        var client =
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB)
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .introspectionEndpointAuthMethod(
+                                TokenEndpointAuthMethod.client_secret_basic)
+                        .introspectionEndpointAuthSigningAlg(SigningAlgorithm.RS256)
+                        .build();
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals(
+                    "introspectionEndpointAuthMethod client_secret_basic doesn't required"
+                            + " introspectionEndpointAuthSigningAlg",
+                    e.getMessage());
+        }
+    }
+
+    @Test
+    void validate_IntrospectionEndpointAuthSigningAlg_SigningAlgNotSupported() {
+        // setup
+        var client =
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB)
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .introspectionEndpointAuthMethod(TokenEndpointAuthMethod.private_key_jwt)
+                        .introspectionEndpointAuthSigningAlg(SigningAlgorithm.RS256)
+                        .build();
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("RS256 is not supported", e.getMessage());
+        }
+    }
+
+    @Test
+    void validate_RevocationEndpointAuth_Unsupported() {
+        // setup
+        var client =
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB)
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .revocationEndpointAuthMethod(TokenEndpointAuthMethod.client_secret_post)
+                        .build();
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("client_secret_post is not supported", e.getMessage());
+        }
+    }
+
+    @Test
+    void
+            validate_RevocationEndpointAuthSigningAlg_RevocationEndpointAuthMethodNotRequiresSigningAlg() {
+        // setup
+        var client =
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB)
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .revocationEndpointAuthMethod(TokenEndpointAuthMethod.client_secret_basic)
+                        .revocationEndpointAuthSigningAlg(SigningAlgorithm.RS256)
+                        .build();
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals(
+                    "revocationEndpointAuthMethod client_secret_basic doesn't required"
+                            + " revocationEndpointAuthSigningAlg",
+                    e.getMessage());
+        }
+    }
+
+    @Test
+    void validate_RevocationEndpointAuthSigningAlg_SigningAlgNotSupported() {
+        // setup
+        var client =
+                Fixtures.confidentialClient()
+                        .responseTypes(Set.of(Set.of(ResponseType.code)))
+                        .applicationType(ApplicationType.WEB)
+                        .grantTypes(Set.of(GrantType.implicit))
+                        .revocationEndpointAuthMethod(TokenEndpointAuthMethod.private_key_jwt)
+                        .revocationEndpointAuthSigningAlg(SigningAlgorithm.ES256)
+                        .build();
+
+        // exercise
+        try {
+            sut.validate(client);
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertEquals("ES256 is not supported", e.getMessage());
+        }
+    }
 }

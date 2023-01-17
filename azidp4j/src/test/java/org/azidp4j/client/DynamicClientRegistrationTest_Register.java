@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
 class DynamicClientRegistrationTest_Register {
 
     @Test
-    void success_All_JwksUri() throws JOSEException {
+    void success_All_JwksUri() {
         // setup
         var config = Fixtures.azIdPConfig();
         var accessTokenStore = new InMemoryAccessTokenStore();
@@ -77,8 +77,16 @@ class DynamicClientRegistrationTest_Register {
                                 "software_version",
                                 "1.0.0",
                                 "token_endpoint_auth_method",
-                                "client_secret_basic",
+                                "private_key_jwt",
                                 "token_endpoint_auth_signing_alg",
+                                "RS256",
+                                "introspection_endpoint_auth_method",
+                                "private_key_jwt",
+                                "introspection_endpoint_auth_signing_alg",
+                                "ES256",
+                                "revocation_endpoint_auth_method",
+                                "private_key_jwt",
+                                "revocation_endpoint_auth_signing_alg",
                                 "RS256",
                                 "id_token_signed_response_alg",
                                 "RS256",
@@ -173,8 +181,16 @@ class DynamicClientRegistrationTest_Register {
                                 "software_version",
                                 "1.0.0",
                                 "token_endpoint_auth_method",
-                                "client_secret_basic",
+                                "private_key_jwt",
                                 "token_endpoint_auth_signing_alg",
+                                "RS256",
+                                "introspection_endpoint_auth_method",
+                                "private_key_jwt",
+                                "introspection_endpoint_auth_signing_alg",
+                                "ES256",
+                                "revocation_endpoint_auth_method",
+                                "private_key_jwt",
+                                "revocation_endpoint_auth_signing_alg",
                                 "RS256",
                                 "id_token_signed_response_alg",
                                 "RS256",
@@ -234,8 +250,12 @@ class DynamicClientRegistrationTest_Register {
         assertEquals(responseBody.get("policy_uri#ja"), "http://client.example.com/policy/ja");
         assertEquals(responseBody.get("software_id"), "azidp");
         assertEquals(responseBody.get("software_version"), "1.0.0");
-        assertEquals(responseBody.get("token_endpoint_auth_method"), "client_secret_basic");
+        assertEquals(responseBody.get("token_endpoint_auth_method"), "private_key_jwt");
         assertEquals(responseBody.get("token_endpoint_auth_signing_alg"), "RS256");
+        assertEquals(responseBody.get("introspection_endpoint_auth_method"), "private_key_jwt");
+        assertEquals(responseBody.get("introspection_endpoint_auth_signing_alg"), "ES256");
+        assertEquals(responseBody.get("revocation_endpoint_auth_method"), "private_key_jwt");
+        assertEquals(responseBody.get("revocation_endpoint_auth_signing_alg"), "RS256");
         assertEquals(responseBody.get("id_token_signed_response_alg"), "RS256");
         assertEquals(responseBody.get("default_max_age"), 100L);
         assertEquals(responseBody.get("require_auth_time"), true);
@@ -312,7 +332,7 @@ class DynamicClientRegistrationTest_Register {
                         Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
                         Set.of("openid", "rs:scope1"),
                         Set.of(TokenEndpointAuthMethod.client_secret_jwt),
-                        Set.of("ES256"),
+                        Set.of(SigningAlgorithm.ES256),
                         Set.of(TokenEndpointAuthMethod.client_secret_basic),
                         null,
                         Set.of(TokenEndpointAuthMethod.client_secret_basic),
@@ -360,7 +380,7 @@ class DynamicClientRegistrationTest_Register {
                         Set.of("openid", "rs:scope1", "rs:scope2", "rs:scope3", "default"),
                         Set.of("openid", "rs:scope1"),
                         Set.of(TokenEndpointAuthMethod.client_secret_jwt),
-                        Set.of("ES256"),
+                        Set.of(SigningAlgorithm.ES256),
                         Set.of(TokenEndpointAuthMethod.client_secret_basic),
                         null,
                         Set.of(TokenEndpointAuthMethod.client_secret_basic),
