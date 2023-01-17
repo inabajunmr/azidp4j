@@ -48,6 +48,11 @@ All request parameters are optional.
 | --- | --- | --- |
 | redirect_uris | AzIdP4J allows only registered redirect_uri of Authorization Request. | * [OAuth 2.0](https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 | token_endpoint_auth_method | AzIdP4J doesn't support client authentication. The parameter is for only client metadata. | * [OAuth 2.0](https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| token_endpoint_auth_signing_alg | AzIdP4J doesn't support client authentication. The parameter is for only client metadata. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
+| introspection_endpoint_auth_method | AzIdP4J doesn't support client authentication. The parameter is for only client metadata. | The parameter isn't defined at the specification. But the parameter is expected to be used like token_endpoint_auth_method. |
+| introspection_endpoint_auth_signing_alg | AzIdP4J doesn't support client authentication. The parameter is for only client metadata. | The parameter isn't defined at the specification. But the parameter is expected to be used like token_endpoint_auth_signing_alg. |
+| revocation_endpoint_auth_method | AzIdP4J doesn't support client authentication. The parameter is for only client metadata. | The parameter isn't defined at the specification. But the parameter is expected to be used like token_endpoint_auth_method. |
+| revocation_endpoint_auth_signing_alg | AzIdP4J doesn't support client authentication. The parameter is for only client metadata. | The parameter isn't defined at the specification. But the parameter is expected to be used like token_endpoint_auth_signing_alg. |
 | grant_types | AzIdP4J allows only registered grant_type. | * [OAuth 2.0](https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 | application_type | Just client metadata. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 | response_types | AzIdP4J allows only registered response_type of Authorization Request. | * [OAuth 2.0](https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
@@ -63,7 +68,6 @@ All request parameters are optional.
 | software_id | Just client metadata. | * [OAuth 2.0](https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 | software_version | Just client metadata. | * [OAuth 2.0](https://www.rfc-editor.org/rfc/rfc7591)<br>* [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 | id_token_signed_response_alg | Signing algorithm of ID Token for the client. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
-| token_endpoint_auth_signing_alg | AzIdP4J doesn't support client authentication. The parameter is for only client metadata. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 | default_max_age | Default max_age for Authorization Request. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 | default_acr_values | Default authentication context class reference for the client. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
 | require_auth_time | AzIdP4J always returns auth_time claim. It's just client metadata. | * [OIDC](https://openid.net/specs/openid-connect-registration-1_0.html) |
