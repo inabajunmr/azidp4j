@@ -12,6 +12,7 @@ import org.azidp4j.authorize.authorizationcode.AuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeService;
 import org.azidp4j.authorize.authorizationcode.inmemory.InMemoryAuthorizationCodeStore;
 import org.azidp4j.authorize.authorizationcode.jwt.JwtAuthorizationCodeService;
+import org.azidp4j.authorize.request.CodeChallengeMethod;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
@@ -69,6 +70,8 @@ public class AzIdPBuilder {
     private Set<SigningAlgorithm> introspectionEndpointAuthSigningAlgValuesSupported;
     private Set<TokenEndpointAuthMethod> revocationEndpointAuthMethodsSupported;
     private Set<SigningAlgorithm> revocationEndpointAuthSigningAlgValuesSupported;
+    private Set<CodeChallengeMethod> codeChallengeMethodsSupported =
+            Set.of(CodeChallengeMethod.S256);
 
     public AzIdPBuilder issuer(String issuer) {
         this.issuer = issuer;
@@ -276,6 +279,12 @@ public class AzIdPBuilder {
         return this;
     }
 
+    public AzIdPBuilder codeChallengeMethodsSupported(
+            Set<CodeChallengeMethod> codeChallengeMethodsSupported) {
+        this.codeChallengeMethodsSupported = codeChallengeMethodsSupported;
+        return this;
+    }
+
     public AzIdP build() {
 
         // validate
@@ -380,7 +389,8 @@ public class AzIdPBuilder {
                         accessTokenExpiration,
                         authorizationCodeExpiration,
                         refreshTokenExpiration,
-                        idTokenExpiration);
+                        idTokenExpiration,
+                        codeChallengeMethodsSupported);
         return new AzIdP(
                 config,
                 discoveryConfig,

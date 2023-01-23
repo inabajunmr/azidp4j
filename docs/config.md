@@ -62,6 +62,7 @@ var azIdp =
 | acrValuesSupported | optional | Supported Authentication Context Class References. |  |  |
 | discoveryConfig | optional | See [Discovery Configuration](#discovery-configuration). |  |  |
 | userPasswordVerifier | optional | See [Password Grant](#password-grant).  When supporting `password` grant type, the value is required. |  |  |
+| codeChallengeMethodsSupported | optional | Supported code_challenge_method for [PKCE](https://www.rfc-editor.org/rfc/rfc7636). Default is only `S256`. | S256 / PLAIN | Set.of(CodeChallengeMethod.S256, CodeChallengeMethod.PLAIN) |
 
 ## [ClientStore](https://github.com/inabajunmr/azidp4j/blob/main/azidp4j/src/main/java/org/azidp4j/client/ClientStore.java)
 

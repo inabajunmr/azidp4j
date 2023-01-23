@@ -56,7 +56,8 @@ class AuthorizeTest_None {
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
-                        Duration.ofSeconds(3600));
+                        Duration.ofSeconds(3600),
+                        null);
         var scopeAudienceMapper = new SampleScopeAudienceMapper();
         var jwks = new JWKSet();
         var sut =

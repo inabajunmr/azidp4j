@@ -289,7 +289,8 @@ public class IssueTokenTest_RefreshToken {
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(-1), // always issuing expired
-                        Duration.ofSeconds(604800));
+                        Duration.ofSeconds(604800),
+                        null);
         var accessTokenStore = new InMemoryAccessTokenStore();
         var idTokenIssuer =
                 new IDTokenIssuer(config, jwks, new SampleIdTokenKidSupplier(jwks), null);

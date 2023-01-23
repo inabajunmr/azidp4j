@@ -53,7 +53,8 @@ class InternalClientValidatorTest {
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
-                        Duration.ofSeconds(3600));
+                        Duration.ofSeconds(3600),
+                        null);
         var sut = new InternalClientValidator(config);
         var client =
                 Fixtures.confidentialClient()

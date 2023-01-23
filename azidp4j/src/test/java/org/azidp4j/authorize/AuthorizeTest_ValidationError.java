@@ -684,7 +684,8 @@ class AuthorizeTest_ValidationError {
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
-                        Duration.ofSeconds(3600));
+                        Duration.ofSeconds(3600),
+                        null);
         final Authorize sut =
                 new Authorize(
                         clientStore,
@@ -734,7 +735,8 @@ class AuthorizeTest_ValidationError {
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
-                        Duration.ofSeconds(3600));
+                        Duration.ofSeconds(3600),
+                        null);
         final Authorize sut =
                 new Authorize(
                         clientStore,
@@ -790,7 +792,8 @@ class AuthorizeTest_ValidationError {
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
-                        Duration.ofSeconds(3600));
+                        Duration.ofSeconds(3600),
+                        null);
         final Authorize sut =
                 new Authorize(
                         clientStore,
@@ -949,5 +952,35 @@ class AuthorizeTest_ValidationError {
         assertEquals(
                 response.errorDescription,
                 "authorization request contains id_token response_type but no openid scope");
+    }
+
+    @Test
+    void unsupportedCodeChallengeMethod() {
+        // setup
+        var authorizationRequest =
+                InternalAuthorizationRequest.builder()
+                        .responseType("code")
+                        .clientId(client.clientId)
+                        .authTime(Instant.now().getEpochSecond())
+                        .redirectUri("https://rp1.example.com")
+                        .scope("rs:scope1")
+                        .authenticatedUserSubject("username")
+                        .authenticatedUserAcr("acr1")
+                        .consentedScope(Set.of("rs:scope1", "rs:scope2"))
+                        .codeChallenge("xyz")
+                        .codeChallengeMethod("PLAIN")
+                        .build();
+
+        // exercise
+        var response = sut.authorize(authorizationRequest);
+
+        // verify
+        assertEquals(response.next, NextAction.redirect);
+        var location = response.redirect().createRedirectTo();
+        var queryMap =
+                Arrays.stream(location.getQuery().split("&"))
+                        .collect(Collectors.toMap(kv -> kv.split("=")[0], kv -> kv.split("=")[1]));
+        assertEquals("invalid_request", queryMap.get("error"));
+        assertEquals(response.errorDescription, "unsupported code_challenge_method");
     }
 }

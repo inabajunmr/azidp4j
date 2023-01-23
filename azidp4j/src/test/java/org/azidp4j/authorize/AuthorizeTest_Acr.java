@@ -69,7 +69,8 @@ public class AuthorizeTest_Acr {
                     Duration.ofSeconds(3600),
                     Duration.ofSeconds(600),
                     Duration.ofSeconds(604800),
-                    Duration.ofSeconds(3600));
+                    Duration.ofSeconds(3600),
+                    null);
     final ScopeAudienceMapper scopeAudienceMapper = new SampleScopeAudienceMapper();
     final InMemoryAuthorizationCodeService inMemoryAuthorizationCodeService =
             new InMemoryAuthorizationCodeService(new InMemoryAuthorizationCodeStore());

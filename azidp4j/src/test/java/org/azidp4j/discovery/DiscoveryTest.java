@@ -10,6 +10,7 @@ import com.nimbusds.jose.jwk.gen.ECKeyGenerator;
 import java.util.List;
 import java.util.Set;
 import org.azidp4j.AzIdP;
+import org.azidp4j.authorize.request.CodeChallengeMethod;
 import org.azidp4j.authorize.request.Display;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
@@ -91,6 +92,8 @@ class DiscoveryTest {
                         .discovery(discovery)
                         .customScopeAudienceMapper(new SampleScopeAudienceMapper())
                         .userPasswordVerifier((username, password) -> true)
+                        .codeChallengeMethodsSupported(
+                                Set.of(CodeChallengeMethod.S256, CodeChallengeMethod.PLAIN))
                         .build();
 
         // exercise

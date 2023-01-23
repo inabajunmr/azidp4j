@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.Fixtures;
 import org.azidp4j.authorize.request.AuthorizationRequest;
+import org.azidp4j.authorize.request.CodeChallengeMethod;
 import org.azidp4j.authorize.response.NextAction;
 import org.azidp4j.client.InMemoryClientStore;
 import org.azidp4j.token.request.TokenRequest;
@@ -162,7 +163,11 @@ public class PkceTest {
         var clientStore = new InMemoryClientStore();
         var client = Fixtures.publicClient().build();
         clientStore.save(client);
-        var sut = Fixtures.azIdPBuilder(new JWKSet()).customClientStore(clientStore).build();
+        var sut =
+                Fixtures.azIdPBuilder(new JWKSet())
+                        .codeChallengeMethodsSupported(Set.of(CodeChallengeMethod.PLAIN))
+                        .customClientStore(clientStore)
+                        .build();
 
         // authorization request
         var redirectUri = "https://rp1.example.com";
