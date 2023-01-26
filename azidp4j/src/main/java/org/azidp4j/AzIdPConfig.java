@@ -3,6 +3,7 @@ package org.azidp4j;
 import java.time.Duration;
 import java.util.List;
 import java.util.Set;
+import org.azidp4j.authorize.request.CodeChallengeMethod;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.GrantType;
@@ -12,6 +13,7 @@ import org.azidp4j.client.TokenEndpointAuthMethod;
 public class AzIdPConfig {
 
     public final String issuer;
+
     public final Set<String> scopesSupported;
     public final Set<String> defaultScope;
     public final Set<TokenEndpointAuthMethod> tokenEndpointAuthMethodsSupported;
@@ -29,6 +31,7 @@ public class AzIdPConfig {
     public final Duration accessTokenExpiration;
     public final Duration idTokenExpiration;
     public final Duration refreshTokenExpiration;
+    public final Set<CodeChallengeMethod> codeChallengeMethodsSupported;
 
     public AzIdPConfig(
             String issuer,
@@ -48,7 +51,8 @@ public class AzIdPConfig {
             Duration accessTokenExpiration,
             Duration authorizationCodeExpiration,
             Duration refreshTokenExpiration,
-            Duration idTokenExpiration) {
+            Duration idTokenExpiration,
+            Set<CodeChallengeMethod> codeChallengeMethodsSupported) {
         this.issuer = issuer;
         this.scopesSupported = scopesSupported;
         this.defaultScope = defaultScope;
@@ -70,5 +74,6 @@ public class AzIdPConfig {
         this.authorizationCodeExpiration = authorizationCodeExpiration;
         this.refreshTokenExpiration = refreshTokenExpiration;
         this.idTokenExpiration = idTokenExpiration;
+        this.codeChallengeMethodsSupported = codeChallengeMethodsSupported;
     }
 }

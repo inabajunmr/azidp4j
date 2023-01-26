@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.azidp4j.AzIdPConfig;
-import org.azidp4j.authorize.request.CodeChallengeMethod;
 import org.azidp4j.util.MapUtil;
 
 public class Discovery {
@@ -110,10 +109,7 @@ public class Discovery {
                 "op_tos_uri",
                 discoveryConfig.opTosUri,
                 "code_challenge_methods_supported",
-                enumToString(
-                        Set.of(
-                                CodeChallengeMethod.PLAIN,
-                                CodeChallengeMethod.S256))); // TODO modifiable
+                enumToString(config.codeChallengeMethodsSupported));
     }
 
     private <E extends Enum> String enumToString(E e) {
@@ -125,6 +121,9 @@ public class Discovery {
 
     private <E extends Enum> Set<String> enumToString(Set<E> e) {
         if (e == null) {
+            return null;
+        }
+        if (e.size() == 0) {
             return null;
         }
         return e.stream().map(Enum::name).collect(Collectors.toSet());

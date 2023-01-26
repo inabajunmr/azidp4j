@@ -293,7 +293,20 @@ public class Authorize {
         } else if (authorizationRequest.codeChallenge != null) {
             codeChallengeMethodTemp = CodeChallengeMethod.S256;
         }
+
         CodeChallengeMethod codeChallengeMethod = codeChallengeMethodTemp;
+        if (codeChallengeMethod != null
+                && (config.codeChallengeMethodsSupported == null
+                        || !config.codeChallengeMethodsSupported.contains(codeChallengeMethod))) {
+            return AuthorizationResponse.redirect(
+                    redirectUri,
+                    MapUtil.nullRemovedStringMap(
+                            "error", "invalid_request", "state", authorizationRequest.state),
+                    responseMode,
+                    false,
+                    "unsupported code_challenge_method",
+                    authorizationRequest);
+        }
 
         // parse display
         var display = Display.page;

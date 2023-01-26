@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.azidp4j.authorize.request.CodeChallengeMethod;
 import org.azidp4j.authorize.request.ResponseMode;
 import org.azidp4j.authorize.request.ResponseType;
 import org.azidp4j.client.*;
@@ -70,7 +71,8 @@ public class Fixtures {
                 Duration.ofSeconds(3600),
                 Duration.ofSeconds(600),
                 Duration.ofSeconds(604800),
-                Duration.ofSeconds(3600));
+                Duration.ofSeconds(3600),
+                Set.of(CodeChallengeMethod.S256));
     }
 
     public static DiscoveryConfig discoveryConfig() {

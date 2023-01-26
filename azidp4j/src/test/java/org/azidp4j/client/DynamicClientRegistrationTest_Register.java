@@ -348,7 +348,8 @@ class DynamicClientRegistrationTest_Register {
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
-                        Duration.ofSeconds(3600));
+                        Duration.ofSeconds(3600),
+                        null);
 
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
@@ -396,7 +397,8 @@ class DynamicClientRegistrationTest_Register {
                         Duration.ofSeconds(3600),
                         Duration.ofSeconds(600),
                         Duration.ofSeconds(604800),
-                        Duration.ofSeconds(3600));
+                        Duration.ofSeconds(3600),
+                        null);
 
         var accessTokenStore = new InMemoryAccessTokenStore();
         var registration =
